@@ -1,0 +1,30 @@
+<h2>Framework Structure - Components</h2>
+
+Components represent the extensive add-ons. They typically add completely new or different
+functionality and extends the overall framework possibilities. ApPHP Framework built upon
+components which are objects written to a specification. Using component mainly involves
+accessing its properties and raising/handling its own events. Each component extends the 
+CComponent base class.
+<br><br>
+
+Currently they are:
+
+<ul class="file-structure">
+    <li class="folder-protected">
+        <b>framework/</b> <span class="description">framework directory</span>
+        <ul>
+            <li class="folder-protected">
+                <b>components/</b> <span class="description">directory where placed all components</span>
+                <ul>
+                    <li class="file">CClientScript.php <span class="description">manages JavaScript and CSS stylesheets for views</span></li>
+                    <li class="file">CComponent.php <span class="description">CComponent base class</span></li>
+                    <li class="file">CHttpCookie.php <span class="description">provides cookie-level data management</span></li>
+                    <li class="file">CHttpRequest.php <span class="description">manages HTTP values sent by a client during a Web request</span></li>
+                    <li class="file">CHttpSession.php <span class="description">provides session-level data management</span></li>
+                    <li class="file">CLocalTime.php <span class="description">provides work with locales and timezones</span></li>
+                    <li class="file">CMessageSource.php <span class="description">represents a message source that stores translated messages</span></li>
+                </ul>                        
+            </li>
+        </ul>                    
+    </li>
+</ul>

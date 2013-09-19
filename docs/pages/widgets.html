@@ -1,0 +1,46 @@
+<h2>Development - Widgets</h2>
+
+Generally widget is a class that inherits from CWidget helper class. It is a helper "component" that is mainly
+used for presentational purposes. A widget is usually embedded in a view script to generate a complex,
+yet self-contained user interface. For example, the <code>CFormView</code> widget can be used to render a
+complex form user interface, the <code>CMenu</code> widget can be used to render a different
+menus etc. Generaly widgets may be used in controllers, views or in template files.
+<br /><br />
+
+To use a widget, you have to call it in a following way:
+
+<pre name="dlhl" class="php">&lt;?php
+echo CWidget::create('CMessage', array(
+    'info',
+    'Click &lt;a href="login"&gt;&lt;b>here&lt;/b&gt;&lt;/a&gt; to log into the system as administrator.'
+));
+</pre>
+
+or
+
+<pre name="dlhl" class="php">&lt;?php
+$output = CWidget::create('CMenu', array(
+    'type'=>'horizontal',
+    'class'=>'user_menu',
+    'items'=>array(
+        array('label'=>($viewRightMenu) ? 'Back to Admin Panel' : 'Home', 'url'=>'authors/index'),
+        array('label'=>'Logout', 'url'=>'login/logout'),
+    ),
+    'return'=>true
+));    
+</pre>
+
+Here the full list of current system widgets:
+<ul class="list-description">
+    <li>menu <span class="description">draws menu</span></li>
+    <li>breadCrumbs <span class="description">draws breadcrumbs</span></li>
+    <li>message <span class="description">draws messages on the screen</span></li>
+    <li>form <span class="description">draws HTML forms</span></li>
+    <li>formValidation <span class="description">performs validation of HTML forms</span></li>
+    <li>pagination <span class="description">draws pagination control</span></li>
+</ul>
+    
+You may always check the CWidget class in <code>core/helpers/CWidget.php</code> to learn the
+syntax of each widget or see the examples of code.
+<br><br>
+   

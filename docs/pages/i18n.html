@@ -1,0 +1,85 @@
+<h2>Framework Structure - Internationalization (i18n)</h2>
+
+<h3>Internationalization</h3>
+Internationalization (i18n) refers to the process of designing a software application in a way
+that allows adaptation of to the various languages and regions without engineering changes. This
+proccess especially important for web applications, because the potential users or site visitors
+may be worldwide.
+
+<h4>1. Locale and Language</h4>
+Locale is a set of parameters that defines the user's language, country and any special variant preferences
+that the user wants to see in their user interface. It is usually identified by an ID consisting of a
+language ID and a region ID. For example, the ID en_US stands for the locale of English and United States.
+This feature released in a basic frame for some languages in <code>framework/i18n/</code> directory. Users
+always may customize this feature to suit their needs.
+
+<h4>2. Translation</h4>
+This is the most needed feature of I18N and it including message translations. The former translates a text
+message to the desired language. A translation request consists of the object to be translated, the source
+language that the object is in, and the target language that the object needs to be translated to. In
+ApPHP Framework, the source language defaults to the application source language while the target language
+defaults to the application language.
+<br><br>
+
+ApPHP Framework provides support for i18n in several aspects:
+<ol>
+    <li>Provides the locale data for each possible language and variant</li>
+    <li>Provides message translation service</li>
+    <li>Provides locale-dependent date and time formatting</li>
+</ol>
+
+To release this feature the framework stores i18n files for each language in a special directory, called
+<code>i18n</code>. These files are the part of framework anf they contain the array of localizable messages
+and constants. You may modify them by translating the specific messages.
+<br><br>
+
+Currently they are: 
+<ul class="file-structure">
+    <li class="folder-protected">
+        <b>framework/</b> <span class="description">framework directory</span>
+        <ul>
+            <li class="folder-protected">
+                <b>i18n/</b> <span class="description">directory where placed all internationalization files</span>
+                <ul>
+                    <li class="file">de.php <span class="description">i18n translation in German</span></li>
+                    <li class="file">en.php <span class="description">i18n translation in English</span></li>
+                    <li class="file">es.php <span class="description">i18n translation in Spanish</span></li>
+                    ...
+                </ul>
+            </li>
+        </ul>
+    </li>    
+</ul>
+
+Below the example of such message file:
+<pre name="dlhl" class="php">return array (
+    'monthNames' => array (
+        'wide' => array (
+            1 => 'January',     2 => 'February',    3 => 'March',       4 => 'April',
+            5 => 'May',         6 => 'June',        7 => 'July',        8 => 'August',
+            9 => 'September',   10 => 'October',    11 => 'November',   12 => 'December',
+        ),
+        'abbreviated' => array(
+            1=>'Jan', 2=>'Feb', 3=>'Mar', 4=>'Apr', 5=>'May', 6=>'Jun',
+            7=>'Jul', 8=>'Aug', 9=>'Sep', 10=>'Oct', 11=>'Nov', 12=>'Dec'
+        ),
+    ),
+    'weekDayNames' => array (
+        'wide' => array(
+            1=>'Sunday', 2=>'Monday', 3=>'Tuesday', 4=>'Wednesday', 5=>'Thursday', 6=>'Friday', 7=>'Saturday'
+        ),
+    ),
+    ...
+);</pre>
+
+Usage example:
+<pre name="dlhl" class="php">
+echo A::t('i18n', 'monthNames.wide.1'); // will print "January"
+echo A::t('i18n', 'monthNames.abbreviated.1'); // will print "Jan"
+echo A::t('i18n', 'weekDayNames.wide.5'); // will print "Thursday"
+</pre>
+<br><br>
+
+Click to find more information about <a href="index.php?page=messages">i18n (internationalization) messages</a> and
+<a href="index.php?page=localization">l10n (localization)</a> for applications.
+<br><br>

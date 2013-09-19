@@ -1,0 +1,27 @@
+<h2>Development - Views</h2>
+
+<ul>
+    <li><a href="#general">General Info</a></li>
+    <li><a href="#call_view">Call View from Action</a></li>
+    <li><a href="#pass_data">Passing data to the View</a></li>
+</ul>
+<br />
+
+<a name="general"></a>
+<h3>General Info <a class="top_link" title="Top" href="#top">^</a></h3>  
+A view is a (visual) representation of its model. It would ordinarily highlight certain attributes of the
+model and suppress others. It is thus acting as a presentation filter. A view is attached to its model
+(or model part) and gets the data necessary for the presentation from the model by asking questions. It
+may also update the model by sending appropriate messages.
+<br /><br />
+
+<a name="call_view"></a>
+<h3>Call View from Action <a class="top_link" title="Top" href="#top">^</a></h3>  
+<br><br>
+
+<a name="pass_data"></a>
+<h3>Passing data to the View <a class="top_link" title="Top" href="#top">^</a></h3>  
+When generating the HTML code of the resulting web page, the template engine processes the data received from the action. Data should be passed to the template engine using the following syntax:
+
+$this->view->assign('var', $var);
+<br><br>

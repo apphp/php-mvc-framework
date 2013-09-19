@@ -1,0 +1,85 @@
+<h2>Development - Localization</h2>
+
+<h3>Internationalization</h3>
+Internationalization (I18N) refers to the process of designing a software application in a way
+that allows adaptation of to the various languages and regions without engineering changes. This
+proccess especially important for web applications, because the potential users or site visitors
+may be worldwide.
+
+
+Localization (sometimes shortened to "l10n") is the process of adapting a product or service to a particular language, culture, and desired local "look-and-feel." Ideally, a product or service is developed so that localization is relatively easy to achieve - for example, by creating technical illustrations for manuals in which the text can easily be changed to another language and allowing some expansion room for this purpose. This enabling process is termed internationalization. An internationalized product or service is therefore easier to localize. The process of first enabling a product to be localized and then localizing it for different national audiences is sometimes known as globalization.
+
+In localizing a product, in addition to idiomatic language translation, such details as time zones, money, national holidays, local color sensitivities, product or service names, gender roles, and geographic examples must all be considered. A successfully localized service or product is one that appears to have been developed within the local culture.
+
+Language translation, which is a large part of localization, can sometimes be facilitated with automatic language translation. However, much additional work is usually needed.
+
+
+
+<h4>1. Locale and Language</h4>
+Locale is a set of parameters that defines the user's language, country and any special variant preferences
+that the user wants to see in their user interface. It is usually identified by an ID consisting of a
+language ID and a region ID. For example, the ID en_US stands for the locale of English and United States.
+This feature released in a basic frame for some languages in <code>framework/i18n/</code> directory. Users
+always may customize this feature to suit their needs.
+
+<h4>2. Translation</h4>
+This is the most needed feature of I18N and it including message translations. The former translates a text
+message to the desired language.
+
+A translation request consists of the object to be translated, the source language that the object is in,
+and the target language that the object needs to be translated to. In ApPHP Framework, the source language
+defaults to the application source language while the target language defaults to the application language.
+<br><br>
+
+<b>Message Translation</b>
+....
+
+<h3>Localization</h3>
+
+
+Currently they are: 
+<ul class="file-structure">
+    <li class="folder-protected">
+        <b>framework/</b> <span class="description">framework directory</span>
+        <ul>
+            <li class="folder-protected">
+                <b>messages/</b> <span class="description">directory where placed all message files</span>
+                <ul>
+                    <li class="folder-protected">
+                        <b>de</b> <span class="description">directory where message for German language</span>
+                        <ul>
+                            <li class="file">core.php <span class="description">core translation in German</span></li>
+                        </ul>
+                    </li>
+                    <li class="folder-protected">
+                        <b>en</b> <span class="description">directory where message for English language</span>
+                        <ul>
+                            <li class="file">core.php <span class="description">core translation in English</span></li>
+                        </ul>
+                    </li>
+                    <li class="folder-protected">
+                        <b>es</b> <span class="description">directory where message for Spanish language</span>
+                        <ul>
+                            <li class="file">core.php <span class="description">core translation in Spanish</span></li>
+                        </ul>
+                    </li>
+                    ...
+                </ul>
+            </li>
+        </ul>
+    </li>    
+</ul>
+
+Below the example of such message file:
+<pre name="dlhl" class="php">return array (
+    'Actions' => 'Actions',
+    'An error occurred while checking writability of the folder {folder}.' =>
+        'An error occurred while checking writability of the folder <b>{folder}</b>.',
+    'An error occurred while copying the folder {source} to {destination}.' =>
+        'An error occurred while copying the folder <b>{source}</b> to <b>{destination}</b>.',
+    'Errors' => 'Errors',
+    'Event "{class}.{name}" is not defined.' => 'Event "{class}.{name}" is not defined.',
+    'Failed' => 'Failed',
+    ...
+);</pre>
+<br><br>

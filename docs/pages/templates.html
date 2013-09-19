@@ -1,0 +1,138 @@
+<h2>Development - Templates</h2>
+
+In ApPHP Framework there is only one standard place where design template (theme) files are stored:<br>
+<code>application/templates/{your template name}/</code>
+<br><br>
+
+For each application you may define a default template name in configuration file. If no template is
+defined as default the <code>"default"</code> name will be used.
+
+<pre name="dlhl" class="php">&lt;?php
+return array(
+    // application settings
+    'defaultTemplate' => 'default',
+);
+</pre>
+<br>
+    
+Sometime we need to use more than one template in our application and we need some way to change
+the template "on fly". For example we need different templates for Backend and Frontend views.
+The symplest way to do it is to re-define it directly in constructor of appropriate controller.
+
+<pre name="dlhl" class="php">&lt;?php    
+class AdminController extends CController
+{
+    public function __construct()
+    {
+        parent::__construct();
+        A::app()->view->setTemplate('backend');               
+    }
+}
+</pre>
+<br>
+
+The common structure of the template directory looks like following:
+<ul class="file-structure">
+    <li class="folder">
+        <b>templates/</b> <span class="description">directory where placed all templates</span>
+        <ul>
+            <li class="folder"><b>backend/</b> <span class="description">all public files for backend template</span></li> 
+            <li class="folder"><b>default/</b> <span class="description">all public files for a specific template</span></li> 
+            <ul>
+                <li class="folder"><b>css</b> <span class="description">css files for template</span></li>
+                <li class="folder"><b>images</b> <span class="description">image files for template</span></li>
+                <li class="folder"><b>js</b> <span class="description">javascript files for template</span></li>
+                <li class="file">default.php  <span class="description">default (master) template file</span></li>
+            </ul>
+            <li class="file"><b>.htaccess</b> <span class="description">templates directory .haccess file</span></li> 
+        </ul>
+    </li>
+</ul>
+<br>
+
+Example of default.php file:
+<pre name="dlhl" class="xml">
+&lt;!doctype html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8" /&gt;
+    &lt;meta name="keywords" content="&lt;?php echo CHtml::encode($this-&gt;_pageKeywords); ?&gt;" /&gt;
+    &lt;meta name="description" content="&lt;?php echo CHtml::encode($this-&gt;_pageDescription); ?&gt;" /&gt;
+    &lt;title&gt;&lt;?php echo CHtml::encode($this-&gt;_pageTitle); ?&gt;&lt;/title&gt;    
+    
+    &lt;base href="&lt;?php echo A::app()-&gt;getRequest()-&gt;getBaseUrl(); ?&gt;" /&gt;
+    
+    &lt;?php echo CHtml::cssFile("templates/default/css/main.css"); ?&gt;
+    &lt;?php echo CHtml::scriptFile('http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js'); ?&gt;
+    &lt;?php echo CHtml::scriptFile('templates/default/js/main.js'); ?&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;header&gt;
+        &lt;nav&gt;
+            &lt;a href="index"&gt;Home&lt;/a&gt;
+        &lt;/nav&gt;
+    &lt;/header&gt;
+    &lt;section&gt;
+        // your content here
+        &lt;?php echo A::app()->view->getContent(); ?&gt;
+    &lt;/section&gt;
+    &lt;footer&gt;
+        &lt;p class="copyright"&gt;Copyright &copy; &lt;?php echo date('Y'); ?&gt; Your Site&lt;/p&gt;
+        &lt;p class="powered"&gt;&lt;?php echo A::powered(); ?&gt;&lt;/p&gt;
+    &lt;/footer>    
+&lt;/body&gt;
+&lt;/html&gt;        
+</pre>
+<br />
+
+You may split default.php file into some files if you need. For example:
+<pre name="dlhl" class="xml">
+&lt;!doctype html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8" /&gt;
+    &lt;meta name="keywords" content="&lt;?php echo CHtml::encode($this-&gt;_pageKeywords); ?&gt;" /&gt;
+    &lt;meta name="description" content="&lt;?php echo CHtml::encode($this-&gt;_pageDescription); ?&gt;" /&gt;
+    &lt;title&gt;&lt;?php echo CHtml::encode($this-&gt;_pageTitle); ?&gt;&lt;/title&gt;    
+    &lt;base href="&lt;?php echo A::app()-&gt;getRequest()-&gt;getBaseUrl(); ?&gt;" /&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;?php include('header.php'); ?&gt;
+    &lt;section&gt;
+        // your content here
+        &lt;?php echo A::app()->view->getContent(); ?&gt;
+    &lt;/section&gt;
+    &lt;?php include('footer.php'); ?&gt;
+&lt;/body&gt;
+&lt;/html&gt;        
+</pre>
+<br />
+
+If you need dynamically change template, for example when you're going to backend area, you may whether
+to define it in controller's constructor (if whole controller uses another template) or just define it
+for appropriate action. Below you may check both examples.
+
+<pre name="dlhl" class="php">&lt;?php    
+class AdminsController extends CController
+{	
+    public function __construct()
+    {
+        parent::__construct();
+        // use template of protected area for whole controller
+        A::app()->view->setTemplate('backend');
+    }
+    
+    public function dashboardAction()
+    {
+        // use template of protected area for specific action
+        A::app()->view->setTemplate('backend');
+    }    
+
+    public function view()
+    {
+        // use default template for this specific action
+        A::app()->view->setTemplate('default');               
+    }
+}    
+</pre>
+<br><br>

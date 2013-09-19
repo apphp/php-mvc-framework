@@ -1,0 +1,51 @@
+<h2>Framework Structure - Vendors</h2>
+
+Vendors are the third-party libraries that integrated to further extend ApPHP Framework's functionalities.
+This is a framework-level vendor sub-directory and it contains all third-party modules or libraries 
+which your application may need. The libraries and modules that placed in the vendor sub-directory
+are not modified from their original, distributed state. As a developer you may use framework-level
+vendors for your purposes, although it's generally intended for internal use of the framework
+</code>helpers</code>.
+<br><br>
+
+Of course, you may create an application-level vendor sub-directory, that will be used for your application
+purposes only. In this case you may create a a sub-folder called <code>vendors</code> and place it
+in <code>protected</code> directory of your application.
+<br><br>
+
+Currently there are following framework-level vendors:
+
+<ul class="file-structure">
+    <li class="folder-protected">
+        <b>framework/</b> <span class="description">framework directory</span>
+        <ul>
+            <li class="folder-protected">
+                <b>vendors/</b> <span class="description">directory where placed all vendors</span>
+                <ul>
+                    <li class="folder-protected"><b>phpmailer</b> <span class="description">php mailer files</span></li>
+                </ul>                        
+            </li>
+        </ul>                    
+    </li>
+</ul>
+
+<br>
+Below you may see an example that illustrates how <code>CMailer</code> helper uses the <code>phpmailer</code>
+vendor code from the ApPHP framework:
+    
+<pre name="dlhl" class="php">
+public static function send($to, $subject, $message, $params = '')
+{
+    if(!strcasecmp(self::$_mailer, 'smtpMailer')){
+        return self::smtpMailer($to, $subject, $message, $params);
+    }else if(!strcasecmp(self::$_mailer, 'phpMailer')){
+        return self::phpMailer($to, $subject, $message, $params);
+    }else{
+        return self::phpMail($to, $subject, $message, $params);
+    }		
+}
+</pre>
+<br>
+    
+Click to find more information about <a href="index.php?page=application_vendors">vendors</a> for applications.
+<br><br>

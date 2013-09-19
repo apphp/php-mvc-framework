@@ -1,0 +1,280 @@
+<h2>Development - Models</h2>
+
+<ul>
+    <li><a href="#general">General Info</a></li>
+    <li><a href="#pdo">Working with PDO</a></li>
+    <li>
+        <a href="#active_records">Working with Active Records</a>
+        <ul>
+            <li><a href="#defining_ar_class">Defining AR Class</a></li>
+            <li><a href="#creating_record">Creating Record</a></li>
+            <li><a href="#updating_record">Updating Record</a></li>
+            <li><a href="#deleting_record">Deleting Record</a></li>
+            <li><a href="#reading_record">Reading Record</a></li>
+            <li><a href="#additional_methods">Additional Methods</a></li>
+        </ul>            
+    </li>
+</ul>
+<br />
+
+<a name="general"></a>
+<h3>General Info <a class="top_link" title="Top" href="#top">^</a></h3>  
+Database manipulation classes representes the "Model" layer as it defined in MVC. ApPHP framework contains
+core class called Model for the implementation of database models. Description classes for entities used
+in applications must extend this class. Model class files must be located in subdirectory 
+<code>protected/models/</code> inside the application directory.
+<br /><br />
+
+
+<a name="pdo"></a>
+<h3>Working with PDO <a class="top_link" title="Top" href="#top">^</a></h3>  
+A model description may contain the application's table name as a value of the <code>$_table</code> variable
+(optional) and a class constructor, that calls to the base (parent) class constructor.
+<br /><br />
+
+Example of a model that extends from CModel class that uses PDO extension:
+<br />
+<pre name="dlhl" class="php">
+class Accounts extends CModel
+{
+    protected $_table = CConfig::get('db.prefix').'accounts';
+    
+    public function __construct()
+    {
+        parent::__construct();
+    }
+    
+    // returns some data
+    public function getInfo()
+    {
+        $result = $this->db->select('
+            SELECT id, role
+            FROM '.$this->_table.'
+            WHERE is_active = 1'
+        );
+
+        return result;
+    }
+}
+</pre>
+
+CModel query methods:
+<pre name="dlhl" class="php">
+// Performs select query and returns an array containing all of the result set rows
+$this->db->select('SELECT * FROM '.$this->_table.' WHERE id = :id', array('id' => $id));
+   
+// Performs insert query and returns true of false depending on result
+$this->db->insert($this->_table, array('name'=>'John Smith', 'email'=>'j.smith@email.me'));
+    
+// Performs update query and returns true of false depending on result
+$this->db->update($this->_table, array('address'=>'New address', 'status'=>2), 'is_active = 1');
+
+// Performs delete query and returns a number of affected rows
+$this->db->delete($this->_table, 'id = :id', array('i:id'=>10));
+$this->db->delete($this->_table, 'id = 11');
+
+// Performs a custom query
+$this->db->customQuery('SELECT * FROM '.$this->_table.' WHERE id = '.(int)$id);
+
+// Performs a custom exec query
+$this->db->customExec("INSERT INTO ".$this->_table."(id, name) VALUES (NULL, 'John Smith')");    
+</pre>
+
+<b>Notes</b>:
+<ul>
+    <li>:id is a named placeholder</li>
+    <li>i:id is a key in the array of values, where i denotes the Integer data type
+    (it means that the value retrieved from an array will be converted to an Integer type)</li>
+    <li>array('i:id'=>10) is the array of value</li>
+</ul>
+
+<b>Available data types for placeholders</b>:
+<ul>
+    <li>'s': String/Char</li>
+    <li>'i': Integer</li>
+    <li>'b': Boolean</li>
+    <li>'f': Float/Double</li>
+    <li>'n': SQL NULL data type</li>
+</ul>
+
+If no data type has been specified for a placeholder (e.g., if you use only :id in an SQL query, then
+the String type is used by default. Using of placeholders makes the creating of SQL queries easier and,
+what is more important, eliminates the possibility of writing code prone to SQL injection vulnerabilities.    
+<br /><br />
+
+
+<a name="active_records"></a>
+<h3>Working with Active Records <a class="top_link" title="Top" href="#top">^</a></h3>
+<a name="defining_ar_class"></a>
+
+Although PDO can handle virtually any database-related task, chances are that we would spend
+more than 90% of our time in writing some SQL statements which perform the common CRUD
+(create, read, update and delete) operations. It is also difficult to maintain a code, when
+it mixed with SQL statements. To solve these problems, we can use Active Records.
+<br /><br />
+
+<h4>Defining AR Class</h4>
+
+Below an example of a model class that extends from CActiveRecord class. When you create such class you have to
+re-define static method <code>model()</code> as it described below, also relations mey be defined for
+each model according to your needs.
+
+<pre name="dlhl" class="php">
+class Accounts extends CActiveRecord
+{
+    /** @var string */    
+    protected $_table = 'accounts';
+    
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Returns the static model of the specified AR class
+     */
+    public static function model($className = __CLASS__)
+    {
+       return parent::model($className);
+    }
+    
+    /**
+     * Used to define relations between different tables in database and current $_table
+     * @return array 
+     */
+    public function relations()
+    {
+        return array(
+            'country_id' => array(self::BELONGS_TO, 'countries', 'id', 'joinType'=>self::LEFT_OUTER_JOIN),
+            'profile_id' => array(self::HAS_ONE, 'profiles', 'id', 'condition'=>'', 'fields'=>array('name'=>'')),
+        );
+    }    
+}
+</pre>
+
+Active Records (AR) is a popular Object-Relational Mapping (ORM) technique. Each AR class represents
+a database table (or view) whose attributes are represented as the AR class properties, and an AR
+instance represents a row in that table. Common CRUD operations are implemented as AR methods.
+As a result, we can access our data in a more object-oriented way.
+<br><br>
+
+As it described before the column values of a table row can be accessed as properties of the
+corresponding AR instance. For example, in the following we set the first_name column (attribute):
+
+<pre name="dlhl" class="php">
+$account = new Accounts();
+$account->first_name = 'John Smith';
+</pre>
+    
+Although we never explicitly declare the <code>first_name</code> property in the Accounts class, we can still
+access it in the code. This is because <code>first_name</code> is a column in the accounts table, and CActiveRecord
+makes it accessible as a property with the help of the PHP <code>__get()</code> magic method. An error will be
+shown in debug mode if we attempt to access a non-existing column in the same way.
+<br><br>
+
+AR relies on well defined primary keys of tables, so you must define primary key
+(numeric and auto-incremented) for your tables. Model names must be plural (in case of
+working with a spesific database table) or singular (e.g <code>Login</code> model).
+View folder must be with the same name as a controller class (e.g.
+<code>Customers</code> -> derived from <code>CustomersController</code>)
+<br><br>
+
+<a name="creating_record"></a>
+<h4>Creating Record</h4>
+
+If you need to insert a new row into a database table, you have to create a new instance of the
+corresponding AR class, then set its properties associated with the table columns, and call the
+<code>save()</code> method to finish the insertion operation.
+    
+Here the example:        
+<pre name="dlhl" class="php">
+$page = new Pages();
+$page->title = 'New page';
+$page->content = 'page body content';
+$page->date_created = date('Y-m-d');
+$page->save();
+</pre>
+
+If you defined the table's primary key as auto-incremental, the AR instance will contain an
+updated primary key adter sucessfull insertion. In the example above, the <code>id</code>
+property will reflect the primary key value of the newly inserted post, even though we never
+change it explicitly.    
+<br><br>
+
+If a column is defined with some pre-defined default value (e.g. 0000-00-00, 1 or NULL) in the table
+schema, the corresponding property in the AR instance will automatically get such value after
+the instance is created.
+<br><br>
+
+<a name="updating_record"></a>
+<h4>Updating Record</h4>
+After an AR instance is populated with retrieved column values, we can change their values and then
+save them back to the original database table. As you may see in following example, we use the same
+<code>save()</code> method to perform both insertion and updating operations. If an AR instance is
+created using the <code>new</code> operator, calling <code>save()</code> would insert a new row
+into the database table and if the AR instance is the result of <code>findByPk()</code> method call,
+calling <code>save()</code> would update the existing row in the table. 
+<br><br>
+
+Here the example:    
+<pre name="dlhl" class="php">
+$page = Pages::model()->findByPk(12);
+$page->title = 'New page name';
+$page->content = 'changed content of page body';
+$page->date_updated = date('Y-m-d');
+$page->save();
+</pre>
+<br>
+
+<a name="deleting_record"></a>
+<h4>Deleting Record</h4>
+
+We can delete a row of data if an AR instance has been populated with this row. After the deletion,
+the AR instance remains unchanged, but the corresponding row in the database table is removed.
+For example:
+<pre name="dlhl" class="php">
+// assuming there is a post whose ID is 12
+$page = Pages::model()->findByPk(12);
+// delete this row from the database table
+$page->delete();
+</pre>
+    
+Also, there are some other methods that allow to delete rows without the need of loading them first:
+<pre name="dlhl" class="php">
+// delete the rows matching specified condition
+Pages::model()->deleteAll($condition, $params);
+// delete the rows matching specified condition and primary key
+Pages::model()->deleteByPk($pk, $condition, $params);
+</pre>
+<br>
+
+
+<a name="reading_record"></a>
+<h4>Reading Record</h4>
+To read data from a database table, we can use one of the find methods as follows.
+
+<pre name="dlhl" class="php">
+// find the first row satisfying the specified conditions
+$page = Pages::model()->find($conditions, $params);
+// find the row with the specified primary key
+$page = Pages::model()->findByPk($pk, $conditions, $params);
+// find the row with the specified attribute values
+$page = Pages::model()->findByAttributes($attributes, $conditions, $params);
+// find all rows satisfying the specified conditions
+$page = Pages::model()->findAll($conditions, $params);
+</pre>
+<br>
+    
+
+<a name="additional_methods"></a>
+<h4>Additional Methods</h4>
+There are some additional methods which helps you to work with AR.
+
+<pre name="dlhl" class="php">
+// check if there is at least one row satisfying the specified condition
+$page = Pages::model()->exists($conditions, $params);
+// finds the number of rows satisfying the specified query condition
+$page = Pages::model()->count($conditions, $params);
+</pre>
+
+<br><br>

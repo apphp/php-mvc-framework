@@ -1,0 +1,92 @@
+<h2>Development - Authorization</h2>
+
+The ApPHP framework contains a special mechanism, which allows a developer to relatively easily implement
+a registration and authorization system (login with a password) for both frontend and backend (website)
+users. The data of registered users are stored by the CHttpSession core class, and the framework
+CAuth helper provides a convenient interface to define controllers and actions accessible by registered
+users, check access rights of visitors, store and retrieve required information of registered user etc.         
+<br /><br />
+
+For easiest way to store a data of logged user, we recommend to use a following way:
+<pre name="dlhl" class="php">
+$session = A::app()->getSession();
+$session->set('loggedIn', true);
+$session->set('loggedId', $userId); /* $userId - user ID retrieved from database */
+</pre>
+
+Using <code>CAuth</code> helper you may perform a check for the whole Controller of just an Action,
+whether user can access them or not.
+<br><br>
+
+Here an example for check of authorized access for whole Controller:
+<pre name="dlhl" class="php">
+class AuthorsController extends CController
+{
+    public function __construct()
+    {
+        parent::__construct();
+        
+        // block access to this controller for not-logged users
+        CAuth::handleLogin();
+    }
+    
+    // other code here...
+}    
+</pre>    
+<br>
+    
+Here an example for check of authorized access for specified Action:
+    
+<pre name="dlhl" class="php">
+class AuthorsController extends CController
+{
+    public function indexAction()
+    {
+        // your code here...
+    }
+    
+    public function editProfileAction()
+    {
+        // block access to this action for not-logged users
+        CAuth::handleLogin();
+        
+        // other code here...
+    }
+
+    public function loginAction()
+    {
+        // redirect logged in users to the specified location
+        CAuth::handleLoggedIn('authors/index');
+        
+        // other code here...
+    }
+}
+</pre>
+<br>
+        
+Following methods allow to retrieve an important data about logged user:<br />
+(please check <code>framework/helpers/CAuth.php</code> for more information)
+<pre name="dlhl" class="php">
+// returns ID of logged user
+CAuth::getLoggedId();
+    
+// checks if user is logged in and returns a result as a boolean
+CAuth::isLoggedIn();
+</pre>
+<br><br>
+    
+Below you may see a simple example of how to check login form submission data:
+<pre name="dlhl" class="php">
+$this->view->username = A::app()->getRequest()->getPost('username');
+$this->view->password = A::app()->getRequest()->getPost('password');
+
+$model = new Login();				
+if($model->login($this->view->username, $this->view->password)){
+    $this->redirect('authors/index');	
+}else{
+    $msg = 'Wrong username or password! Please re-enter.';
+    $this->view->errorField = 'username';
+    $errorType = 'error';
+}
+</pre>
+<br />

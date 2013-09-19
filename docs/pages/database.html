@@ -1,0 +1,30 @@
+<h2>Framework Structure - Database</h2>
+
+ApPHP Framework provides a powerful support for database programming.        
+Developer may decide whether to use direct working with PDO (CDatabase class) extension or
+use capabilities of Active Record (AR) (CActiveRecord class). To define which type of
+database work will be used, you have to define database class extends whether
+from CDatabase or CActiveRecord. Working with CActiveRecord still allows to use all
+capabilities of PDO and create your own auxilary methods.
+
+<br><br>
+Database related classes:
+
+<ul class="file-structure">
+    <li class="folder-protected">
+        <b>framework/</b> <span class="description">framework directory</span>
+        <ul>
+            <li class="folder-protected">
+                <b>db/</b> <span class="description">directory where placed all database related classes</span>
+                <ul>
+                    <li class="file">CActiveRecord.php <span class="description">CActiveRecord class</span></li>
+                    <li class="file">CDatabase.php <span class="description">CDatabase class</span></li>
+                </ul>                        
+            </li>
+        </ul>                    
+    </li>
+</ul>
+
+<br>
+Detailed description of the work with these classes explained in <a target="_parent" href="index.php?page=models">Models</a> section.
+<br><br>

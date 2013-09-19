@@ -1,0 +1,287 @@
+<h2>Coding Standards and Conventions</h2>
+
+We favors conventions over configurations. Follow the conventions and you can create sophisticated
+applications without writing and managing large and complex configurations.
+
+<ul>
+    <li><a href="#url">URL</a></li>
+    <li>Code
+        <ul>
+            <li><a href="#php-code-tags">PHP Code Tags</a></li>
+            <li><a href="#indenting">Indenting and Whitespace</a></li>
+            <li><a href="#operators">Operators</a></li>
+            <li><a href="#strings">Strings</a></li>
+            <li><a href="#arrays">Arrays</a></li>
+            <li><a href="#variables-naming-convention">Variables</a></li>
+            <li><a href="#classes-naming-convention">Classes</a></li>
+            <li><a href="#functions-and-methods">Functions and Methods</a></li>
+            <li><a href="#control-statements">Control Statements</a></li>
+            <li><a href="#files-and-folders">Files and Folders</a></li>
+            <li><a href="#sql">SQL</a></li>
+        </ul>
+    </li>
+    <li>Documentation
+        <ul>
+            <li><a href="#inline-documentation">Inline Documentation</a></li>                
+        </ul>
+    </li>
+</ul>
+<br>
+
+<a name="url"></a>
+<h3>URL <a class="top_link" title="Top" href="#top">^</a></h3>  
+
+By default, ApPHP Framework recognizes URLs with the following formats:<br><br>
+Variant 1 (The url GET variable can be retrives in a standard way):
+<pre name="dlhl" class="php">http://hostname/index.php?url=controller/action&amp;param1=aaa&amp;param2=bbb&amp;param3=ccc</pre>
+Variant 2:
+<pre name="dlhl" class="php">http://hostname/page/controller/action?param1=aaa&amp;param2=bbb&amp;param3=ccc</pre>
+Variant 3:
+<pre name="dlhl" class="php">http://hostname/page/controller/action/param1/aaa/param2/bbb/param3/ccc</pre>
+You may also specify a custom format for URL by creating definitions in configuration files.
+For more details click <a href="index.php?page=routing" target="_top">here</a>.
+<br><br><br>
+
+
+<a name="php-code-tags"></a>
+<h3>PHP Code Tags <a class="top_link" title="Top" href="#top">^</a></h3>  
+We always use <code>&lt;?php ?&gt;</code> to delimit PHP code, not the shorthand, <code>&lt;? ?&gt;</code>.
+This is required because it's the most portable way to include PHP code on differing operating systems,
+projects and set-ups.
+<br><br>
+The <code>?&gt;</code> at the end of code files is purposely omitted. The reasons for this is we want to remove
+the possibility for unwanted whitespace at the end of files which can cause "header already sent" errors,
+XHTML/XML validation issues, and other problems.
+<br><br><br>
+
+
+<a name="indenting"></a>
+<h3>Indenting and Whitespace <a class="top_link" title="Top" href="#top">^</a></h3>  
+Use an indent of 4 spaces, with no tabs. Lines should have no trailing whitespace at the end.
+<br><br><br>
+
+
+<a name="operators"></a>
+<h3>Operators <a class="top_link" title="Top" href="#top">^</a></h3>  
+All binary operators (the operators that come between two values), such as +, -, =, !=, ==, >, etc. should
+have a space before and after the operator, for readability. For example, an assignment should be formatted
+as <code>$aaa = $bbb;</code> rather than <code>$aaa=$bbb;</code>. Unary operators (the operators that operate
+on only one value), such as ++, should not have a space between the operator and the variable or number
+they are operating on. For example: <code>$aaa++</code>;
+<br><br><br>
+
+
+<a name="strings"></a>
+<h3>Strings <a class="top_link" title="Top" href="#top">^</a></h3>  
+<b>String</b><br>
+When a string is literal value only (contains no variables), the "single quote" should always be used
+to demarcate the string:
+<pre name="dlhl" class="php">$string = 'This a text';</pre>
+
+<b>String Containing Apostrophes</b><br>
+When a string itself contains apostrophes or "single quotes", it is permitted to demarcate the string with
+quotation marks or "double quotes". This is especially useful for SQL statements:
+<pre name="dlhl" class="php">$sql = "SELECT `id`, `first_name`, `last_name` FRON `users` WHERE email = 'admin@email.me'";</pre>
+    
+<b>Variable Substitution</b><br>
+Variable substitution is permitted for using in following ways only:
+<pre name="dlhl" class="php">
+$welcome = "Hello $firstName $lastName!";
+$welcome = "Hello {$firstName} {$lastName}!";
+</pre>
+
+<b>String Concatenation</b><br>
+Strings must be concatenated using the "." operator only. Adding a space before and after the "." is optional:
+<pre name="dlhl" class="php">
+$company = 'ApPHP'.' - '.'web solutions';
+$company = 'ApPHP' . ' - ' . 'web solutions';
+</pre>
+
+When you concatinate long strings with the "." operator, it is encouraged to break the statement into
+multiple lines to improve the readability. In these cases operator "." must be is aligned under the "="
+operator:     
+<pre name="dlhl" class="php">
+$sql = "SELECT `id`, `first_name`, `last_name` "
+  ."FROM `people` "
+  ."WHERE `is_active` = 1 "
+  ."ORDER BY `last_name` ASC";
+</pre>
+<br><br>
+
+
+<a name="arrays"></a>
+<h3>Arrays <a class="top_link" title="Top" href="#top">^</a></h3>  
+<b>Arrays with Numerical Indexes</b><br>
+Negative numbers are not permitted as indexes, an indexed array may start with any non-negative number,
+base index must be 0.
+<br><br>
+When declaring indexed arrays with the <code>array</code> function, a trailing space must be added after
+each comma delimiter to improve readability:
+<pre name="dlhl" class="php">$sampleArray = array(1, 2, 3, 'ApPHP', 'People', 99);</pre>
+<br>
+
+<b>Associative Arrays</b><br>
+When declaring associative arrays with the array construct, breaking the statement into multiple lines
+is encouraged, for example:
+<pre name="dlhl" class="php">$sampleArray = array(
+    'firstKey'  => 'firstValue',
+    'secondKey' => 'secondValue',
+);</pre>
+<br><br>
+
+
+
+<a name="variables-naming-convention"></a>
+<h3>Variables Naming <a class="top_link" title="Top" href="#top">^</a></h3>  
+<ul>
+    <li>Variables should use lowerCamelCase naming without spaces (e.g. <code>$basePath</code>, <code>$dbName</code> etc).</li>
+</ul>    
+<br><br>
+
+
+<a name="classes-naming-convention"></a>
+<h3>Classes Naming <a class="top_link" title="Top" href="#top">^</a></h3>
+
+<b>Class Declaration</b><br>
+<ul>
+    <li>Framework classes should use prefix "C" (classes) or "I" (interfaces) to avoid name conflict with applications classes.</li> 
+    <li>Application classes must be named in some unique way to avoid name conflict with third-party classes.</li> 
+    <li>Classes and interfaces should use UpperCamel naming.</li>
+    <li>Methods and class properties should use lowerCamelCase naming without spaces.</li>
+    <li>Controllers should use suffix "Controller", e.g. called "MyClassController".</li>
+    <li>Models may use (optional) suffix "Model", e.g. "MyClassModel" or "MyClass".</li>
+    <li>Protected or private properties and methods should use an underscore prefix.</li>
+</ul>
+
+The brace should always be written on the line underneath the class name.<br>
+Every class must have a documentation block according to PHPDocumentor standards.<br>
+Only one class is permitted in each PHP file.<br><br>
+The following is an example of an acceptable class declaration:<br>
+<pre name="dlhl" class="php">
+/**
+* Documentation block here
+*/
+class TheSampleClass
+{
+    // all contents of class
+    // must be indented four spaces
+}    
+</pre>
+
+Class that extends other classes or which implement interfaces should declare their dependencies on the same line when possible.
+<pre name="dlhl" class="php">
+class TheSampleClass extends AbstractClass implements ClassInterface
+{
+    // all contents of class
+}    
+</pre>
+
+<b>Class Member Variables</b><br>
+Any variables declared in a class must be listed at the top of the class, above the declaration of any methods.
+The var construct is not permitted. Member variables always declare their visibility by using one of the private,
+protected, or public modifiers. Giving access to member variables directly by declaring them as public is permitted
+but discouraged in favor of accessor methods (<code>__set</code> and <code>__get</code>).
+<br><br><br>
+
+
+<a name="functions-and-methods"></a>
+<h3>Functions and Methods <a class="top_link" title="Top" href="#top">^</a></h3>
+Methods inside classes must always declare their visibility by using one of the private, protected, or public modifiers.
+Functions in the global scope are strongly discouraged.<br><br>
+The following is an example of an acceptable function declaration in a class: 
+<pre name="dlhl" class="php">
+/**
+* Documentation block here
+*/
+class TheSampleClass
+{
+    /**
+    * Documentation block here
+    */
+    public function myFunctionName()
+    {
+        // all contents of function
+        // must be indented four spaces
+    }
+}    
+</pre>
+<br><br>
+
+
+<a name="control-statements"></a>
+<h3>Control Statements <a class="top_link" title="Top" href="#top">^</a></h3>
+These statements include <code>if</code>, <code>for</code>, <code>while</code>, <code>switch</code>, etc.<br>        
+Putting a space before and after the control statement in brackets is desirable, but not required.<br>
+Separating the operators by spaces within the brackets is desirable, but not required.<br>
+Always indent with four spaces. <br>
+Here is an example of <code>if</code> statement, since it is the most complicated of them: <br>        
+<pre name="dlhl" class="php">
+if($x == $y){
+    $a = $b;
+}else if($x == $z){
+    $a = $c;
+}else{
+    $a = $d;
+}    
+</pre>
+<br><br>
+
+<a name="files-and-folders"></a>
+<h3>Files and Folders <a class="top_link" title="Top" href="#top">^</a></h3>
+Files are named with lower case or CamelCase (AaaBbbCcc or ABbbCcc) and folders are always named with
+lower case and underscore (if needed).
+<br><br>
+
+
+<a name="sql"></a>
+<h3>SQL <a class="top_link" title="Top" href="#top">^</a></h3>
+We always use lower case for all table names and column names. This is because different DBMS
+handle case-sensitivity differently. For example, PostgreSQL treats column names as case-insensitive
+by default, and we must quote a column in a query condition if the column contains mixed-case
+letters. Using lower case would help us to eliminate this problem.        
+<br><br><br>
+
+
+<a name="inline-documentation"></a>
+<h3>Inline Documentation <a class="top_link" title="Top" href="#top">^</a></h3>
+
+<b>Documentation Format</b><br>
+We recommend to use format that is compatible with the phpDocumentor format.
+For more information, please visit: <a href="http://phpdoc.org/" class="external" targt="_new">http://phpdoc.org/</a>
+<br><br>
+
+<b>Files documentation example:</b>
+<pre name="dlhl" class="php">
+/**
+* The short description for the file
+*
+* Long description for file (if any)...
+*
+* LICENSE: Some license information
+*
+* @product    ApPHP Framework
+* @copyright  Copyright (c) 2006-2013 ApPHP. (http:&frasl;&frasl;www.apphp.com)
+* @license    http:&frasl;&frasl;www.apphpframework.com/license/   LGPL License
+* @version    $Id:$
+* @link       http:&frasl;&frasl;www.apphpframework.com/product/
+* @since      File available since Release 1.1.0
+*/    
+</pre>
+
+<b>Classes documentation example:</b>
+<pre name="dlhl" class="php">
+/**
+* The short description for the class
+*
+* Long description for class (if any)...
+*
+* @product    ApPHP Framework
+* @copyright  Copyright (c) 2006-2013 ApPHP. (http:&frasl;&frasl;www.apphp.com)
+* @license    http:&frasl;&frasl;www.apphpframework.com/license/   LGPL License
+* @version    Release: @package_version@
+* @link       http:&frasl;&frasl;www.apphpframework.com/product/
+* @since      Class available since Release 1.2.0
+* @deprecated Class deprecated in Release 2.0.0
+*/    
+</pre>
+<br><br>

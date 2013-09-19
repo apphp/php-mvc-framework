@@ -1,0 +1,66 @@
+<h2>Framework Structure - Messages</h2>
+
+Framework messages feature allow to implement the i10n (localization) concept. To release this
+feature the framework stores message files for each language in a special directory, called
+<code>messages</code>.
+<br><br>
+
+These files are the part of framework anf they contain the array of localizable messages and constants.
+You may modify them by translating the specific messages. In these files each array element
+represents the translation (value) of a message (key).
+<br><br>
+
+Currently they are: 
+<ul class="file-structure">
+    <li class="folder-protected">
+        <b>framework/</b> <span class="description">framework directory</span>
+        <ul>
+            <li class="folder-protected">
+                <b>messages/</b> <span class="description">directory where placed all message files</span>
+                <ul>
+                    <li class="folder-protected">
+                        <b>de</b> <span class="description">directory where message for German language</span>
+                        <ul>
+                            <li class="file">core.php <span class="description">core translation in German</span></li>
+                        </ul>
+                    </li>
+                    <li class="folder-protected">
+                        <b>en</b> <span class="description">directory where message for English language</span>
+                        <ul>
+                            <li class="file">core.php <span class="description">core translation in English</span></li>
+                        </ul>
+                    </li>
+                    <li class="folder-protected">
+                        <b>es</b> <span class="description">directory where message for Spanish language</span>
+                        <ul>
+                            <li class="file">core.php <span class="description">core translation in Spanish</span></li>
+                        </ul>
+                    </li>
+                    ...
+                </ul>
+            </li>
+        </ul>
+    </li>    
+</ul>
+
+Below the example of such message file:
+<pre name="dlhl" class="php">return array (
+    'Actions' => 'Actions',
+    'An error occurred while reading folder {folder}.' => 'An error occurred while reading folder {folder}.',
+    'Errors' => 'Errors',
+    'Event "{class}.{name}" is not defined.' => 'Event "{class}.{name}" is not defined.',
+    'Failed' => 'Failed',
+    'Success message' => 'New records have been successfully added to the database.',
+    ...
+);</pre>
+
+Usage example:
+<pre name="dlhl" class="php">
+echo A::t('core', 'Actions'); // will print "Actions"
+echo A::t('core', 'Errors'); // will print "Errors"
+echo A::t('core', 'Success message'); // will print "New records have been successfully added to the database."
+</pre>
+<br><br>
+
+<br><br>
+<br><br>
