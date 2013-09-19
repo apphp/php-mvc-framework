@@ -1,4 +1,0 @@
-apphpframework
-==============
-
-PHP MVC Framework
