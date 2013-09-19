@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<install version="1.0" type="module">
+    <name>Setup</name>
+    <description>Setup module allows to install application using web installation wizard</description>
+    <version>0.0.6</version>
+    <creationDate>01/02/2013</creationDate>
+    <lastChangedDate>06/09/2013</lastChangedDate>
+    <author>ApPHP</author>
+    <authorEmail>info@apphp.com</authorEmail>
+    <authorUrl>http://www.apphp.com</authorUrl>
+    <copyright>ApPHP</copyright>
+    <license>LGPL</license>
+    <manual></manual>
+    <icon>images/modules/setup/icon.png</icon>
+    <moduleType>system</moduleType>
+    <code>setup</code>
+    <files>
+        <filename>info.xml</filename>
+        <config>
+            <filename>main.php</filename>
+        </config>
+        <data>
+            <install>install.mysql.sql</install>
+            <upgrade></upgrade>
+            <uninstall>uninstall.mysql.sql</uninstall>
+        </data>
+        <images installationPath="images/modules/setup/">
+            <filename>icon.png</filename>
+        </images>
+        <templates movingPath="templates/setup/">
+            <css>
+                <filename>main.css</filename>    
+            </css>
+            <images>
+                <filename>wizard.png</filename>    
+            </images>
+            <filename>default.php</filename>
+        </templates>
+        <controllers>
+            <filename>SetupController.php</filename>
+        </controllers>
+        <models>
+            <filename>Setup.php</filename>
+        </models>
+        <views>
+            <error>
+                <filename>index.php</filename>
+            </error>
+            <setup>
+                <filename>administrator.php</filename>
+                <filename>completed.php</filename>
+                <filename>database.php</filename>
+                <filename>error.php</filename>
+                <filename>index.php</filename>
+                <filename>ready.php</filename>
+            </setup>
+        </views>
+    </files>
+</install>

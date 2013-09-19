@@ -1,0 +1,21 @@
+ --------------------------------------------------------------------------- 
+            -= YOU MAY NOT REMOVE OR CHANGE THIS NOTICE =-                 
+ --------------------------------------------------------------------------- 
+ ApPHP Web Development Framework                                            
+ Version :      0.3.4
+ Developed by:  ApPHP <info@apphp.com>                                      
+ License:       GNU LGPL v.3                                                
+ Site:          http://www.apphp.com/php-framework/                         
+                http://www.apphpframework.com                               
+                https://code.google.com/p/apphp-framework/                    
+ Copyright:     ApPHP Web Development Framework (c) 2012 - 2013                   
+                All rights reserved.                                        
+
+
+ Additional components and modules (embedded):
+ --------------------------------------------------------------------------- 
+ - PHPMailer v5.2 (PHP mailer)
+    https://code.google.com/a/apache-extras.org/p/phpmailer/ 
+ - DlHighlight (JavaScript-based syntax highlighting engine)
+    Mihai Bazon, http://mihai.bazon.net/blog
+
