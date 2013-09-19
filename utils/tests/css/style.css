@@ -1,0 +1,62 @@
+html, body              { background: #fefefe; font-family: "helvetica neue", helvetica, arial, sans-serif; font-size: 14px; padding:0px; margin:0px; }
+
+h1				        { font-size:22px; font-weight:bold; }
+h2				        { font-size:19px; font-weight:bold; margin:7px 0;background-color:#f1f2f3; }
+h3				        { font-size:14px; font-weight:bold; margin:5px 0; }
+
+header                  { background: #1a1a1a; color: #fff; height:40px; width:100%; }
+header nav              { margin:0 20px; padding:0px; }
+header nav ul           { margin:0; float:left; padding:0px; }
+header nav ul li        { padding:10px; float:left; display: block; margin-right:5px; }
+header nav ul li.active { }
+header nav ul li.active a { color: #fff; } 
+header nav ul li:hover  { background-color: #2a2a2a; } 
+header nav ul li:hover  a { color: #efefef; }
+header nav a            { color: #999999; font-size:15px; text-decoration: none; }
+
+section                 { background: #fff; padding:20px 0px 20px 10px; /*min-height:620px;*/ }
+
+aside                   { width:210px; float:left; font-size: 13px; background-color: #f1f2f3; margin-right:10px; border-radius: 10px; padding-bottom: 20px; border:1px solid #efefef; }
+aside ul                { padding-left:25px; }
+aside ul li.inner       { list-style: none; margin-top:5px; margin-left:-15px;  }
+aside ul li.inner ul    { padding-left:25px; }
+aside a                 { color:#5282c2; text-decoration:none; }
+aside a:hover           { color:#36629c; }
+aside a.active          { font-weight:bold; }
+aside h2                { margin-left:10px; margin-bottom:10px; }
+aside table             { margin-left:10px; margin-bottom:8px; } 
+aside p                 { margin: 0 8px 10px 10px;} 
+
+article                 { background-color: #f1f2f3; padding:0px 20px 5px 20px; border-radius: 10px; font:14px tahoma, verdana, sans-serif; margin-bottom:20px; }
+article header          { background-color: #f1f2f3; height:20px; }
+article header h2       { font-size: 15px; color:#000; }
+article header p        { font-size: 14px; }
+article p               { }
+
+article.central         { border:1px solid #efefef; margin-left:230px; background-color: #f1f2f3; margin-right: 20px; border-radius:10px; padding-bottom:20px; }
+
+#footer 		        { color:gray; font-size:12px; border-top:1px solid #aaa; margin:10px; padding-top:5px; }	
+
+/* messages */
+.msg_success, .msg_error, .msg_normal, .msg_important {font-family:'Lucida Grande',Verdana,Arial,Sans-Serif;margin:6px auto;height:auto;padding:10px;color:#000;-moz-border-radius:4px;-webkit-border-radius:4px;border-radius:4px;-khtml-border-radius:4px}
+.msg_success            { background-color:#f1fff1;border:1px solid #d7ecd7; color:#33ac33; }
+.msg_error              { background-color:#fff1f1;border:1px solid #ecd7d7; color:#ba3838; }
+.msg_normal             { background-color:#fffff1;border:1px solid #ececd7; color:#c1c13a; }
+.msg_important          { background-color:#f1f1ff;border:1px solid #d7d7ec; color:#3a3ac1; }
+
+hr              { border:0; height:1px; background: #333; background-image: -webkit-linear-gradient(left, #ddd, #ccc, #ddd); background-image: -moz-linear-gradient(left, #ddd, #ccc, #ddd); background-image: -ms-linear-gradient(left, #ddd, #ccc, #ddd); background-image: -o-linear-gradient(left, #ddd, #ccc, #ddd); }
+
+table.result 	{ font-size: 13px; background:#fff none repeat scroll 0% 0%; border-collapse:collapse; width:100%; margin-bottom:10px; }
+table.result th { font-size: 14px; background:#efefef none repeat scroll 0% 0%; text-align:left; }
+table.result th,
+table.result td { border:1px solid #dedede; padding:4px; }
+td.passed_bg 	{ background-color:#49b649; border:1px solid silver; padding:2px; }
+td.passed 		{ font-weight:bold; color:#49b649; border:1px solid silver; padding:2px; }
+td.warning_bd	{ background-color:#ffffbf; border:1px solid silver; padding:2px; }
+td.warning		{ color:#ffffbf; border:1px solid silver; padding:2px; }
+td.failed_bg	{ background-color:#ff8080; border:1px solid silver; padding:2px; }
+td.failed		{ color:#ff8080; border:1px solid silver; padding:2px; }
+
+.ok				{ font-weight:bold; color:#49b649; }
+.warning 		{ color:#ffffbf; font-weight:bold; }
+.failed 		{ color:#ff8080; font-weight:bold; }

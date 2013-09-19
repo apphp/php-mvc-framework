@@ -1,0 +1,168 @@
+DEMO ----------------------------------------------------
+- Bug:
+- Enh:
+- Chg: Updating JQuery UI to 1.8.17 
+- New:
+---------------------------------------------------------
+
+
+Version 0.3.4 - 17 Sep, 2013
+----------------------------
+- New: added new widget "tabs" in helper CWidget
+- New: added new widget "gridView" in helper CWidget
+- New: added new component CHttpCookie for coockie management operations
+- New: added new component CLocalTime for work with timezones and locale 
+- New: added new helper CFile, that provides a set of helper methods for common file system operations
+- New: added i18n internationalization and translation
+- New: added new field type 'imageUpload' to CFormView widget
+- New: added possibility to create application modules
+- New: added CTime helper class
+- Enh: minor changes in pagination widget
+- Enh: minor changes in CWidget::formView() and CWidget::menu()
+- Enh: minor changes in View core class
+- Enh: setting default time zone placed to CLocalTime component
+- Enh: CAuth::handleLogged() renamed into CAuth::handleLoggedIn()
+- Enh: minor changes in CAuth helper class
+- Enh: minor changes in CValidator helper class
+- Enh: CWidget::form() renamed into CWidget::formView()
+- Enh: added global test for database connection for application with db in Apphp class
+- Enh: minor changes in CHttpRequest
+- Enh: all widgets places in separated classes under helpers/widgets/ directory
+- Enh: improved debug info for fatal database errors
+- Bug: fixed strict errors for model classes
+- Bug: fixed UTF-8 issue with insertion/retrieving strings from database
+- Bug: fixed mapping error for model classes named like AaaBbbCcc
+- Bug: fixed mapping error for model component classes
+
+
+Version 0.2.4 - 01 Apr, 2013
+----------------------------
+- New: added new demo - Simple Blog
+- New: added new core class CActiveRecords implements "Active Record" pattern
+- New: added real check for "mod_rewrite" in utils requirements checker
+- New: added core base class CComponent, now all application component classes extends CComponent
+- New: added get/SetResponseCode() for A class
+- New: added new widget "pagination" in helper CWidget
+- New: added possibility to create and register application-level components
+- New: added new component CMessageSource for localization purposes 
+- Enh: suffix Model for model classes is now optional (not required)
+- Enh: added new elements and properties in CWidget::form() and CWidget::formValidation()
+- Enh: added new elements to Html helper
+- Enh: minor changes in Auth helper
+- Enh: minor changes in CController->errorAction()
+- Enh: improved error handling in Database class
+- Enh: all framework classes get prefix "C" to avoid name overlapping
+- Enh: removed passing registry to CRouter::route()
+- Enh: in CDatabase added possibility to define named placeholder with data type. e.g: i:id
+- Bug: fixed error while uploading empty image field in CWidget::formValidation()
+- Bug: fixed error on processing of wrong render() parameters
+- Bug: fixed magic quotes issue for sql statements in Database class
+- Bug: fixed unauthorized access to PHP files in templates directory
+
+
+Version 0.1.2 - Feb 14, 2013
+----------------------------
+- New: added new application component ClientScript
+- New: added possibility to define direct URL rewrite rules via config file
+- New: added new helper Auth, that responsible to handle authentication things
+- New: added new core class Database, that responsible to handle database connections, queries etc.
+- New: added new widget "message" in helper Widget
+- New: added new helper Hash
+- New: added new widget "form" in helper Widget
+- New: added new online setup wizard for applications
+- Enh: added new vendor phpMailer, that allows sending emails using php mail() function or smtp 
+- Enh: added possibility to send HTML messages in Mailer helper class
+- Enh: new features and changes in some tests
+- Enh: improved redirect() method of Controller class
+- Enh: added possibility to HttpRequest::getQuery() recognize parameters in following way: param1/val2/...
+- Enh: autoload method in Apphp class for loading model classes
+- Enh: Apphp class renamed into A class
+- Enh: changes in configuration settings
+- Enh: changes in Controller class - removed property "request"
+- Bug: fixed T_PAAMAYIM_NEKUDOTAYIM error in Apphp class for PHP < 5.3.0
+- Bug: fixed issue with trailing slash (//) in HttpRequest::setBaseUrl
+- Bug: fixed drawing empty node in Widget::menu()
+
+
+Version 0.1.1 - Dec 23, 2012
+----------------------------
+- New: added new application component HttpSession
+- New: added events handler to Apphp class
+- New: added possibility to perform CSRF Validation
+- New: added new helper class Validator
+- New: added possibility to create templates
+- New: added new helper class - Mailer, that allows to send emails using php mail() function
+- Enh: added new property to Apphp class - charset
+- Enh: added more methods to Html helper
+- Enh: improved Filter helper
+- Enh: HttpRequest::getPost() now allow to sanitize data (2nd parameter)
+- Enh: added possibility to define whether to use csrf validation via config file
+- Enh: removed passing registry to Controller constructor
+- Enh: minor changes in HttpRequest class
+- Enh: added Getter for View class, allows to retrive values by Class->field
+- Enh: in template file added echo Apphp::app()->view->getContent(); instead of using echo $content;
+- Enh: Widget moved to helpers
+- Enh: added setMetaTags method for View core class, that allows to set meta tags from controller
+- Enh: improved debug info for fatal database errors
+
+
+Version 0.1.0 - Dec 8, 2012
+----------------------------
+- New: re-designed architecture of the framework, added Apphp application class
+- New: added framework requirements checker
+- New: added new core class Widget that allows to add widgets to page
+- New: added new core class Filter that allows to filter data
+- New: added new helper class Html that allows to create HTMl elements
+- New: added new demo - Static Site
+- New: added possibility to access all application components with Apphp::app()
+- New: added components loader
+- Enh: render method of ViewBase class accepts now 2 possible values: "action" or "controller/action"
+- Enh: redirect method of ControllerBase class accepts now 2 possible values: "action" or "controller/action"
+- Enh: changed Config class chaining properties method into Config;;get(param1.param2...) 	  
+- Enh: added writing errors intto log file in protected/tmp/log/ directory on production mode
+- Enh: added errorAction for ControllerBase class that shows default erro on missing action
+- Enh: added new method breadCrumbs for Widget class
+- Enh: added new methods for BaseUrl in Aphp class
+- Enh: added new property to View that allows to store active menu
+- Bug: fixed issue with definition of default datetime zone
+
+
+Version 0.0.3 - Aug 18, 2012
+----------------------------
+- New: added possibility to call custom view in Template->Show()
+- New: added possibility to create whole HTML template in application/templates/{template name}/ and public/{template name}/
+- New: added core class Debug.php that allows to collect/trace all debug info
+- New: added possibility to create/use different templates in one project
+- New: added possibility to define default controller in config/index.php with DEFAULT_CONTROLLER
+- Enh: re-designed views structure: now it looks like views/controller/action.php
+- Enh: improved general cleaning of input in shared.php
+- Enh: added 2nd param to Templates->Show() to allow loading whole template ot just a single view
+- Enh: added index page for demos directory that allows to view all available demo applications
+- Enh: __autoload function placed in a separate file, called from bootstrap.php
+- Enh: base class Template renamed into BaseView
+- Enh: main config file for each application changed from main.php into index.php
+- Bug: fixed case-sensitivity problem of controller file names
+- Bug: fixed parsing of query string in Router class
+
+
+Version 0.0.2 - July 21, 2012 
+----------------------------
+- New: added shared.php file with removing of Magic Quotes and unregistered of Globals
+- New: 2 files to config/ directory - main.php and db.php
+- New: added possibility to run 2 or more applications on the same framework
+- New: added writing error log into tmp/logs/ directory in production mode
+- New: added simple Hello World demo application to the script archive
+- Enh: re-designed framework folders/files structure
+- Enh: all paths in framework changed from relative to absolute with ROOT.DS.
+- Enh: improved documentation, created README, UPDATE and other files in doc/ directory
+- Enh: improved __autoload() - now it load all classes for applications and framework
+
+
+Version 0.0.1 - July 12, 2012 (Initial release)
+----------------------------
+- New: created main structure
+- New: created main entry to the application /public/index.php
+
+
+
+

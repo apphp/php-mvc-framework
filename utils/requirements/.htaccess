@@ -1,0 +1,12 @@
+## Deny directory browsing
+Options -Indexes 
+
+# Redirect domain.com to www.domain.com
+RewriteEngine On
+
+RewriteRule ^(.*)test1\.txt$   tests/test2.txt [QSA]
+
+<FILES ~ "\.txt$">  
+    Order allow,deny
+    Allow from all
+</FILES>

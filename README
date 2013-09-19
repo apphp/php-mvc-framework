@@ -1,0 +1,39 @@
+ApPHP Web Development Framework
+===============================
+
+Thank you for choosing ApPHP - a high-performance PHP MVC framework
+
+INSTALLATION
+------------
+Please make sure the release file is unpacked under a web-accessible directory.
+You will see the following files and directories:
+
+    demos/              demo applications
+    docs/               documentation
+    framework/          framework source files
+    utils/              some utillities
+        requirements/   requirements checker
+        tests/          tests 
+    CHANGELOG           describing changes in every ApPHP release
+    LICENSE             license of ApPHP Framework
+    README              this file
+    UPDATE              updating instructions
+
+
+REQUIREMENTS
+------------
+The minimum requirement by ApPHP is that your Web server supports PHP 5.1.0 or
+above. ApPHP has been tested with Apache HTTP server on Windows and Linux
+operating systems.
+
+
+WHAT's NEXT
+-----------
+Please visit the project website for tutorials, class reference and join
+discussions with other ApPHP users.
+
+
+The ApPHP Developer Team
+http://www.apphp.com/php-framework/
+http://www.apphpframework.com
+https://code.google.com/p/apphp-framework/

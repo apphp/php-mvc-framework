@@ -1,0 +1,31 @@
+Updating Instructions for ApPHP Framework
+=========================================
+
+!!!IMPORTANT!!!
+
+The following updating instructions are cumulative. That is, if you want to update
+from version A to version C and there is version B between A and C, you need to
+following the instructions for both A and B.
+
+General update intructions
+---------------------------
+- Make a backup.
+- Replace 'framework' dir with the new one or point SVN to a fresh release and update.
+- Check if everything is OK, if not - revert from backup and post issues to ApPHP issue tracker.
+
+
+Updating from v0.2.4
+---------------------
+- setting default time zone removed from A class and placed into CLocalTime component. Ex.: A::app()->getLocalTime()->setTimeZone('UTC');	
+- changed syntax for all widgets. Ex.: from CWidget::gridView(...) to CWidget::create('CGridView', ...)
+- rename all framework files that used by the code with prefix "C", ex: Model -> CModel, Controller -> CController etc
+- in widgets: CFormView, CFormValidation and CGridView attribute 'label'=>'' renamed into 'title'=>''
+
+Updating from v0.1.0 - v0.1.2
+---------------------
+- if your PHP version is less that 5.2.0 comment following line of code in setComponent() method in Apphp class
+  $this->_components[$id] = $component::init();
+
+Updating from v0.0.1 - v0.0.3
+---------------------
+- general update intructions
