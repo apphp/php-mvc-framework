@@ -1,8 +1,8 @@
-<h2>Development - Views</h2>
+<h1>Development - Views</h1>
 
 <ul>
     <li><a href="#general">General Info</a></li>
-    <li><a href="#call_view">Call View from Action</a></li>
+    <li><a href="#call_view">Call View from the Action</a></li>
     <li><a href="#pass_data">Passing data to the View</a></li>
 </ul>
 <br />
@@ -10,18 +10,67 @@
 <a name="general"></a>
 <h3>General Info <a class="top_link" title="Top" href="#top">^</a></h3>  
 A view is a (visual) representation of its model. It would ordinarily highlight certain attributes of the
-model and suppress others. It is thus acting as a presentation filter. A view is attached to its model
+model and suppress others. In such way it's acting as a filter of presentation. A view is attached to its model
 (or model part) and gets the data necessary for the presentation from the model by asking questions. It
-may also update the model by sending appropriate messages.
+may also update the model by sending appropriate messages and queries.
 <br /><br />
 
 <a name="call_view"></a>
-<h3>Call View from Action <a class="top_link" title="Top" href="#top">^</a></h3>  
-<br><br>
+<h3>Call View from the Action <a class="top_link" title="Top" href="#top">^</a></h3>
+The typical way to create a view in is to use method <code>render</code> of embedded <code>view</code>
+property of the Action.
+<br>
+Example of an action that calles view file:
+<pre name="dlhl" class="php">
+&lt;?php
+class AccountController extends CController
+{
+    public function indexAction()
+    {
+        ...
+        
+        // pass prepared data to the view file
+        $this->_view->render('accounts/index');
+    }
+}    
+</pre>
+<br />
 
 <a name="pass_data"></a>
-<h3>Passing data to the View <a class="top_link" title="Top" href="#top">^</a></h3>  
-When generating the HTML code of the resulting web page, the template engine processes the data received from the action. Data should be passed to the template engine using the following syntax:
+<h3>Passing data to the View (template engine) <a class="top_link" title="Top" href="#top">^</a></h3>
+When generating the HTML code of the resulting web page, the view (template engine) processes the data
+received from the action. Data should be passed to the template engine using the following syntax:
 
-$this->view->assign('var', $var);
-<br><br>
+<pre name="dlhl" class="php">
+/* create new variable "title" */
+$this->_view->title = 'some text here...';
+/* create new variable "text" */
+$this->_view->text = 'other text here...';
+/* change value of variable "title" */
+$title = 'changed title value';
+$this->_view->title = $title;
+
+/* sample 1 - full syntax */
+$this->_view->render('controller/view');
+/* sample 2 - short syntax, missing controller means use current controller name */
+$this->_view->render('view'); 
+/* sample 3 - call of another view */
+$this->_view->render('errors/404');
+</pre>
+
+Now all variables that were created with <code>$this->_view</code> may be used in our view file
+with simple using of PHP <code>echo</code> command. <br>
+Here the example:
+<pre name="dlhl" class="php">
+&lt;?php echo $actionMessage; ?&gt;
+
+&lt;div class="title"&gt;
+    echo $title;
+&lt;/legend&gt;
+
+&lt;div class="content"&gt;
+    echo $text;
+&lt;/legend&gt;
+</pre>
+
+<br /><br />

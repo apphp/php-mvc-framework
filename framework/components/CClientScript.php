@@ -39,19 +39,21 @@ class CClientScript extends CComponent
 	const POS_ON_LOAD = 3;
 	/** The body script is rendered inside a jQuery ready function */
 	const POS_JQUERY_READY = 4;
+	/** The script is rendered inside document ready function */
+	const POS_DOC_READY = 5;
     
 	/** @var boolean */
 	public $enableJavaScript = true;
 	/** @var array */
-	protected $cssFiles = array();
+	protected $_cssFiles = array();
 	/** @var array */
-	protected $css = array();
+	protected $_css = array();
 	/** @var array */
-	protected $scriptFiles = array();
+	protected $_scriptFiles = array();
 	/** @var array */
-	protected $scripts = array();
+	protected $_scripts = array();
 	/** @var boolean */
-	protected $hasScripts = false;
+	protected $_hasScripts = false;
     
 	
     /**
@@ -78,8 +80,8 @@ class CClientScript extends CComponent
 	 */
 	public function registerCssFile($url, $media = '')
 	{
-		$this->hasScripts = true;
-		$this->cssFiles[$url] = $media;
+		$this->_hasScripts = true;
+		$this->_cssFiles[$url] = $media;
 	}
 
 	/**
@@ -90,8 +92,8 @@ class CClientScript extends CComponent
 	 */
 	public function registerCss($id, $css, $media = '')
 	{
-		$this->hasScripts = true;
-		$this->css[$id] = array($css, $media);
+		$this->_hasScripts = true;
+		$this->_css[$id] = array($css, $media);
 	}
     
 	/**
@@ -101,8 +103,8 @@ class CClientScript extends CComponent
 	 */
 	public function registerScriptFile($url, $position = self::POS_HEAD)
 	{
-		$this->hasScripts = true;
-		$this->scriptFiles[$position][$url] = $url;
+		$this->_hasScripts = true;
+		$this->_scriptFiles[$position][$url] = $url;
 	}
 
 	/**
@@ -113,8 +115,8 @@ class CClientScript extends CComponent
 	 */
 	public function registerScript($id, $script, $position = self::POS_JQUERY_READY)
 	{
-		$this->hasScripts = true;
-		$this->scripts[$position][$id] = $script;
+		$this->_hasScripts = true;
+		$this->_scripts[$position][$id] = $script;
 		if($position === self::POS_JQUERY_READY || $position === self::POS_ON_LOAD)  $this->registerCoreScript('jquery');
 	}
 	
@@ -134,7 +136,7 @@ class CClientScript extends CComponent
 	 */
 	public function render(&$output)
 	{
-		if(!$this->hasScripts) return;
+		if(!$this->_hasScripts) return;
         $this->renderHead($output);    
 		if($this->enableJavaScript){
 			$this->renderBodyBegin($output);
@@ -149,21 +151,21 @@ class CClientScript extends CComponent
 	public function renderHead(&$output)
 	{
 		$html = '';
-		foreach($this->cssFiles as $url=>$media){
+		foreach($this->_cssFiles as $url=>$media){
             $html .= CHtml::cssFile($url, $media)."\n";
         }
-		foreach($this->css as $css){
+		foreach($this->_css as $css){
             $html .= CHtml::css($css[0], $css[1])."\n";        
         }
 
 		if($this->enableJavaScript){			
-			if(isset($this->scriptFiles[self::POS_HEAD])){
-				foreach($this->scriptFiles[self::POS_HEAD] as $scriptFile){
+			if(isset($this->_scriptFiles[self::POS_HEAD])){
+				foreach($this->_scriptFiles[self::POS_HEAD] as $scriptFile){
 					$html .= CHtml::scriptFile($scriptFile)."\n";
 				}
 			}
-			if(isset($this->scripts[self::POS_HEAD])){
-				$html .= CHtml::script(implode("\n", $this->scripts[self::POS_HEAD]))."\n";
+			if(isset($this->_scripts[self::POS_HEAD])){
+				$html .= CHtml::script(implode("\n", $this->_scripts[self::POS_HEAD]))."\n";
 			}
 		}
 		
@@ -185,13 +187,13 @@ class CClientScript extends CComponent
 	public function renderBodyBegin(&$output)
 	{
 		$html = '';
-		if(isset($this->scriptFiles[self::POS_BODY_BEGIN])){
-			foreach($this->scriptFiles[self::POS_BODY_BEGIN] as $scriptFile){
+		if(isset($this->_scriptFiles[self::POS_BODY_BEGIN])){
+			foreach($this->_scriptFiles[self::POS_BODY_BEGIN] as $scriptFile){
 				$html .= CHtml::scriptFile($scriptFile)."\n";
 			}
 		}
-		if(isset($this->scripts[self::POS_BODY_BEGIN])){
-			$html .= CHtml::script(implode("\n", $this->scripts[self::POS_BODY_BEGIN]))."\n";
+		if(isset($this->_scripts[self::POS_BODY_BEGIN])){
+			$html .= CHtml::script(implode("\n", $this->_scripts[self::POS_BODY_BEGIN]))."\n";
 		}
 
 		if($html !== ''){
@@ -211,34 +213,42 @@ class CClientScript extends CComponent
 	 */
 	public function renderBodyEnd(&$output)
 	{
-		if(!isset($this->scriptFiles[self::POS_BODY_END]) &&
-		   !isset($this->scripts[self::POS_BODY_END]) &&
-		   !isset($this->scripts[self::POS_JQUERY_READY]) &&
-		   !isset($this->scripts[self::POS_ON_LOAD]))
+		if(!isset($this->_scriptFiles[self::POS_BODY_END]) &&
+		   !isset($this->_scripts[self::POS_BODY_END]) &&
+		   !isset($this->_scripts[self::POS_JQUERY_READY]) &&
+		   !isset($this->_scripts[self::POS_DOC_READY]) &&
+		   !isset($this->_scripts[self::POS_ON_LOAD]))
 			return;
 		
 		$completePage = 0;
 		$output = preg_replace('/(<\\/body\s*>)/is', '<%%%end%%%>$1', $output, 1, $completePage);
 		$html = '';
-		if(isset($this->scriptFiles[self::POS_BODY_END])){
-			foreach($this->scriptFiles[self::POS_BODY_END] as $scriptFile){
+		if(isset($this->_scriptFiles[self::POS_BODY_END])){
+			foreach($this->_scriptFiles[self::POS_BODY_END] as $scriptFile){
 				$html .= CHtml::scriptFile($scriptFile)."\n";
 			}
 		}
 		
-		$scripts = isset($this->scripts[self::POS_BODY_END]) ? $this->scripts[self::POS_BODY_END] : array(); 
-		if(isset($this->scripts[self::POS_JQUERY_READY])){
+		$scripts = isset($this->_scripts[self::POS_BODY_END]) ? $this->_scripts[self::POS_BODY_END] : array(); 
+		if(isset($this->_scripts[self::POS_JQUERY_READY])){
 			if($completePage){
-				$scripts[] = "jQuery(function($) {\n".implode("\n",$this->scripts[self::POS_JQUERY_READY])."\n});";
+				$scripts[] = "jQuery(function($){\n".implode("\n",$this->_scripts[self::POS_JQUERY_READY])."\n});";
 			}else{
-				$scripts[] = implode("\n",$this->scripts[self::POS_JQUERY_READY]);
+				$scripts[] = implode("\n",$this->_scripts[self::POS_JQUERY_READY]);
 			}
 		}
-		if(isset($this->scripts[self::POS_ON_LOAD])){
+		if(isset($this->_scripts[self::POS_DOC_READY])){
 			if($completePage){
-				$scripts[] = "jQuery(window).load(function() {\n".implode("\n", $this->scripts[self::POS_ON_LOAD])."\n});";
+				$scripts[] = "jQuery(document).ready(function(){\n".implode("\n", $this->_scripts[self::POS_DOC_READY])."\n});";
 			}else{
-				$scripts[] = implode("\n",$this->scripts[self::POS_ON_LOAD]);
+				$scripts[] = implode("\n",$this->_scripts[self::POS_DOC_READY]);
+			}			
+		}
+		if(isset($this->_scripts[self::POS_ON_LOAD])){
+			if($completePage){
+				$scripts[] = "jQuery(window).load(function(){\n".implode("\n", $this->_scripts[self::POS_ON_LOAD])."\n});";
+			}else{
+				$scripts[] = implode("\n",$this->_scripts[self::POS_ON_LOAD]);
 			}
 		}
 		if(!empty($scripts)) $html = CHtml::script(implode("\n", $scripts))."\n";

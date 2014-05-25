@@ -1,4 +1,4 @@
-<h2>Framework Structure - Messages</h2>
+<h1>Framework Structure - Messages</h1>
 
 Framework messages feature allow to implement the i10n (localization) concept. To release this
 feature the framework stores message files for each language in a special directory, called
@@ -48,7 +48,7 @@ Below the example of such message file:
     'Actions' => 'Actions',
     'An error occurred while reading folder {folder}.' => 'An error occurred while reading folder {folder}.',
     'Errors' => 'Errors',
-    'Event "{class}.{name}" is not defined.' => 'Event "{class}.{name}" is not defined.',
+    'Event is not defined.' => 'Event "{class}.{name}" is not defined.',
     'Failed' => 'Failed',
     'Success message' => 'New records have been successfully added to the database.',
     ...
@@ -56,11 +56,16 @@ Below the example of such message file:
 
 Usage example:
 <pre name="dlhl" class="php">
-echo A::t('core', 'Actions'); // will print "Actions"
-echo A::t('core', 'Errors'); // will print "Errors"
-echo A::t('core', 'Success message'); // will print "New records have been successfully added to the database."
+// will print "Actions"
+echo A::t('core', 'Actions');
+// will print "Errors"
+echo A::t('core', 'Errors');
+// will print "New records have been successfully added to the database."
+echo A::t('core', 'Success message');
+// will replace placeholders {class} and {name} with $className and $eventName print the specified text
+// Ex.: Event "Customers.create" is not defined.
+echo A::t('core', 'Event is not defined.', array('{class}'=>$className, '{name}'=>$eventName)); 
 </pre>
 <br><br>
 
-<br><br>
-<br><br>
+

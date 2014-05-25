@@ -13,7 +13,8 @@
  * 
  * STATIC:
  * ---------------------------------------------------------------
- * init                                                 getFormattedMicrotime 
+ * init                                                 _getFormattedMicrotime
+ * write
  * addMessage
  * getMessage
  * displayInfo
@@ -45,9 +46,20 @@ class CDebug
     {
         if(APPHP_MODE != 'debug') return false;
         
-        self::$_startTime = self::getFormattedMicrotime();
+        self::$_startTime = self::_getFormattedMicrotime();
     }
 
+    /**
+     * Write string to the debug stack
+     * @param string $val
+     * @param string $storeType
+     */
+    public static function write($val = '', $key = '', $storeType = '')
+    {
+        if($key == '') $key = 'console-write-'.CHash::getRandomString(4);
+        self::addMessage('general', $key, $val, $storeType);
+    }
+    
     /**
      * Add message to the stack
      * @param string $type
@@ -92,32 +104,34 @@ class CDebug
     {
         if(APPHP_MODE != 'debug') return false;
 		
-        self::$_endTime = self::GetFormattedMicrotime();        
+        self::$_endTime = self::_getFormattedMicrotime();        
 
 		$nl = "\n";
         
         // retrieve stored error messages and show them, then remove
         if($debugError = A::app()->getSession()->get('debug-errors')){
-            self::addMessage('errors', 'debug-errors', $debugError);
+            //self::addMessage('errors', 'debug-errors', $debugError);
             A::app()->getSession()->remove('debug-errors');
         }
         if($debugWarning = A::app()->getSession()->get('debug-warnings')){
-            self::addMessage('warnings', 'debug-warnings', $debugWarning);
+            //self::addMessage('warnings', 'debug-warnings', $debugWarning);
             A::app()->getSession()->remove('debug-warnings');
  		}		
-		
+
+        $panelAlign = (A::app()->getLanguage('direction') == 'rtl') ? 'left' : 'right';
+        $panelTextAlign = (A::app()->getLanguage('direction') == 'rtl') ? 'right' : 'left';		
 		echo $nl.'<style type="text/css" >
-			#debug-panel {opacity:0.9;position:fixed;bottom:0;left:0;z-index:2000;width:100%;max-height:90%;font:12px tahoma, verdana, sans-serif; color:#000;}
-			#debug-panel fieldset {padding:0px 10px;background-color:#fff;border:1px solid #ccc;width:98%;margin:0px auto 0px auto;text-align:left;}
-			#debug-panel fieldset legend {background-color:#f9f9f9;padding:5px 10px 4px 10px;border:1px solid #ccc;border-left:1px solid #ddd;border-bottom:1px solid #f4f4f4;margin:0 0 0 10px;}
+			#debug-panel {opacity:0.9;position:fixed;bottom:0;left:0;z-index:2000;width:100%;max-height:90%;font:12px tahoma, verdana, sans-serif;color:#000;}
+			#debug-panel fieldset {padding:0px 10px;background-color:#fff;border:1px solid #ccc;width:98%;margin:0px auto 0px auto;text-align:'.$panelTextAlign.';}
+			#debug-panel fieldset legend {background-color:#f9f9f9;padding:5px 10px 4px 10px;border:1px solid #ccc;border-left:1px solid #ddd;border-bottom:1px solid #f4f4f4;margin:0 0 0 10px;font:12px tahoma, verdana, sans-serif;width:auto;}
 			#debug-panel fieldset legend span {color:#999;font-weight:normal}
 			#debug-panel a {text-decoration:none;color:#bbb;font-weight:normal;}
 			#debug-panel a.debugArrow {color:#222;}
+            #debug-panel pre {border:0px;}
 		</style>
 		<script type="text/javascript">
 			var arrDebugTabs = ["General","Params","Warnings","Errors","Queries"];
 			var debugTabsHeight = "200px";
-
 			function appSetCookie(state, tab){ document.cookie = "debugBarState="+state+"; path=/"; if(tab !== null) document.cookie = "debugBarTab="+tab+"; path=/"; }
 			function appGetCookie(name){ if(document.cookie.length > 0){ start_c = document.cookie.indexOf(name + "="); if(start_c != -1){ start_c += (name.length + 1); end_c = document.cookie.indexOf(";", start_c); if(end_c == -1) end_c = document.cookie.length; return unescape(document.cookie.substring(start_c,end_c)); }} return ""; }
 			function appTabsMiddle(){ appExpandTabs("middle", appGetCookie("debugBarTab")); }
@@ -155,7 +169,7 @@ class CDebug
 		
 		<div id="debug-panel">
 		<fieldset>
-		<legend id="debug-panel-legend" align="right">
+		<legend id="debug-panel-legend" align="'.$panelAlign.'">
 			<b style="color:#222">Debug</b>:&nbsp;
 			<a id="debugArrowExpand" class="debugArrow" style="display:;" href="javascript:void(0)" title="Expand" onclick="javascript:appTabsMiddle()">&#9650;</a>
 			<a id="debugArrowCollapse" class="debugArrow" style="display:none;" href="javascript:void(0)" title="Collapse" onclick="javascript:appTabsMinimize()">&#9660;</a>
@@ -200,12 +214,12 @@ class CDebug
 			}
 		echo '</div>
 	
-		<div id="contentErrors" style="word-wrap:break-word;display:none;padding:10px;height:200px;overflow-y:auto;">';
+		<div id="contentErrors" style="display:none;padding:10px;height:200px;overflow-y:auto;">';
 			if(count(self::$_arrErrors) > 0){
 				foreach(self::$_arrErrors as $msg){
-					echo '<pre>';
+					echo '<pre style="white-space:normal;word-wrap:break-word;">';
                     print_r($msg);
-                    echo '</pre>';
+                    echo '</pre><br>';
                 }               
 			}
 		echo '</div>
@@ -237,7 +251,7 @@ class CDebug
      * Get formatted microtime
      * @return float
      */
-    private static function getFormattedMicrotime()
+    private static function _getFormattedMicrotime()
     {
         if(APPHP_MODE != 'debug') return false;
         

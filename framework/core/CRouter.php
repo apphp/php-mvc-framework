@@ -44,6 +44,8 @@
  * ----------               ----------                  ----------
  * __construct
  * route
+ * getCurrentUrl
+ * 
  * 
  * STATIC:
  * ---------------------------------------------------------------
@@ -84,7 +86,7 @@ class CRouter
 				//    $request = $val;
 				//	break;
 				//}else
-				if(preg_match_all('/'.$rule.'/i', $request, $matches)){
+				if(preg_match_all('{'.$rule.'}i', $request, $matches)){
 					// template rule compare
 					if(isset($matches[1]) && is_array($matches[1])){
 						foreach($matches[1] as $mkey => $mval){
@@ -174,11 +176,29 @@ class CRouter
 		A::app()->view->setAction($this->_action);
         
 		// call controller::action + pass parameters
-		call_user_func_array(array($controller, $action), $this->getParams());		 
+		call_user_func_array(array($controller, $action), self::getParams());		 
 
 		CDebug::addMessage('params', 'run_controller', $class);
 		CDebug::addMessage('params', 'run_action', $action);		
 	}
+    
+ 	/**	 
+	 * Returns current URL
+	 * @return string 
+	 */
+	public function getCurrentUrl()
+	{
+        $path = A::app()->getRequest()->getBaseUrl();
+        $path .= strtolower(A::app()->view->getController()).'/';
+        $path .= A::app()->view->getAction();
+        
+        $params = self::getParams();
+        foreach($params as $key => $val){
+            $path .= '/'.$key.'/'.$val;    
+        }
+        
+        return $path;
+    }   
  
 	/**
 	 * Get array of parameters

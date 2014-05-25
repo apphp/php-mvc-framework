@@ -10,9 +10,9 @@
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		        
  * ----------               ----------                  ----------              
- * __construct                                                                  
- * __set                    
- * __get                    
+ * __construct                                          
+ * __set                                                
+ * __get                                                
  * getError
  * getErrorMessage
  *
@@ -26,7 +26,7 @@ class CModel
 	/** @var object */    
     private static $_instance;
 	/** @var Database */
-	protected $db;	
+	protected $_db;	
 	/**	@var boolean */
 	protected $_error;
 	/**	@var string */
@@ -38,7 +38,7 @@ class CModel
 	 */
 	public function __construct($params = array()) 
 	{
-		$this->db = CDatabase::init($params);
+		$this->_db = CDatabase::init($params);
         
         $this->_error = CDatabase::getError();
         $this->_errorMessage = CDatabase::getErrorMessage();
@@ -52,9 +52,9 @@ class CModel
 	{
 		if(self::$_instance == null) self::$_instance = new self($params);
         return self::$_instance;    		
-	}
-    
-	/**	
+	}    
+   
+    /**	
 	 * Setter
 	 * @param $index
 	 * @param $value
@@ -91,4 +91,5 @@ class CModel
 		return $this->_errorMessage;
 	} 
 
+  
 }

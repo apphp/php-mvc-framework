@@ -1,4 +1,4 @@
-<h2>Development - Models</h2>
+<h1>Development - Models</h1>
 
 <ul>
     <li><a href="#general">General Info</a></li>
@@ -47,7 +47,7 @@ class Accounts extends CModel
     // returns some data
     public function getInfo()
     {
-        $result = $this->db->select('
+        $result = $this->_db->select('
             SELECT id, role
             FROM '.$this->_table.'
             WHERE is_active = 1'
@@ -61,23 +61,23 @@ class Accounts extends CModel
 CModel query methods:
 <pre name="dlhl" class="php">
 // Performs select query and returns an array containing all of the result set rows
-$this->db->select('SELECT * FROM '.$this->_table.' WHERE id = :id', array('id' => $id));
+$this->_db->select('SELECT * FROM '.$this->_table.' WHERE id = :id', array('id' => $id));
    
 // Performs insert query and returns true of false depending on result
-$this->db->insert($this->_table, array('name'=>'John Smith', 'email'=>'j.smith@email.me'));
+$this->_db->insert($this->_table, array('name'=>'John Smith', 'email'=>'j.smith@email.me'));
     
 // Performs update query and returns true of false depending on result
-$this->db->update($this->_table, array('address'=>'New address', 'status'=>2), 'is_active = 1');
+$this->_db->update($this->_table, array('address'=>'New address', 'status'=>2), 'is_active = 1');
 
 // Performs delete query and returns a number of affected rows
-$this->db->delete($this->_table, 'id = :id', array('i:id'=>10));
-$this->db->delete($this->_table, 'id = 11');
+$this->_db->delete($this->_table, 'id = :id', array('i:id'=>10));
+$this->_db->delete($this->_table, 'id = 11');
 
 // Performs a custom query
-$this->db->customQuery('SELECT * FROM '.$this->_table.' WHERE id = '.(int)$id);
+$this->_db->customQuery('SELECT * FROM '.$this->_table.' WHERE id = '.(int)$id);
 
 // Performs a custom exec query
-$this->db->customExec("INSERT INTO ".$this->_table."(id, name) VALUES (NULL, 'John Smith')");    
+$this->_db->customExec("INSERT INTO ".$this->_table."(id, name) VALUES (NULL, 'John Smith')");    
 </pre>
 
 <b>Notes</b>:
@@ -116,8 +116,9 @@ it mixed with SQL statements. To solve these problems, we can use Active Records
 <h4>Defining AR Class</h4>
 
 Below an example of a model class that extends from CActiveRecord class. When you create such class you have to
-re-define static method <code>model()</code> as it described below, also relations mey be defined for
-each model according to your needs.
+re-define static method <code>model()</code> as it's described below, also relations mey be defined for
+each model according to your needs. Also you may use <code>_customFields()</code> method to define
+special fields in our query.
 
 <pre name="dlhl" class="php">
 class Accounts extends CActiveRecord
@@ -142,12 +143,50 @@ class Accounts extends CActiveRecord
      * Used to define relations between different tables in database and current $_table
      * @return array 
      */
-    public function relations()
+    protected function _relations()
     {
+        // way #1 - standard way
         return array(
             'country_id' => array(self::BELONGS_TO, 'countries', 'id', 'joinType'=>self::LEFT_OUTER_JOIN),
             'profile_id' => array(self::HAS_ONE, 'profiles', 'id', 'condition'=>'', 'fields'=>array('name'=>'')),
         );
+        // way #2 - used when you need to define multiple relations from the same key
+        /* return array(
+            '0' => array(self::BELONGS_TO, 'countries', 'id',
+                'joinType'=>self::LEFT_OUTER_JOIN,
+                'parent_key'=>'country_id'),
+            '1' => array(self::HAS_ONE, 'profiles', 'id',
+                'condition'=>CConfig::get('db.prefix').'.is_active = 1',
+                'fields'=>array(),
+                'parent_key'=>'profile_id'),
+            '2' => array(self::HAS_ONE, 'profiles_addresses', 'id',
+                'condition'=>'',
+                'fields'=>array('name'=>''),
+                'parent_key'=>'profile_id'),
+        ); */        
+    }
+    
+    /**
+     * Used to define custom fields
+     * This method should be overridden
+     */
+    protected function _customFields()
+    {
+        // sample 1:
+        /* return array(
+           'CONCAT(first_name, " ", last_name)' => 'fullname'
+        ); */
+        // sample 2:
+        /* return array(
+           'CONCAT(first_name, " ", last_name)' => 'fullname',
+           'CONCAT(phone, ", ", fax)' => 'contacts'
+        ); */        
+        /* sample 3:
+        return array('
+           (SELECT COUNT(*) FROM '.CConfig::get('db.prefix').$this->_tableTranslation.')' => 'records_count'
+        ); */
+        
+        return array();
     }    
 }
 </pre>
@@ -275,6 +314,8 @@ There are some additional methods which helps you to work with AR.
 $page = Pages::model()->exists($conditions, $params);
 // finds the number of rows satisfying the specified query condition
 $page = Pages::model()->count($conditions, $params);
+// finds a maximum value of the specified column
+$page = Pages::model()->max($columnName, $conditions, $params);
 </pre>
 
 <br><br>

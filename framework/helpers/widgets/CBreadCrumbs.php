@@ -10,9 +10,6 @@
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
- * 
- * STATIC:
- * ---------------------------------------------------------------
  * init
  * 
  */	  
@@ -26,7 +23,7 @@ class CBreadCrumbs
      * @param array $params
      *
      * Usage:
-     *  CWidget::create('CBreadCrumbs' array(
+     *  CWidget::create('CBreadCrumbs', array(
      *      'links' => array(
      *          array('label'=>'Label A'), 'url'=>'url1/'),
      *          array('label'=>'Label B'), 'url'=>'url2/'),
@@ -58,6 +55,7 @@ class CBreadCrumbs
                 
                 $counter++;
             }
+            
             $output .= CHtml::closeTag($tagName).self::NL;
         }
         

@@ -15,12 +15,14 @@
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
- * __construct                                          errorLog
- * select                                               interpolateQuery 
- * insert                                               prepareParams
- * update
- * delete
- * customQuery
+ * __construct                                          _errorLog
+ * cacheOn                                              _interpolateQuery 
+ * cacheOff                                             _prepareParams
+ * select                                               _enableCache
+ * insert                                               
+ * update                                               
+ * delete                                               
+ * customQuery                                          
  * customExec
  * showTables
  * showColumns
@@ -28,7 +30,7 @@
  * 
  * STATIC:
  * ---------------------------------------------------------------
- * init                                                 fatalErrorPageContent
+ * init                                                 _fatalErrorPageContent
  * getError
  * getErrorMessage 
  * 
@@ -42,9 +44,15 @@ class CDatabase extends PDO
     /** @var string */ 
     private $_dbPrefix;
     /** @var string */ 
-    private $_dbType;
+    private $_dbDriver;
     /** @var string */ 
     private $_dbName;
+    /** @var bool */ 
+    private $_cache;
+    /** @var int */ 
+    private $_cacheLifetime;
+    /** @var string */ 
+    private $_cacheDir;
 	/**	@var boolean */
 	private static $_error;
 	/**	@var string */
@@ -58,30 +66,32 @@ class CDatabase extends PDO
 	 */
     public function __construct($params = array())
     {
+        // for direct use (e.g. setup module)
         if(!empty($params)){
-            $dbType = isset($params['dbType']) ? $params['dbType'] : '';
+            $dbDriver = isset($params['dbDriver']) ? $params['dbDriver'] : '';
             $dbHost = isset($params['dbHost']) ? $params['dbHost'] : '';
             $dbName = isset($params['dbName']) ? $params['dbName'] : '';
             $dbUser = isset($params['dbUser']) ? $params['dbUser'] : '';
             $dbPassword = isset($params['dbPassword']) ? $params['dbPassword'] : '';
+            $dbCharset = isset($params['dbCharset']) ? $params['dbCharset'] : 'utf8';
         
             try{
-                @parent::__construct($dbType.':host='.$dbHost.';dbname='.$dbName, $dbUser, $dbPassword, array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'utf8\''));
+                @parent::__construct($dbDriver.':host='.$dbHost.';dbname='.$dbName, $dbUser, $dbPassword, array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \''.$dbCharset.'\''));
                 $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             }catch(Exception $e){
                 self::$_error = true;
                 self::$_errorMessage = $e->getMessage();
             }
-            $this->_dbType = $dbType;
+            $this->_dbDriver = $dbDriver;
             $this->_dbName = $dbName;
             $this->_dbPrefix = '';
-        }else{            
+        }else{
             try{
                 if(CConfig::get('db') != ''){
-                    @parent::__construct(CConfig::get('db.type').':host='.CConfig::get('db.host').';dbname='.CConfig::get('db.database'),
+                    @parent::__construct(CConfig::get('db.driver').':host='.CConfig::get('db.host').';dbname='.CConfig::get('db.database'),
                         CConfig::get('db.username'),
                         CConfig::get('db.password'),
-						array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'utf8\'')
+						array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \''.CConfig::get('db.charset', 'utf8').'\'')
                     );
                     $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); 				
                 }else{
@@ -90,7 +100,7 @@ class CDatabase extends PDO
             }catch(Exception $e){    
                 header('HTTP/1.1 503 Service Temporarily Unavailable');
                 header('Status: 503 Service Temporarily Unavailable');
-                $output = self::fatalErrorPageContent();
+                $output = self::_fatalErrorPageContent();
                 if(APPHP_MODE == 'debug'){
                     $output = str_ireplace('{DESCRIPTION}', '<p>'.A::t('core', 'This application is currently experiencing some database difficulties').'</p>', $output);
                     $output = str_ireplace(
@@ -107,9 +117,14 @@ class CDatabase extends PDO
                 echo $output;
                 exit(1);
             }
-            $this->_dbType = CConfig::get('db.type');
+            $this->_dbDriver = CConfig::get('db.driver');
             $this->_dbName = CConfig::get('db.database');
             $this->_dbPrefix = CConfig::get('db.prefix');
+            
+            $this->_cache = (CConfig::get('cache.enable')) ? true : false;
+            $this->_cacheLifetime = CConfig::get('cache.lifetime', 0); /* in minutes */
+            $this->_cacheDir = CConfig::get('cache.path'); /* protected/tmp/cache/ */
+            if($this->_cache) CDebug::AddMessage('general', 'cache', 'enabled');
         }        
     }    
 
@@ -122,41 +137,75 @@ class CDatabase extends PDO
 		if(self::$_instance == null) self::$_instance = new self($params);
 		return self::$_instance;    		
 	}
-
+    
+	/**
+	 * Sets cache off
+	 */
+    public function cacheOn()
+    {
+        $this->_enableCache(true);
+    }
+    
+	/**
+	 * Sets cache off
+	 */
+    public function cacheOff()
+    {
+        $this->_enableCache(false);
+    }
+    
     /**
      * Performs select query
      * @param string $sql SQL string
      * @param array $array parameters to bind
      * @param constant $fetchMode PDO fetch mode
+     * @param string $cacheId cache identificator
      * @return mixed - an array containing all of the result set rows
      * Ex.: Array([0] => Array([id] => 11, [name] => John), ...)
      */
-    public function select($sql, $params = array(), $fetchMode = PDO::FETCH_ASSOC)
+    public function select($sql, $params = array(), $fetchMode = PDO::FETCH_ASSOC, $cacheId = '')
     {
         $sth = $this->prepare($sql);
+        $cacheContent = '';
+        $error = false;
+
 		try{
-            if(is_array($params)){
-                foreach($params as $key => $value){
-                    list($key, $param) = $this->prepareParams($key);
-                    $sth->bindValue($key, $value, $param);
-                }
+            if($this->_cache){
+                $param = !empty($cacheId) ? $cacheId : (is_array($params) ? implode('|',$params) : '');
+                $cacheContent = CCache::getContent(
+                    $this->_cacheDir.md5($sql.$param).'.cch',
+                    $this->_cacheLifetime
+                );
+            }
+
+            if(!$cacheContent){                
+                if(is_array($params)){
+                    foreach($params as $key => $value){
+                        list($key, $param) = $this->_prepareParams($key);
+                        $sth->bindValue($key, $value, $param);
+                    }
+                }            
+                $sth->execute();
+                $result = $sth->fetchAll($fetchMode);
+                
+                if($this->_cache) CCache::setContent($result, $this->_cacheDir);
+            }else{
+                $result = $cacheContent;
             }            
-			$sth->execute();
-			$result = $sth->fetchAll($fetchMode);
-			$countText = count($result);
 		}catch(PDOException $e){
-            $this->errorLog('select [database.php, ln.:'.$e->getLine().']', $e->getMessage().' => '.$this->interpolateQuery($sql, $params));
-			$result = false; 
-			$countText = '0 (<b>error</b>)';
-		}		
-        CDebug::AddMessage('queries', ++self::$count.'. select | <i>'.A::t('core', 'total').': '.$countText.'</i>', $sql);
+            $this->_errorLog('select [database.php, ln.:'.$e->getLine().']', $e->getMessage().' => '.$this->_interpolateQuery($sql, $params));
+			$result = false;
+            $error = true;
+		}
+
+        CDebug::AddMessage('queries', ++self::$count.'. select | <i>'.A::t('core', 'total').': '.(($result) ? count($result) : '0 (<b>'.($error ? 'error' : 'empty').'</b>)').'</i>', $sql);
         return $result;
     }
     
     /**
      * Performs insert query
      * @param string $table name of the table to insert into
-     * @param string $data associative array
+     * @param array $data associative array
      * @return boolean
      */
     public function insert($table, $data)
@@ -175,19 +224,19 @@ class CDatabase extends PDO
         $sth = $this->prepare($sql);
         
         foreach($data as $key => $value){
-            list($key, $param) = $this->prepareParams($key);
+            list($key, $param) = $this->_prepareParams($key);
             $sth->bindValue(':'.$key, $value, $param);
         }
         
 		try{
 			$sth->execute();
-			$countText = $result = $this->lastInsertId();
+			$result = $this->lastInsertId();
 		}catch(PDOException $e){
-            $this->errorLog('insert [database.php, ln.:'.$e->getLine().']', $e->getMessage().' => '.$this->interpolateQuery($sql, $data));
+            $this->_errorLog('insert [database.php, ln.:'.$e->getLine().']', $e->getMessage().' => '.$this->_interpolateQuery($sql, $data));
 			$result = false;
-			$countText = '0 (<b>error</b>)';
 		}
-        CDebug::AddMessage('queries', ++self::$count.'. insert | <i>ID: '.$countText.'</i>', $sql);
+        
+        CDebug::AddMessage('queries', ++self::$count.'. insert | <i>ID: '.(($result) ? $result : '0 (<b>error</b>)').'</i>', $sql);
 		return $result; 
     }
     
@@ -217,14 +266,13 @@ class CDatabase extends PDO
         $sth = $this->prepare($sql);
         
         foreach($data as $key => $value){
-            list($key, $param) = $this->prepareParams($key);
+            list($key, $param) = $this->_prepareParams($key);
             $sth->bindValue(':'.$key, $value, $param);
         }
         
 		try{
 			$sth->execute();
 			$result = true; 
-			$countText = $sth->rowCount();
 		}catch(PDOException $e){
             // Get trace from parent level 
             // $trace = $e->getTrace();
@@ -232,11 +280,11 @@ class CDatabase extends PDO
             // echo $trace[1]['file'];
             // echo $trace[1]['line'];
             // echo '</pre>';
-            $this->errorLog('update [database.php, ln.:'.$e->getLine().']', $e->getMessage().' => '.$this->interpolateQuery($sql, $data));
+            $this->_errorLog('update [database.php, ln.:'.$e->getLine().']', $e->getMessage().' => '.$this->_interpolateQuery($sql, $data));
 			$result = false; 
-			$countText = '0 (<b>error</b>)';
 		}
-        CDebug::AddMessage('queries', ++self::$count.'. update | <i>'.A::t('core', 'total').': '.$countText.'</i>', $sql);
+        
+        CDebug::AddMessage('queries', ++self::$count.'. update | <i>'.A::t('core', 'total').': '.(($result) ? $sth->rowCount() : '0 (<b>error</b>)').'</i>', $sql);
 		return $result; 
     }
     
@@ -260,21 +308,20 @@ class CDatabase extends PDO
         $sth = $this->prepare($sql);
         if(is_array($params)){
             foreach($params as $key => $value){
-                list($key, $param) = $this->prepareParams($key);
+                list($key, $param) = $this->_prepareParams($key);
                 $sth->bindValue($key, $value, $param);
             }
         }
 
 		try{
-			//$result = $this->exec($sql);
-            $sth->execute(); 
-			$countText = $result = $sth->rowCount();
+            $sth->execute();
+            $result = $sth->rowCount();
 		}catch(PDOException $e){			
-            $this->errorLog('delete [database.php, ln.:'.$e->getLine().']', $e->getMessage().' => '.$this->interpolateQuery($sql, $params));            
+            $this->_errorLog('delete [database.php, ln.:'.$e->getLine().']', $e->getMessage().' => '.$this->_interpolateQuery($sql, $params));            
 			$result = false;
-			$countText = '0 (<b>error</b>)';
 		}
-        CDebug::AddMessage('queries', ++self::$count.'. delete | <i>'.A::t('core', 'total').': '.$countText.'</i>', $sql);
+
+        CDebug::AddMessage('queries', ++self::$count.'. delete | <i>'.A::t('core', 'total').': '.(($result) ? $result : '0 (<b>error</b>)').'</i>', $sql);
 		return $result; 
     }
 	
@@ -289,18 +336,17 @@ class CDatabase extends PDO
         if(APPHP_MODE == 'demo'){
 			self::$_errorMessage = A::t('core', 'This operation is blocked in Demo Mode!');
 			return false;
-		} 
-
+		}
+        
 		try{
 			$sth = $this->query($sql);
 			$result = $sth->fetchAll($fetchMode);
-			$countText = count($result);
 		}catch(PDOException $e){
-            $this->errorLog('customQuery [database.php, ln.:'.$e->getLine().']', $e->getMessage().' => '.$sql);
+            $this->_errorLog('customQuery [database.php, ln.:'.$e->getLine().']', $e->getMessage().' => '.$sql);
 			$result = false;
-			$countText = '0 (<b>error</b>)';
 		}
-        CDebug::AddMessage('queries', ++self::$count.'. query | <i>'.A::t('core', 'total').': '.$countText.'</i>', $sql);
+        
+        CDebug::AddMessage('queries', ++self::$count.'. query | <i>'.A::t('core', 'total').': '.(($result) ? count($result) : '0 (<b>error</b>)').'</i>', $sql);
 		return $result;
 	}
     
@@ -318,13 +364,12 @@ class CDatabase extends PDO
 		
 		try{
 			$result = $this->exec($sql);
-			$countText = $result;
 		}catch(PDOException $e){
-            $this->errorLog('customExec [database.php, ln.:'.$e->getLine().']', $e->getMessage().' => '.$sql);
+            $this->_errorLog('customExec [database.php, ln.:'.$e->getLine().']', $e->getMessage().' => '.$sql);
 			$result = false;
-			$countText = '0 (<b>error</b>)';
-		}		
-        CDebug::AddMessage('queries', ++self::$count.'. query | <i>'.A::t('core', 'total').': '.$countText.'</i>', $sql);
+		}
+        
+        CDebug::AddMessage('queries', ++self::$count.'. query | <i>'.A::t('core', 'total').': '.(($result) ? $result : '0 (<b>error</b>)').'</i>', $sql);
 		return $result;
     }
     
@@ -334,7 +379,7 @@ class CDatabase extends PDO
      */
 	public function showTables()
 	{
-        switch($this->_dbType){
+        switch($this->_dbDriver){
 			case 'mssql';
             case 'sqlsrv':
 				$sql = 'SELECT * FROM sys.all_objects WHERE type = \'U\'';
@@ -349,8 +394,7 @@ class CDatabase extends PDO
 				$sql = 'SELECT * FROM system.tab';
 				break;
 			case 'ibm':
-				$schema = '';
-				$sql = 'SELECT TABLE_NAME FROM qsys2.systables'.(($schema != '') ? ' WHERE TABLE_SCHEMA = \''.$schema.'\'' : '');
+				$sql = 'SELECT TABLE_NAME FROM qsys2.systables'.((CConfig::get('db.schema') != '') ? ' WHERE TABLE_SCHEMA = \''.CConfig::get('db.schema').'\'' : '');
 				break;
 			case 'mysql':
 			default:
@@ -361,13 +405,12 @@ class CDatabase extends PDO
 		try{
 			$sth = $this->query($sql);
 			$result = $sth->fetchAll();
-			$countText = count($result);
 		}catch(PDOException $e){
-            $this->errorLog('showTables [database.php, ln.:'.$e->getLine().']', $e->getMessage());
+            $this->_errorLog('showTables [database.php, ln.:'.$e->getLine().']', $e->getMessage());
 			$result = false; 
-			$countText = '0 (<b>error</b>)';
-		}
-        CDebug::AddMessage('queries', ++self::$count.'. query | <i>'.A::t('core', 'total').': '.$countText.'</i>', $sql);
+		}        
+        
+        CDebug::AddMessage('queries', ++self::$count.'. query | <i>'.A::t('core', 'total').': '.(($result) ? count($result) : '0 (<b>error</b>)').'</i>', $sql);
 		return $result;
 	}
 
@@ -379,10 +422,11 @@ class CDatabase extends PDO
      */
 	public function showColumns($table = '')
 	{
-        switch($this->_dbType){
+        $cacheContent = '';
+        
+        switch($this->_dbDriver){
             case 'ibm':
-                $sql = "SELECT COLUMN_NAME FROM qsys2.syscolumns WHERE TABLE_NAME = '".$this->_dbPrefix.$table."'";
-                //.(($schema != '') ? " AND TABLE_SCHEMA = '".$schema."'" : ''); 
+                $sql = "SELECT COLUMN_NAME FROM qsys2.syscolumns WHERE TABLE_NAME = '".$this->_dbPrefix.$table."'".((CConfig::get('db.schema') != '') ? " AND TABLE_SCHEMA = '".CConfig::get('db.schema')."'" : ''); 
                 break;
             case 'mssql':
                 $sql = "SELECT COLUMN_NAME, data_type, character_maximum_length FROM ".$this->_dbName.".information_schema.columns WHERE table_name = '".$this->_dbPrefix.$table."'";
@@ -393,15 +437,27 @@ class CDatabase extends PDO
         }
 
 		try{
-			$sth = $this->query($sql);
-			$result = $sth->fetchAll();
-			$countText = count($result);
+            if($this->_cache){
+                $cacheContent = CCache::getContent(
+                    $this->_cacheDir.md5($sql).'.cch',
+                    $this->_cacheLifetime
+                );                
+            }
+            
+            if(!$cacheContent){
+                $sth = $this->query($sql);
+                $result = $sth->fetchAll();
+                
+                if($this->_cache) CCache::setContent($result, $this->_cacheDir);
+            }else{
+                $result = $cacheContent;
+            }            
 		}catch(PDOException $e){
-            $this->errorLog('showColumns [database.php, ln.:'.$e->getLine().']', $e->getMessage());
+            $this->_errorLog('showColumns [database.php, ln.:'.$e->getLine().']', $e->getMessage());
 			$result = false;
-			$countText = '0 (<b>error</b>)';
 		}
-        CDebug::AddMessage('queries', ++self::$count.'. query | <i>'.A::t('core', 'total').': '.$countText.'</i>', $sql);
+        
+        CDebug::AddMessage('queries', ++self::$count.'. query | <i>'.A::t('core', 'total').': '.(($result) ? count($result) : '0 (<b>error</b>)').'</i>', $sql);
 		return $result;
     }    
     
@@ -438,7 +494,7 @@ class CDatabase extends PDO
      * @param string $debugMessage
      * @param string $errorMessage
      */
-    private function errorLog($debugMessage, $errorMessage)
+    private function _errorLog($debugMessage, $errorMessage)
     {
         self::$_error = true;
         self::$_errorMessage = $errorMessage;
@@ -449,7 +505,7 @@ class CDatabase extends PDO
      * Returns fata error page content
      * @return html code
      */    
-    private static function fatalErrorPageContent()
+    private static function _fatalErrorPageContent()
     {
         return '<!DOCTYPE html>
         <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
@@ -489,7 +545,7 @@ class CDatabase extends PDO
      * @param array $params 
      * @return string 
      */
-    private function interpolateQuery($sql, $params = array())
+    private function _interpolateQuery($sql, $params = array())
     {
         $keys = array();        
         if(!is_array($params)) return $sql;
@@ -511,7 +567,7 @@ class CDatabase extends PDO
      * @param $key
      * @return array
      */
-    private function prepareParams($key)
+    private function _prepareParams($key)
     {
         $param = 0;
         $prefix = substr($key, 0, 2);
@@ -543,4 +599,14 @@ class CDatabase extends PDO
         return array($key, $param);       
     }    
 
+	/**
+	 * Sets cache state 
+	 * @param bool $enabled
+	 */
+    private function _enableCache($enabled)
+    {
+        $this->_cache = ($enabled) ? true : false;
+        if(!$this->_cache) CDebug::AddMessage('general', 'cache', 'disabled');
+    }
+  
 }

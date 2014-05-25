@@ -6,35 +6,34 @@
     <style>
         a                  { color: #356AA0; text-decoration: none; display:block; padding:10px; }
         a:hover            { color: #B02B2C; }
-        .blocks-wrapper    { width:470px; margin:10% auto 0  auto; border:0px solid #ff0000; text-align:center; color: #444; }
-        .block             { width:220px; border:1px solid #ddd; background-color: #f1f2f3; float:left; margin:5px; text-transform: uppercase; border-radius: 2px; text-align: left; background: -webkit-gradient(linear, left top, left bottom, from(#f1f2f3), to(#e1e2e3)); background: -moz-linear-gradient(top,  #f1f2f3,  #e1e2e3); filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#f1f2f3", endColorstr="#e1e2e3"); }
+        .blocks-wrapper    { width:300px; margin:10% auto 0 auto; border:0px solid #ff0000; text-align:center; color: #444; }
+        .block             { width:220px; border:1px solid #ddd; border-left:3px solid #ddd; background-color: #f1f2f3; margin:5px auto; text-transform: uppercase; border-radius:0px 3px 3px 0px ; text-align: left; background: -webkit-gradient(linear, left top, left bottom, from(#f1f2f3), to(#e1e2e3)); background: -moz-linear-gradient(top,  #f1f2f3,  #e1e2e3); filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#f1f2f3", endColorstr="#e1e2e3"); }
         .block span        { visibility: hidden; }        
         .block:hover       { background-color:#e7e7e7; border:1px solid #ccc; box-shadow:1px 1px 0px 0px #999; }
-        .block:hover span  { visibility:visible; }
+        .block:hover span  { visibility:hidden; }
+        .docs:hover        { border-left:3px solid #73980A; }
+        .docs a:hover      { color: #73980A; }
+        .utils:hover       { border-left:3px solid #FF6F00; }
+        .utils a:hover      { color: #FF6F00; }
+        .demo:hover        { border-left:3px solid #B02B2C; }
+        .demo a:hover      { color: #B02B2C; }
+        .separator         { height:1px; }
     </style>
 </head>
 <body>
-    <section>        		
-        
+    <section>        
         <div class="blocks-wrapper">
-            
             <h2>Select Action to Perform</h2>
 
-            <div class="block">
-                <a href="utils/requirements/"><span>&#8226;</span> Check Requirements</a>
-            </div>
-            <div class="block">
-                <a href="docs/"><span>&#8226;</span> Documentation</a>
-            </div>
-            <div class="block">
-                <a href="utils/tests/"><span>&#8226;</span> Running Tests</a>
-            </div>
-            <div class="block">
-                <a href="demos/"><span>&#8226;</span> Demo Applications</a>
-            </div>
+            <div class="block docs"><a href="docs/index.php"><span>&#8226; </span> Documentation</a></div>
+            <div class="separator"></div>
+            <div class="block utils"><a href="utils/requirements/index.php"><span>&#8226;</span> Check Requirements</a></div>
+            <div class="block utils"><a href="utils/tests/index.php"><span>&#8226;</span> Running Tests</a></div>
+            <div class="block utils"><a href="utils/generators/index.php"><span>&#8226;</span> Code Generators</a></div>
+            <div class="separator"></div>
+            <div class="block demo"><a href="demos/index.php"><span>&#8226;</span> Demo Applications</a></div>
             <div style="clear:both;"></div>
         </div>
-
     </section>
 </body>
 </html>

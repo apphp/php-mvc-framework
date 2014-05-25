@@ -10,15 +10,17 @@
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ----------               ----------                  ---------- 
- * __construct                                          openSession
- * set                                                  setCookieMode 
+ * __construct                                          _openSession
+ * set                                                  _setCookieMode 
  * get
  * remove
  * isExists
  * setSessionName
  * getSessionName
+ * getTimeout
  * setSessionPrefix
  * endSession
+ * closeSession
  * getCookieMode
  * 
  * STATIC:
@@ -31,27 +33,26 @@ class CHttpSession extends CComponent
 {
 
 	/** @var boolean */
-	private $_autoStart = true;
+	protected $_autoStart = true;
 	/** @var string */
-	private $_defaultSessionName = 'apphp_framework';
+	protected $_defaultSessionName = 'apphp_framework';
 	/** @var string */
-	private $_defaultSessionPrefix = 'apphp_';	
+	protected $_defaultSessionPrefix = 'apphp_';	
 	/**
 	 * @var int
 	 * @deprecated since v0.1.0
 	 * 0 - use name prefix, 1 - use session name (default)
 	 */
-	private $_multiSiteSupportType = 1;
+	protected $_multiSiteSupportType = 1;
 	/**
-	 * @var int
-	 * 0 - use session name, 1 - use name prefix
+	 * @var mixed
 	 */
-	private $_prefix = '';
+	protected $_prefix = '';
 	/**
 	 * @var string
 	 * only | allow | none
 	 */
-	private $_cookieMode = 'only';	
+	protected $_cookieMode = 'allow';	
     
 	
 	/**
@@ -60,7 +61,7 @@ class CHttpSession extends CComponent
 	function __construct()
 	{
 		if($this->_cookieMode !== 'only'){
-			$this->setCookieMode($this->_cookieMode);
+			$this->_setCookieMode($this->_cookieMode);
 		}
 		
 		if($this->_multiSiteSupportType){
@@ -68,7 +69,7 @@ class CHttpSession extends CComponent
 		}else{
 			$this->setSessionPrefix('apphp_'.CConfig::get('installationKey'));		
 		}
-		if($this->_autoStart) $this->openSession();		
+		if($this->_autoStart) $this->_openSession();
 	}
 
     /**
@@ -152,6 +153,15 @@ class CHttpSession extends CComponent
 	}
 
 	/**
+     * Returns the number of seconds after which data will be seen as 'garbage' and cleaned up
+	 * @return integer 
+	 */
+	public function getTimeout()
+	{
+		return (int)ini_get('session.gc_maxlifetime');
+	}
+
+	/**
 	 * Destroys the session
 	 */
 	public function endSession()
@@ -160,6 +170,16 @@ class CHttpSession extends CComponent
 			@session_unset();
 			@session_destroy();
 		}
+	}
+
+	/**
+	 * Session close handler
+	 * Do not call this method directly
+	 * @return boolean 
+	 */
+	public function closeSession()
+	{
+		return true;
 	}
 
 	/**
@@ -180,7 +200,7 @@ class CHttpSession extends CComponent
 	/**
 	 * Starts the session if it has not started yet
 	 */
-	private function openSession()
+	private function _openSession()
 	{
 		@session_start();
 		if(APPHP_MODE == 'debug' && session_id() == ''){
@@ -192,7 +212,7 @@ class CHttpSession extends CComponent
 	 * Sets cookie mode
 	 * @value string
 	 */
-	private function setCookieMode($value)
+	private function _setCookieMode($value = '')
 	{
 		if($value === 'none'){
 			ini_set('session.use_cookies', '0');

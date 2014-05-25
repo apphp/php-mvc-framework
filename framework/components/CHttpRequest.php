@@ -11,10 +11,12 @@
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
- * __construct              cleanRequest                getParam
+ * __construct              _cleanRequest               _getParam
  * stripSlashes
  * getBasePath
  * getBaseUrl
+ * getRequestUri
+ * getUserHostAddress
  * setBaseUrl
  * getQuery
  * getPost
@@ -60,7 +62,7 @@ class CHttpRequest extends CComponent
 	{
 		$this->_csrfValidation = (CConfig::get('validation.csrf') === true) ? true : false;
 		
-		$this->cleanRequest();
+		$this->_cleanRequest();
 		$this->_baseUrl = $this->setBaseUrl();
 	}
     
@@ -84,17 +86,35 @@ class CHttpRequest extends CComponent
 	}
 	
 	/**
-	 *  Gets base URL
-	 *  @return string
+	 * Gets base URL
+	 * @return string
 	 */
 	public function getBaseUrl()
 	{
 		return $this->_baseUrl;
-	}	
+	}
+    
+	/**
+	 * Gets Request URI
+	 * @return string
+	 */
+	public function getRequestUri()
+	{
+		return isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+	}    
 
 	/**
-	 *  Gets base path
-	 *  @return string
+	 * Gets IP address of visitor
+	 * @return string 
+	 */
+	public function getUserHostAddress()
+	{
+		return isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1';
+	}
+
+	/**
+	 * Gets base path
+	 * @return string
 	 */
 	public function getBasePath()
 	{
@@ -102,8 +122,8 @@ class CHttpRequest extends CComponent
 	}	
 	
 	/**
-	 *  Sets base URL
-	 *  @param boolean $absolute
+	 * Sets base URL
+	 * @param boolean $absolute
 	 */
 	public function setBaseUrl($absolute = true)
 	{
@@ -112,17 +132,17 @@ class CHttpRequest extends CComponent
 		if($absolute){
 			$protocol = 'http://';
 			$port = '';
-			$http = $_SERVER['HTTP_HOST'];
+			$httpHost = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
 			if((isset($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) != 'off')) ||
 				strtolower(substr($_SERVER['SERVER_PROTOCOL'], 0, 5)) == 'https'){
 				$protocol = 'https://';
 			}	
 			if(isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] != '80'){
-				if(!strpos($_SERVER['HTTP_HOST'], ':')){
+				if(!strpos($httpHost, ':')){
 					$port = ':'.$_SERVER['SERVER_PORT'];
 				}
 			}
-			$absolutePart = $protocol.$http.$port;
+			$absolutePart = $protocol.$httpHost.$port;
 		}
 
 		$scriptName = basename($_SERVER['SCRIPT_FILENAME']);
@@ -154,7 +174,7 @@ class CHttpRequest extends CComponent
      */
 	public function getQuery($name, $filters = '', $default = '')
 	{
-		return $this->getParam('get', $name, $filters, $default);		
+		return $this->_getParam('get', $name, $filters, $default);		
 	}
     
     /**
@@ -166,7 +186,7 @@ class CHttpRequest extends CComponent
      */
 	public function getPost($name, $filters = '', $default = '')
 	{
-		return $this->getParam('post', $name, $filters, $default);		
+		return $this->_getParam('post', $name, $filters, $default);		
 	}
 
     /**
@@ -193,7 +213,7 @@ class CHttpRequest extends CComponent
      */
 	public function getRequest($name, $filters = '', $default = '')
 	{
-		return $this->getParam('request', $name, $filters, $default);		
+		return $this->_getParam('request', $name, $filters, $default);		
 	}
 
 	/**
@@ -279,7 +299,7 @@ class CHttpRequest extends CComponent
 	 * This method removes slashes from request data if get_magic_quotes_gpc() is turned on
 	 * Also performs CSRF validation if {@link _csrfValidation} is true
 	 */
-	protected function cleanRequest()
+	protected function _cleanRequest()
 	{
 		// clean request
 		if(function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()){
@@ -289,7 +309,7 @@ class CHttpRequest extends CComponent
 			$_COOKIE = $this->stripSlashes($_COOKIE);            
 		}
         
-		if($this->getCsrfValidation()) A::app()->attachEventHandler('onBeginRequest', array($this, 'validateCsrfToken'));
+		if($this->getCsrfValidation()) A::app()->attachEventHandler('_onBeginRequest', array($this, 'validateCsrfToken'));
 	}
 
     /**
@@ -300,7 +320,7 @@ class CHttpRequest extends CComponent
      *	@param string $default
      *	@return mixed
      */
-	private function getParam($type = 'get', $name = '', $filters = '', $default = '')
+	private function _getParam($type = 'get', $name = '', $filters = '', $default = '')
 	{
 		$value = '';
 		if($type == 'get'){

@@ -10,7 +10,7 @@
  * 
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
- * __construct                                          getCalledClass
+ * __construct                                          _getCalledClass
  * testAction
  * errorAction
  * redirect
@@ -23,7 +23,7 @@
 class CController
 {
 	/** @var string */		
-    protected $view;
+    protected $_view;
 
 	/**
 	 * Class constructor
@@ -31,7 +31,7 @@ class CController
 	 */
 	function __construct()
 	{
-		$this->view = A::app()->view;
+		$this->_view = A::app()->view;
 	}
     
 	/**
@@ -40,8 +40,8 @@ class CController
 	public function testAction()
 	{
 		if(APPHP_MODE == 'test'){            
-			$controller = $this->getCalledClass();
-			if($controller.'/index' == $this->view->render($controller.'/index')){
+			$controller = $this->_getCalledClass();
+			if($controller.'/index' == $this->_view->render($controller.'/index')){
 				return true; 
 			}else{
 				return false; 
@@ -56,16 +56,16 @@ class CController
 	 */
 	public function errorAction()
 	{
-        $this->view->header = 'Error 404';
-        $this->view->text = '';
+        $this->_view->header = 'Error 404';
+        $this->_view->text = '';
 
         $errors = CDebug::getMessage('errors', 'action');
         if(is_array($errors)){
 			foreach($errors as $error){
-				$this->view->text .= $error;		    
+				$this->_view->text .= $error;		    
 			}        
 		}
-        $this->view->render('error/index');        
+        $this->_view->render('error/index');        
     }
 
 	/**
@@ -78,7 +78,7 @@ class CController
 		if(APPHP_MODE == 'test') return true;
         
 		$paramsParts = explode('/', $path);
-		$calledController = str_replace('controller', '', strtolower($this->getCalledClass()));
+		$calledController = str_replace('controller', '', strtolower($this->_getCalledClass()));
 		$params = '';
 		$baseUrl = A::app()->getRequest()->getBaseUrl();
 		
@@ -99,7 +99,11 @@ class CController
 				}
 			}
 		}
-		
+                
+        // close the session with user data
+        A::app()->getSession()->closeSession();
+
+        // perform redirection
         header('location: '.$baseUrl.$controller.'/'.$action.$params);
         exit;
     }
@@ -108,7 +112,7 @@ class CController
 	 * Returns the name of called class
 	 * @return string|bool
 	 */
-	private function getCalledClass()
+	private function _getCalledClass()
 	{
 		if(function_exists('get_called_class')) return get_called_class();
 		$bt = debug_backtrace();

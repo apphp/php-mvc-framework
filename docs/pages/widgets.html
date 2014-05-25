@@ -1,10 +1,11 @@
-<h2>Development - Widgets</h2>
+<h1>Development - Widgets</h1>
 
 Generally widget is a class that inherits from CWidget helper class. It is a helper "component" that is mainly
 used for presentational purposes. A widget is usually embedded in a view script to generate a complex,
-yet self-contained user interface. For example, the <code>CFormView</code> widget can be used to render a
-complex form user interface, the <code>CMenu</code> widget can be used to render a different
-menus etc. Generaly widgets may be used in controllers, views or in template files.
+yet self-contained user interface. For example, <code>CFormView</code> widget can be used to render a
+complex form user interface, <code>CMenu</code> widget can be used to render a different
+menus, <code>CDataForm</code> allows work with models, save data, etc. Generaly widgets may be used in
+controllers, views or in template files.
 <br /><br />
 
 To use a widget, you have to call it in a following way:
@@ -32,15 +33,26 @@ $output = CWidget::create('CMenu', array(
 
 Here the full list of current system widgets:
 <ul class="list-description">
-    <li>menu <span class="description">draws menu</span></li>
-    <li>breadCrumbs <span class="description">draws breadcrumbs</span></li>
-    <li>message <span class="description">draws messages on the screen</span></li>
-    <li>form <span class="description">draws HTML forms</span></li>
-    <li>formValidation <span class="description">performs validation of HTML forms</span></li>
-    <li>pagination <span class="description">draws pagination control</span></li>
+    <li>CBreadCrumbs <span class="description">draws breadcrumbs</span></li>
+    <li>CCaptcha <span class="description">draws captcha</span></li>
+    <li>CCurrencySelector <span class="description">draws currency selector</span></li>    
+    <li>CDataForm <span class="description">created DataForm control</span></li>
+    <li>CFormValidation <span class="description">performs validation of HTML forms</span></li>
+    <li>CFormView <span class="description">draws HTML forms</span></li>
+    <li>CGridView <span class="description">created GridView control</span></li>
+    <li>CLanguageSelector <span class="description">draws language selector</span></li>    
+    <li>CMenu <span class="description">draws menu</span></li>
+    <li>CMessage <span class="description">draws messages on the screen</span></li>    
+    <li>CPagination <span class="description">draws pagination control</span></li>
+    <li>CTabs <span class="description">draws tabs control</span></li>
 </ul>
-    
+
+Please note, that some widgets may be used by other widgets, so you may have an composite widget that
+has many embedded simple widgets, like: CGridView, CFormView, etc.
+<br><br>
+
 You may always check the CWidget class in <code>core/helpers/CWidget.php</code> to learn the
-syntax of each widget or see the examples of code.
+syntax of each widget (included in the header comments of each widget file) or see the examples of
+the code.
 <br><br>
    

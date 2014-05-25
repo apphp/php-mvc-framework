@@ -35,9 +35,9 @@ class CHttpCookie extends CComponent
 	public $httpOnly = true;
 
 	/** @var string - the domain that the cookie is available to */
-	private $domain = '';
+	private $_domain = '';
 	/** @var string - path on the server where the cookie will be available on. The default is '/' */
-	private $path = '/';	
+	private $_path = '/';	
 
 	/**
 	 * Class default constructor
@@ -63,7 +63,7 @@ class CHttpCookie extends CComponent
 	 */
 	public function setDomain($domain = '')
 	{
-		$this->domain = $domain;
+		$this->_domain = $domain;
 	}
 
 	/**
@@ -72,7 +72,7 @@ class CHttpCookie extends CComponent
 	 */
 	public function setPath($path = '')
 	{
-		$this->path = $path;
+		$this->_path = $path;
 	}
 
 	/**
@@ -86,8 +86,8 @@ class CHttpCookie extends CComponent
 	public function set($name, $value = '', $expire = '', $path = '', $domain = '')
 	{
 		$expire = (!empty($expire)) ? $expire : $this->expire;
-		$path = (!empty($path)) ? $path : $this->path;
-		$domain = (!empty($domain)) ? $domain : $this->domain;
+		$path = (!empty($path)) ? $path : $this->_path;
+		$domain = (!empty($domain)) ? $domain : $this->_domain;
 		
 		if(version_compare(PHP_VERSION,'5.2.0','>=')){
 			setcookie($name, $value, $expire, $path, $domain, $this->secure, $this->httpOnly);
@@ -112,9 +112,9 @@ class CHttpCookie extends CComponent
 	public function remove($name)
 	{
 		if(version_compare(PHP_VERSION,'5.2.0','>=')){
-			setcookie($name, null, 0, $this->path, $this->domain, $this->secure, $this->httpOnly);
+			setcookie($name, null, 0, $this->_path, $this->_domain, $this->secure, $this->httpOnly);
 		}else{
-			setcookie($name, null, 0, $this->path, $this->domain, $this->secure);
+			setcookie($name, null, 0, $this->_path, $this->_domain, $this->secure);
 		}
 	}
 

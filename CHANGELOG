@@ -1,16 +1,37 @@
-DEMO ----------------------------------------------------
-- Bug:
-- Enh:
-- Chg: Updating JQuery UI to 1.8.17 
-- New:
----------------------------------------------------------
+
+Version 0.4.4 - 29 Apr, 2014
+----------------------------
+- New: added new helper CCurrency and CCurrencySelector, that provides a set of helper methods for common currency operations
+- New: added new helper CNumber
+- New: added new widget CCaptcha
+- New: added new helper CImage, that provides a set of helper methods for common image system operations
+- New: added new helper CCache and support to db caching operations
+- New: added new core component CDbHttpSession for custom session data storage
+- Enh: minor changes in CPagination helper class
+- Enh: minor changes in CTime, CDataForm, CString, CGridView, CValidator and CFormValidator helper classes
+- Enh: minor changes in CDatabase core class
+- Enh: minor changes in CHtml, CPagination helper classes
+- Enh: minor changes in CDebug core class
+- Enh: in CActiveRecords added possibility to define multiple relations from the same key
+- Enh: improved language and currency handler procedures
+- Enh: added additional options to CHtml::listOptions method
+- Enh: changes in CMessageSource to accept translation from setup module
+- Enh: changes in Apphp class - added router property
+- Enh: minor changes in CRouter core class
+- Enh: minor changes in CMailer helper class
+- Enh: changes in syntax for some model methods
+- Bug: fixed case-sensitivity problem of view file names
+- Bug: fixed "base" tag problem in Internet Explorer
+- Bug: fixed in CValidator::isDate()
+- Bug: double call of beforeDelete() in ActiveRecord class
+- Bug: fixed issue with using some reserved names for CView
 
 
 Version 0.3.4 - 17 Sep, 2013
 ----------------------------
 - New: added new widget "tabs" in helper CWidget
 - New: added new widget "gridView" in helper CWidget
-- New: added new component CHttpCookie for coockie management operations
+- New: added new component CHttpCookie for cookie management operations
 - New: added new component CLocalTime for work with timezones and locale 
 - New: added new helper CFile, that provides a set of helper methods for common file system operations
 - New: added i18n internationalization and translation
@@ -65,13 +86,13 @@ Version 0.1.2 - Feb 14, 2013
 - New: added new application component ClientScript
 - New: added possibility to define direct URL rewrite rules via config file
 - New: added new helper Auth, that responsible to handle authentication things
-- New: added new core class Database, that responsible to handle database connections, queries etc.
+- New: added new core class Database, that responsible to handle database connections, queries, etc.
 - New: added new widget "message" in helper Widget
 - New: added new helper Hash
 - New: added new widget "form" in helper Widget
 - New: added new online setup wizard for applications
 - Enh: added new vendor phpMailer, that allows sending emails using php mail() function or smtp 
-- Enh: added possibility to send HTML messages in Mailer helper class
+- Enh: added possibility to send HTML messages in CMailer helper class
 - Enh: new features and changes in some tests
 - Enh: improved redirect() method of Controller class
 - Enh: added possibility to HttpRequest::getQuery() recognize parameters in following way: param1/val2/...

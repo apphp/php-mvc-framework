@@ -1,4 +1,11 @@
-var docs_menu = new Array('group-utils','group-framework-structure','group-application-development','group-application-modules');	
+var docs_menu = new Array(
+    'group-utils',
+    'group-framework-structure',
+    'group-application-development',
+    'group-special-topics',
+    'group-working-with-forms',
+    'group-application-modules'
+);	
     
 function getValue(param){
     // First, we load the URL into a variable
@@ -63,3 +70,28 @@ function getCookie(c_name){
     }
     return c_value;
 }
+
+jQuery(document).ready(function(){
+    // scroll
+    jQuery(window).scroll(function(){
+        var scrollTop = jQuery(this).scrollTop();
+
+        if(scrollTop > 250){
+            jQuery('header').css({"height":"20px", "opacity":"0.9"});
+            jQuery('ul.menu li').css({"padding":"0px 10px"});
+        }else{
+            jQuery('header').css({"height":"40px", "opacity":"1"});
+            jQuery('ul.menu li').css({"padding":"10px"});
+        }        
+
+        if(scrollTop > 200){
+            jQuery('.scrollup').fadeIn();    
+        }else{
+            jQuery('.scrollup').fadeOut();   
+        }        
+    });     
+    jQuery('.scrollup').click(function(){
+        jQuery("html, body").animate({ scrollTop: 0 }, 400);
+        return false;
+    });
+})

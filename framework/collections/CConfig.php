@@ -13,6 +13,7 @@
  * 
  * STATIC:
  * ---------------------------------------------------------------
+ * load
  * set
  * get
  *
@@ -25,39 +26,66 @@ class CConfig
 
 
  	/**
- 	 * Sets config parameters
+ 	 * Loads config parameters
  	 * @param array $config
  	 * @return void
  	 */
-	public static function set($config)
+	public static function load($config)
  	{
 		self::$_conf = $config;
 		//json_decode(json_encode($arr));
  	}
 
  	/**
+ 	 * Sets config parameters
+ 	 * @param string $param
+ 	 * @param mixed $value
+ 	 * @return void
+ 	 */
+  	public static function set($param = '', $value = '')
+ 	{
+		if(!empty($param)){
+			$paramParts = explode('.', $param);
+			$parts = count($paramParts);
+			if($parts == 1){
+				if(isset(self::$_conf[$paramParts[0]])){
+					self::$_conf[$paramParts[0]] = $value;
+				}
+			}else if($parts == 2){
+				if(isset(self::$_conf[$paramParts[0]][$paramParts[1]])){
+					self::$_conf[$paramParts[0]][$paramParts[1]] = $value;
+				}
+			}else if($parts == 3){
+				if(isset(self::$_conf[$paramParts[0]][$paramParts[1]][$paramParts[2]])){
+					self::$_conf[$paramParts[0]][$paramParts[1]][$paramParts[2]] = $value;
+				}
+			}
+		}			
+    }
+
+ 	/**
  	 * Get config parameters
- 	 * @param string $params
+ 	 * @param string $param
  	 * @param mixed $default
  	 * @return mixed
  	 */
-  	public static function get($params, $default = '')
+  	public static function get($param = '', $default = '')
  	{
 		$result = '';
-		if(!empty($params)){
-			$paramsParts = explode('.', $params);
-			$parts = count($paramsParts);
+		if(!empty($param)){
+			$paramParts = explode('.', $param);
+			$parts = count($paramParts);
 			if($parts == 1){
-				if(isset(self::$_conf[$paramsParts[0]])){
-					$result = self::$_conf[$paramsParts[0]];
+				if(isset(self::$_conf[$paramParts[0]])){
+					$result = self::$_conf[$paramParts[0]];
 				}
 			}else if($parts == 2){
-				if(isset(self::$_conf[$paramsParts[0]][$paramsParts[1]])){
-					$result = self::$_conf[$paramsParts[0]][$paramsParts[1]];
+				if(isset(self::$_conf[$paramParts[0]][$paramParts[1]])){
+					$result = self::$_conf[$paramParts[0]][$paramParts[1]];
 				}
 			}else if($parts == 3){
-				if(isset(self::$_conf[$paramsParts[0]][$paramsParts[1]][$paramsParts[2]])){
-					$result = self::$_conf[$paramsParts[0]][$paramsParts[1]][$paramsParts[2]];
+				if(isset(self::$_conf[$paramParts[0]][$paramParts[1]][$paramParts[2]])){
+					$result = self::$_conf[$paramParts[0]][$paramParts[1]][$paramParts[2]];
 				}
 			}
 		}			

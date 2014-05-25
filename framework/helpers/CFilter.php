@@ -10,10 +10,6 @@
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
- * 
- * 
- * STATIC:
- * ---------------------------------------------------------------
  * sanitize
  * 
  */	  
@@ -42,6 +38,9 @@ class CFilter
         }else if($type == 'alphanumeric'){
             // Leave only letters and digits
             return preg_replace('/[^A-Za-z0-9]/', '', $data);       
+        }else if($type == 'hour' || $type == 'minute'){
+            // Leave only digits and zero
+            return preg_replace('/[^0-9]/', '', $data);       
         }else if($type == 'integer' || $type == 'int'){
             // Remove all characters except digits, plus and minus sign
             return filter_var($data, FILTER_SANITIZE_NUMBER_INT);       

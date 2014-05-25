@@ -10,20 +10,19 @@
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
- * 
- * 
- * STATIC:
- * ---------------------------------------------------------------
- * getExtension          	                            findFilesRecursive
- * deleteDirectory                                      validatePath
- * emptyDirectory
+ * getExtension          	                            _findFilesRecursive
+ * deleteDirectory                                      _validatePath
+ * emptyDirectory                                       _errorHanler
  * copyDirectory
  * isDirectoryEmpty
+ * getDirectoryFilesNumber
  * findSubDirectories
+ * writeToFile
  * copyFile
  * findFiles
  * deleteFile
  * getFileSize
+ * createShortenName
  * 
  */	  
 
@@ -47,7 +46,8 @@ class CFile
 	 */
 	public static function deleteDirectory($dir = '')
 	{
-		return self::emptyDirectory($dir);
+		self::emptyDirectory($dir);
+        return rmdir($dir);
 	}
 
 	/**
@@ -64,7 +64,7 @@ class CFile
 				unlink($file);
 			}
 		}
-		return @rmdir($dir);
+		return true;
 	}
 
 	/**
@@ -119,6 +119,38 @@ class CFile
 	}	
 	
 	/**
+	 * Returns the number of files in a given directory
+	 * @param string $dir
+	*/
+	public static function getDirectoryFilesNumber($dir = '')
+	{
+        return count(glob($dir.'*'));
+    }
+    
+	/**
+	 * Deletes the oldest file in a given directory
+	 * @param string $dir
+	*/
+	public static function removeDirectoryOldestDile($dir = '')
+	{
+        $oldestFileTime = @date('Y-m-d H:i:s');
+        $oldestFileName = '';
+        if($hdir = opendir($dir)){
+            while(false !== ($obj = @readdir($hdir))){
+                if($obj == '.' || $obj == '..' || $obj == '.htaccess') continue; 
+                $fileTime = @date('Y-m-d H:i:s', @filectime($dir.$obj));
+                if($fileTime < $oldestFileTime){
+                    $oldestFileTime = $fileTime;
+                    $oldestFileName = $obj;
+                }				
+            }
+        }		
+        if(!empty($oldestFileName)){
+            self::deleteFile($dir.$oldestFileName);
+        }
+    }    
+
+	/**
 	 * Returns the list of subdirectories in a given path 
 	 * @param string $dir
 	 * @param bool $fullPath
@@ -138,14 +170,32 @@ class CFile
 	}
     
 	/**
-	 * Copies file
-	 * @param string $src
-	 * @param string $dest
+	 * Writes to the file
+	 * @param string $file  
+	 * @param mixed $content
+	 * @param string $mode 
+	 * @return bool
+	 */
+	public static function writeToFile($file = '', $content = '', $mode = 'w')
+	{
+        $fp = @fopen($file, $mode);                     
+        @fwrite($fp, $content);
+        @fclose($fp);
+        self::_errorHanler('file-writing-error', A::t('core', 'An error occurred while writing to file {file}.', array('{file}'=>$file)));
+        return true;
+    }
+
+	/**
+	 * Copies a file
+	 * @param string $src (absolute path APPHP_PATH.DS.$sourcePath)
+	 * @param string $dest (absolute path APPHP_PATH.DS.$targetPath)
 	 * @return bool
 	 */
 	public static function copyFile($src = '', $dest = '')
 	{
-		return @copy($src, $dest);
+        $result = @copy($src, $dest);
+        self::_errorHanler('file-coping-error', A::t('core', 'An error occurred while copying the file {source} to {destination}.', array('{source}'=>$src, '{destination}'=>$dest)));
+        return $result;
 	}
 
 	/**
@@ -174,19 +224,21 @@ class CFile
 		$exclude = isset($options['exclude']) ? $options['exclude'] : array();
 		$level = isset($options['level']) ? $options['level'] : -1;
 		$returnType = isset($options['returnType']) ? $options['returnType'] : 'fileOnly';
-		$filesList = self::findFilesRecursive($dir, '', $fileTypes, $exclude, $level, $returnType);
+		$filesList = self::_findFilesRecursive($dir, '', $fileTypes, $exclude, $level, $returnType);
 		sort($filesList);
 		return $filesList;
 	}
 	
 	/**
-	 * Deletes given file
+	 * Deletes the given file
 	 * @param string $file
 	 * @return bool
 	 */
 	public static function deleteFile($file = '')
 	{
-		return unlink($file);
+        $result = @unlink($file);
+        self::_errorHanler('file-deleting-error', A::t('core', 'An error occurred while deleting the file {file}.', array('{file}'=>$file)));
+		return $result;
 	}
 
 	/**
@@ -219,8 +271,19 @@ class CFile
 				break;
 		}
 		return $result;
-	}
-	
+	}	
+   
+	/**
+	 * Returns shorten name of the given file
+	 * @param string $file
+	 * @param int $lengthFirst
+	 * @param int $lengthLast
+	 * @return string
+	 */
+	public static function createShortenName($file, $lengthFirst = 10, $lengthLast = 10)
+    {
+        return preg_replace("/(?<=.{{$lengthFirst}})(.+)(?=.{{$lengthLast}})/", "...", $file);  
+    }
 
 	/**
 	 * Returns the files found under the specified directory and subdirectories
@@ -232,7 +295,7 @@ class CFile
 	 * @param string $returnType
 	 * @return array 
 	 */
-	protected static function findFilesRecursive($dir, $base, $fileTypes, $exclude, $level, $returnType = 'fileOnly')
+	protected static function _findFilesRecursive($dir, $base, $fileTypes, $exclude, $level, $returnType = 'fileOnly')
 	{
 		$list = array();
 		if($hdir = opendir($dir)){
@@ -240,11 +303,11 @@ class CFile
 				if($file === '.' || $file === '..') continue;
 				$path = $dir.DS.$file;
 				$isFile = is_file($path);
-				if(self::validatePath($base, $file, $isFile, $fileTypes, $exclude)){
+				if(self::_validatePath($base, $file, $isFile, $fileTypes, $exclude)){
 					if($isFile){
 						$list[] = ($returnType == 'fileOnly') ? $file : $path;
 					}else if($level){
-						$list = array_merge($list, self::findFilesRecursive($path, $base.'/'.$file, $fileTypes, $exclude, $level-1, $returnType));
+						$list = array_merge($list, self::_findFilesRecursive($path, $base.'/'.$file, $fileTypes, $exclude, $level-1, $returnType));
 					}
 				}
 			}			
@@ -252,7 +315,6 @@ class CFile
 		closedir($hdir);
 		return $list;
 	}
-
 
 	/**
 	 * Validates whether given path is the valid file or directory 
@@ -263,7 +325,7 @@ class CFile
 	 * @param array $exclude
 	 * @return boolean 
 	 */
-	protected static function validatePath($base, $file, $isFile, $fileTypes, $exclude)
+	protected static function _validatePath($base, $file, $isFile, $fileTypes, $exclude)
 	{
 		foreach($exclude as $e){
 			if($file === $e || strpos($base.'/'.$file, $e) === 0) return false;
@@ -275,5 +337,23 @@ class CFile
 			return false;
 		}
 	}
+
+    /**
+     * Handlers errors for specified method
+     * @param string $msgType
+     * @param string $msg
+     */
+    private static function _errorHanler($msgType = '', $msg = '')
+    {
+        if(version_compare(PHP_VERSION, '5.2.0', '>=')){	
+            $err = error_get_last();
+            if(isset($err['message']) && $err['message'] != ''){
+                $lastError = $err['message'].' | file: '.$err['file'].' | line: '.$err['line'];
+                $errorMsg = ($lastError) ? $lastError : $msg;
+                CDebug::addMessage('errors', $msgType, $errorMsg, 'session');
+                @trigger_error('');
+            }
+        }        
+    }
     
 }

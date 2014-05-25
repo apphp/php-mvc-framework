@@ -10,7 +10,7 @@
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
- *                          loadMessages
+ *                          _loadMessages
  * 
  * STATIC:
  * ---------------------------------------------------------------
@@ -50,14 +50,16 @@ class CMessageSource extends CComponent
 	 * @param string $language 
 	 * @return array the loaded messages
 	 */
-	protected function loadMessages($category, $language)
+	protected function _loadMessages($category, $language)
 	{
         $messages = array();
 
 		if($category == 'core'){
             $messageFile = $this->_basePath.DS.'..'.DS.'messages'.DS.$language.DS.$category.'.php';        
 		}else if($category == 'i18n'){
-            $messageFile = $this->_basePath.DS.'..'.DS.'i18n'.DS.$language.'.php';        
+            $messageFile = $this->_basePath.DS.'..'.DS.'i18n'.DS.$language.'.php';
+        }else if($category == 'setup'){
+            $messageFile = APPHP_PATH.DS.'protected'.DS.'modules'.DS.$category.DS.'messages'.DS.$language.DS.$category.'.php';        
         }else{
             $messageFile = APPHP_PATH.DS.'protected'.DS.'messages'.DS.$language.DS.$category.'.php';        
         }
@@ -84,7 +86,7 @@ class CMessageSource extends CComponent
 		
 		$key = $language.'.'.$category;
 		if(!isset($this->_messages[$key])){
-			$this->_messages[$key] = $this->loadMessages($category, $language);
+			$this->_messages[$key] = $this->_loadMessages($category, $language);
 		}
 
         if(isset($this->_messages[$key][$message]) && $this->_messages[$key][$message] !== ''){

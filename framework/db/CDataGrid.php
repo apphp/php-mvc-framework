@@ -25,8 +25,9 @@
  *
  * PUBLIC:					PROTECTED:				    PRIVATE:				STATIC:
  * -------		            ----------          	    --------                -------
- * __construct				getFieldByType
- * drawViewMode             getAll
+ * __construct				_getFieldByType              
+ * drawViewMode             _getAll                      
+ *                                                      
  *
  *	
  * STATIC:
@@ -214,7 +215,7 @@ abstract class CDataGrid extends CModel
 //                        if($type == 'calendar') $key_value = $this->PrepareDateTime($key_value, $date_format);
 //                        if($this->IsSecureField($key, $val)) $field_name = $this->UncryptValue($field_name, $val, false);
 //                        
-//						$this->WHERE_CLAUSE .= ' AND '.$field_name.' '.$sign.' \''.$sign_start.mysql_real_escape_string($key_value).$sign_end.'\' ';                        
+//						$this->WHERE_CLAUSE .= ' AND '.$field_name.' '.$sign.' \''.$sign_start.CString::quote($key_value).$sign_end.'\' ';                        
 //					}
 //				}
 //			}			
@@ -224,7 +225,7 @@ abstract class CDataGrid extends CModel
 //		//----------------------------------------------------------------------
 //		if($this->isPagingAllowed){
 //			if(!is_numeric($page) || (int)$page <= 0) $page = 1;
-//            if($this->debug) $start_time = $this->GetFormattedMicrotime();
+//            if($this->debug) $start_time = $this->_getFormattedMicrotime();
 //
 //            // Way #1
 //            // set sql_mode to empty if you have Mixing of GROUP columns SQL issue - in connection.php file
@@ -237,7 +238,7 @@ abstract class CDataGrid extends CModel
 //            // $result = database_query($sql, DATA_AND_ROWS, ALL_ROWS);
 //            // $totalRecords = isset($result[1]) ? (int)$result[1] : '1';
 //
-//            if($this->debug) $finish_time = $this->GetFormattedMicrotime();
+//            if($this->debug) $finish_time = $this->_getFormattedMicrotime();
 //			if($this->debug){
 //				if(!mysql_error()){ 
 //                    $this->arrSQLs['total_records_sql'] = '<i>Total Records</i> | T: '.round((float)$finish_time - (float)$start_time, 4).' sec. <br>'.$sql;
@@ -280,7 +281,7 @@ abstract class CDataGrid extends CModel
 //			}
 //		}		
 //		
-		$arrRecords = $this->getAll(
+		$arrRecords = $this->_getAll(
 			array('order' => $this->_orderClause)
 		);//$this->GetAll($this->ORDER_CLAUSE, 'LIMIT '.$start_row.', '.(int)$this->pageSize);
 		$totalRecords = (is_array($arrRecords)) ? count($arrRecords) : 0;
@@ -454,7 +455,7 @@ abstract class CDataGrid extends CModel
 //						$visible = (isset($val['visible']) && $val['visible'] !== '') ? $val['visible'] : true;
 //						$movable = (isset($val['movable']) && $val['movable'] !== '') ? $val['movable'] : false;
 						if(isset($arrRecords[$i][$key])){
-							$field_value = $this->getFieldByType('view', $key, $val, $arrRecords[$i], false);
+							$field_value = $this->_getFieldByType('view', $key, $val, $arrRecords[$i], false);
 //                            if($this->isAggregateAllowed && isset($this->arrAggregateFields[$key])){
 //                                $key_agreg = (isset($this->arrAggregateFields[$key]['aggregate_by']) && $this->arrAggregateFields[$key]['aggregate_by'] !== '') ? $this->arrAggregateFields[$key]['aggregate_by'] : $key;
 //                                if(!isset($this->arrAggregateFieldsTemp[$key])){
@@ -617,7 +618,7 @@ abstract class CDataGrid extends CModel
 		//	<th class="left"><a ref="admins/view?sort_by=email&sort_dir=asc&page=1">Email</a></th>
 		//	<th class="center" style="width:110px;"><a ref="admins/view?sort_by=role&sort_dir=asc&page=1">Account Type</a></th>
 		//	<th class="center" style="width:110px;"><a ref="admins/view?sort_by=is_active&sort_dir=asc&page=1">Active</a></th>
-		//	<th class="center" style="width:100px;"><a ref="admins/view?sort_by=lastvisited_at&sort_dir=asc&page=1">Last Visit</a></th>
+		//	<th class="center" style="width:100px;"><a ref="admins/view?sort_by=last_visited_at&sort_dir=asc&page=1">Last Visit</a></th>
 		//	<th class="actions">Actions</th>
 		//	</tr>
 		//	</thead>
@@ -646,7 +647,7 @@ abstract class CDataGrid extends CModel
 	 *		@param $field_array - ['field'] => array(''.....)
 	 *		@param $params
 	 */	
-	protected function getFieldByType($mode, $field_name, $field_array = array(), $params = array())
+	protected function _getFieldByType($mode, $field_name, $field_array = array(), $params = array())
 	{
 		if($field_name == '') return false;
 
@@ -1023,7 +1024,7 @@ abstract class CDataGrid extends CModel
     * @param mixed $conditions
     * @param array $params 
     */
-	protected function getAll($conditions = '', $params = '', $fetchMode = PDO::FETCH_ASSOC)
+	protected function _getAll($conditions = '', $params = '', $fetchMode = PDO::FETCH_ASSOC)
     {
         if(is_array($conditions)){
         //    $where = isset($conditions['condition']) ? $conditions['condition'] : '';
@@ -1055,5 +1056,6 @@ abstract class CDataGrid extends CModel
         return $this->_db->select($sql, $params);
     }
 
+  
 }
 ?>

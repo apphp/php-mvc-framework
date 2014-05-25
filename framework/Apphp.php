@@ -10,23 +10,21 @@
  *
  * PUBLIC:					PROTECTED:					    PRIVATE:		
  * ----------               ----------                      ----------
- * __construct              registerCoreComponents          autoload
- * run                      onBeginRequest                
- * setComponent             registerAppComponents 
- * getComponent             registerAppModules
- * getRequest
- * getSession
- * getCookie
- * attachEventHandler
- * detachEventHandler
- * hasEvent
- * hasEventHandler
- * raiseEvent
+ * __construct              _onBeginRequest                 _autoload
+ * run                      _registerCoreComponents
+ * getComponent             _setComponent
+ * getRequest               _registerAppComponents 
+ * getSession               _registerAppModules
+ * getCookie                _hasEvent
+ * attachEventHandler       _hasEventHandler
+ * detachEventHandler       _raiseEvent 
  * mapAppModule
  * setResponseCode
  * getResponseCode
  * setLanguage
  * getLanguage
+ * setCurrency
+ * getCurrency
  * 
  * STATIC:
  * ---------------------------------------------------------------
@@ -42,6 +40,8 @@ class A
 {
     /**	@var object View */
     public $view;
+    /**	@var object Router */
+    public $router;
     /** @var string */
     public $charset = 'UTF-8';
     /** @var string */
@@ -57,10 +57,11 @@ class A
     );
     /** @var array */
     private static $_coreClasses = array(
-        'CConfig'       => 'collections/CConfig.php',
+        'CConfig'        => 'collections/CConfig.php',
         
         'CComponent'     => 'components/CComponent.php',
         'CClientScript'  => 'components/CClientScript.php',
+        'CDbHttpSession' => 'components/CDbHttpSession.php',
         'CHttpRequest'   => 'components/CHttpRequest.php',
         'CHttpSession'   => 'components/CHttpSession.php',
         'CHttpCookie'    => 'components/CHttpCookie.php',
@@ -77,41 +78,31 @@ class A
         'CDatabase'     => 'db/CDatabase.php',
         'CDataGrid'     => 'db/CDataGrid.php',
         
-        'CAuth'         => 'helpers/CAuth.php',
-        'CFile'         => 'helpers/CFile.php',
-        'CFilter'       => 'helpers/CFilter.php',
-        'CHash'         => 'helpers/CHash.php',
-        'CHtml'         => 'helpers/CHtml.php',
-        'CMailer'       => 'helpers/CMailer.php',
-        'CString'       => 'helpers/CString.php',
-        'CTime'         => 'helpers/CTime.php',
-        'CValidator'    => 'helpers/CValidator.php',
-        'CWidget'       => 'helpers/CWidget.php',
+        'CAuth'        => 'helpers/CAuth.php',
+        'CCache'       => 'helpers/CCache.php',
+        'CCurrency'    => 'helpers/CCurrency.php',
+        'CFile'        => 'helpers/CFile.php',
+        'CFilter'      => 'helpers/CFilter.php',
+        'CHash'        => 'helpers/CHash.php',        
+        'CHtml'        => 'helpers/CHtml.php',
+        'CImage'       => 'helpers/CImage.php',
+        'CMailer'      => 'helpers/CMailer.php',
+        'CNumber'      => 'helpers/CNumber.php',
+        'CString'      => 'helpers/CString.php',
+        'CTime'        => 'helpers/CTime.php',
+        'CValidator'   => 'helpers/CValidator.php',
+        'CWidget'      => 'helpers/CWidget.php',
     );
     /** @var array */
     private static $_coreComponents = array(
-        'session'      => array(
-            'class'    => 'CHttpSession'
-        ),
-        'request'      => array(
-            'class'    => 'CHttpRequest'
-        ),
-        'localTime'    => array(
-            'class'    => 'CLocalTime'
-        ),
-        'cookie' 	   => array(
-            'class'    => 'CHttpCookie'
-        ),
-        'clientScript' => array(
-            'class'    => 'CClientScript'
-        ),
-        'coreMessages' => array(
-            'class'    => 'CMessageSource',
-            'language' => 'en',
-        ),
-        'messages'     => array(
-            'class'    => 'CMessageSource',
-        ),
+        'session'      => array('class' => 'CHttpSession'),
+        'dbSession'    => array('class' => 'CDbHttpSession'),
+        'request'      => array('class' => 'CHttpRequest'),
+        'localTime'    => array('class' => 'CLocalTime'),
+        'cookie' 	   => array('class' => 'CHttpCookie'),
+        'clientScript' => array('class' => 'CClientScript'),
+        'coreMessages' => array('class' => 'CMessageSource', 'language' => 'en'),
+        'messages'     => array('class' => 'CMessageSource'),
     );
     /** @var array */
     private static $_coreModules = array(        
@@ -127,9 +118,7 @@ class A
     );
     /** @var array */
     private static $_appModules = array(
-        'setup'       => array(
-            'classes' => array('Setup')
-        )
+        'setup' => array('classes' => array('Setup'))
     );
     /** @var array */	
     private $_components = array(); 
@@ -140,7 +129,10 @@ class A
     /** @var string */
     private $_responseCode = '';
     /** @var string */    
-    private $_language;	
+    private $_language;
+    /** @var string */    
+    private $_currency;
+    
 
     /**
      * Class constructor
@@ -148,7 +140,7 @@ class A
      */
     public function __construct($configDir)
     {
-    	spl_autoload_register(array($this, 'autoload'));        
+    	spl_autoload_register(array($this, '_autoload'));        
         // include interfaces
         require(dirname(__FILE__).DS.'core'.DS.'interfaces.php');    
         
@@ -204,7 +196,7 @@ class A
             }
             
             // save configuration array in config class
-            CConfig::set($arrConfig);
+            CConfig::load($arrConfig);
         }
     }	
  
@@ -239,22 +231,24 @@ class A
         }
         
         // register framework core components
-        $this->registerCoreComponents(); 
-
+        $this->_registerCoreComponents();
         // register application components
-        $this->registerAppComponents();
+        $this->_registerAppComponents();
         // register application modules
-        $this->registerAppModules();
+        $this->_registerAppModules();
         
         // run events
-        if($this->hasEventHandler('onBeginRequest')) $this->onBeginRequest();
+        if($this->_hasEventHandler('_onBeginRequest')) $this->_onBeginRequest();
 	
         // global test for database
-        if(CConfig::get('db.type') != '') CDatabase::init();        
+        if(CConfig::get('db.driver') != ''){
+            $db = CDatabase::init();
+            if(!CAuth::isGuest()) $db->cacheOff();
+        }
    
         if(APPHP_MODE != 'hidden'){
-            $router = new CRouter(); 
-            $router->route();        
+            $this->router = new CRouter(); 
+            $this->router->route();        
             CDebug::displayInfo();
         }
     }
@@ -286,7 +280,7 @@ class A
      */
     public static function getVersion()
     {
-    	return '0.3.4';
+    	return '0.4.4';
     }
 
     /**
@@ -330,7 +324,7 @@ class A
      * @param str $className
      * @return void
      */
-    private function autoload($className)
+    private function _autoload($className)
     {
         if(isset(self::$_coreClasses[$className])){
             // include framework core classes
@@ -344,7 +338,7 @@ class A
             $itemsCount = count($classNameItems);
             // $classNameItems[0] - 
             // $classNameItems[1..n-1] - ClassName
-            // $classNameItems[n] - Type (Controller, Model etc..)            
+            // $classNameItems[n] - Type (Controller, Model, etc..)            
             $pureClassName = $pureClassType = '';
             for($i=0; $i<$itemsCount; $i++){
                 if($i < $itemsCount-1){
@@ -388,7 +382,7 @@ class A
      * @param string $id
      * @param class $component 
      */
-    public function setComponent($id, $component)
+    protected function _setComponent($id, $component)
     {
     	if($component === null){
             unset($this->_components[$id]);		
@@ -441,11 +435,15 @@ class A
     
     /**
      * Returns the session component
-     * @return CHttpSession component
+     * @return CHttpSession or CDbHttpSession component
      */
     public function getSession()
     {
-    	return $this->getComponent('session');
+        if(CConfig::get('session.customStorage')){
+            return $this->getComponent('dbSession');    
+        }else{
+            return $this->getComponent('session');    
+        }    	
     }
 
     /**
@@ -464,7 +462,7 @@ class A
      */
     public function attachEventHandler($name, $handler)
     {
-    	if($this->hasEvent($name)){
+    	if($this->_hasEvent($name)){
             $name = strtolower($name);
             if(!isset($this->_events[$name])){
                 $this->_events[$name] = array();
@@ -473,7 +471,7 @@ class A
                 $this->_events[$name][] = $handler;
             }
         }else{
-           CDebug::addMessage('errors', 'events-attach', A::t('core', 'Event "{class}.{name}" is not defined.', array('{class}'=>get_class($this), '{name}'=>$name)));
+            CDebug::addMessage('errors', 'events-attach', A::t('core', 'Event "{class}.{name}" is not defined.', array('{class}'=>get_class($this), '{name}'=>$name)));
         }
     }
 
@@ -483,7 +481,7 @@ class A
      */
     public function detachEventHandler($name)
     {
-    	if($this->hasEvent($name)){
+    	if($this->_hasEvent($name)){
             $name = strtolower($name);
             if(isset($this->_events[$name])){
                 unset($this->_events[$name]);
@@ -499,9 +497,9 @@ class A
      * @param string $name 
      * @return boolean 
      */
-    public function hasEvent($name)
+    protected function _hasEvent($name)
     {
-    	return !strncasecmp($name, 'on', 2) && method_exists($this, $name);
+    	return !strncasecmp($name, '_on', 3) && method_exists($this, $name);
     }
     
     /**
@@ -509,7 +507,7 @@ class A
      * @param string $name 
      * @return boolean 
      */
-    public function hasEventHandler($name)
+    public function _hasEventHandler($name)
     {
     	$name = strtolower($name);
     	return isset($this->_events[$name]) && count($this->_events[$name]) > 0;
@@ -519,7 +517,7 @@ class A
      * Raises an event
      * @param string $name 
      */
-    public function raiseEvent($name)
+    public function _raiseEvent($name)
     {
         $name = strtolower($name);
         if(isset($this->_events[$name])){
@@ -567,25 +565,28 @@ class A
     
     /**
      * Specifies which language the application is targeted to
-     * @param string $language
-     * @param string $locale
+     * @param string $language (code)
+     * @param array $params
      */
-    public function setLanguage($language = '', $locale = '')
+    public function setLanguage($language = '', $params = array())
     {
     	$this->_language = $language;
         $this->getSession()->set('language', $this->_language);
-        if(!empty($locale) && !setlocale(LC_ALL, $locale)){
-            CDebug::addMessage('warnings', 'missing-locale', A::t('core', 'Unable to find locale "{locale}" on your server.', array('{locale}'=>$locale)), 'session');
+        if(isset($params['locale'])){
+            $this->getSession()->set('language_locale', $params['locale']);
+            if(!setlocale(LC_ALL, $params['locale'])) CDebug::addMessage('warnings', 'missing-locale', A::t('core', 'Unable to find locale "{locale}" on your server.', array('{locale}'=>$params['locale'])), 'session');
         }
+        if(isset($params['direction'])) $this->getSession()->set('language_direction', $params['direction']);
     }
 
     /**
-     * Returns the language that is used for application
+     * Returns the language that is used for application or language parameter
+     * @param string $param
      * @return string 
      */
-    public function getLanguage()
+    public function getLanguage($param = '')
     {
-        $language = $this->getSession()->get('language');
+        $language = $this->getSession()->get(($param != '') ? 'language_'.$param : 'language');
         if(!empty($language)){
             return $language;
         }else{
@@ -593,31 +594,65 @@ class A
         }
     }
     
+    /**
+     * Specifies which currency the application is targeted to
+     * @param string $currency (code)
+     * @param array $params
+     */
+    public function setCurrency($currency = '', $params = array())
+    {
+    	$this->_currency = $currency;
+        $this->getSession()->set('currency_code', $this->_currency);
+        if(isset($params['symbol'])) $this->getSession()->set('currency_symbol', $params['symbol']);
+        if(isset($params['symbol_place'])) $this->getSession()->set('currency_symbol_place', $params['symbol_place']);
+        if(isset($params['decimals'])) $this->getSession()->set('currency_decimals', $params['decimals']);
+        if(isset($params['rate'])) $this->getSession()->set('currency_rate', $params['rate']);
+    }
+
+    /**
+     * Returns the currency that is used for application or currency parameter
+     * @param string $param
+     * @return string 
+     */
+    public function getCurrency($param = '')
+    {
+        $currency = $this->getSession()->get(($param != '') ? 'currency_'.$param : 'currency_code');            
+        if(!empty($currency)){
+            return $currency;
+        }else{
+            return (!$param) ? $this->_currency : '';    
+        }
+    }
 
     /**
      * Registers the framework core components
-     * @see setComponent
+     * @see _setComponent
      */
-    protected function registerCoreComponents()
+    protected function _registerCoreComponents()
     {
     	foreach(self::$_coreComponents as $id => $component){
-  	    $this->setComponent($id, $component['class']);
-	}
+            if(CConfig::get('session.customStorage') && $id == 'session'){
+                continue; 
+            }else if(!CConfig::get('session.customStorage') && $id == 'dbSession'){
+                continue; 
+            }
+            $this->_setComponent($id, $component['class']);
+        }
     }
  
     /**
      * Raised before the application processes the request
      */
-    protected function onBeginRequest()
+    protected function _onBeginRequest()
     {
-    	$this->raiseEvent('onBeginRequest');
+    	$this->_raiseEvent('_onBeginRequest');
     }
     
     /**
      * Registers application components
-     * @see setComponent
+     * @see _setComponent
      */
-    protected function registerAppComponents()
+    protected function _registerAppComponents()
     {
     	if(!is_array(CConfig::get('components'))) return false;
         foreach(CConfig::get('components') as $id => $component){
@@ -627,7 +662,7 @@ class A
             if($enable && $class){
                 self::$_appComponents[$id] = $class;
                 self::$_appClasses[$class] = (!empty($module) ? 'modules/'.$module.'/' : '').'components/'.$class.'.php';
-                $this->setComponent($id, $class);
+                $this->_setComponent($id, $class);
             }
         }
     }   
@@ -635,7 +670,7 @@ class A
     /**
      * Registers application modules
      */
-    protected function registerAppModules()
+    protected function _registerAppModules()
     {
      	if(!is_array(CConfig::get('modules'))) return false;
         foreach(CConfig::get('modules') as $id => $module){

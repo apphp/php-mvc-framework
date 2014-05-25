@@ -10,10 +10,6 @@
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
- * 
- * 
- * STATIC:
- * ---------------------------------------------------------------
  * create
  * getRandomString
  * 
@@ -23,7 +19,7 @@ class CHash
 {    
     /**
      * Creates hash for given password 
-     * @param string $algorithm (md5, sha1, sha256, whirlpool, etc)
+     * @param string $algorithm (md5, sha1, sha256, whirlpool, etc.)
      * @param string $data 
      * @param string $salt (should be the same throughout the system probably)
      * @return string (hashed/salted data)
@@ -39,10 +35,18 @@ class CHash
     /**
      * Creates random string
      * @param integer $length
+     * @param array $params - 'numeric', 'positiveNumeric' or 'alphanumeric'
      */
-    public static function getRandomString($length = 10)
+    public static function getRandomString($length = 10, $params = array())
     {
-        $template = '1234567890abcdefghijklmnopqrstuvwxyz';
+        $type = isset($params['type']) ? $params['type'] : '';
+        if($type == 'numeric'){
+            $template = '1234567890';    
+        }else if($type == 'positiveNumeric'){
+            $template = '123456789';    
+        }else{
+            $template = '1234567890abcdefghijklmnopqrstuvwxyz';
+        }        
         settype($template, 'string');
         settype($length, 'integer');
         settype($output, 'string');

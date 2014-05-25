@@ -79,17 +79,17 @@ function get_base_url($absolute = true)
     if($absolute){
         $protocol = 'http://';
         $port = '';
-        $http = $_SERVER['HTTP_HOST'];
+        $httpHost = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
         if((isset($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) != 'off')) ||
             strtolower(substr($_SERVER['SERVER_PROTOCOL'], 0, 5)) == 'https'){
             $protocol = 'https://';
         }	
         if(isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] != '80'){
-            if(!strpos($_SERVER['HTTP_HOST'], ':')){
+            if(!strpos($httpHost, ':')){
                 $port = ':'.$_SERVER['SERVER_PORT'];
             }
         }
-        $absolutePart = $protocol.$http.$port;
+        $absolutePart = $protocol.$httpHost.$port;
     }
 
     $scriptName = basename($_SERVER['SCRIPT_FILENAME']);

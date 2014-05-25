@@ -10,11 +10,10 @@
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
- * 
- * 
- * STATIC:
- * ---------------------------------------------------------------
  * substr
+ * quote
+ * length
+ * seoString
  * 
  */	  
 
@@ -23,34 +22,88 @@ class CString
 
     /**
      * Cut string by last word
-     * @param mixed $text
+     * @param mixed $string
      * @param int $length
      * @param bool $encoding
      * @param bool $dots
      */
-    public static function substr($text, $length = 0, $encoding = '', $dots = false)
+    public static function substr($string, $length = 0, $encoding = '', $dots = false)
     {
         $currentEncoding  = ($encoding ? $encoding : A::app()->charset);
 		if(function_exists('mb_strlen') && $encoding !== false){
-			$textLength = mb_strlen($text, $currentEncoding);
+			$stringLength = mb_strlen($string, $currentEncoding);
 		}else{
-			$textLength = strlen($text);
+			$stringLength = strlen($string);
 		}
         
-        if($textLength > $length){
+        if($stringLength > $length){
             if(function_exists('mb_strlen') && $encoding !== false){
-                $output = mb_substr($text, 0, $length, $currentEncoding);
+                $output = mb_substr($string, 0, $length, $currentEncoding);
             }else{
-                $output = substr($text, 0, (int)$length);
+                $output = substr($string, 0, (int)$length);
             }
             if($dots){
                 $output = trim($output).'...';
             }
         }else{
-            $output = $text;
+            $output = $string;
         }
         
         return $output;
     }
     
+	/**	
+	 * Quotes a string for use (ex.: in a query)
+	 * @param string $string
+	 * @return string
+	 */
+	public static function quote($string)
+	{
+		$search	 = array("\\","\0","\n","\r","\x1a","'",'"',"\'",'\"');
+		$replace = array("\\\\","\\0","\\n","\\r","\Z","\'",'\"',"\\'",'\\"');
+		return str_replace($search, $replace, $string);
+	} 
+
+    /**
+     * Returns a length of the given string 
+     * @param mixed $string
+     * @param bool $encoding
+     */
+    public static function length($string, $encoding = '')
+    {
+        $currentEncoding  = ($encoding ? $encoding : A::app()->charset);
+		if(function_exists('mb_strlen') && $encoding !== false){
+			$stringLength = mb_strlen($string, $currentEncoding);
+		}else{
+			$stringLength = strlen($string);
+		}
+        
+        return $stringLength;
+    }
+
+    /**
+     * Returns a string converted into SEO string
+     * @param mixed $string
+     */
+    public static function seoString($string)
+    {
+        $forbiddenSymbols = array("\\", '"', "'", '(', ')', '[', ']', '*', '.', ',', '&', ';', ':', '&amp;', '?', '!', '=');
+        $seoUrl = '';
+        $words = 0;
+    
+        $string = str_replace($forbiddenSymbols, '', strip_tags($string));
+        $stringParts = explode(' ', $string);
+        foreach($stringParts as $key){
+            if(trim($key) != ''){
+                if($words++ < 7 && strlen($seoUrl) < 255){
+                    $seoUrl .= ($seoUrl != '') ? '-'.$key : $key;   
+                }else{
+                    break;   
+                }               
+            }           
+        }
+        
+        return $seoUrl;
+    }
+	
 }

@@ -1,4 +1,4 @@
-<h2>Development - Routing</h2>
+<h1>Development - Routing</h1>
 
 ApPHP Framework always analyzes a URL received from the browser by splitting it into two parts:
 
@@ -10,11 +10,11 @@ ApPHP Framework always analyzes a URL received from the browser by splitting it 
 
 By default, ApPHP Framework recognizes URLs with the following formats:<br><br>
 Variant 1 (The url GET variable can be retrived in a standard way, urlFormat "get"):
-<pre name="dlhl" class="php">http://hostname/index.php?url=controller/action&amp;param1=aaa&amp;param2=bbb&amp;param3=ccc</pre>
+<pre>http://hostname/index.php?url=controller/action&amp;param1=aaa&amp;param2=bbb&amp;param3=ccc</pre>
 Variant 2 (urlFormat "get"):
-<pre name="dlhl" class="php">http://hostname/page/controller/action?param1=aaa&amp;param2=bbb&amp;param3=ccc</pre>
+<pre>http://hostname/page/controller/action?param1=aaa&amp;param2=bbb&amp;param3=ccc</pre>
 Variant 3 (urlFormat "path"):
-<pre name="dlhl" class="php">http://hostname/page/controller/action/param1/aaa/param2/bbb/param3/ccc</pre>
+<pre>http://hostname/page/controller/action/param1/aaa/param2/bbb/param3/ccc</pre>
 You may also specify a custom format for URL by creating special definitions in configuration file.
 
 <pre name="dlhl" class="php">
@@ -26,9 +26,12 @@ You may also specify a custom format for URL by creating special definitions in 
         'controller/action/value1/value2' => 'controller/action/param1/value1/param2/value2',
 
         /* template comparison */ 
-        'index\/page\/id\/(.*[0-9])+' => 'index/page/id/{$0}',
-        'index\/page\/(.*[0-9])+' => 'index/page/id/{$0}',
-        'index\/page\/(.*[0-9])+\/(.*?)' => 'index/page/id/{$0}',
+        'page/vew/id/(.*[0-9])+' => 'index/page/id/{$0}',
+        'page/vew/id/(.*[0-9])+/(.*?)' => 'index/page/id/{$0}',
+        'page/vew/(.*[0-9])+' => 'index/page/id/{$0}',
+        'page/vew/(.*[0-9])+/(.*?)' => 'index/page/id/{$0}',
+        'page/(.*[0-9])+' => 'index/page/id/{$0}',
+        'page/(.*[0-9])+/(.*?)' => 'index/page/id/{$0}',
     ),
 ),    
 </pre>

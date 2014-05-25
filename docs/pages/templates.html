@@ -1,4 +1,4 @@
-<h2>Development - Templates</h2>
+<h1>Development - Templates</h1>
 
 In ApPHP Framework there is only one standard place where design template (theme) files are stored:<br>
 <code>application/templates/{your template name}/</code>
@@ -26,6 +26,8 @@ class AdminController extends CController
     {
         parent::__construct();
         A::app()->view->setTemplate('backend');               
+        // - or - set backend mode
+        // Website::setBackend();
     }
 }
 </pre>
@@ -119,19 +121,22 @@ class AdminsController extends CController
     {
         parent::__construct();
         // use template of protected area for whole controller
-        A::app()->view->setTemplate('backend');
     }
     
     public function dashboardAction()
     {
         // use template of protected area for specific action
         A::app()->view->setTemplate('backend');
+        // - or - set backend mode
+        // Website::setBackend();
     }    
 
     public function view()
     {
         // use default template for this specific action
         A::app()->view->setTemplate('default');               
+        // - or - set frontend mode
+        // Website::setFrontend();
     }
 }    
 </pre>

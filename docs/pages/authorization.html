@@ -1,10 +1,10 @@
-<h2>Development - Authorization</h2>
+<h1>Development - Authorization</h1>
 
 The ApPHP framework contains a special mechanism, which allows a developer to relatively easily implement
 a registration and authorization system (login with a password) for both frontend and backend (website)
 users. The data of registered users are stored by the CHttpSession core class, and the framework
 CAuth helper provides a convenient interface to define controllers and actions accessible by registered
-users, check access rights of visitors, store and retrieve required information of registered user etc.         
+users, check access rights of visitors, store and retrieve required information of registered user, etc.         
 <br /><br />
 
 For easiest way to store a data of logged user, we recommend to use a following way:
@@ -77,16 +77,16 @@ CAuth::isLoggedIn();
     
 Below you may see a simple example of how to check login form submission data:
 <pre name="dlhl" class="php">
-$this->view->username = A::app()->getRequest()->getPost('username');
-$this->view->password = A::app()->getRequest()->getPost('password');
+$this->_view->username = A::app()->getRequest()->getPost('username');
+$this->_view->password = A::app()->getRequest()->getPost('password');
 
 $model = new Login();				
-if($model->login($this->view->username, $this->view->password)){
+if($model->login($this->_view->username, $this->_view->password)){
     $this->redirect('authors/index');	
 }else{
     $msg = 'Wrong username or password! Please re-enter.';
-    $this->view->errorField = 'username';
-    $errorType = 'error';
+    $msgType = 'error';
+    $this->_view->errorField = 'username';
 }
 </pre>
 <br />

@@ -2,7 +2,10 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<title>ApPHP Framework - Tests</title>	
+	<meta name="description" content="ApPHP Framework - Running Tests" />
+    <meta name="author" content="ApPHP Company - Advanced Power of PHP">
+    <meta name="generator" content="ApPHP MVC Framework - Tests">
+	<title>ApPHP MVC Framework - Tests</title>
 	<link rel="stylesheet" type="text/css" href="css/style.css" />
 	<script src="js/main.js" type="text/javascript"></script>	
 </head>
@@ -10,13 +13,14 @@
 	<header>
 		<nav>
 			<ul class="menu">
-				<li class=""><a href="../../docs/">Documentation</a></li>
-				<li class=""><a href="../requirements/">Requirements</a></li>				
-				<li class="active"><a href="index.php">Tests</a></li>				
-				<li class=""><a href="../../demos/">Demo</a></li>
+				<li><a href="../../docs/index.php">Documentation</a></li>
+				<li><a href="../requirements/index.php">Requirements</a></li>				
+				<li class="active"><a href="index.php">Tests</a></li>
+                <li><a href="../generators/index.php">Code Generators</a></li>
+				<li><a href="../../demos/index.php">Demo</a></li>
 			</ul>
 			<ul class="menu" style="float:right">
-				<li><a href="../../index.html">Index</a></li>
+				<li><a href="../../index.html">&laquo; Index</a></li>
 			</ul>
 		</nav>
 	</header>

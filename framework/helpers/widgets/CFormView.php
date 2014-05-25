@@ -10,10 +10,7 @@
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
- * 
- * STATIC:
- * ---------------------------------------------------------------
- * init                                                 formField
+ * init                                                 _formField
  * 
  */	  
 
@@ -21,7 +18,7 @@ class CFormView
 {
     const NL = "\n";
     /** @var string */
-    public static $count = 0;
+    private static $_count = 0;
 
     /**
      * Draws HTML form
@@ -29,8 +26,10 @@ class CFormView
      * 
      * Notes:
      *   - to prevent double quotes issue use: 'encode'=>true in htmlOptions
-     *   - insert code (for all fields): 'prependCode=>'', 'appendCode'=>''
+     *   - insert code (for all fields): 'prependCode'=>'', 'appendCode'=>''
+     *   - to use <button> tag for buttons use 'buttonTag'=>'button' 
      *   - to disable any field or button use: 'disabled'=>true
+     *   - 'viewType' optional values: '' or 'custom'
      *   
      * Usage: (in view)
      *  echo CWidget::create('CFormView', array(
@@ -38,7 +37,7 @@ class CFormView
      *       'cancelUrl'=>'locations/view',
      *       'method'=>'post',
      *       'htmlOptions'=>array(
-     *           'name'=>'frmContact',
+     *           'name'=>'form-contact',
      *           'enctype'=>'multipart/form-data',
      *           'autoGenerateId'=>false
      *       ),
@@ -46,26 +45,27 @@ class CFormView
      *       'fieldSetType'=>'frameset|tabs',
      *       'fields'=>array(
 	 *         	 'separatorName' =>array(
-	 *               'separatorInfo' => array('legend'=>A::t('app', A::t('app', 'Headers & Footers'))),
+	 *               'separatorInfo' => array('legend'=>A::t('app', 'Headers & Footers')),
 	 *               'field_1'=>array('type'=>'textbox', 'title'=>'Field 1', 'tooltip'=>'', 'value'=>'', 'mandatoryStar'=>true, 'htmlOptions'=>array('maxLength'=>'50')),
 	 *               ...
 	 *           ),
      *           'field_1'=>array('type'=>'hidden', 'value'=>'', 'htmlOptions'=>array()),
-     *           'field_2'=>array('type'=>'textbox',  'title'=>'Field 2', 'tooltip'=>'', 'value'=>'', 'mandatoryStar'=>true, 'htmlOptions'=>array('maxLength'=>'50')),
-     *           'field_3'=>array('type'=>'password', 'title'=>'Field 3', 'tooltip'=>'', 'value'=>'', 'mandatoryStar'=>true, 'htmlOptions'=>array('maxLength'=>'20')),
-     *           'field_3_confirm'=>array('type'=>'password', 'title'=>'Confirm Field 3', 'tooltip'=>'', 'value'=>'', 'mandatoryStar'=>true, 'htmlOptions'=>array('maxLength'=>'20')),
-     *           'field_4'=>array('type'=>'textarea', 'title'=>'Field 4', 'tooltip'=>'', 'value'=>'', 'mandatoryStar'=>true, 'htmlOptions'=>array('maxLength'=>'250')),
-     *           'field_5'=>array('type'=>'file',     'title'=>'Field 5', 'tooltip'=>'', 'value'=>'', 'mandatoryStar'=>true, 'htmlOptions'=>array()),
-     *           'field_6'=>array('type'=>'image',    'title'=>'Field 6', 'tooltip'=>'', 'src'=>'', 'alt'=>'Field 6', 'htmlOptions'=>array()),
-     *           'field_7'=>array('type'=>'label',    'title'=>'Field 7', 'tooltip'=>'', 'value'=>'', 'definedValues'=>array(), 'format'=>''),
-     *           'field_8'=>array('type'=>'datetime', 'title'=>'Field 8', 'tooltip'=>'', 'value'=>'', 'definedValues'=>array(), 'format'=>''),
-     *           'field_9'=>array('type'=>'checkbox', 'title'=>'Field 9', 'tooltip'=>'', 'value'=>'', 'checked'=>true, 'htmlOptions'=>array()),
-     *          'field_10'=>array('type'=>'select',   'title'=>'Field 10', 'tooltip'=>'', 'value'=>'', 'data'=>array(), 'htmlOptions'=>array()),
-     *          'field_11'=>array('type'=>'radioButton', 'title'=>'Field 11', 'tooltip'=>'', 'value'=>'', 'checked'=>'true'),
-     *          'field_12'=>array('type'=>'radioButtonList', 'title'=>'Field 12', 'tooltip'=>'', 'checked'=>0, 'data'=>array()),
-	 *          'field_13'=>array('type'=>'imageUpload', 'title'=>'Field 13', 'tooltip'=>'', 'value'=>'', 'mandatoryStar'=>false, 
+     *           'field_2'=>array('type'=>'textbox',  'title'=>'Field 2', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'htmlOptions'=>array('maxLength'=>'50')),
+     *           'field_3'=>array('type'=>'password', 'title'=>'Field 3', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'htmlOptions'=>array('maxLength'=>'20')),
+     *           'field_3_confirm'=>array('type'=>'password', 'title'=>'Confirm Field 3', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'htmlOptions'=>array('maxLength'=>'20')),
+     *           'field_4'=>array('type'=>'textarea', 'title'=>'Field 4', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'htmlOptions'=>array('maxLength'=>'250')),
+     *           'field_5'=>array('type'=>'file',     'title'=>'Field 5', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'htmlOptions'=>array()),
+     *           'field_6'=>array('type'=>'image',    'title'=>'Field 6', 'tooltip'=>'', 'mandatoryStar'=>true, 'src'=>'', 'alt'=>'Field 6', 'htmlOptions'=>array()),
+     *           'field_7'=>array('type'=>'label',    'title'=>'Field 7', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'definedValues'=>array(), 'format'=>'', 'stripTags'=>false, 'htmlOptions'=>array()),
+     *           'field_8'=>array('type'=>'link',     'title'=>'Field 8', 'tooltip'=>'', 'mandatoryStar'=>true, 'linkUrl'=>'path/to/param', 'linkText'=>'', 'htmlOptions'=>array()),
+     *           'field_9'=>array('type'=>'datetime', 'title'=>'Field 9', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'definedValues'=>array(), 'format'=>'', 'htmlOptions'=>array()),
+     *          'field_10'=>array('type'=>'checkbox', 'title'=>'Field 10', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'checked'=>true, 'htmlOptions'=>array(), 'viewType'=>''),
+     *          'field_11'=>array('type'=>'select',   'title'=>'Field 11', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'data'=>array(), 'htmlOptions'=>array()),
+     *          'field_12'=>array('type'=>'radioButton', 'title'=>'Field 12', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'checked'=>'true', 'htmlOptions'=>array()),
+     *          'field_13'=>array('type'=>'radioButtonList', 'title'=>'Field 13', 'tooltip'=>'', 'mandatoryStar'=>true, 'checked'=>0, 'data'=>array(), 'htmlOptions'=>array()),
+	 *          'field_14'=>array('type'=>'imageUpload', 'title'=>'Field 14', 'tooltip'=>'', 'mandatoryStar'=>false, 'value'=>'', 
 	 *          	'imageOptions' =>array('showImage'=>true, 'showImageName'=>true, 'showImageSize'=>true, 'imagePath'=>'templates/backend/images/accounts/', 'imageClass'=>'avatar'),
-	 *          	'deleteOptions'=>array('showLink'=>true, 'linkPath'=>'admins/edit/avatar/delete', 'linkText'=>'Delete'),
+	 *          	'deleteOptions'=>array('showLink'=>true, 'linkUrl'=>'admins/edit/avatar/delete', 'linkText'=>'Delete'),
 	 *          	'fileOptions'  =>array('showAlways'=>false, 'class'=>'file', 'size'=>'25')
 	 *          ),
      *       ),
@@ -73,7 +73,9 @@ class CFormView
      *           'remember'=>array('type'=>'checkbox', 'title'=>'Remember me', 'tooltip'=>'', 'value'=>'1', 'checked'=>false),
      *       ),
      *       'buttons'=>array(
-     *          'submit'=>array('type'=>'submit', 'value'=>'Send', 'htmlOptions'=>array('name'=>''))
+     *          'submit'=>array('type'=>'submit', 'value'=>'Send', 'htmlOptions'=>array('name'=>'')),
+     *          'submitUpdate'=>array('type'=>'submit', 'value'=>'Update', 'htmlOptions'=>array('name'=>'btnUpdate')),
+     *          'submitUpdateClose'=>array('type'=>'submit', 'value'=>'Update & Close', 'htmlOptions'=>array('name'=>'btnUpdateClose')),
 	 *          'reset' =>array('type'=>'reset', 'value'=>'Reset', 'htmlOptions'=>array()),
      *          'cancel'=>array('type'=>'button', 'value'=>'Cancel', 'htmlOptions'=>array('name'=>'')),
 	 *          'custom' =>array('type'=>'button', 'value'=>'Custom', 'htmlOptions'=>array('onclick'=>"$(location).attr('href','categories/index');")),
@@ -124,7 +126,7 @@ class CFormView
                 if($fieldSetType == 'tabs'){
 					$content = '';
 					foreach($fieldInfo as $iField => $iFieldInfo){						
-					    $content .= self::formField($iField, $iFieldInfo, $events, $formName, $autoGenerateId);
+					    $content .= self::_formField($iField, $iFieldInfo, $events, $formName, $autoGenerateId);
 					}
 					$tabsCount++;
 					$tabs[$legend] = array('href'=>'#tab'.$field.$tabsCount, 'id'=>'tab'.$field.$tabsCount, 'content'=>$content);					
@@ -132,12 +134,12 @@ class CFormView
 					$output .= CHtml::openTag('fieldset').self::NL;
 					$output .= CHtml::tag('legend', array(), $legend, true).self::NL;					
 					foreach($fieldInfo as $iField => $iFieldInfo){
-					    $output .= self::formField($iField, $iFieldInfo, $events, $formName, $autoGenerateId);
+					    $output .= self::_formField($iField, $iFieldInfo, $events, $formName, $autoGenerateId);
 					}                
 					$output .= CHtml::closeTag('fieldset').self::NL;					
 				}					
             }else{				
-                $output .= self::formField($field, $fieldInfo, $events, $formName, $autoGenerateId);
+                $output .= self::_formField($field, $fieldInfo, $events, $formName, $autoGenerateId);
             }            
         }
 		if($fieldSetType == 'tabs'){
@@ -173,6 +175,12 @@ class CFormView
                         break;
                     case 'reset':
                         $output .= CHtml::resetButton('reset', $htmlOptions).self::NL;
+                        break;
+                    case 'submitUpdate':
+                        $output .= CHtml::submitButton('submit', $htmlOptions).self::NL;
+                        break;
+                    case 'submitUpdateClose':
+                        $output .= CHtml::submitButton('submit', $htmlOptions).self::NL;
                         break;
                     case 'submit':
                     default:
@@ -223,18 +231,20 @@ class CFormView
      * @param bol $autoGenerateId
      * @see init()
      */    
-    private static function formField($field, $fieldInfo, $events, $formName = '', $autoGenerateId = false)
+    private static function _formField($field, $fieldInfo, $events, $formName = '', $autoGenerateId = false)
     {
         $output = '';
         
-        $type = isset($fieldInfo['type']) ? $fieldInfo['type'] : 'textbox';
+        $type = isset($fieldInfo['type']) ? strtolower($fieldInfo['type']) : 'textbox';
         $value = isset($fieldInfo['value']) ? $fieldInfo['value'] : '';		
         $title = isset($fieldInfo['title']) ? $fieldInfo['title'] : false;
 		$tooltip = isset($fieldInfo['tooltip']) ? $fieldInfo['tooltip'] : '';
+		$definedValues = isset($fieldInfo['definedValues']) ? $fieldInfo['definedValues'] : '';
         $mandatoryStar = isset($fieldInfo['mandatoryStar']) ? $fieldInfo['mandatoryStar'] : false;
         $htmlOptions = (isset($fieldInfo['htmlOptions']) && is_array($fieldInfo['htmlOptions'])) ? $fieldInfo['htmlOptions'] : array();
-		$appendCode = isset($fieldInfo['appendCode']) ? $fieldInfo['appendCode'] : '';
 		$prependCode = isset($fieldInfo['prependCode']) ? $fieldInfo['prependCode'] : '';
+		$appendCode = isset($fieldInfo['appendCode']) ? $fieldInfo['appendCode'] : '';
+		$appendLabel = '';
 		
 		// encode special characters into HTML entities
 		if($type != 'textarea'){
@@ -250,31 +260,47 @@ class CFormView
             if(isset($htmlOptions['class'])) $htmlOptions['class'] .= ' field-error';
             else $htmlOptions['class'] = 'field-error';                     
         }
-		
-        switch(strtolower($type)){
+        
+        switch($type){
             case 'checkbox':
+                $viewType = isset($fieldInfo['viewType']) ? $fieldInfo['viewType'] : '';
 				$checked = isset($fieldInfo['checked']) ? (bool)$fieldInfo['checked'] : false;
 				if(!empty($value)) $htmlOptions['value'] = $value;
-				$fieldHtml = CHtml::checkBox($field, $checked, $htmlOptions);
+                if($viewType == 'custom'){
+                    $fieldHtml  = CHtml::openTag('div', array('class'=>'slideBox'));
+                    $fieldHtml .= CHtml::checkBox($field, $checked, $htmlOptions);
+                    $fieldHtml .= CHtml::label('', $htmlOptions['id']);
+                    $fieldHtml .= CHtml::closeTag('div');				
+                }else{
+        			$fieldHtml = CHtml::checkBox($field, $checked, $htmlOptions);                    
+                }
 				break;
             case 'label':				
-				$definedValues = isset($fieldInfo['definedValues']) ? $fieldInfo['definedValues'] : '';
 				$format = isset($fieldInfo['format']) ? $fieldInfo['format'] : '';
+                $stripTags = isset($fieldInfo['stripTags']) ? (bool)$fieldInfo['stripTags'] : false;
+                if($stripTags) $value = strip_tags(CHtml::decode($value));
+                
 				if(is_array($definedValues) && isset($definedValues[$value])){
-					$value = $definedValues[$value];				
-				}else if($format != ''){
-					$value = date($format, strtotime($value));
-				}
+                    $value = $definedValues[$value];
+                }else if($format != '' && $format != 'american' && $format != 'european'){
+                    $value = date($format, strtotime($value));
+                }
+
                 $for = isset($htmlOptions['for']) ? (bool)$htmlOptions['for'] : false;
                 $fieldHtml = CHtml::label($value, $for, $htmlOptions);
                 break;
+            case 'link':
+				$linkUrl = isset($fieldInfo['linkUrl']) ? $fieldInfo['linkUrl'] : '#';
+				$linkText = isset($fieldInfo['linkText']) ? $fieldInfo['linkText'] : '';
+				$fieldHtml = CHtml::link($linkText, $linkUrl, $htmlOptions);	
+                break;
             case 'datetime':
 				$fieldId = isset($htmlOptions['id']) ? $htmlOptions['id'] : $formName.'_'.$field;
-				$definedValues = isset($fieldInfo['definedValues']) ? $fieldInfo['definedValues'] : '';
 				$format = isset($fieldInfo['format']) ? $fieldInfo['format'] : 'yy-mm-dd';
 				if(is_array($definedValues) && isset($definedValues[$value])){
 					$value = $definedValues[$value];				
 				}
+                if(!isset($htmlOptions['autocomplete'])) $htmlOptions['autocomplete'] = 'off';
 				$fieldHtml = CHtml::textField($field, $value, $htmlOptions);
 				
 				A::app()->getClientScript()->registerCssFile('js/vendors/jquery/jquery-ui.min.css');
@@ -327,7 +353,7 @@ class CFormView
 				if(!empty($imageClass)) $imageHtmlOptions['class'] = $imageClass;
 				// delete link options
 				$showDeleteLink = isset($fieldInfo['deleteOptions']['showLink']) ? (bool)$fieldInfo['deleteOptions']['showLink'] : false;
-				$deleteLinkPath = isset($fieldInfo['deleteOptions']['linkPath']) ? $fieldInfo['deleteOptions']['linkPath'] : '';
+				$deleteLinkPath = isset($fieldInfo['deleteOptions']['linkUrl']) ? $fieldInfo['deleteOptions']['linkUrl'] : '';
 				$deleteLinkText = isset($fieldInfo['deleteOptions']['linkText']) ? $fieldInfo['deleteOptions']['linkText'] : A::t('core', 'Delete');
 				$imageText = '';
 				// file options
@@ -355,6 +381,8 @@ class CFormView
 				$fieldHtml .= CHtml::closeTag('div');				
 				break;
             case 'textarea':
+				$maxLength = isset($htmlOptions['maxLength']) ? (int)$htmlOptions['maxLength'] : 0;
+				if($maxLength > 0) $appendLabel = '<br>'.A::t('core', 'max.: {maxchars} chars', array('{maxchars}'=>$maxLength));
                 $fieldHtml = CHtml::textArea($field, $value, $htmlOptions);
                 break;
             case 'radio':
@@ -378,12 +406,13 @@ class CFormView
         if($type == 'hidden'){
             $output .= $fieldHtml.self::NL;    
         }else{
-            $output .= CHtml::openTag('div', array('class'=>'row', 'id'=>($autoGenerateId) ? $formName.'_row_'.self::$count++ : ''));
+            $output .= CHtml::openTag('div', array('class'=>'row', 'id'=>($autoGenerateId) ? $formName.'_row_'.self::$_count++ : ''));
 			$output .= $prependCode;
             if($title){
 				$for = (isset($htmlOptions['id']) && $htmlOptions['id']) ? $htmlOptions['id'] : false;
 				$tooltipText = (!empty($tooltip)) ? ' '.CHtml::link('', false, array('class'=>'tooltip-icon', 'title'=>$tooltip)) : '';
-				$output .= CHtml::label($title.$tooltipText.(trim($title) !== '' ? ':' : '').(($mandatoryStar) ? CHtml::$afterRequiredLabel : ''), $for);
+				$output .= CHtml::label($title.$tooltipText.(trim($title) !== '' ? ':' : '').(($mandatoryStar) ? CHtml::$afterRequiredLabel : '').$appendLabel, $for);
+				
             }
             $output .= $fieldHtml;
 			$output .= $appendCode;

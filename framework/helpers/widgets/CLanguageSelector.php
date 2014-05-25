@@ -10,9 +10,6 @@
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
- * 
- * STATIC:
- * ---------------------------------------------------------------
  * init
  * 
  */	  
@@ -44,8 +41,10 @@ class CLanguageSelector
         $currentLang = isset($params['currentLanguage']) ? $params['currentLanguage'] : '';
         $return = isset($params['return']) ? (bool)$params['return'] : true;
         
-        $output .= CHtml::openTag($tagName, array('id'=>'language-selector'));
-        if(sizeof($languages) < 6){
+        $totalLangs = count($languages);
+        if($totalLangs == 1){
+            return '';
+        }else if($totalLangs < 6){
             // render options as links
             $lastLang = end($languages);
             foreach($languages as $key => $lang){
@@ -69,9 +68,11 @@ class CLanguageSelector
             }            
         }else{
             // render options as dropdown list
-            $output .= CHtml::openForm('languages/change/', 'get', array('name'=>'frmLangSelector')).self::NL;
+            $output .= CHtml::openForm('languages/change/', 'get', array('name'=>'frmLangSelector')).self::NL;            
+            $arrLanguages = array();
+            foreach($languages as $key => $val) $arrLanguages[$key] = $val['name'];            
             $output .= CHtml::dropDownList(
-                'lang', $currentLang, $languages,
+                'lang', $currentLang, $arrLanguages,
                 array(
                     'id'=>'selLanguages',
                     'submit'=>''
@@ -79,6 +80,7 @@ class CLanguageSelector
             );
             $output .= CHtml::closeForm().self::NL;
         }
+        $output = CHtml::openTag($tagName, array('id'=>'language-selector')).$output;       
         $output .= CHtml::closeTag($tagName).self::NL;       
         
         if($return) return $output;

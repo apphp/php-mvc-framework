@@ -10,10 +10,6 @@
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
- * 
- * 
- * STATIC:
- * ---------------------------------------------------------------
  * isLoggedIn
  * isLoggedInAs
  * isLoggedInAsAdmin
@@ -25,6 +21,7 @@
  * getLoggedEmail
  * getLoggedLastVisit
  * getLoggedAvatar
+ * getLoggedLang
  * getLoggedRole
  * getLoggedParam
  * 
@@ -88,11 +85,11 @@ class CAuth
      * Handles access for non-logged users (block access)
      * @param string $location
      */
-    public static function handleLogin($location = 'login/index')
+    public static function handleLogin($location = 'index/index')
     {
         if(APPHP_MODE == 'test') return '';
         if(!self::isLoggedIn()){
-            session_destroy();
+            //session_destroy();
             header('location: '.A::app()->getRequest()->getBaseUrl().$location);
             exit;
         }
@@ -155,6 +152,15 @@ class CAuth
     {
         return (self::isLoggedIn()) ? A::app()->getSession()->get('loggedAvatar') : null;
     }
+    
+    /**
+     * Returns preferred language of logged in user
+     * @return string
+     */
+    public static function getLoggedLang()
+    {
+        return (self::isLoggedIn()) ? A::app()->getSession()->get('loggedLanguage') : null;
+    }    
 	
     /**
      * Returns role of logged in user

@@ -15,11 +15,9 @@
  * 
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
- * 
- * STATIC:
- * ---------------------------------------------------------------
  * config
  * send
+ * getError
  * phpMail
  * smtpMailer
  * phpMailer
@@ -33,11 +31,12 @@ class CMailer
 	private static $_mailer = 'phpMail';
 	private static $_error = '';
 
-	private static $_smtp_secure = '';
-	private static $_smtp_host = '';
-	private static $_smtp_port = '';
-	private static $_smtp_username = '';
-	private static $_smtp_password = '';
+    private static $_smtpAuth = '';
+	private static $_smtpSecure = '';
+	private static $_smtpHost = '';
+	private static $_smtpPort = '';
+	private static $_smtpUsername = '';
+	private static $_smtpPassword = '';
 	
 	/**
 	 * Sets a basic configuration 
@@ -45,12 +44,13 @@ class CMailer
 	 */
     public static function config($params)
     {
-		self::$_mailer        = isset($params['mailer']) ? $params['mailer'] : 'phpMail';
-		self::$_smtp_secure   = isset($params['smtp_secure']) ? $params['smtp_secure'] : (CConfig::get('email.smtp.secure') ? CConfig::get('email.smtp.secure') : '');
-		self::$_smtp_host     = isset($params['smtp_host']) ? $params['smtp_host'] : CConfig::get('email.smtp.host');
-		self::$_smtp_port     = isset($params['smtp_port']) ? $params['smtp_port'] : CConfig::get('email.smtp.port');
-		self::$_smtp_username = isset($params['smtp_username']) ? $params['smtp_username'] : CConfig::get('email.smtp.username');
-		self::$_smtp_password = isset($params['smtp_password']) ? $params['smtp_password'] : CConfig::get('email.smtp.password');
+		self::$_mailer       = isset($params['mailer']) ? $params['mailer'] : 'phpMail';
+        self::$_smtpAuth     = isset($params['smtp_auth']) ? $params['smtp_auth'] : (CConfig::get('email.smtp.auth') ? CConfig::get('email.smtp.auth') : '');
+		self::$_smtpSecure   = isset($params['smtp_secure']) ? $params['smtp_secure'] : (CConfig::get('email.smtp.secure') ? CConfig::get('email.smtp.secure') : '');
+		self::$_smtpHost     = isset($params['smtp_host']) ? $params['smtp_host'] : CConfig::get('email.smtp.host');
+		self::$_smtpPort     = isset($params['smtp_port']) ? $params['smtp_port'] : CConfig::get('email.smtp.port');
+		self::$_smtpUsername = isset($params['smtp_username']) ? $params['smtp_username'] : CConfig::get('email.smtp.username');
+		self::$_smtpPassword = isset($params['smtp_password']) ? $params['smtp_password'] : CConfig::get('email.smtp.password');
 	}
 
 	/**
@@ -73,6 +73,15 @@ class CMailer
 	}
 
 	/**
+	 * Returns error message
+	 * @return string 
+	 */
+    public static function getError()
+    {
+		return self::$_error;
+	}	
+
+	/**
 	 * Sends email using php mail() function
 	 * @param string $to
 	 * @param string $subject
@@ -85,11 +94,14 @@ class CMailer
 		$charset = 'UTF-8';
 		$xMailer = 'PHP-EMAIL-HELPER'; // 'APPHP-EMAIL-HELPER';
         $from = isset($params['from']) ? $params['from'] : '';
+        $fromName = isset($params['from_name']) ? $params['from_name'] : '';
+        $fromHeader = ($fromName) ? $fromName.' <'.$from.'>' : $from;
 		$emailType = 'text/'.(CConfig::get('email.isHtml') ? 'html' : 'plain'); 
 
-		$additionalParameters = '-f '.$from;	
+		// don't use additional parameters id there safe mode is enabled
+        $additionalParameters = ini_get('safe_mode') ? '' : '-f '.$from;
 
-		$headers = 'From: '.$from."\r\n".
+		$headers = 'From: '.$fromHeader."\r\n".
 				   'Reply-To: '.$from."\r\n".
 				   'Return-Path: '.$from."\r\n".
 				   'MIME-Version: 1.0'."\r\n".
@@ -100,10 +112,11 @@ class CMailer
 		$result = @mail($to, $subject, $message, $headers, $additionalParameters);
 
 		if(!$result){
-			if(version_compare(PHP_VERSION, '5.2.0', '>=')){	
-				$err = error_get_last();
-				if(!empty($err)){
-					self::$_error = isset($err['message']) ? $err['message'] : '';	
+			if(version_compare(PHP_VERSION, '5.2.0', '>=')){
+                $err = error_get_last();
+				if(isset($err['message']) && $err['message'] != ''){
+					self::$_error = $err['message'].' | file: '.$err['file'].' | line: '.$err['line'];
+                    @trigger_error('');
 				}
 			}else{
 				self::$_error = A::t('core', 'PHPMail Error: an error occurred while sending email.');
@@ -112,15 +125,6 @@ class CMailer
 		return $result;
     }
 	
-	/**
-	 * Returns error message
-	 * @return string 
-	 */
-    public static function getError()
-    {
-		return self::$_error;
-	}	
-
 	/**
 	 * Sends email using php PHPMailer class (SMTP)
 	 * @param string $to
@@ -132,6 +136,7 @@ class CMailer
     public static function smtpMailer($to, $subject, $message, $params = '')
     {
 		$from = isset($params['from']) ? $params['from'] : '';
+        $fromName = isset($params['from_name']) ? $params['from_name'] : '';
 
 		$mail = PHPMailer::Instance();
 
@@ -139,19 +144,19 @@ class CMailer
 		$mail->SMTPDebug  = 0;      	// enables SMTP debug information (for testing)
 										// 1 = errors and messages
 										// 2 = messages only
-		$mail->SMTPAuth   = true;   	// enable SMTP authentication
-		$mail->SMTPSecure = self::$_smtp_secure;      // sets the prefix to the server
-		$mail->Host       = self::$_smtp_host;
-		$mail->Port       = self::$_smtp_port;
-		$mail->Username   = self::$_smtp_username;
-		$mail->Password   = self::$_smtp_password;
+		$mail->SMTPAuth   = (self::$_smtpAuth == 1) ? true : false; // enable SMTP authentication
+		$mail->SMTPSecure = self::$_smtpSecure; // sets the prefix to the server
+		$mail->Host       = self::$_smtpHost;
+		$mail->Port       = self::$_smtpPort;
+		$mail->Username   = self::$_smtpUsername;
+		$mail->Password   = self::$_smtpPassword;
 
-		$mail->SetFrom($from);        	// $mail->SetFrom($mail_from, 'First Last');
-		$mail->AddReplyTo($from);   	// $mail->AddReplyTo($mail_to, 'First Last');
+		$mail->SetFrom($from, $fromName);    // $mail->SetFrom($mail_from, 'First Last');
+		$mail->AddReplyTo($from, $fromName); // $mail->AddReplyTo($mail_to, 'First Last');
 		
 		$recipients = explode(',', $to);
 		foreach($recipients as $key){
-			$mail->AddAddress($key);  	// $mail->AddAddress($mail_to, 'John Doe'); 	
+			$mail->AddAddress($key);  	     // $mail->AddAddress($mail_to, 'John Doe'); 	
 		}
 		
 		$mail->Subject = $subject;
@@ -183,15 +188,16 @@ class CMailer
     public static function phpMailer($to, $subject, $message, $params = '')
     {
 		$from = isset($params['from']) ? $params['from'] : '';
+        $fromName = isset($params['from_name']) ? $params['from_name'] : '';
 
 		$mail = PHPMailer::Instance();
 		
-		$mail->SetFrom($from);        	// $mail->SetFrom($mail_from, 'First Last');
-		$mail->AddReplyTo($from);     	// $mail->AddReplyTo($mail_to, 'First Last');
+		$mail->SetFrom($from, $fromName);    // $mail->SetFrom($mail_from, 'First Last');
+		$mail->AddReplyTo($from, $fromName); // $mail->AddReplyTo($mail_to, 'First Last');
 
 		$recipients = explode(',', $to);
 		foreach($recipients as $key){
-			$mail->AddAddress($key);	// $mail->AddAddress($mail_to, 'John Doe'); 	
+			$mail->AddAddress($key);	     // $mail->AddAddress($mail_to, 'John Doe'); 	
 		}
 
 		$mail->Subject = $subject;

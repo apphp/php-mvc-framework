@@ -10,13 +10,10 @@
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
- * 
- * 
- * STATIC:
- * ---------------------------------------------------------------
  * isValidDate
  * isValidTime
  * getTimeDiff
+ * dateParseFromFormat
  * 
  */	  
 
@@ -65,6 +62,79 @@ class CTime
         if($units == 'minute') return $difference / 60;
         return $difference;
     }
-    
+	
+	
+     /**
+     * 	Returns info about given date formatted according to the specified format
+     * 	used to replace date_parse_from_format() function (PHP 5.3+)
+     * 	@param string $format
+     * 	@param string $date
+     * 	@return array
+     */
+    function dateParseFromFormat($format, $date)
+    {
+		if(function_exists('date_parse_from_format')){
+			return date_parse_from_format($format, $date);
+		}else{
+			// reverse engineer date formats
+			$keys = array(
+				'Y' => array('year', '\d{4}'),              
+				'y' => array('year', '\d{2}'),              
+				'm' => array('month', '\d{2}'),             
+				'n' => array('month', '\d{1,2}'),           
+				'M' => array('month', '[A-Z][a-z]{3}'),     
+				'F' => array('month', '[A-Z][a-z]{2,8}'),   
+				'd' => array('day', '\d{2}'),               
+				'j' => array('day', '\d{1,2}'),             
+				'D' => array('day', '[A-Z][a-z]{2}'),       
+				'l' => array('day', '[A-Z][a-z]{6,9}'),     
+				'u' => array('hour', '\d{1,6}'),            
+				'h' => array('hour', '\d{2}'),              
+				'H' => array('hour', '\d{2}'),              
+				'g' => array('hour', '\d{1,2}'),            
+				'G' => array('hour', '\d{1,2}'),            
+				'i' => array('minute', '\d{2}'),            
+				's' => array('second', '\d{2}')             
+			);
+	
+			// converting format to regex
+			$regex = '';
+			$chars = str_split($format);
+			foreach($chars as $n => $char){
+				$lastChar = isset($chars[$n-1]) ? $chars[$n-1] : '';
+				$skipCurrent = ('\\' == $lastChar);
+				if(!$skipCurrent && isset($keys[$char])){
+					$regex .= '(?P<'.$keys[$char][0].'>'.$keys[$char][1].')';
+				}else if('\\' == $char ){
+					$regex .= $char;
+				}else{
+					$regex .= preg_quote($char);
+				}
+			}
+	
+			$dt = array();
+			$dt['error_count'] = 0;
+			// test for matching
+			if(preg_match('#^'.$regex.'$#', $date, $dt)){
+				foreach($dt as $key => $val){
+					if(is_int($key)) unset($dt[$key]);
+				}
+				if(!checkdate((int)$dt['month'], (int)$dt['day'], (int)$dt['year'])){
+					$dt['error_count'] = 1;
+				}
+			}else{
+				$dt['error_count'] = 1;
+			}
+			$dt['errors'] = array();
+			$dt['fraction'] = '';
+			$dt['warning_count'] = 0;
+			$dt['warnings'] = array();
+			$dt['is_localtime'] = 0;
+			$dt['zone_type'] = 0;
+			$dt['zone'] = 0;
+			$dt['is_dst'] = '';
+			return $dt;			
+		}
+	}  
     
 }

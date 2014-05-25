@@ -24,16 +24,13 @@ class CComponent
     /* class name => component */
     private static $_components = array();
 
-	/** @var string */		
-    protected $view;
-
 	/**
 	 * Class constructor
 	 * @return void
 	 */
 	function __construct()
 	{
-		$this->view = A::app()->view;
+		
 	}
   
 	/**

@@ -2,20 +2,24 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<title>ApPHP Framework - Requirements Checker</title>
+	<meta name="description" content="ApPHP Framework - Running Requirements Checker Utility" />
+    <meta name="author" content="ApPHP Company - Advanced Power of PHP">
+    <meta name="generator" content="ApPHP MVC Framework - Requirements Checker">
+	<title>ApPHP MVC Framework - Requirements Checker</title>
 	<link rel="stylesheet" type="text/css" href="css/style.css" />
 </head>
 <body>
 	<header>
 		<nav>
 			<ul class="menu">
-				<li class=""><a href="../../docs/">Documentation</a></li>
+				<li><a href="../../docs/index.php">Documentation</a></li>
 				<li class="active"><a href="index.php">Requirements</a></li>				
-				<li class=""><a href="../tests/">Tests</a></li>				
-				<li class=""><a href="../../demos/">Demo</a></li>
+				<li><a href="../tests/index.php">Tests</a></li>
+                <li><a href="../generators/index.php">Code Generators</a></li>
+				<li><a href="../../demos/index.php">Demo</a></li>
 			</ul>
 			<ul class="menu" style="float:right">
-				<li><a href="../../index.html">Index</a></li>
+				<li><a href="../../index.html">&laquo; Index</a></li>
 			</ul>
 		</nav>
 	</header>
@@ -27,7 +31,7 @@
 				<b>ApPHP Framework Requirements Checker.</b> This utility allows you to check if your server configuration meets the requirements
 				for running ApPHP Framework Web applications. It checks if the server is running
 				the right version of PHP, if appropriate PHP extensions have been loaded,
-				if php.ini file settings are correct etc.
+				if php.ini file settings are correct, etc.
 			</p>
 		
 			<h2>Conclusion</h2>

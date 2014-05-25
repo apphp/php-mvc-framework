@@ -10,9 +10,6 @@
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
- * 
- * STATIC:
- * ---------------------------------------------------------------
  * init
  * 
  */	  
@@ -28,7 +25,7 @@ class CMessage
      * @param array $params
      * 
      * Usage:
-     *  CWidget::create('CMessage' array(
+     *  CWidget::create('CMessage', array(
      *     'info|success|error|warning|validation',
      *     'message',
      *     array(
