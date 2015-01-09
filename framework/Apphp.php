@@ -77,32 +77,33 @@ class A
         'CActiveRecord' => 'db/CActiveRecord.php',
         'CDatabase'     => 'db/CDatabase.php',
         'CDataGrid'     => 'db/CDataGrid.php',
-        
-        'CAuth'        => 'helpers/CAuth.php',
-        'CCache'       => 'helpers/CCache.php',
-        'CCurrency'    => 'helpers/CCurrency.php',
-        'CFile'        => 'helpers/CFile.php',
-        'CFilter'      => 'helpers/CFilter.php',
-        'CHash'        => 'helpers/CHash.php',        
-        'CHtml'        => 'helpers/CHtml.php',
-        'CImage'       => 'helpers/CImage.php',
-        'CMailer'      => 'helpers/CMailer.php',
-        'CNumber'      => 'helpers/CNumber.php',
-        'CString'      => 'helpers/CString.php',
-        'CTime'        => 'helpers/CTime.php',
-        'CValidator'   => 'helpers/CValidator.php',
-        'CWidget'      => 'helpers/CWidget.php',
+
+        'CArray'        => 'helpers/CArray.php',        
+        'CAuth'         => 'helpers/CAuth.php',
+        'CCache'        => 'helpers/CCache.php',
+        'CCurrency'     => 'helpers/CCurrency.php',
+        'CFile'         => 'helpers/CFile.php',
+        'CFilter'       => 'helpers/CFilter.php',
+        'CHash'         => 'helpers/CHash.php',        
+        'CHtml'         => 'helpers/CHtml.php',
+        'CImage'        => 'helpers/CImage.php',
+        'CMailer'       => 'helpers/CMailer.php',
+        'CNumber'       => 'helpers/CNumber.php',
+        'CString'       => 'helpers/CString.php',
+        'CTime'         => 'helpers/CTime.php',
+        'CValidator'    => 'helpers/CValidator.php',
+        'CWidget'       => 'helpers/CWidget.php',
     );
     /** @var array */
     private static $_coreComponents = array(
-        'session'      => array('class' => 'CHttpSession'),
-        'dbSession'    => array('class' => 'CDbHttpSession'),
-        'request'      => array('class' => 'CHttpRequest'),
-        'localTime'    => array('class' => 'CLocalTime'),
-        'cookie' 	   => array('class' => 'CHttpCookie'),
-        'clientScript' => array('class' => 'CClientScript'),
-        'coreMessages' => array('class' => 'CMessageSource', 'language' => 'en'),
-        'messages'     => array('class' => 'CMessageSource'),
+        'session'       => array('class' => 'CHttpSession'),
+        'dbSession'     => array('class' => 'CDbHttpSession'),
+        'request'       => array('class' => 'CHttpRequest'),
+        'localTime'     => array('class' => 'CLocalTime'),
+        'cookie' 	    => array('class' => 'CHttpCookie'),
+        'clientScript'  => array('class' => 'CClientScript'),
+        'coreMessages'  => array('class' => 'CMessageSource', 'language' => 'en'),
+        'messages'      => array('class' => 'CMessageSource'),
     );
     /** @var array */
     private static $_coreModules = array(        
@@ -232,6 +233,13 @@ class A
         
         // register framework core components
         $this->_registerCoreComponents();
+
+        // global test for database
+        if(CConfig::get('db.driver') != ''){
+            $db = CDatabase::init();
+            if(!CAuth::isGuest()) $db->cacheOff();
+        }
+   
         // register application components
         $this->_registerAppComponents();
         // register application modules
@@ -240,12 +248,6 @@ class A
         // run events
         if($this->_hasEventHandler('_onBeginRequest')) $this->_onBeginRequest();
 	
-        // global test for database
-        if(CConfig::get('db.driver') != ''){
-            $db = CDatabase::init();
-            if(!CAuth::isGuest()) $db->cacheOff();
-        }
-   
         if(APPHP_MODE != 'hidden'){
             $this->router = new CRouter(); 
             $this->router->route();        
@@ -280,7 +282,7 @@ class A
      */
     public static function getVersion()
     {
-    	return '0.4.4';
+    	return '0.5.9';
     }
 
     /**
@@ -582,15 +584,18 @@ class A
     /**
      * Returns the language that is used for application or language parameter
      * @param string $param
+     * @param bool $useDefault
      * @return string 
      */
-    public function getLanguage($param = '')
+    public function getLanguage($param = '', $useDefault = true)
     {
         $language = $this->getSession()->get(($param != '') ? 'language_'.$param : 'language');
         if(!empty($language)){
             return $language;
+        }else if($this->_language === null && $useDefault){ 
+            return $this->sourceLanguage;
         }else{
-            return $this->_language === null ? $this->sourceLanguage : $this->_language;    
+            return $this->_language;      
         }
     }
     

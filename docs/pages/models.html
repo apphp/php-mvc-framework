@@ -67,6 +67,7 @@ $this->_db->select('SELECT * FROM '.$this->_table.' WHERE id = :id', array('id' 
 $this->_db->insert($this->_table, array('name'=>'John Smith', 'email'=>'j.smith@email.me'));
     
 // Performs update query and returns true of false depending on result
+$this->_db->update($this->_table, array('address'=>'New address', 'status'=>2), 'is_active = :is_active', array(':is_active'=>1));
 $this->_db->update($this->_table, array('address'=>'New address', 'status'=>2), 'is_active = 1');
 
 // Performs delete query and returns a number of affected rows
@@ -263,6 +264,16 @@ $page->content = 'changed content of page body';
 $page->date_updated = date('Y-m-d');
 $page->save();
 </pre>
+
+You may also use following methods:
+<pre name="dlhl" class="php">
+// Updates records with the specified primary key
+$result = Accounts::model()->updateByPk($id, array('password'=>$password));
+// Updates all records matching the specified condition
+$result = Accounts::model()->updateAll(array('password'=>$password), 'is_active = 1');
+</pre>
+<br>
+
 <br>
 
 <a name="deleting_record"></a>
@@ -316,6 +327,11 @@ $page = Pages::model()->exists($conditions, $params);
 $page = Pages::model()->count($conditions, $params);
 // finds a maximum value of the specified column
 $page = Pages::model()->max($columnName, $conditions, $params);
+// finds a sum value of the specified column
+$page = Pages::model()->sum($columnName, $conditions, $params);
+// reloads model data according to current primary key
+$page = Pages::model()->findByPk(1);
+$page = $page->refresh();
 </pre>
 
 <br><br>

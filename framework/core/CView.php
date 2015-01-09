@@ -41,10 +41,6 @@ class CView
 	/** @var string */
 	private $_action;
 	/**	@var string */
-	private $_breadCrumbs;
-	/**	@var string */
-	private $_activeMenu;
-	/**	@var string */
 	private $_pageTitle;
 	/**	@var string */
 	private $_pageKeywords;
@@ -223,7 +219,6 @@ class CView
 			if(!empty($params)){
 				$parts = count($paramsParts);
 				if($parts == 1){
-					/// [x] $this->__controller = $this->_controller;
 					$this->__view = isset($paramsParts[0]) ? $paramsParts[0] : $this->_action;
 				}else if($parts >= 2){
 					$this->__controller = isset($paramsParts[0]) ? $paramsParts[0] : $this->_controller;
@@ -234,7 +229,9 @@ class CView
 			if(APPHP_MODE == 'test'){
 				return $this->__controller.'/'.$this->__view;
 			}else{
-				if(APPHP_MODE != 'debug') $this->__controller = strtolower($this->_controller);
+				// [16.12.2014] REMOVED because it doesn't show error in production mode
+                //if(APPHP_MODE != 'debug') $this->__controller = strtolower($this->_controller);
+                $this->__controller = strtolower($this->__controller);
 
 				$this->__template = APPHP_PATH.DS.'templates'.DS.(!empty($this->_template) ? $this->_template.DS : '').'default.php';			
 				if(!file_exists($this->__template)){

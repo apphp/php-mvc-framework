@@ -1,0 +1,29 @@
+Version 0.0.5 - 
+----------------------------
+- New: added new placeholder for SQL dump - <CREATED_AT>
+- New: added moving files for modules installation
+- New: added rollback copying to destination folders failed for modules
+- Bug: fixed issue with 'safe_mode' parameter in phpinfo()
+-
+
+Version 0.0.4 - 05.06.2013
+----------------------------
+- New: added info about loaded modules
+- New: added modules installation
+- Enh: minor changes in desing
+- Enh: minor changes in SetupController
+- Bug: fixed strict standards warnings
+
+Version 0.0.3 - 06.05.2013
+----------------------------
+- New: added possibility to define program name and version
+- Enh: added filtering on databaseAction()
+- Bug: fixed css errors on resizing window
+- Bug: fixed strict standards warnings
+- Bug: fixed PDO Core syntax for PHP > 5.3.0
+
+Version 0.0.2
+----------------------------
+
+Version 0.0.1
+----------------------------

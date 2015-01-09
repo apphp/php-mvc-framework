@@ -20,14 +20,16 @@
  * setBaseUrl
  * getQuery
  * getPost
+ * getPostWith
  * setPost
  * getRequest
+ * isPostRequest
+ * isPostExists
  * getCsrfValidation
  * getCsrfTokenKey
  * getCsrfTokenValue
  * validateCsrfToken
- * isPostRequest
- * isPostExists
+ * downloadFile
  * 
  *
  * STATIC:
@@ -190,6 +192,26 @@ class CHttpRequest extends CComponent
 	}
 
     /**
+     *	Returns parameter from global array $_POST
+     *	@param string $name
+     *	@param string|array $filters
+     *	@param string $default
+     *	@return array
+     */
+	public function getPostWith($name, $filters = '', $default = '')
+	{
+        $result = array();
+        if(!isset($_POST) || !is_array($_POST)) return $result;
+
+        foreach($_POST as $key => $val){
+            if(preg_match('/'.$name.'/i', $key)){
+                $result[$key] = $this->_getParam('post', $key, $filters, $default);
+            }
+        }            
+        return $result;
+	}
+
+    /**
      *	Sets value to global array $_POST
      *	@param string $name
      *	@param string $value
@@ -214,6 +236,25 @@ class CHttpRequest extends CComponent
 	public function getRequest($name, $filters = '', $default = '')
 	{
 		return $this->_getParam('request', $name, $filters, $default);		
+	}
+
+	/**
+	 * Returns whether there is a POST request
+	 * @return boolean 
+	 */
+	public function isPostRequest()
+	{
+		return isset($_SERVER['REQUEST_METHOD']) && !strcasecmp($_SERVER['REQUEST_METHOD'], 'POST');
+	}
+	
+	/**
+	 * Returns whether there is a POST variable exists
+	 * @param string $name
+	 * @return boolean 
+	 */
+	public function isPostExists($name)
+	{
+		return isset($_POST[$name]);
 	}
 
 	/**
@@ -270,30 +311,11 @@ class CHttpRequest extends CComponent
 			}
 			if(!$valid){
 				unset($_POST);
-				CDebug::addMessage('errors', 'csrf_token', A::t('core', 'The CSRF token could not be verified.'));
+				CDebug::addMessage('warnings', 'csrf_token', A::t('core', 'The CSRF token could not be verified.'));
 			}
 		}
 	}
 
-	/**
-	 * Returns whether there is a POST request
-	 * @return boolean 
-	 */
-	public function isPostRequest()
-	{
-		return isset($_SERVER['REQUEST_METHOD']) && !strcasecmp($_SERVER['REQUEST_METHOD'], 'POST');
-	}
-	
-	/**
-	 * Returns whether there is a POST variable exists
-	 * @param string $name
-	 * @return boolean 
-	 */
-	public function isPostExists($name)
-	{
-		return isset($_POST[$name]);
-	}
-	
 	/**
 	 * Cleans the request data.
 	 * This method removes slashes from request data if get_magic_quotes_gpc() is turned on
@@ -361,4 +383,29 @@ class CHttpRequest extends CComponent
 		}		
 	}  
    
+	/**
+	 * Downloads a file from browser to user 
+	 * @param string $fileName 
+	 * @param string $content 
+	 * @param string $mimeType 
+	 * @param boolean $terminate 
+	 */
+	public function downloadFile($fileName, $content, $mimeType = null, $terminate = true)
+	{
+		if($mimeType === null) $mimeType='text/plain';
+
+		header('Pragma: public');
+		header('Expires: 0');
+		header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+		header("Content-type: $mimeType");
+		if(ob_get_length() === false){
+			header('Content-Length: '.(function_exists('mb_strlen') ? mb_strlen($content,'8bit') : strlen($content)));
+		}
+		header("Content-Disposition: attachment; filename=\"$fileName\"");
+		header('Content-Transfer-Encoding: binary');
+		echo $content;
+		
+        if($terminate) exit(0);
+	}
+ 
 }

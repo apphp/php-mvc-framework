@@ -78,7 +78,7 @@
         "save",
         "fieldA",
         "fieldB",
-        "relations",
+        "_relations",
         "self",
         "HAS_ONE",
         "BELONGS_TO",
@@ -182,6 +182,9 @@
         "currentDateTime",
         "cacheOn",
         "cacheOff",
+        "view",
+        "updateByPk",
+        "refresh",
 	];
 
 	var BUILTINS = {};

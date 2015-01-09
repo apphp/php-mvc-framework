@@ -5,5 +5,5 @@ function formSubmit(operation, sub_type){
     var sub_type_ = (sub_type != null)? sub_type : '';
     if(sub_type_ == "project") action_ = operation_ = "";
     
-    document.location.href="index.php?project="+project_+"&action="+action_+'&operation='+operation_;    
+    window.location.href="index.php?project="+project_+"&action="+action_+'&operation='+operation_;    
 }

@@ -14,6 +14,8 @@
  * STATIC:
  * ---------------------------------------------------------------
  * init                                                 _getFormattedMicrotime
+ * display
+ * d
  * write
  * addMessage
  * getMessage
@@ -47,6 +49,32 @@ class CDebug
         if(APPHP_MODE != 'debug') return false;
         
         self::$_startTime = self::_getFormattedMicrotime();
+    }
+
+    /**
+     * Alias to method 'display'
+     * @param mixed $param
+     * @param bool $terminate
+     * @return HTML dump
+     */
+    public static function d($param, $terminate = false)
+    {
+        self::display($param, $terminate);
+    }
+
+    /**
+     * Displays parameter on the screen
+     * @param mixed $param
+     * @param bool $terminate
+     * @return HTML dump
+     */
+    public static function display($param, $terminate = false)
+    {
+        if($terminate) echo '<!DOCTYPE html><head><meta charset="UTF-8" /></head><html><body>';
+        echo '<pre>';
+        print_r($param);
+        echo '</pre>';
+        if($terminate){ echo '</body></html>'; exit(0); }
     }
 
     /**
@@ -170,7 +198,7 @@ class CDebug
 		<div id="debug-panel">
 		<fieldset>
 		<legend id="debug-panel-legend" align="'.$panelAlign.'">
-			<b style="color:#222">Debug</b>:&nbsp;
+			<b style="color:#222">'.A::t('core', 'Debug').'</b>:&nbsp;
 			<a id="debugArrowExpand" class="debugArrow" style="display:;" href="javascript:void(0)" title="Expand" onclick="javascript:appTabsMiddle()">&#9650;</a>
 			<a id="debugArrowCollapse" class="debugArrow" style="display:none;" href="javascript:void(0)" title="Collapse" onclick="javascript:appTabsMinimize()">&#9660;</a>
 			<a id="debugArrowMaximize" class="debugArrow" style="display:;" href="javascript:void(0)" title="Maximize" onclick="javascript:appTabsMaximize()">&#9744;</a>
@@ -193,8 +221,14 @@ class CDebug
 				echo '</pre>';            
 			}			
 			echo 'POST:';
-			echo '<pre style="white-space:pre-wrap;">';			
-			if(isset($_POST)) print_r(array_map('strip_tags', $_POST));
+			echo '<pre style="white-space:pre-wrap;">';
+            $arrPost = array();
+			if(isset($_POST)){
+                foreach($_POST as $key => $val){
+                    $arrPost[$key] = is_array($val) ? $val : strip_tags($val);
+                }
+            }
+            print_r($arrPost);
 			echo '</pre>';            
 		echo '</div>
 	

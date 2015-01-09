@@ -73,9 +73,12 @@ class CFile
 	 * @param string $src
 	 * @param string $dest
 	 * @param bool $fullPath
+	 * @param array $options 
+	 *      newDirMode - the permission to be set for newly copied directories (defaults to 0777)
+	 *      newFileMode - the permission to be set for newly copied files (defaults to the current environment setting)
 	 * @return bool
 	 */
-	public static function copyDirectory($src = '', $dest = '', $fullPath = true)
+	public static function copyDirectory($src = '', $dest = '', $fullPath = true, $options = array())
 	{
 		$result = false;
 		$dirPath = (($fullPath) ? APPHP_PATH.'/' : '').$src;
@@ -83,16 +86,26 @@ class CFile
 		if(is_dir($dirPath)){
 			$dir = opendir($dirPath);
 			if(!$dir) return $result;
-			if(!file_exists(trim($dest, '/').'/')) mkdir((($fullPath) ? APPHP_PATH.'/' : '').$dest);
+			if(!file_exists(trim($dest, '/').'/')){
+                mkdir((($fullPath) ? APPHP_PATH.'/' : '').$dest);
+            }
+            if(isset($options['newDirMode'])){
+                @chmod($dest, $options['newDirMode']);
+            }else{
+                @chmod($dest, 0777);
+            }
 			while(false !== ($file = readdir($dir))){	
 				if(($file != '.') && ($file != '..')){				
 					$fromDir = trim($src, '/').'/'.$file;
 					$toDir = trim($dest, '/').'/'.$file;
 					if(is_dir($fromDir)){
-						$result = self::copyDirectory($fromDir, $toDir, $fullPath);
+						$result = self::copyDirectory($fromDir, $toDir, $fullPath, $options);
 					}else{
 						$result = copy($fromDir, $toDir);	
-					}				
+						if(isset($options['newFileMode'])){
+                            @chmod($toDir, $options['newFileMode']);    
+                        }						
+                    }				
 				}
 			}
 			closedir($dir);

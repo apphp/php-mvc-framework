@@ -51,8 +51,9 @@ class CMenu
      *      ),
      *      'type'=>'horizontal',					
      *      'class'=>'',
-     *      'subMenuClass' => '',
-     *      'dropdownItemClass' => '',
+     *      'subMenuClass'=>'',
+     *      'dropdownItemClass'=>'',
+     *      'activeItemClass'=>'',
      *      'separator'=>'',
      *      'id'=>'',
      *      'selected'=>$this->_activeMenu,
@@ -64,7 +65,7 @@ class CMenu
      *      <li class=" active"><a href="#">Item #1</a></li>
      *      <li><a href="#">Item #2</a></li>
      *      <li class="dropdownItemClass">
-     *          <a data-toggle="dropdown" href="#">Item #3</a>
+     *          <a class="dropdown-toggle" data-toggle="dropdown" href="#">Item #3</a>
      *          <ul class="subMenuClass">
      *              <li><a href="#">SubItem #1</a></li>
      *              <li><a href="#">SubItem #2</a></li>
@@ -84,6 +85,7 @@ class CMenu
         $class = isset($params['class']) ? $params['class'] : 'menu';
         $subMenuClass = isset($params['subMenuClass']) ? $params['subMenuClass'] : '';
         $dropdownItemClass = isset($params['dropdownItemClass']) ? $params['dropdownItemClass'] : '';
+        $activeItemClass = isset($params['activeItemClass']) ? $params['activeItemClass'] : 'active';
 		$type = isset($params['type']) ? $params['type'] : 'horizontal';
 		$separator = isset($params['separator']) ? $params['separator'] : '';
 		$itemsCount = 0;
@@ -101,12 +103,14 @@ class CMenu
                 $label = isset($val['label']) ? $val['label'] : '';
                 $id = isset($val['id']) ? $val['id'] : '';
                 $readonly = isset($val['readonly']) ? $val['readonly'] : false;            
-				$itemClass = (!strcasecmp($selected, $url)) ? ' active' : '';
+				$itemClass = (!strcasecmp($selected, $url)) ? $activeItemClass : '';
                 $innerItems = isset($val['items']) ? $val['items'] : '';
 				$linkHtmlOptions = (isset($val['target']) && $val['target'] != '') ? array('target'=>$val['target']) : array();
                 if(is_array($innerItems) && count($innerItems) > 0){
+                    $linkHtmlOptions['class'] = "dropdown-toggle";
                     $linkHtmlOptions['data-toggle'] = "dropdown";
                     $itemClass .= is_array($innerItems) ? $dropdownItemClass : '';
+                    $label .= ' '.CHtml::tag('b', array('class'=>'caret'), '', true);
                 }
                 $output .= CHtml::openTag('li', array('class'=>($itemClass ? $itemClass : false), 'id'=>($id ? $id : false))).self::NL;
 				$output .= ($separator && $itemsCount > 0) ? $separator : '';
@@ -120,11 +124,11 @@ class CMenu
                         $iUrl = isset($iVal['url']) ? $iVal['url'] : '';
                         $iLabel = isset($iVal['label']) ? $iVal['label'] : '';
 						$iId = isset($iVal['id']) ? $iVal['id'] : '';
-                        $iActive = (!strcasecmp($selected, $iUrl)) ? 'active' : '';
+                        $iActive = (!strcasecmp($selected, $iUrl)) ? true : false;
 						$iInnerItems = isset($iVal['items']) ? $iVal['items'] : '';
 						$iLinkHtmlOptions = (isset($iVal['target']) && $iVal['target'] != '') ? array('target'=>$iVal['target']) : array();
 
-                        $output .= CHtml::openTag('li', array('class'=>($iActive ? $iActive : false), 'id'=>($iId ? $iId : false)));
+                        $output .= CHtml::openTag('li', array('class'=>($iActive ? $activeItemClass : false), 'id'=>($iId ? $iId : false)));
                         $output .= CHtml::link($iLabel, $iUrl, $iLinkHtmlOptions);
 						
 						// draw inner items for 3nd level (if exist)
@@ -134,8 +138,8 @@ class CMenu
 								if(empty($iiVal)) continue;
 								$iiUrl = isset($iiVal['url']) ? $iiVal['url'] : '';
 								$iiLabel = isset($iiVal['label']) ? $iiVal['label'] : '';
-								$iiActive = (!strcasecmp($selected, $iiUrl)) ? 'active' : '';
-								$output .= CHtml::openTag('li', array('class'=>($iiActive ? $iiActive : false)));
+								$iiActive = (!strcasecmp($selected, $iiUrl)) ? true : false;
+								$output .= CHtml::openTag('li', array('class'=>($iiActive ? $activeItemClass : false)));
 								$output .= CHtml::link($iiLabel, $iiUrl);
 								$output .= CHtml::closeTag('li').self::NL;
 								$itemsCount++;

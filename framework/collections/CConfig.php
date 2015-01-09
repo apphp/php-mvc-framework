@@ -16,6 +16,7 @@
  * load
  * set
  * get
+ * exists
  *
  */	  
 
@@ -72,6 +73,7 @@ class CConfig
   	public static function get($param = '', $default = '')
  	{
 		$result = '';
+        
 		if(!empty($param)){
 			$paramParts = explode('.', $param);
 			$parts = count($paramParts);
@@ -91,6 +93,36 @@ class CConfig
 		}			
 		
 		return (empty($result) && !empty($default)) ? $default : $result;
+ 	}
+
+ 	/**
+ 	 * Check if config parameter exists
+ 	 * @param string $param
+ 	 * @return mixed
+ 	 */
+  	public static function exists($param = '')
+ 	{
+		$result = false;
+        
+		if(!empty($param)){
+			$paramParts = explode('.', $param);
+			$parts = count($paramParts);
+			if($parts == 1){
+				if(isset(self::$_conf[$paramParts[0]])){
+					$result = true;
+				}
+			}else if($parts == 2){
+				if(isset(self::$_conf[$paramParts[0]][$paramParts[1]])){
+					$result = true;
+				}
+			}else if($parts == 3){
+				if(isset(self::$_conf[$paramParts[0]][$paramParts[1]][$paramParts[2]])){
+					$result = true;
+				}
+			}
+		}			
+		
+		return $result;
  	}
 	
 }

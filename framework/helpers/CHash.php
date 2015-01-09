@@ -35,18 +35,24 @@ class CHash
     /**
      * Creates random string
      * @param integer $length
-     * @param array $params - 'numeric', 'positiveNumeric' or 'alphanumeric'
+     * @param array $params
+     * type: 'numeric', 'positiveNumeric', 'alphanumeric', 'alpha'
+     * case: 'upper', 'lower' (default)
      */
     public static function getRandomString($length = 10, $params = array())
     {
         $type = isset($params['type']) ? $params['type'] : '';
+        $case = isset($params['case']) ? $params['case'] : '';
         if($type == 'numeric'){
             $template = '1234567890';    
         }else if($type == 'positiveNumeric'){
             $template = '123456789';    
+        }else if($type == 'alpha'){
+            $template = 'abcdefghijklmnopqrstuvwxyz';    
         }else{
             $template = '1234567890abcdefghijklmnopqrstuvwxyz';
-        }        
+        }
+        if($case == 'upper') $template = strtoupper($template);
         settype($template, 'string');
         settype($length, 'integer');
         settype($output, 'string');

@@ -15,6 +15,9 @@
  * get
  * remove
  * isExists
+ * setFlash
+ * getFlash
+ * hasFlash
  * setSessionName
  * getSessionName
  * getTimeout
@@ -121,6 +124,41 @@ class CHttpSession extends CComponent
 	public function isExists($name)
 	{
 		return isset($_SESSION[$this->_prefix.$name]) ? true : false;
+	}
+
+	/**
+	 * Sets session flash data
+	 * @param string $name
+	 * @param mixed $value
+	 */
+	public function setFlash($name, $value)
+	{
+		$_SESSION[$this->_prefix.'_flash'][$name] = $value;
+	}
+
+	/**
+	 * Returns session flash data
+	 * @param string $name
+	 * @param mixed $default
+	 */
+	public function getFlash($name, $default = '')
+	{
+		if(isset($_SESSION[$this->_prefix.'_flash'][$name])){
+            $result = $_SESSION[$this->_prefix.'_flash'][$name];
+            unset($_SESSION[$this->_prefix.'_flash'][$name]);            
+        }else{
+            $result = $default;
+        }
+        return $result;
+	}
+
+	/**
+	 * Checks if has flash data
+	 * @param string $name
+	 */
+	public function hasFlash($name)
+	{
+		return isset($_SESSION[$this->_prefix.'_flash'][$name]) ? true : false;
 	}
 
 	/**

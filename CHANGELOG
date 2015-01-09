@@ -1,3 +1,39 @@
+DEMO ----------------------------------------------------
+- Bug:
+- Enh:
+- Chg: Updating JQuery UI to 1.8.17 
+- New:
+---------------------------------------------------------
+
+Version 0.5.9 - 29 Dec, 2014
+----------------------------
+- New: added new helper CArray
+- Enh: added translation into Hebrew
+- Enh: in CActiveRecords added new method updateByPk
+- Enh: in CActiveRecords findByPk() returns object instead of array
+- Enh: in CActiveRecords added new method refresh() and improved method count()
+- Enh: in CActiveRecords added new method sum()
+- Enh: in CActiveRecords improved method count()
+- Enh: minor changes in CGridView, CBreadCrumbs, CValidator, CDataForm
+- Enh: minor changes in CDatabase db class
+- Enh: added new method updateAll in CActiveRecords
+- Enh: minor changes in CDebug core class
+- Enh: minor changes in CHttpRequest
+- Enh: minor changes in CHttpSession component
+- Enh: minor changes in CMenu, CValidator helpers
+- Enh: minor changes in CLanguageSelector
+- Enh: minor changes in CFile in copy folder permissions
+- Enh: minor changes in CConfig collection class
+- Bug: fixed issue using cache in application bootstrap component
+- Bug: fixed wrong SQL in max() method of CActiveRecords
+- Bug: fixed missing COUNT(*) in count() method of CActiveRecords 
+- Bug: fixed in returning current language
+- Bug: fixed in CDebug class
+- Bug: fixed in CMailer class phpMail() for sending HTML messages
+- Bug: fixed in CFormView when drawing disabled or hidden fields
+- Bug: fixed issue when error 404 is not shown for module CMS
+- Bug: fixed accessa permissions issue in CFile::copyDirectory() 
+
 
 Version 0.4.4 - 29 Apr, 2014
 ----------------------------

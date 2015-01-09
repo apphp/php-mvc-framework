@@ -65,7 +65,9 @@ class CLanguageSelector
                 if($langName != $lastLang){
                     $output .= ($display == 'icons') ? ' ' : ' | '; 
                 } 
-            }            
+            }
+            
+            $output = trim($output, ' | ');
         }else{
             // render options as dropdown list
             $output .= CHtml::openForm('languages/change/', 'get', array('name'=>'frmLangSelector')).self::NL;            
@@ -80,8 +82,10 @@ class CLanguageSelector
             );
             $output .= CHtml::closeForm().self::NL;
         }
-        $output = CHtml::openTag($tagName, array('id'=>'language-selector')).$output;       
-        $output .= CHtml::closeTag($tagName).self::NL;       
+        
+        $final_output = CHtml::openTag($tagName, array('id'=>'language-selector'));
+        $final_output .= $output;
+        $final_output .= CHtml::closeTag($tagName).self::NL;       
         
         if($return) return $output;
         else echo $output;

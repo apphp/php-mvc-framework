@@ -24,6 +24,7 @@
  * isPassword
  * isUsername
  * isEmail
+ * isIdentityCode
  * isFileName
  * isDate
  * isDigit
@@ -35,10 +36,12 @@
  * isAlignment
  * inArray
  * validateLength
- * validateMinlength
- * validateMaxlength
+ * validateMinLength
+ * validateMaxLength
  * validateMin
  * validateMax
+ * validateMinDate
+ * validateMaxDate
  * validateRange
  * 
  */	  
@@ -79,11 +82,17 @@ class CValidator
 	/**
 	 * Checks if the given value is a numeric value
 	 * @param mixed $value
+	 * @param int $type 0 - digits only, 1 - with dot or comma
 	 * @return boolean
 	 */
-    public static function isNumeric($value)
+    public static function isNumeric($value, $type = 0)
 	{
-        return preg_match('/^[0-9]+$/', $value);
+        if($type == 1){
+            // check also with dot or comma
+            return preg_match('/^[0-9\.,]+$/', $value);
+        }else{
+            return preg_match('/^[0-9]+$/', $value);
+        }
     }
 
 	/**
@@ -133,7 +142,6 @@ class CValidator
             (preg_match("/<[^>]*img*\"?[^>]*>/i", $value)) ||
             (preg_match("/<[^>]*onmouseover*\"?[^>]*>/i", $value)) ||
             (preg_match("/<[^>]*body*\"?[^>]*>/i", $value)) ||
-            (preg_match("/\([^>]*\"?[^)]*\)/i", $value)) || 
             (preg_match("/ftp:\/\//i", $value)) || 
             (preg_match("/https:\/\//i", $value)) || 
             (preg_match("/http:\/\//i", $value)) )
@@ -208,6 +216,16 @@ class CValidator
     }
 
 	/**
+	 * Checks if the given value is identity code
+	 * @param mixed $value
+	 * @return boolean
+	 */
+    public static function isIdentityCode($value)
+	{
+	    return preg_match('/^[a-zA-Z0-9_\-]+$/', $value);
+    }
+
+	/**
 	 * Checks if the given value is a file name
 	 * @param mixed $value
 	 * @return boolean
@@ -224,8 +242,16 @@ class CValidator
 	 */
     public static function isDate($value)
 	{
+        $year = substr($value, 0, 4);
+        $month = substr($value, 5, 2);
+        $day = substr($value, 8, 2);
+        if(strtotime($value) == strtotime($year.'-'.$month.'-'.$day)){
+            return checkdate($month, $day, $year);
+        }else{
+            $date = strtotime($value);        
+            return (!empty($date) && self::isInteger($date));            
+        }
         $date = strtotime($value);        
-        return (!empty($date) && self::isInteger($date));
     }
 
 	/**
@@ -333,7 +359,7 @@ class CValidator
 	 * @param boolean $encoding
 	 * @return boolean
 	 */
-    public static function validateMinlength($value, $min, $encoding = true)
+    public static function validateMinLength($value, $min, $encoding = true)
     {
 		$strlen = (function_exists('mb_strlen') && $encoding !== false) ? mb_strlen($value, A::app()->charset) : strlen($value);    
         return ($strlen < $min) ? false : true;
@@ -346,7 +372,7 @@ class CValidator
 	 * @param boolean $encoding
 	 * @return boolean
 	 */
-    public static function validateMaxlength($value, $max, $encoding = true)
+    public static function validateMaxLength($value, $max, $encoding = true)
     {
 		$strlen = (function_exists('mb_strlen') && $encoding !== false) ? mb_strlen($value, A::app()->charset) : strlen($value);    
         return ($strlen > $max) ? false : true;
@@ -380,6 +406,30 @@ class CValidator
         return ($value <= $max) ? true : false;
     }
 
+	/**
+	 * Validates if the given date value is grater or equal to specified value
+	 * @param string $value
+	 * @param integer $min
+	 * @return boolean
+	 */
+    public static function validateMinDate($value, $min)
+    {
+        if($format == 'european') $value = CNumber::europeanFormat($value);
+        return ($value >= $min) ? true : false;
+    }
+
+	/**
+	 * Validates if the given date value is less than or equal to specified value
+	 * @param string $value
+	 * @param integer $max
+	 * @return boolean
+	 */
+    public static function validateMaxDate($value, $max)
+    {
+        if($format == 'european') $value = CNumber::europeanFormat($value);        
+        return ($value <= $max) ? true : false;
+    }
+        
 	/**
 	 * Validates if the given numeric value in a specified range
 	 * @param string $value

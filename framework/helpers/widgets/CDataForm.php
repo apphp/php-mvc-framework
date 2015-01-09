@@ -28,21 +28,22 @@ class CDataForm
      * TODO:
      *   - to prevent double quotes issue use 'encode'=>true in htmlOptions
      *   - insert code (for all fields): 'prependCode=>'', 'appendCode'=>''
-     *   - for "checkbox" 'default'=>1 == checked
+     *   - for "checkbox" 'default'=>1 means checked
      *   
      * Notes:
      *   - for INSERT operations don't define 'primaryKey' option at all
      *   - attribute 'default'=>'' or 'defaultAddMode'=>'' is used for Add mode only
      *   - attribute 'defaultEditMode'=>'' is used for Edit mode only   
      *   - to disable any field or button use: 'disabled'=>true
-     *   - to use <button> tag for buttons use 'buttonTag'=>'button' 
+     *   - to use <button> tag for buttons use 'buttonTag'=>'button'
+     *   - to show buttons at the top use 'buttonsPosition'=>'top' (bottom, top or both)
      *   - attribute 'validation'=>array('unique'=>true) is used for Add/Edit modes for standard fields (not for translation fields)
      * 	 - validation types: 
      *  	alpha, numeric, alphanumeric, variable, mixed, phone, phoneString, username, timeZone
-     *  	password, email, fileName, date, integer, positiveInteger, float, any, text, confirm,
-     *  	url, range ('minValue'=>'' and 'maxValue'=>'')
+     *  	password, email, fileName, identity|identityCode, date, integer, positiveInteger,
+     *  	float, any, text, confirm, url, range ('minValue'=>'' and 'maxValue'=>'')
      *   - attribute 'validation'=>array(..., 'forbiddenChars'=>array('+', '$')) is used to define forbidden characters
-     *   - attribute 'validation'=>array(..., 'trim'=>true) - removes spaces from field value before validation
+     *   - attribute 'validation'=>array(..., 'trim'=>true) - removes spaces from field value before validation   
      *   
      * Usage: (in view file)
      *  echo CWidget::create('CDataForm', array(
@@ -63,12 +64,12 @@ class CDataForm
      *       'fieldSetType'=>'frameset|tabs',
      *       'fields'=>array(
 	 *         	 'separatorName' =>array(
-	 *               'separatorInfo' => array('legend'=>A::t('app', 'Headers & Footers')),
+	 *               'separatorInfo'=>array('legend'=>A::t('app', 'Headers & Footers')),
 	 *               'field_1'=>array('type'=>'textbox', 'title'=>'Field 1', 'tooltip'=>'', 'validation'=>array('required'=>true, 'type'=>''), 'htmlOptions'=>array()),
 	 *               ...
 	 *           ),
      *           'field_1'=>array('type'=>'textbox',        'title'=>'Username',   'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'username'), 'htmlOptions'=>array()),
-     *           'field_2'=>array('type'=>'password',       'title'=>'Password',   'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'password', 'minLength'=>6), 'encryption'=>array('enabled'=>true, 'encryptAlgorithm'=>CConfig::get('password.encryptAlgorithm'), 'hashKey'=>CConfig::get('password.hashKey')), 'htmlOptions'=>array()),
+     *           'field_2'=>array('type'=>'password',       'title'=>'Password',   'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'password', 'minLength'=>6), 'encryption'=>array('enabled'=>CConfig::get('password.encryption'), 'encryptAlgorithm'=>CConfig::get('password.encryptAlgorithm'), 'hashKey'=>CConfig::get('password.hashKey')), 'htmlOptions'=>array()),
      *           'field_3'=>array('type'=>'textbox',        'title'=>'Confirm P',  'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'confirm', 'confirmField'=>'field_2'), 'htmlOptions'=>array()),
      *           'field_4'=>array('type'=>'textbox',        'title'=>'Email',      'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'email'), 'htmlOptions'=>array()),
      *           'field_5'=>array('type'=>'textbox',        'title'=>'Confirm E',  'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'confirm', 'confirmField'=>'field_4'), 'htmlOptions'=>array()),
@@ -79,38 +80,40 @@ class CDataForm
      *          'field_10'=>array('type'=>'textbox',        'title'=>'Format',     'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'set', 'source'=>array(1, 2, 3, 4, 5)), 'htmlOptions'=>array()),
      *          'field_11'=>array('type'=>'textarea',       'title'=>'Text',       'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'any', 'maxLength'=>255), 'htmlOptions'=>array('maxLength'=>'255')),
      *          'field_12'=>array('type'=>'checkbox',       'title'=>'Checkbox',   'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>false, 'type'=>'set', 'source'=>array(0,1)), 'htmlOptions'=>array()),
-     *          'field_13'=>array('type'=>'select',         'title'=>'Select',     'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>''), 'data'=>array(), 'htmlOptions'=>array()),
+     *          'field_13'=>array('type'=>'select',         'title'=>'Select',     'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'set', 'source'=>array_keys(array())), 'data'=>array(), 'htmlOptions'=>array()),
      *          'field_14'=>array('type'=>'radioButton',    'title'=>'Radio',      'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>''), 'htmlOptions'=>array()),
      *          'field_15'=>array('type'=>'radioButtonList','title'=>'RadioList',  'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>''), 'data'=>array(), 'htmlOptions'=>array()),
      *          'field_16'=>array(
-     *              'type' => 'imageUpload',
-     *              'title' => 'ImageUpload',
-     *              'tooltip' => '',
-     *              'default' => '',
-     *              'validation' => array('required'=>true, 'type'=>'image', 'targetPath'=>'templates/backend/images/accounts/', 'maxSize'=>'100k', 'maxWidth'=>'120px', 'maxHeight'=>'90px', 'mimeType'=>'image/jpeg, image/png', 'fileName'=>CHash::getRandomString(10)), 'htmlOptions'=>array()),
-	 *          	'imageOptions' => array('showImage'=>true, 'showImageName'=>true, 'showImageSize'=>true, 'imagePath'=>'templates/backend/images/accounts/', 'imageClass'=>'avatar'),
-	 *          	'thumbnailOptions' => array('create'=>true, 'field'=>'', 'width'=>'', 'height'=>''),
-	 *          	'deleteOptions' => array('showLink'=>true, 'linkUrl'=>'admins/edit/avatar/delete', 'linkText'=>'Delete'),
-	 *          	'fileOptions' => array('showAlways'=>false, 'class'=>'file', 'size'=>'25')
+     *              'type'=>'imageUpload',
+     *              'title'=>'ImageUpload',
+     *              'tooltip'=>'',
+     *              'default'=>'',
+     *              'validation'=>array('required'=>true, 'type'=>'image', 'targetPath'=>'templates/backend/images/accounts/', 'maxSize'=>'100k', 'maxWidth'=>'120px', 'maxHeight'=>'90px', 'mimeType'=>'image/jpeg, image/png', 'fileName'=>CHash::getRandomString(10)), 'htmlOptions'=>array()),
+	 *          	'imageOptions'=>array('showImage'=>true, 'showImageName'=>true, 'showImageSize'=>true, 'imagePath'=>'templates/backend/images/accounts/', 'imageClass'=>'avatar'),
+	 *          	'thumbnailOptions'=>array('create'=>true, 'field'=>'', 'width'=>'', 'height'=>''),
+	 *          	'deleteOptions'=>array('showLink'=>true, 'linkUrl'=>'admins/edit/avatar/delete', 'linkText'=>'Delete'),
+	 *          	'fileOptions'=>array('showAlways'=>false, 'class'=>'file', 'size'=>'25')
      *          ),
      *          'field_17'=>array('type'=>'label',  'title'=>'Label 17', 'default'=>'', 'tooltip'=>'', 'definedValues'=>array(), 'htmlOptions'=>array(), 'format'=>'', 'stripTags'=>false),
      *          'field_18'=>array('type'=>'link',   'title'=>'Label 18', 'tooltip'=>'', 'linkUrl'=>'path/to/param', 'linkText'=>'', 'htmlOptions'=>array()),
-     *          'field_19'=>array('type'=>'datetime', 'title'=>'Field 19', 'default'=>'', 'tooltip'=>'', 'definedValues'=>array(), 'htmlOptions'=>array(), 'format'=>''),
+     *          'field_19'=>array('type'=>'datetime', 'title'=>'Field 19', 'default'=>'', 'tooltip'=>'', 'definedValues'=>array(), 'htmlOptions'=>array(), 'format'=>'', 'minDate'=>'', 'maxDate'=>''),
      *          'field_20'=>array('type'=>'hidden', 'default'=>'', 'htmlOptions'=>array()),
+     *          'field_21'=>array('type'=>'data', 'default'=>''),
      *       ),
-     *       'translationInfo' => array('relation'=>array('field_from', 'field_to'), 'languages'=>Languages::model()->findAll('is_active = 1')),
+     *       'translationInfo'=>array('relation'=>array('field_from', 'field_to'), 'languages'=>Languages::model()->findAll('is_active = 1')),
      *       'translationFields'=>array(
-     *           'fields_1_1' => array('type'=>'textbox', 'title'=>'Field 1-1', 'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'any'), 'htmlOptions'=>array()),
-     *           'fields_1_2' => array('type'=>'textarea', 'title'=>'Field 1-2'), 'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'any', 'maxLength'=>5000), 'htmlOptions'=>array('maxLength'=>'5000')),
+     *           'fields_1_1'=>array('type'=>'textbox', 'title'=>'Field 1-1', 'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'any'), 'htmlOptions'=>array()),
+     *           'fields_1_2'=>array('type'=>'textarea', 'title'=>'Field 1-2'), 'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'any', 'maxLength'=>5000), 'htmlOptions'=>array('maxLength'=>'5000')),
      *       ),
      *       'buttons'=>array(
      *          'submit'=>array('type'=>'submit', 'value'=>'Send', 'htmlOptions'=>array('name'=>'')),
      *          'submitUpdate'=>array('type'=>'submit', 'value'=>'Update', 'htmlOptions'=>array('name'=>'btnUpdate')),
      *          'submitUpdateClose'=>array('type'=>'submit', 'value'=>'Update & Close', 'htmlOptions'=>array('name'=>'btnUpdateClose')),
-	 *          'reset' =>array('type'=>'reset', 'value'=>'Reset', 'htmlOptions'=>array()),
+	 *          'reset'=>array('type'=>'reset', 'value'=>'Reset', 'htmlOptions'=>array()),
      *          'cancel'=>array('type'=>'button', 'value'=>'Cancel', 'htmlOptions'=>array('name'=>'', 'class'=>'button white')),
-	 *          'custom' =>array('type'=>'button', 'value'=>'Custom', 'htmlOptions'=>array('onclick'=>"$(location).attr('href','categories/index');")),
+	 *          'custom'=>array('type'=>'button', 'value'=>'Custom', 'htmlOptions'=>array('onclick'=>"$(location).attr('href','categories/index');")),
      *       ),
+     *       'buttonsPosition'=>'bottom',
      *       'messagesSource'=>'core',
      *       'showAllErrors'=>false,
      *       'return'=>true,
@@ -145,6 +148,7 @@ class CDataForm
 		$translationFields = isset($params['translationFields']) ? $params['translationFields'] : array();
 		$msgSource = isset($params['messagesSource']) ? $params['messagesSource'] : 'core';
 		$showAllErrors = isset($params['showAllErrors']) ? (bool)$params['showAllErrors'] : false;
+        $buttonsPosition = isset($params['buttonsPosition']) ? $params['buttonsPosition'] : 'bottom';
         $buttons = isset($params['buttons']) ? $params['buttons'] : array();
 		if(isset($buttons['cancel']) && !empty($cancelUrl)) $buttons['cancel']['htmlOptions']['onclick'] = '$(location).attr(\'href\',\''.$baseUrl.$cancelUrl.'\');';
 
@@ -200,10 +204,13 @@ class CDataForm
 			}else{				
 				// check fields for unique values
 				foreach($fieldsMainTable as $field => $fieldInfo){
-					if(isset($fieldInfo['validation']['unique']) && (bool)$fieldInfo['validation']['unique']){
+                    if(!isset($recordsAssoc[$field])) continue;
+                    $vfUnique = isset($fieldInfo['validation']['unique']) ? $fieldInfo['validation']['unique'] : false;
+                    $vfValue = ($operationType == 'edit') ? $cRequest->getPost($field) : $cRequest->getPost($field);
+					if($vfUnique && $vfValue !== ''){
 						$fieldTitle = isset($fieldInfo['title']) ? $fieldInfo['title'] : '';
 						$sqlCount = $tableName.'.'.$field.' = :code'.(($operationType == 'edit') ? ' AND '.$tableName.'.id != :id' : '');
-						$sqlParams = ($operationType == 'edit') ? array(':code'=>$cRequest->getPost($field), ':id'=>$primaryKey) : array(':code'=>$cRequest->getPost($field));							
+						$sqlParams = ($operationType == 'edit') ? array(':code'=>$vfValue, ':id'=>$primaryKey) : array(':code'=>$vfValue);
 						if($objModel->count($sqlCount, $sqlParams) > 0){
 							$errorField = $field;
 							$msg = A::t($msgSource, 'The field {title} allows only unique values, please re-enter!', array('{title}'=>'<b>'.$fieldTitle.'</b>'));
@@ -216,79 +223,81 @@ class CDataForm
 				if(!$msgType){
 					// update/change fields values (according to definition in CDataForm)
 					foreach($fieldsMainTable as $field => $fieldInfo){
-						$fieldType = isset($fieldInfo['type']) ? strtolower($fieldInfo['type']) : '';
+                        $fieldType = isset($fieldInfo['type']) ? strtolower($fieldInfo['type']) : '';
                         $validationType = isset($fieldInfo['validation']['type']) ? $fieldInfo['validation']['type'] : '';
                         $validationFormat = isset($fieldInfo['validation']['format']) ? $fieldInfo['validation']['format'] : '';                       
-						if($fieldType != 'label'){
-							$fieldValue = $cRequest->getPost($field);
-							if(isset($fieldInfo['htmlOptions']['disabled'])){
-								unset($recordsAssoc[$field]);
+                        if($fieldType != 'label'){                        						
+                            $fieldValue = $cRequest->getPost($field);
+                            if(isset($fieldInfo['htmlOptions']['disabled'])){
+                                unset($recordsAssoc[$field]);
                             }else if($validationType == 'float' && $validationFormat == 'european'){
                                 $fieldValue = CNumber::americanFormat($fieldValue, array('thousandSeparator'=>false));
-							}else if($fieldType == 'checkbox' && $fieldValue == ''){
-								// set default value to specific fields: checkbox (if it's empty), encrypted fields and image
-								$fieldValue = 0;
-							}else if($fieldType == 'image'){
-								unset($recordsAssoc[$field]);
-							}else if($fieldType == 'imageupload'){
-								if(!empty($_FILES[$field]['name'])){
+                            }else if($fieldType == 'checkbox' && $fieldValue == ''){
+                                // set default value to specific fields: checkbox (if it's empty), encrypted fields and image
+                                $fieldValue = 0;
+                            }else if($fieldType == 'image'){
+                                unset($recordsAssoc[$field]);
+                            }else if($fieldType == 'data'){
+                                $fieldValue = isset($fieldInfo['default']) ? $fieldInfo['default'] : '';
+                            }else if($fieldType == 'imageupload'){
+                                if(!empty($_FILES[$field]['name'])){
                                     $targetPath = isset($fieldInfo['validation']['targetPath']) ? $fieldInfo['validation']['targetPath'] : '';
-									$fileName = isset($fieldInfo['validation']['fileName']) ? $fieldInfo['validation']['fileName'] : '';
-									if(!empty($fileName)){
-										$fieldValue = $fileName.'.'.pathinfo($_FILES[$field]['name'], PATHINFO_EXTENSION);
-									}else{
-										$fieldValue = $_FILES[$field]['name'];
-									}
+                                    $fileName = isset($fieldInfo['validation']['fileName']) ? $fieldInfo['validation']['fileName'] : '';
+                                    if(!empty($fileName)){
+                                        $fieldValue = $fileName.'.'.pathinfo($_FILES[$field]['name'], PATHINFO_EXTENSION);
+                                    }else{
+                                        $fieldValue = $_FILES[$field]['name'];
+                                    }
                                     
                                     $thumbnailCreate = isset($fieldInfo['thumbnailOptions']['create']) ? (bool)$fieldInfo['thumbnailOptions']['create'] : false;
                                     $thumbnailField = isset($fieldInfo['thumbnailOptions']['field']) ? $fieldInfo['thumbnailOptions']['field'] : false;
                                     $thumbnailWidth = isset($fieldInfo['thumbnailOptions']['width']) ? $fieldInfo['thumbnailOptions']['width'] : false;
                                     $thumbnailHeight = isset($fieldInfo['thumbnailOptions']['height']) ? $fieldInfo['thumbnailOptions']['height'] : false;
-									if($thumbnailCreate){
-										// create thumbnail
+                                    if($thumbnailCreate){
+                                        // create thumbnail
                                         $path = APPHP_PATH.DS.$targetPath;
-										$thumbFileExt = substr(strrchr($fieldValue, '.'), 1);
-										$thumbFileName = str_replace('.'.$thumbFileExt, '', $fieldValue);
-										$thumbFileFullName = $thumbFileName.'_thumb.'.$thumbFileExt;
+                                        $thumbFileExt = substr(strrchr($fieldValue, '.'), 1);
+                                        $thumbFileName = str_replace('.'.$thumbFileExt, '', $fieldValue);
+                                        $thumbFileFullName = $thumbFileName.'_thumb.'.$thumbFileExt;
                                         CFile::copyFile($path.$fieldValue, $path.$thumbFileFullName);
-										$thumbFileRealName = CImage::resizeImage($path, $thumbFileFullName, $thumbnailWidth, $thumbnailHeight);
-										// delete file if we make thumbnail on the same file
+                                        $thumbFileRealName = CImage::resizeImage($path, $thumbFileFullName, $thumbnailWidth, $thumbnailHeight);
+                                        // delete file if we make thumbnail on the same file
                                         if($thumbnailField == $field){
                                             CFile::deleteFile($path.$fieldValue);
-										}else if($thumbnailField != ''){
+                                        }else if($thumbnailField != ''){
                                             // thumbnail created update database table
                                             $records->set($thumbnailField, $thumbFileRealName);
-										}                                        
-									}
-								}else{
-									$fieldValue = '';
-									unset($recordsAssoc[$field]);
-								}
-							}else if($fieldType == 'password'){
-								$fieldEncryption = isset($fieldInfo['encryption']['enabled']) ? (bool)$fieldInfo['encryption']['enabled'] : false;
-								if($fieldEncryption){
-									$encryptAlgorithm = isset($fieldInfo['encryption']['encryptAlgorithm']) ? $fieldInfo['encryption']['encryptAlgorithm'] : '';					
-									$hashKey = isset($fieldInfo['encryption']['hashKey']) ? $fieldInfo['encryption']['hashKey'] : '';
-									if(empty($fieldValue)){
-										unset($recordsAssoc[$field]);
-									}else{
-										$fieldValue = CHash::create($encryptAlgorithm, $fieldValue, $hashKey);									
-									}							
-								}
-							}else if($fieldValue == ''){
+                                        }                                        
+                                    }
+                                }else{
+                                    $fieldValue = '';
+                                    unset($recordsAssoc[$field]);
+                                }
+                            }else if($fieldType == 'password'){
+                                $fieldEncryption = isset($fieldInfo['encryption']['enabled']) ? (bool)$fieldInfo['encryption']['enabled'] : false;
+                                if($fieldEncryption){
+                                    $encryptAlgorithm = isset($fieldInfo['encryption']['encryptAlgorithm']) ? $fieldInfo['encryption']['encryptAlgorithm'] : '';					
+                                    $hashKey = isset($fieldInfo['encryption']['hashKey']) ? $fieldInfo['encryption']['hashKey'] : '';
+                                    if(empty($fieldValue)){
+                                        unset($recordsAssoc[$field]);
+                                    }else{
+                                        $fieldValue = CHash::create($encryptAlgorithm, $fieldValue, $hashKey);
+                                    }							
+                                }
+                            }else if($fieldValue == ''){
                                 if($operationType == 'add'){
                                     if(isset($fieldInfo['default'])) $fieldValue = $fieldInfo['default'];
                                     else if(isset($fieldInfo['defaultAddMode'])) $fieldValue = $fieldInfo['defaultAddMode'];
                                 }else if($operationType == 'edit'){
                                     if(isset($fieldInfo['defaultEditMode'])) $fieldValue = $fieldInfo['defaultEditMode'];
                                 }    
-							}
-							
-							// update fields values (according to defined in database table)
-							if(isset($recordsAssoc[$field])){
-								$records->set($field, $fieldValue);
-							}
-						}						
+                            }
+                            
+                            // update fields values (according to defined in database table)
+                            if(isset($recordsAssoc[$field])){
+                                $records->set($field, $fieldValue);
+                            }
+                        }
 					}
 					
 					// save main table
@@ -334,8 +343,17 @@ class CDataForm
 						$records = $objModel->findByPk($primaryKey);
 						if($records) $recordsAssoc = $records->getFieldsAsArray();
 					}else{
-						$msg = (APPHP_MODE == 'demo') ? CDatabase::init()->getErrorMessage() : A::t($msgSource, ($operationType == 'add') ? 'The error occurred while adding new record! To get more information please turn on debug mode.' : 'The error occurred while updating this record! To get more information please turn on debug mode.');	
-						$msgType = 'warning';					
+						if(APPHP_MODE == 'demo'){
+                            $msg = CDatabase::init()->getErrorMessage();
+                            if(!$msg) $msg = A::t('core', 'This operation is blocked in Demo Mode!');
+                            $msgType = 'warning';					
+                        }else if($records->getError()){
+                            $msg = $records->getErrorMessage();
+                            $msgType = 'error';					
+                        }else{
+                            $msg = A::t($msgSource, ($operationType == 'add') ? 'The error occurred while adding new record! To get more information please turn on debug mode.' : 'The error occurred while updating this record! To get more information please turn on debug mode.');
+                            $msgType = 'error';					
+                        }
 					}					
 				}				
 			}
@@ -400,8 +418,9 @@ class CDataForm
 				$translationsArray = $objModel->getTranslations(array('key'=>$keyTo, 'value'=>(isset($recordsAssoc[$keyFrom]) ? $recordsAssoc[$keyFrom] : ''), 'fields'=>$translationFieldsArray));
 				
 				foreach($languages as $lang){
+                    $flagIcon = ($lang['icon'] != '') ? $lang['icon'] : 'no_image.png';
 					$formViewParams['fields']['separator_'.$lang['code']] = array(
-						'separatorInfo' => array('legend'=>'<img width="16px" src="images/flags/'.$lang['icon'].'"> &nbsp;'.$lang['name_native']),
+                        'separatorInfo' => array('legend'=>'<img width="16px" src="images/flags/'.$flagIcon.'" alt="'.$lang['code'].'"> &nbsp;'.$lang['name_native']),
 					);			
 					foreach($translationFields as $transFieldKey => $transFieldVal){
 						$tfTitle = isset($transFieldVal['title']) ? $transFieldVal['title'] : '';
@@ -432,7 +451,8 @@ class CDataForm
 			}
 			
             $formViewParams['events'] = array('focus'=>array('field'=>$errorField));
-			$formViewParams['buttons'] = $buttons;			
+			$formViewParams['buttons'] = $buttons;
+            $formViewParams['buttonsPosition'] = $buttonsPosition;			
 			$output .= CWidget::create('CFormView', $formViewParams);			
 		}			
 
@@ -475,6 +495,8 @@ class CDataForm
 					$fieldInfo['value'] = '';
                 }else if($validationType == 'float' && $validationFormat == 'european'){
                     $fieldInfo['value'] = isset($recordsAssoc[$fieldInd]) ? CNumber::europeanFormat($recordsAssoc[$fieldInd]) : '';		
+				}else if(isset($fieldInfo['defaultEditMode'])){
+                    $fieldInfo['value'] = $fieldInfo['defaultEditMode'];
 				}else{
 					$fieldInfo['value'] = isset($recordsAssoc[$fieldInd]) ? $recordsAssoc[$fieldInd] : '';		
 				}								

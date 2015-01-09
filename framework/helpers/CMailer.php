@@ -54,7 +54,7 @@ class CMailer
 	}
 
 	/**
-	 * Sends emails using pre-defined mailer type
+	 * Sends emails using predefined mailer type
 	 * @param string $to
 	 * @param string $subject
 	 * @param string $message
@@ -96,7 +96,8 @@ class CMailer
         $from = isset($params['from']) ? $params['from'] : '';
         $fromName = isset($params['from_name']) ? $params['from_name'] : '';
         $fromHeader = ($fromName) ? $fromName.' <'.$from.'>' : $from;
-		$emailType = 'text/'.(CConfig::get('email.isHtml') ? 'html' : 'plain'); 
+		$emailType = 'text/'.(CConfig::get('email.isHtml') ? 'html' : 'plain');
+        if(CConfig::get('email.isHtml')) $message = nl2br($message);
 
 		// don't use additional parameters id there safe mode is enabled
         $additionalParameters = ini_get('safe_mode') ? '' : '-f '.$from;

@@ -21,7 +21,8 @@
  * select                                               _enableCache
  * insert                                               
  * update                                               
- * delete                                               
+ * delete
+ * lastId
  * customQuery                                          
  * customExec
  * showTables
@@ -223,9 +224,11 @@ class CDatabase extends PDO
         $sql = 'INSERT INTO `'.$this->_dbPrefix.$table.'` (`'.$fieldNames.'`) VALUES ('.$fieldValues.')';
         $sth = $this->prepare($sql);
         
-        foreach($data as $key => $value){
-            list($key, $param) = $this->_prepareParams($key);
-            $sth->bindValue(':'.$key, $value, $param);
+        if(is_array($data)){
+            foreach($data as $key => $value){
+                list($key, $param) = $this->_prepareParams($key);
+                $sth->bindValue(':'.$key, $value, $param);
+            }
         }
         
 		try{
@@ -245,9 +248,10 @@ class CDatabase extends PDO
      * @param string $table name of table to update
      * @param string $data an associative array
      * @param string $where the WHERE clause of query
+     * @param array $params
      * @param boolean
      */
-    public function update($table, $data, $where = '1')
+    public function update($table, $data, $where = '1', $params = array())
     {
         if(APPHP_MODE == 'demo'){
 			self::$_errorMessage = A::t('core', 'This operation is blocked in Demo Mode!');
@@ -257,22 +261,32 @@ class CDatabase extends PDO
 		ksort($data);
         
         $fieldDetails = NULL;
-        foreach($data as $key => $value){
-            $fieldDetails .= '`'.$key.'` = :'.$key.',';
+        if(is_array($data)){
+            foreach($data as $key => $value){
+                $fieldDetails .= '`'.$key.'` = :'.$key.',';
+            }            
         }
         $fieldDetails = rtrim($fieldDetails, ',');
-        
         $sql = 'UPDATE `'.$this->_dbPrefix.$table.'` SET '.$fieldDetails.' WHERE '.$where;
+
         $sth = $this->prepare($sql);
-        
-        foreach($data as $key => $value){
-            list($key, $param) = $this->_prepareParams($key);
-            $sth->bindValue(':'.$key, $value, $param);
+        if(is_array($data)){
+            foreach($data as $key => $value){
+                list($key, $param) = $this->_prepareParams($key);
+                $sth->bindValue(':'.$key, $value, $param);
+            }
+        }
+        if(is_array($params)){
+            foreach($params as $key => $value){
+                list($key, $param) = $this->_prepareParams($key);
+                $sth->bindValue($key, $value, $param);
+            }
         }
         
 		try{
 			$sth->execute();
-			$result = true; 
+			// $result = $sth->rowCount();
+            $result = true;
 		}catch(PDOException $e){
             // Get trace from parent level 
             // $trace = $e->getTrace();
@@ -326,12 +340,22 @@ class CDatabase extends PDO
     }
 	
     /**
+     * Returns ID of the last inserted record
+     * @return int
+     */
+	public function lastId()
+	{
+        return (!empty($this)) ? $this->lastInsertId() : 0;
+    }
+
+    /**
      * Performs a standard query
      * @param string $sql
+     * @param array $params
      * @param constant $fetchMode PDO fetch mode
-     * @return mixed
+     * @return mixed - an array containing all of the result set rows
      */
-	public function customQuery($sql, $fetchMode = PDO::FETCH_ASSOC)
+	public function customQuery($sql, $params = array(), $fetchMode = PDO::FETCH_ASSOC)
 	{
         if(APPHP_MODE == 'demo'){
 			self::$_errorMessage = A::t('core', 'This operation is blocked in Demo Mode!');
@@ -339,8 +363,17 @@ class CDatabase extends PDO
 		}
         
 		try{
-			$sth = $this->query($sql);
-			$result = $sth->fetchAll($fetchMode);
+            if(is_array($params) && !empty($params)){
+                $sth = $this->prepare($sql);
+                foreach($params as $key => $value){
+                    list($key, $param) = $this->_prepareParams($key);
+                    $sth->bindValue($key, $value, $param);
+                }                
+                $sth->execute();
+            }else{
+                $sth = $this->query($sql);
+            }
+            $result = $sth->fetchAll($fetchMode);
 		}catch(PDOException $e){
             $this->_errorLog('customQuery [database.php, ln.:'.$e->getLine().']', $e->getMessage().' => '.$sql);
 			$result = false;
@@ -353,9 +386,10 @@ class CDatabase extends PDO
     /**
      * Performs a standard exec
      * @param string $sql
+     * @param array $params
      * @return boolean
      */
-	public function customExec($sql)
+	public function customExec($sql, $params = array())
 	{
         if(APPHP_MODE == 'demo'){
 			self::$_errorMessage = A::t('core', 'This operation is blocked in Demo Mode!');
@@ -363,7 +397,17 @@ class CDatabase extends PDO
 		} 
 		
 		try{
-			$result = $this->exec($sql);
+            if(is_array($params) && !empty($params)){
+                $sth = $this->prepare($sql);
+                foreach($params as $key => $value){
+                    list($key, $param) = $this->_prepareParams($key);
+                    $sth->bindValue($key, $value, $param);
+                }
+                $sth->execute();
+                $result = $sth->rowCount();
+            }else{
+                $result = $this->exec($sql);    
+            }			
 		}catch(PDOException $e){
             $this->_errorLog('customExec [database.php, ln.:'.$e->getLine().']', $e->getMessage().' => '.$sql);
 			$result = false;

@@ -257,7 +257,7 @@ class CHtml
 	 */
 	public static function hiddenField($name, $value = '', $htmlOptions = array())
 	{
-		return self::_inputField('hidden', $name, $value, $htmlOptions);
+		return self::_inputField('hidden', $name, $value, $htmlOptions)."\n";
 	}
 
 	/**
