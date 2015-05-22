@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
- * PUBLIC:					PROTECTED:					PRIVATE:		
+ * PUBLIC (static):			PROTECTED (static):			PRIVATE (static):
  * ----------               ----------                  ----------
  * tag                      _inputField                 _renderAttributes 
  * openTag                  _clientChange               _escapeHex
@@ -47,6 +47,7 @@
 
 class CHtml
 {
+	
     /** @const string */
     const ID_PREFIX = 'ap';
     /** @var string */

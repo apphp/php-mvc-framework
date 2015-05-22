@@ -32,6 +32,7 @@
  *                  	  'index\/page\/id\/(.*[0-9])+' => 'index/page/id/{$0}',
  *                  	  'index\/page\/(.*[0-9])+' => 'index/page/id/{$0}',
  *                  	  'index\/page\/(.*[0-9])+\/(.*?)' => 'index/page/id/{$0}',
+ *                  	  'index\/page\/(.*[0-9])+\/(.*?)/(.*)' => 'index/page/id/{$0}/p1/{$1}/p2/{$2}',
  *           CONFIG	: 'urlFormat'=>'shortPath' (default)
  *           CALL	: $controller->$action($param1, $param2, $param3);
  *           GET	: actionName($param1 = '', $param2 = '', $param3 = '')
@@ -41,15 +42,11 @@
  * 
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
- * ----------               ----------                  ----------
+ * ---------------         	---------------            	---------------
  * __construct
  * route
  * getCurrentUrl
- * 
- * 
- * STATIC:
- * ---------------------------------------------------------------
- * getParams
+ * getParams (static)
  * 
  */	  
 
@@ -61,6 +58,10 @@ class CRouter
 	private $_controller; 
 	/**	@var string */
 	private $_action; 
+	/**	@var string */
+	private $_defaultController = 'Index'; 
+	/**	@var string */
+	private $_defaultAction = 'index'; 
 	/**	@var string */
 	private $_module; 
 	/** @var array */
@@ -87,10 +88,14 @@ class CRouter
 				//	break;
 				//}else
 				if(preg_match_all('{'.$rule.'}i', $request, $matches)){
+					// remove first match (the full string)
+					array_shift($matches);
 					// template rule compare
-					if(isset($matches[1]) && is_array($matches[1])){
-						foreach($matches[1] as $mkey => $mval){
-							$val = str_ireplace('{$'.$mkey.'}', $mval, $val);
+					if(is_array($matches)){
+						foreach($matches as $mkey => $mval){
+							if(isset($mval[0])){
+								$val = str_ireplace('{$'.$mkey.'}', $mval[0], $val);	
+							}							
 						}
 						$request = $val;
 						break;
@@ -124,13 +129,21 @@ class CRouter
 				}			
 			}
 		}			
+
+		$defaultController = CConfig::get('defaultController');
+		$defaultAction = CConfig::get('defaultAction');
+		// there is no controller - use default controller/action setings
 		if(!$this->_controller){
-			$defaultController = CConfig::get('defaultController');
-			$this->_controller = !empty($defaultController) ? CFilter::sanitize('alphanumeric', $defaultController) : 'Index'; 
-		}	
-		if(!$this->_action){
-			$defaultAction = CConfig::get('defaultAction');
-			$this->_action = !empty($defaultAction) ? CFilter::sanitize('alphanumeric', $defaultAction) : 'index'; 
+			$this->_controller = !empty($defaultController) ? CFilter::sanitize('alphanumeric', $defaultController) : $this->_defaultController;
+			$this->_action = !empty($defaultAction) ? CFilter::sanitize('alphanumeric', $defaultAction) : $this->_defaultAction; 
+		}
+		// there is a controller, but no action - use default action setings
+		else if($this->_controller && !$this->_action){
+			if($this->_controller == $defaultController){
+				$this->_action = !empty($defaultAction) ? CFilter::sanitize('alphanumeric', $defaultAction) : $this->_defaultAction; 	
+			}else{
+				$this->_action = $this->_defaultAction; 	
+			}			
 		}
 	}	
  

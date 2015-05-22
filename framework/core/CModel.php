@@ -9,15 +9,13 @@
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		        
- * ----------               ----------                  ----------              
+ * ---------------         	---------------            	---------------
  * __construct                                          
  * __set                                                
- * __get                                                
+ * __get
+ * init (static)
  * getError
  * getErrorMessage
- *
- * STATIC:
- * ---------------------------------------------------------------
  *
  */	  
 

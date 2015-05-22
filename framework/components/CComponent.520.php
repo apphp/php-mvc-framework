@@ -7,14 +7,12 @@
  * @link http://www.apphpframework.com/
  * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
  * @license http://www.apphpframework.com/license/
+ * @version PHP 5.2.0 - 5.3.0
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ----------               ----------                  ---------- 
- * __construct                                          
- * 
- * STATIC:
- * ---------------------------------------------------------------
- * init
+ * __construct											
+ * init (static)
  *
  */	  
 
@@ -34,16 +32,18 @@ class CComponent
 	}
   
 	/**
-	 * Returns the static component of the specified class
-	 * @param string $className
-	 * 
-	 * EVERY derived component class must override this method in following way,
-	 * <pre>
-	 * public static function init()
-	 * {
-	 *     return parent::init(__CLASS__);
-	 * }
-	 * </pre>
+	 * Triggered when invoking inaccessible methods in an object context
+	 * We use this method to avoid calling model($className = __CLASS__) in derived class
+	 * @param string $method
+	 * @param array $args
+	 * @version PHP 5.3.0 or higher
+	 * @return mixed
+	 */
+	
+	/**
+	 * Initializes the class
+	 * @param array $className
+	 * @version PHP 5.2.0 - 5.3.0
 	 */
 	public static function init($className = __CLASS__)
 	{

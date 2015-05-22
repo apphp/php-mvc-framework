@@ -1,0 +1,154 @@
+<h1>Development - File Structure for standard application</h1>
+
+Below the File Structure for standard application:
+
+<ul class="file-structure">
+    <li class="folder-protected">
+        <b>images/</b> <span class="description">directory where placed all public images</span>
+    </li>
+    <li class="folder-protected">
+        <b>js/</b> <span class="description">directory where placed all public javascript files</span>
+    </li>
+    <li class="folder-protected">
+        <b>css/</b> <span class="description">directory where placed all public css files</span>
+    </li>
+    <li class="folder-protected">
+        <b>protected/</b> <span class="description">directory where placed all files of applications</span>
+        <ul>
+            <li class="folder-protected">
+                <b>components/</b> <span class="description">directory for storing applications component files</span><br>
+            </li>                
+            <li class="folder-protected">
+                <b>config/</b> <span class="description">directory for storing configuration files</span><br>
+                <ul>
+                    <li class="file">main.php <span class="description">main cofiguration file</span></li>
+                    <li class="file">db.php <span class="description">database cofiguration file</span></li>               
+                </ul>
+            </li>                
+            <li class="folder-protected">
+                <b>controllers/</b> <span class="description">directory for storing cotroller classes</span>
+                <ul>
+                    <li class="file">ErrorController.php <span class="description">ErrorController class</span></li>                
+                    <li class="file">IndexController.php <span class="description">IndexController class</span></li>                
+                </ul>
+            </li>                
+            <li class="folder-protected">
+                <b>data/</b> <span class="description">containing the sample database</span>
+                <ul>
+                    <li class="file">config.db.tpl <span class="description">template for database configuration file</span></li>                
+                    <li class="file"><a href="index.php?page=configuration-files">config.main.tpl</a> <span class="description">template for main configuration file</span></li>                
+                    <li class="file">schema.mysql.sql <span class="description">DB schema for MySQL database installation</span></li>
+                    <li class="file">schema.update.mysql.sql <span class="description">DB schema for MySQL database update</span></li>
+                </ul>
+            </li>                                    
+            <li class="folder-protected">
+                <b>messages/</b> <span class="description">directory for storing messages</span>
+                <ul>
+                    <li class="folder-protected">
+                        <b>en/</b> <span class="description">English translation</span>
+                        <ul>
+                            <li class="file">app.php <span class="description">main translation file for application</span></li>               
+                        </ul>
+                    </li>                
+                </ul>
+            </li>                                    
+            <li class="folder-protected">
+                <b>models/</b> <span class="description">directory for storing model classes</span>
+                <ul>
+                    <li class="file">Login.php <span class="description">Login model class</span></li>                
+                </ul>
+            </li>                                    
+            <li class="folder-protected">
+                <b>modules/</b> <span class="description">directory for storing modules files</span>
+            </li>
+            <li class="folder-protected">
+                <b>tmp/</b> <span class="description">directory for storing temporary files</span>
+                <ul>
+                    <li class="folder-protected">
+                        <b>backups/</b> <span class="description">directory for backup files</span>
+                    </li>                
+                    <li class="folder-protected">
+                        <b>cache/</b> <span class="description">directory for cache files</span>
+                    </li>                
+                    <li class="folder-protected">
+                        <b>logs/</b> <span class="description">directory for log files</span>
+                    </li>                
+                </ul>
+            </li>            
+            <li class="folder-protected">
+                <b>views/</b> <span class="description">directory for storing view classes</span>
+                <ul>
+                    <li class="folder-protected">
+                        <b>index/</b> <span class="description">Index view directory</span>
+                        <ul>
+                            <li class="file">index.php <span class="description">Index/index view file</span></li>               
+                        </ul>
+                    </li>                
+                </ul>
+            </li>                
+            <li class="file"><a href="#htaccess-protected">.htaccess</a> <span class="description">protected folder .haccess file</span></li>               
+        </ul>                        
+    </li>
+    <li class="folder">
+        <b>templates/</b> <span class="description">directory where placed all templates</span>
+        <ul>
+            <li class="folder"><b>default/</b> <span class="description">all public files for a specific template</span></li> 
+            <ul>
+                <li class="folder"><b>css</b> <span class="description">css files for template</span></li>
+                <li class="folder"><b>images</b> <span class="description">image files for template</span></li>
+                <li class="folder"><b>js</b> <span class="description">javascript files for template</span></li>
+                <li class="file">default.php  <span class="description">default (master) template file</span></li>
+            </ul>
+            <li class="file"><a href="#htaccess-templates">.htaccess</a> <span class="description">templates directory .haccess file</span></li>
+        </ul>
+    </li>
+    <li class="file"><a href="#htaccess-main">.htaccess</a> <span class="description">application .haccess file</span></li>
+    <li class="file"><a href="#index-main">index.php</a> <span class="description">application entry point</span></li>               
+</ul>
+<br>
+
+
+<a name="htaccess-protected"></a><br>
+<code>protected/.htaccess</code> - htaccess file denies access to protected directory from all <a class="hashlink" href="#htaccess-protected">¶</a>
+<pre name="dlhl" class="php">deny from all</pre>
+
+<a name="htaccess-templates"></a><br>
+<code>templates/.htaccess</code> - htaccess file denies access to all PHP files in templates directory <a class="hashlink" href="#htaccess-templates">¶</a>
+<pre name="dlhl" class="php">
+&lt;FILES ~ "\.php$"&gt;
+Order allow,deny  
+Deny from all  
+&lt;/FILES&gt;</pre>
+
+<a name="htaccess-main"></a><br>
+<code>.htaccess</code> - htaccess file converts all requests into url parameter and perform following directives <a class="hashlink" href="#htaccess-main">¶</a>
+<pre name="dlhl" class="php">
+RewriteEngine On
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-l
+
+# Rewrite all other URLs to index.php/URL
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+
+# Recommended directive to disable directory browsing
+Options All -Indexes</pre>
+
+<a name="index-main"></a><br>
+<code>index.php</code> - main HTTP request dispatcher file <a class="hashlink" href="#index-main">¶</a>
+<pre name="dlhl" class="php">
+// change the following paths if necessary
+defined('APPHP_PATH') || define('APPHP_PATH', dirname(__FILE__));
+// directory separator
+defined('DS') || define('DS', DIRECTORY_SEPARATOR);
+// production | debug | demo | test | hidden
+defined('APPHP_MODE') or define('APPHP_MODE', 'debug'); 
+
+$apphp = dirname(__FILE__).'/../../framework/Apphp.php';
+$config = APPHP_PATH.'/protected/config/';
+
+require_once($apphp);
+A::init($config)->run();</pre>
+
+<p><br></p>

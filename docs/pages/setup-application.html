@@ -1,0 +1,69 @@
+<h1>Development - Setup Application</h1>
+
+A new installation of application, based on ApPHP MVC Framework is a very straight forward process:
+
+<ul>
+    <li><a href="index.php?page=setup-application#decompressing_downloaded_archive"><span>Step 1. Decompressing Downloaded Archive</span></a></li> 
+    <li><a href="index.php?page=setup-application#uploading_files"><span>Step 2. Uploading Files</span></a></li>
+    <li><a href="index.php?page=setup-application#creating_database_and_user"><span>Step 3. Creating Database and User</span></a></li>				
+    <li><a href="index.php?page=setup-application#running_setup_wizard"><span>Step 4. Running Setup Wizard</span></a></li>
+</ul>
+<br />
+
+
+<a name="decompressing_downloaded_archive"></a>
+<h3>Step 1. Uncompressing downloaded file. <a class="hashlink" href="#decompressing_downloaded_archive">¶</a></h3>  
+
+Decompress the application script archive on your machine.
+<p><br /></p>
+
+
+<a name="uploading_files"></a>
+<h3>Step 2. Uploading Files. <a class="hashlink" href="#uploading_files">¶</a></h3>  
+
+Upload this directory (all files and sub-directories it includes) to your
+document root (public_html, www, httpdocs, etc.) or to your website directory using FTP. 
+<br /><br />    
+
+<b>Pay attention:</b> DON&#39;T use the capital letters in the name of the folder (for Linux users).
+For example:
+<pre>public_html/</pre>
+or
+<pre>public_html/{application directory}/<br /></pre>
+<p><br /></p>
+
+
+<a name="creating_database_and_user"></a>
+<h3>Step 3. Creating Database and User. <a class="hashlink" href="#creating_database_and_user">¶</a></h3>  
+
+Using your hosting Control Panel, phpMyAdmin or another tool, create new database
+and user, and assign that user to the database. Write down the database host, name of
+the database, username and password. Grant this user all required privileges on that
+database to perform installation procedure.
+<p><br /></p>
+
+
+<a name="running_setup_wizard"></a>
+<h3>Step 4. Running Setup Wizard. <a class="hashlink" href="#running_setup_wizard">¶</a></h3>
+
+Now you can run setup wizard. To do this, open your Internet browser and type
+in Address Bar following:
+
+<pre>http://{www.mydomain.com}/</pre>
+or
+<pre>http://{www.mydomain.com}/{application directory}/<br /></pre>
+
+If the script still not installed you will see the setup wizard starting page. 
+Follow the instructions on the screen. You will be asked to enter: database host,
+database name, username and password. Also you have to enter admin email, username
+and password, that will be used to access the administration area of the site.
+After successful installation you will see an appropriate message.
+In the case of errors, setup wizard will display them on the screen.
+<br><br>
+While running setup wizard you could select whether to install a fresh copy of the
+script or just update it.
+<br><br>
+
+<img src="images/setup_wizard.png" alt="setup wizard" width="600px" />
+<p><br /></p>
+

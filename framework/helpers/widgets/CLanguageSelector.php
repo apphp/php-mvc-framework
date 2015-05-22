@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
- * PUBLIC:					PROTECTED:					PRIVATE:		
+ * PUBLIC (static):			PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
  * init
  * 
@@ -16,6 +16,7 @@
 
 class CLanguageSelector
 {
+	
     const NL = "\n";
  
     /**
@@ -49,11 +50,11 @@ class CLanguageSelector
             $lastLang = end($languages);
             foreach($languages as $key => $lang){
                 $langName = isset($lang['name']) ? $lang['name'] : '';
-                $langIcon = isset($lang['icon']) ? $lang['icon'] : '';
+                $langIcon = (isset($lang['icon']) && !empty($lang['icon']) && file_exists($imagesPath.$lang['icon'])) ? $lang['icon'] : 'no_image.png';
                 if($display == 'names'){
                     $displayValue = $langName;
                 }else if($display == 'icons'){
-                    $displayValue = '<img src="'.$imagesPath.$langIcon.'" alt="'.$langIcon.'" />';
+                    $displayValue = '<img src="'.$imagesPath.$langIcon.'" alt="'.$langName.'" />';
                 }else if($display == 'keys'){
                     $displayValue = strtoupper($key);
                 }

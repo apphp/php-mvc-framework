@@ -11,15 +11,12 @@
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ----------               ----------                  ---------- 
  * __construct
+ * init (static)
  * setTimeZone
  * getTimeZone
  * getLocales
  * getTimeZones
  * 
- * STATIC:
- * ---------------------------------------------------------------
- * init
- *
  */	  
 
 class CLocalTime extends CComponent
@@ -35,7 +32,7 @@ class CLocalTime extends CComponent
 
     /**
      *	Returns the instance of object
-     *	@return CClientScript class
+     *	@return current class
      */
 	public static function init()
 	{

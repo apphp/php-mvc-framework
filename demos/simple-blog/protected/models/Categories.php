@@ -25,9 +25,9 @@ class Categories extends CActiveRecord
 	/**
 	 * Returns the static model of the specified AR class
 	 */
-	public static function model($className = __CLASS__)
+	public static function model()
 	{
-		return parent::model($className);
+		return parent::model(__CLASS__);
 	}
 
 }

@@ -10,7 +10,8 @@
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ----------               ----------                  ---------- 
- * __construct                                          
+ * __construct
+ * init (static)
  * set
  * get
  * remove
@@ -19,10 +20,6 @@
  * setPath
  * getAll
  * 
- * STATIC:
- * ---------------------------------------------------------------
- * init
- *
  */	  
 
 class CHttpCookie extends CComponent
@@ -31,7 +28,7 @@ class CHttpCookie extends CComponent
 	public $expire = 0;	
 	/** @var boolean */
 	public $secure = false;
-	/** @var boolean whether the cookie should be accessible only through the HTTP protocol or not */
+	/** @var boolean - defines whether the cookie should be accessible only through the HTTP protocol or not */
 	public $httpOnly = true;
 
 	/** @var string - the domain that the cookie is available to */
@@ -49,13 +46,13 @@ class CHttpCookie extends CComponent
 	}
     
     /**
-     * Returns the instance of object
-     * @return CHttpCookie class
+     *	Returns the instance of object
+     *	@return current class
      */
 	public static function init()
 	{
 		return parent::init(__CLASS__);
-	}
+	}    
 
 	/**
 	 * Sets cookie domain

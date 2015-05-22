@@ -12,7 +12,7 @@
 	<header>
 		<nav>
 			<ul class="menu">
-				<li><a href="../../docs/index.php">Documentation</a></li>
+				<li><a href="../../docs/index.php">Framework Guide</a></li>
 				<li class="active"><a href="index.php">Requirements</a></li>				
 				<li><a href="../tests/index.php">Tests</a></li>
                 <li><a href="../generators/index.php">Code Generators</a></li>

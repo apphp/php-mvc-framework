@@ -8,10 +8,12 @@
  * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
- * PUBLIC:					PROTECTED:					PRIVATE:		
+ * PUBLIC (static):			PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
  * setType
  * setChannel
+ * setPath
+ * setFile
  * setImage
  * setItem
  * output
@@ -21,26 +23,26 @@
  *
  * Example of using Rss class
  * -------------------------------------
- * $rss_last_ids = '1-2-3-4-99';
+ * $rssLastIds = '1-2-3-4-99';
  * $rss_ids = '';
  * self::SetType('rss1');		
  * self::SetChannel('feeds/rss.xml', 'header_text', 'tag_description', 'en-us', '(c) copyright', 'admin_email', 'tag_description');
  * self::SetImage('images/icons/logo.png');
  * 
- * $all_news = Object::GetAllNews('previous');		
- * for($i=0; $i < $all_news[1] && $i < 10; $i++){					
- * 	$rss_ids .= (($i > 0) ? '-' : '').$all_news[0][$i]['id'];
+ * $allNews = News::GetAllNews('previous');		
+ * for($i=0; $i < $allNews[1] && $i < 10; $i++){					
+ * 	$rssIds .= (($i > 0) ? '-' : '').$allNews[0][$i]['id'];
  * }
  * 
  * // check if there difference between RSS IDs, so we have to update RSS file		
- * if($rss_last_ids != $rss_ids){
- *    for($i=0; $i < $all_news[1] && $i < 10; $i++){					
- *       $rss_text = RSSFeed::CleanTextRss(strip_tags($all_news[0][$i]['body_text']));
+ * if($rssLastIds != $rssIds){
+ *    for($i=0; $i < $allNews[1] && $i < 10; $i++){					
+ *       $rss_text = RSSFeed::CleanTextRss(strip_tags($allNews[0][$i]['body_text']));
  * 	     if(strlen($rss_text) > 512) $rss_text = substr_by_word($rss_text, 512).'...';
  * 	     #$rss_text = htmlentities($post_text, ENT_COMPAT, 'UTF-8');
- * 	     self::SetItem(APPHP_BASE.'index.php?page=news&nid='.$all_news[0][$i]['id'], $all_news[0][$i]['header_text'], $rss_text, $all_news[0][$i]['date_created']);
+ * 	     self::SetItem(APPHP_BASE.'index.php?page=news&nid='.$allNews[0][$i]['id'], $allNews[0][$i]['header_text'], $rss_text, $allNews[0][$i]['date_created']);
  *    }		
- *    Object::UpdateFields(array('rss_last_ids'=>$rss_ids));				
+ *    News::UpdateFields(array('rss_last_ids'=>$rss_ids));				
  * }		
  * 
  * self::SaveFeed();
@@ -68,8 +70,9 @@ class CRss
     private static $_arrItems = array();
     private static $_countItems = 0;
 	
-    private static $_filePath = '';
+    private static $_filePath = 'feeds/';
 	private static $_fileName = 'rss.xml';
+	
     
 	/**
 	 * Sets RssFeed type
@@ -87,10 +90,10 @@ class CRss
     public static function setChannel($params = array())
 	{
 		// $creator, $subject
-        self::$_channelUrl	= isset($params['url']) ? $params['url'] : '';
+        self::$_channelUrl = isset($params['url']) ? $params['url'] : '';
         self::$_channelTitle = isset($params['title']) ? $params['title'] : '';
 		self::$_channelDescription = isset($params['description']) ? $params['description'] : '';
-		self::$_channelLang  = isset($params['lang']) ? $params['lang'] : '';
+		self::$_channelLang = isset($params['lang']) ? $params['lang'] : '';
 		self::$_channelCopyright = isset($params['copyright']) ? $params['copyright'] : '';
 		self::$_channelCreator = isset($params['creator']) ? $params['creator'] : '';
 		self::$_channelAuthor = isset($params['author']) ? $params['author'] : '';
@@ -116,6 +119,24 @@ class CRss
         self::$_imageUrl = $url;
     }
     
+	/**
+	 * Sets RSS Path
+	 * @param string $url
+	 */
+    public static function setPath($path)
+	{
+        self::$_filePath = $path;
+    }
+
+	/**
+	 * Sets RSS File
+	 * @param string $url
+	 */
+    public static function setFile($file)
+	{
+        self::$_fileName = $file;
+    }
+
 	/**
 	 * Sets Item
 	 * @param string $url
@@ -238,13 +259,13 @@ class CRss
 	 */
     public static function saveFeed()
 	{
-		$handle = @fopen(self::$_fileName,'w+');
+		$handle = @fopen(self::$_filePath.self::$_fileName, 'w+');
 		if($handle){
-			@fwrite($handle, self::outputFeed());
+			@fwrite($handle, self::output());
 			@fclose($handle);
 			$result = '';
 		}else{
-			$result = A::t('core', 'Cannot open RSS file to add a new item! Please check your access rights to {file} or try again later.', array('{file}'=>self::$_fileName));		
+			$result = A::t('core', 'Cannot open RSS file to add a new item! Please check your access rights to {file} or try again later.', array('{file}'=>self::$_filePath.self::$_fileName));
 		}
 		return $result;
     }

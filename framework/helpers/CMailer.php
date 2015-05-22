@@ -1,6 +1,6 @@
 <?php
 /**
- * CMailer is a helper class file that provides basic maler functionality
+ * CMailer is a helper class file that provides basic mailer functionality
  *
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
@@ -13,7 +13,7 @@
  * 1. Standard call CMailer::config() + CMailer::send()
  * 2. Direct call CMailer::phpMail() or CMailer::phpMailer() or CMailer::smtpMailer()
  * 
- * PUBLIC:					PROTECTED:					PRIVATE:		
+ * PUBLIC (static):			PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
  * config
  * send
@@ -28,6 +28,7 @@ include(dirname(__FILE__).'/../vendors/phpmailer/class.phpmailer.php');
 
 class CMailer
 {
+	
 	private static $_mailer = 'phpMail';
 	private static $_error = '';
 
@@ -40,7 +41,7 @@ class CMailer
 	
 	/**
 	 * Sets a basic configuration 
-	 * @param string $params
+	 * @param array $params
 	 */
     public static function config($params)
     {
@@ -141,10 +142,15 @@ class CMailer
 
 		$mail = PHPMailer::Instance();
 
-		$mail->IsSMTP(); // telling the class to use SMTP
-		$mail->SMTPDebug  = 0;      	// enables SMTP debug information (for testing)
-										// 1 = errors and messages
-										// 2 = messages only
+		// telling the class to use SMTP
+		$mail->isSMTP(); 
+		// enables SMTP debug information (for testing)
+		// 0 = off (for production use)
+		// 1 = errors and messages
+		// 2 = messages only
+		$mail->SMTPDebug  = 0;      	
+		// ask for HTML-friendly debug output
+		// $mail->Debugoutput = 'html';
 		$mail->SMTPAuth   = (self::$_smtpAuth == 1) ? true : false; // enable SMTP authentication
 		$mail->SMTPSecure = self::$_smtpSecure; // sets the prefix to the server
 		$mail->Host       = self::$_smtpHost;
@@ -152,28 +158,33 @@ class CMailer
 		$mail->Username   = self::$_smtpUsername;
 		$mail->Password   = self::$_smtpPassword;
 
-		$mail->SetFrom($from, $fromName);    // $mail->SetFrom($mail_from, 'First Last');
-		$mail->AddReplyTo($from, $fromName); // $mail->AddReplyTo($mail_to, 'First Last');
+		// set language
+		$mail->setLanguage(A::app()->getLanguage());
+
+		// set "from" parameters
+		$mail->setFrom($from, $fromName);    // $mail->setFrom($mail_from, 'First Last');
+		$mail->addReplyTo($from, $fromName); // $mail->addReplyTo($mail_to, 'First Last');
 		
+		// add "to" addresses
 		$recipients = explode(',', $to);
 		foreach($recipients as $key){
-			$mail->AddAddress($key);  	     // $mail->AddAddress($mail_to, 'John Doe'); 	
+			$mail->addAddress($key);  	     // $mail->addAddress($mail_to, 'John Doe'); 	
 		}
 		
 		$mail->Subject = $subject;
 		$mail->AltBody = strip_tags($message);
-		if(CConfig::get('email.isHtml')) $mail->MsgHTML(nl2br($message));
+		if(CConfig::get('email.isHtml')) $mail->msgHTML(nl2br($message));
 		
-		//$mail->AddAttachment("images/test_file.gif");      // attachment
-		//$mail->AddAttachment("images/test_file_thumb.gif"); // attachment
+		//$mail->addAttachment("images/test_file.gif");      // attachment
+		//$mail->addAttachment("images/test_file_thumb.gif"); // attachment
 
-		$result = $mail->Send();
+		$result = $mail->send();
 		if(!$result){
 			self::$_error = $mail->ErrorInfo;
 		}
 
-		$mail->ClearAddresses(); // clear previously added 'To' addresses
-		$mail->ClearReplyTos();  // clear previously added 'ReplyTo' addresses
+		$mail->clearAddresses(); // clear previously added 'To' addresses
+		$mail->clearReplyTos();  // clear previously added 'ReplyTo' addresses
 		
 		return $result;		
 	}
@@ -193,28 +204,28 @@ class CMailer
 
 		$mail = PHPMailer::Instance();
 		
-		$mail->SetFrom($from, $fromName);    // $mail->SetFrom($mail_from, 'First Last');
-		$mail->AddReplyTo($from, $fromName); // $mail->AddReplyTo($mail_to, 'First Last');
+		$mail->setFrom($from, $fromName);    // $mail->SetFrom($mail_from, 'First Last');
+		$mail->addReplyTo($from, $fromName); // $mail->AddReplyTo($mail_to, 'First Last');
 
 		$recipients = explode(',', $to);
 		foreach($recipients as $key){
-			$mail->AddAddress($key);	     // $mail->AddAddress($mail_to, 'John Doe'); 	
+			$mail->addAddress($key);	     // $mail->AddAddress($mail_to, 'John Doe'); 	
 		}
 
 		$mail->Subject = $subject;
 		$mail->AltBody = strip_tags($message);
-		if(CConfig::get('email.isHtml')) $mail->MsgHTML(nl2br($message));
+		if(CConfig::get('email.isHtml')) $mail->msgHTML(nl2br($message));
 
 		//$mail->AddAttachment("images/test_file.gif");      // attachment
 		//$mail->AddAttachment("images/test_file_thumb.gif"); // attachment
 
-		$result = $mail->Send();
+		$result = $mail->send();
 		if(!$result){
 			self::$_error = A::t('core', 'PHPMailer Error:').' '.$mail->ErrorInfo;
 		}
 
-		$mail->ClearAddresses(); // clear previously added 'To' addresses
-		$mail->ClearReplyTos();  // clear previously added 'ReplyTo' addresses
+		$mail->clearAddresses(); // clear previously added 'To' addresses
+		$mail->clearReplyTos();  // clear previously added 'ReplyTo' addresses
 		
 		return $result;    	
 	}

@@ -1,6 +1,6 @@
 <?php
 /**
- * CFilter is a helper class file that provides different filters
+ * CFilter is a helper class file that provides different filters, including set of helper methods for security operations
  *
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
@@ -8,14 +8,15 @@
  * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
- * PUBLIC:					PROTECTED:					PRIVATE:		
+ * PUBLIC (static):			PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
- * sanitize
+ * sanitize												
  * 
  */	  
 
 class CFilter
 {
+	
     /**
      * Sanitizes specified data
      * @param string $type
@@ -23,6 +24,15 @@ class CFilter
      */
     public static function sanitize($type, $data)
     {
+		
+		$type = strtolower($type);
+
+		// Use CI_Security class for these special filters 		
+		if($type == 'filename' || $type == 'xss'){
+			include(dirname(__FILE__).'/../vendors/ci/security.php');
+			$ciSecurity = new CI_Security();
+		}
+		
         if($type == 'string'){
             // Strip tags, optionally strip or encode special characters
             return filter_var($data, FILTER_SANITIZE_STRING);        
@@ -50,9 +60,16 @@ class CFilter
         }else if($type == 'dbfield'){
             // Leave only allowed characters for database field name
             return preg_replace('/[^A-Za-z0-9_\-]/', '', $data);
-        }        
+		}else if($type == 'filename'){
+			// Sanitize filename
+			return $ciSecurity->sanitize_filename($data);
+		}else if($type == 'xss'){
+			// Sanitize input with xss
+			return $ciSecurity->xss_clean($data);
+        }
         
         return $data;        
     }
-        
+  
 }
+

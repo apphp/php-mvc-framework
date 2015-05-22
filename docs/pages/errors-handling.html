@@ -1,0 +1,80 @@
+<h1>Development - Errors Handling</h1>
+
+<ul>
+    <li><a href="#debug_mode">Debug Mode</a></li>
+    <li><a href="#missing_controller_action">Missing Controller and Action errors</a></li>
+    <li><a href="#custom_error_handlers">Creating Custom error handlers</a></li>
+</ul>
+<br />
+
+<a name="debug_mode"></a>
+<h3>Debug Mode <a class="hashlink" href="#debug_mode">¶</a></h3>
+
+Every application, built on ApPHP Framework can run in debug mode, as determined by the value of
+the constant <a href="index.php?page=application-modes" target="_parent">APPHP_MODE</a>. By default,
+this constant value equals 'production' mode. To run in debug mode, define this constant as 'debug'
+before including the <code>Apphp.php</code> file. Remember, that running the application in debug
+mode is less efficient because it keeps many internal logs, but on other other hand, debug mode
+is also more helpful during the development stage because it provides useful debugging information
+that will help you easy find and handle errors when occur.
+<br><br>
+You may also use <code>CDebug</code> core class to put the debug text on the debug console.
+It's useful for "on fly" debugging. The debug text will be shown in the tag General of debug console:
+<pre name="dlhl" class="php">&lt;?php
+CDebug::write($test);
+CDebug::write($var, 'testing variable');
+</pre>
+Or to show it immediately on the screen:
+<br>
+<pre name="dlhl" class="php">&lt;?php
+CDebug::dump($test);
+CDebug::dump($var, 1);
+// another option: d() is alias of dump()
+CDebug::d($test); 
+</pre>
+Another possible solution is to log variables, arrays or objexts into debug console (available when <a href="index.php?page=application-modes">APPHP_MODE = debug</a>):
+<br>
+<pre name="dlhl" class="php">&lt;?php
+$myText = 'my text';
+$myArray = array('a'=>'Apple', 'b'=>'Banan', 'c'=>array('1'='111', '2'=>'222'));
+CDebug::console($myText);
+CDebug::console($myArray);
+CDebug::console($myText, 'Test variable');
+// another option: c() is alias of console()
+CDebug::c($myText); 
+</pre>
+<br><br>
+
+<a name="missing_controller_action"></a>
+<h3>Missing Controller and Action <a class="hashlink" href="#missing_controller_action">¶</a></h3>
+ApPHP Framework allows using a controller to handle the error display work. By default if there is a
+missing controller the framework will try to call an ErrorController, so you have include such controller
+into your application. If there missing action event occurs the system will try to call <code>errorAction()</code>
+method, that define in base <code>CController</code> class, so if there is no <code>errorAction()</code> defined
+in current controller the base class method will be used to display an error.
+<br><br>
+Here the example of <code>ErrorController</code> class:
+
+<pre name="dlhl" class="php">&lt;?php
+class ErrorController extends CController
+{    
+    public function indexAction($code = '404')
+    {
+        if(in_array($code, array('404', '500'))){
+            $redirectCode = $code;
+        }else{
+            $redirectCode = 'index';
+        }
+        $this->_view->render('error/'.$redirectCode);                
+    }       
+}
+</pre>        
+<br>
+
+<a name="custom_error_handlers"></a>
+<h3>Creating Custom error handlers <a class="hashlink" href="#custom_error_handlers">¶</a></h3>
+As it was described in previous chapter, you may define your own error handlers. It means you may
+define <code>errorAction()</code> in controller and then create appropriate view file for it. In
+this case your own handler will be used instead of the handler of ApPHP Framework.
+
+<p><br></p>

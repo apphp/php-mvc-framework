@@ -1,13 +1,44 @@
-DEMO ----------------------------------------------------
-- Bug:
-- Enh:
-- Chg: Updating JQuery UI to 1.8.17 
-- New:
----------------------------------------------------------
+
+Version 0.6.9 - 16 May, 2015
+----------------------------
+- New: added new vendor dBug component
+- New: added new vendor CI_Security class
+- New: added new vendor TCPDF component
+- New: added new field type "fileUpload" for CDataForm widget
+- New: added new component CUri for parsing of URIs
+- New: added possibility to include one view from another view with $this->renderView() syntax
+- Enh: placement of component views moved from directory protected/components/views/ to directory protected/views/components/
+- Enh: added possibility to extend framework core classes
+- Enh: added possibility to create helpers on application and module levels
+- Enh: added possibility to override default Controller/Action from modules config files
+- Enh: PHPMailer vendor updated to v5.2.9
+- Enh: CDebug::display() renamed into CDebug::dump()
+- Enh: added possibility to write log into console: CDebug::console() or CDebug::c()
+- Enh: added new methods to CHttpRequest core class: isAjaxRequest(), isPutRequest(), isDeleteRequest() and getBrowser()
+- Enh: minor changes in CDbHttpSession and CHttpSession core classes
+- Enh: minor changes in CFile, CFormValidator, CValidator, CFormView helpers
+- Enh: in CDebug panel added possibility to close debug panel with double click on active tab
+- Enh: minor changes in syntax of models
+- Enh: in class A added aliases to components - request, session, cookie etc.
+- Enh: in components class CHttpRequest added aliases post() and get() to getPost/SetPost, getQuery/SetQuery
+- Enh: added new method distinct() for CActiveRecords
+- Enh: added possibility to define callback controller method for CDataForm
+- Enh: added translation into Polish
+- Bug: missing description of error on empty or wrong definition of _tableTranslation on models
+- Bug: fixed warning - non-static method CTime::dateParseFromFormat()
+- Bug: fixed UTF-8 issue in debug mode
+- Bug: fixed wrong redirection on empty action in CRouter core class
+- Bug: fixed wrong URL routing when 2 or more parameters were defined
+- Bug: missing table prefixes in CDbHttpSession component class
+- Bug: error in reading session data in CDbHttpSession component class 
+- Bug: syntax error on definition of init() and model() methods in CComponent and CActiveRecords classes
+- Bug: unexpected debug error message of missing locale for current language
+- Bug: fixed security issue in uploading files in CFormValidation helper
+
 
 Version 0.5.9 - 29 Dec, 2014
 ----------------------------
-- New: added new helper CArray
+- New: added new helper class CArray
 - Enh: added translation into Hebrew
 - Enh: in CActiveRecords added new method updateByPk
 - Enh: in CActiveRecords findByPk() returns object instead of array
@@ -32,7 +63,7 @@ Version 0.5.9 - 29 Dec, 2014
 - Bug: fixed in CMailer class phpMail() for sending HTML messages
 - Bug: fixed in CFormView when drawing disabled or hidden fields
 - Bug: fixed issue when error 404 is not shown for module CMS
-- Bug: fixed accessa permissions issue in CFile::copyDirectory() 
+- Bug: fixed access permissions issue in CFile::copyDirectory() 
 
 
 Version 0.4.4 - 29 Apr, 2014
@@ -219,7 +250,5 @@ Version 0.0.1 - July 12, 2012 (Initial release)
 ----------------------------
 - New: created main structure
 - New: created main entry to the application /public/index.php
-
-
 
 

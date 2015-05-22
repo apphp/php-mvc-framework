@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
- * PUBLIC:					PROTECTED:					PRIVATE:		
+ * PUBLIC (static):			PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
  * isEmpty          
  * isAlpha
@@ -33,6 +33,7 @@
  * isFloat
  * isHtmlSize
  * isUrl
+ * isIpAddress
  * isAlignment
  * inArray
  * validateLength
@@ -315,7 +316,17 @@ class CValidator
 	{
         return (!preg_match("/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i", $value)) ? false : true;
     }
-
+	
+	/**
+	 * Checks if the given value is a valid IP address
+	 * @param mixed $value
+	 * @return boolean
+	 */
+    public static function isIpAddress($value)    
+	{
+        return filter_var($value, FILTER_VALIDATE_IP) ? true : false;
+    }
+	
 	/**
 	 * Checks if the given value is an alignment value
 	 * @param mixed $value
@@ -414,7 +425,6 @@ class CValidator
 	 */
     public static function validateMinDate($value, $min)
     {
-        if($format == 'european') $value = CNumber::europeanFormat($value);
         return ($value >= $min) ? true : false;
     }
 
@@ -426,7 +436,6 @@ class CValidator
 	 */
     public static function validateMaxDate($value, $max)
     {
-        if($format == 'european') $value = CNumber::europeanFormat($value);        
         return ($value <= $max) ? true : false;
     }
         

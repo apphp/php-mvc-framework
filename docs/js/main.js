@@ -71,27 +71,26 @@ function getCookie(c_name){
     return c_value;
 }
 
-jQuery(document).ready(function(){
+jQuery(function($){
     // scroll
-    jQuery(window).scroll(function(){
-        var scrollTop = jQuery(this).scrollTop();
+    $(window).scroll(function(){
+		var scrollTop = $(this).scrollTop();
 
-        if(scrollTop > 250){
-            jQuery('header').css({"height":"20px", "opacity":"0.9"});
-            jQuery('ul.menu li').css({"padding":"0px 10px"});
-        }else{
-            jQuery('header').css({"height":"40px", "opacity":"1"});
-            jQuery('ul.menu li').css({"padding":"10px"});
-        }        
+		if(scrollTop > 90){
+			$('header').css({"opacity":"0.95"});
+		}else{
+			$('header').css({"opacity":"1"});
+		}
 
         if(scrollTop > 200){
-            jQuery('.scrollup').fadeIn();    
+            $('.scrollup').fadeIn();    
         }else{
-            jQuery('.scrollup').fadeOut();   
+            $('.scrollup').fadeOut();   
         }        
     });     
-    jQuery('.scrollup').click(function(){
-        jQuery("html, body").animate({ scrollTop: 0 }, 400);
+
+    $('.scrollup').click(function(){
+        $("html, body").animate({ scrollTop: 0 }, 200);
         return false;
     });
 })

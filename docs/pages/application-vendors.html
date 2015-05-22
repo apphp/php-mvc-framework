@@ -1,0 +1,56 @@
+<h1>Development - Application Vendors</h1>
+
+<a name="general"></a>
+<h3>General <a class="hashlink" href="#general">¶</a></h3>
+
+Application-level vendors are the third-party libraries that integrated to further extend
+your application functionalities. They must be placed in a special sub-directory and
+generally it contains all third-party modules or libraries which your application may need.
+
+There 3 general types of vendor libraries that may be used:
+<ul>
+    <li>Pure JavaScript libraries</li>
+    <li>Pure PHP scripts or libraries</li>
+    <li>PHP scripts with JavaScript and other files</li>
+</ul>
+
+
+<a name="placement"></a>
+<h3>Placement <a class="hashlink" href="#placement">¶</a></h3>
+
+<h4>Pure JavaScript libraries</h4>
+
+There is a special place for JavaScript vendor libraries. They must be place in application
+<code>js/vendors</code> directory to provide public access to their files.
+
+Here the example:
+<ul class="file-structure">
+    <li class="folder">
+        <b>application/</b> <span class="description">your application directory</span>
+        <ul>
+            <li class="folder">
+                <b>js/</b> <span class="description">directory where placed all JavaScript files</span>
+                <ul>
+                    <li class="folder">
+                        <b>vendors/</b> <span class="description">directory where placed all vendor libraries</span>
+                        <ul>
+                            <li class="folder"><b>jquery/</b> <span class="description">jQuery library</span></li>
+                            <li class="folder"><b>tinymce/</b> <span class="description">TinyMCE library</span></li>
+                            <li class="folder"><b>tooltip/</b> <span class="description">other libraries</span></li>
+                            <li class="folder">...</li>
+                        </ul>
+                    </li>
+                </ul>                        
+            </li>
+        </ul>                    
+    </li>
+</ul>
+
+<h4>Pure PHP libraries</h4>
+<div class="msg_error">Currently this section in development phase! Please visit our <a class="external" href="http://www.apphp.com/php-framework/index.php" target="_new">website</a> to get more information.</div>
+
+<h4>PHP scripts with JavaScript and other files</h4>
+In such cases you may use <code>js/vendors</code> directory to provide public access to JavaScript vendor files and
+write your own PHP procedure that will check the access to your PHP files.
+
+

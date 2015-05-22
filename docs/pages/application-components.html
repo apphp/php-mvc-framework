@@ -1,0 +1,143 @@
+<h1>Development - Application Components</h1>
+
+<ul>
+    <li><a href="#general">General</a></li>
+	<li><a href="#rendering">Rendering in Components (passing data to the View)</a></li>
+	<li><a href="#configuraion_file">Configuraion File</a></li>
+	<li><a href="#directory_structure">Directory Structure</a></li>
+	<li><a href="#code_examples">Code Examples</a></li>
+</ul>
+<br />
+
+
+<a name="general"></a>
+<h3>General <a class="hashlink" href="#general">¶</a></h3>
+Components represent the extensive add-ons. They typically add completely new or different
+functionality and extends the overall framework possibilities. ApPHP Framework built upon
+components which are objects written to a specification. Using component mainly involves
+accessing its properties and raising/handling its own events. Each component extends the 
+CComponent base class and may use views similary to controllers.
+<br><br>
+
+<a name="rendering"></a>
+<h3>Rendering in Components - passing data to the View <a class="hashlink" href="#rendering">¶</a></h3>
+Application components come to replace using of global functions and co-called "include" files
+with HTML/PHP code. Now you may create a component class, that uncludes a static methods - this
+will allow you to avoid using if include files with a lot of global functions. Also, you may
+create a component that's incorporates some spesific logical functionality of your web
+application, including retrieving infromation from database.
+<br><br>
+
+For output purposes you may use two general ways: return the HTML that is generating by method
+of component class (write it directly in code) or use views presentation similary to controllers
+work.
+<br><br>
+
+Here the example of direct returning of generated code:    
+<pre name="dlhl" class="php">
+$output = '&lt;ul&gt;&lt;li&gt;Link 1&lt;/li&gt;&lt;li&gt;Link 2&lt;/li&gt;...&lt;/ul&gt;';
+return $output;
+</pre>
+    
+In this case you have to use following syntax, where method <code>renderContent()</code>
+accepts a name of the view file, placed in a views directory <code>protected/views/components/</code>:
+<pre name="dlhl" class="php">
+// hint: don't try to work with A::app()->view->render(), it's reserved for controllers use only
+A::app()->view->renderContent('leftmenu');
+</pre>
+<div class="msg_important">
+<b>Remember!</b><br>
+1. Some systems may be case sensitive, so make sure that argument of renderContent() is exactly same with the file name it reffers.
+2. This method renderContent() works only on application level, it doesn't work on modules level.
+</div>
+<br><br>
+
+
+<a name="configuraion_file"></a>
+<h3>Configuraion File <a class="hashlink" href="#configuraion_file">¶</a></h3>
+For each application you have to define a list of components the will be loaded for your application, where
+all important parameters are define. For example:
+<pre name="dlhl" class="php">&lt;?php
+// application components
+'components' => array(
+    'blogMenu' => array('enable'=>true, 'class'=>'BlogMenu'),
+    'blogHelper' => array('enable'=>true, 'class'=>'BlogHelper'),        
+),
+</pre>
+For each application you may define a <code>Bootstrap</code> component, that will be loaded by the framework automatically
+to provide possibility to run procedure before any other code. For example, you may use <code>Bootstrap</code> component
+to set the "timezone" ot local date settings, etc.
+<br><br>
+    
+	
+<a name="directory_structure"></a>	
+<h3>Directory Structure <a class="hashlink" href="#directory_structure">¶</a></h3>
+Below you may see a common structure of the component directory:
+<ul class="file-structure">
+    <li class="folder-protected">
+        <b>protected/</b> <span class="description">application protected directory</span>
+        <ul>
+            <li class="folder-protected">
+                <b>components/</b> <span class="description">directory where placed all app components</span>
+                <ul>
+                    <li class="folder-protected">
+                        <b>views/</b> <span class="description">directory for content views</span>
+                        <ul>
+                            <li class="file">AdminLeftMenu.php <span class="description">content view for adminLeftMenu() method of BlogMenu content</span></li>
+                        </ul>
+                    </li>
+                    <li class="file">BlogHelper.php <span class="description">BlogHelper component</span></li>
+                    <li class="file">BlogMenu.php <span class="description">BlogMenu component</span></li>
+                </ul>                        
+            </li>
+        </ul>                    
+    </li>
+</ul>
+<br>
+
+
+<a name="code_examples"></a>
+<h3>Code Examples <a class="hashlink" href="#code_examples">¶</a></h3>
+Phisically application controller represents a class that extends CComponent class. If you don't use this class
+for storing static methods only, it's recommended to define class constructor and <code>init()</code> methods
+like in example below:
+   
+<pre name="dlhl" class="php">&lt;?php
+class BlogMenu extends CComponent
+{    
+    /**
+     * Class constructor
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Returns the static model of the specified AR class
+     */
+    public static function init()
+    {
+        return parent::init(__CLASS__);    
+    }
+    
+    // other class code here
+}    
+</pre>
+    
+This is an example of component class that represents a library of static methods.
+<pre name="dlhl" class="php">&lt;?php
+class BlogHelper extends CComponent
+{
+    public static function strTruncate($string, $maxLength)
+    {
+        $string = substr($string, 0, $maxLength);
+        $string = substr($string, 0, strrpos($string, ' '));
+        return $string;
+    }
+    
+    // other class code here
+}    
+</pre>
+<br>

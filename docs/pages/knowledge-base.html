@@ -1,0 +1,296 @@
+<h1>Knowledge Base</h1>
+
+<h4>General:</h4>
+<ul>
+    <li><a href="#assign-controller">How to assign controller action to Backend or Frontend?</a></li>
+	<li><a href="#extend-framework-helper-classes">How to (override) ApPHP framework helper classes?</a></li>
+	<li><a href="#define-start-page">How to define default controller and action (start page) for application?</a></li>
+	<li><a href="#define-default-action">How to define my own default action for all project controllers?</a></li>
+</ul>
+
+<h4>Modules:</h4>
+<ul>
+	<li><a href="#multiple-translation-config">How to define multiple translation for module in config file?</a></li>
+	<li><a href="#seo-links">How to create SEO links for module?</a></li>
+	<li><a href="#installation-updating">How to install/update module?</a></li>
+	<li><a href="#search-in-modules">How to allow search in module?</a></li>
+</ul>
+<br><br>
+
+
+<a name="general"></a>
+<h3>General: <a class="hashlink" href="#general">¶</a></h3>  
+
+<a name="assign-controller"></a>
+<p><b>Q: How to assign controller action to Backend or Frontend?</b></p>
+<p><b>A:</b> Directy CMF has embedded features to define any action
+   in controller (or a whole controller) to be assigned to Backend or Frontend only
+   (that means only appropriate template will be used).
+   <br><br>
+   To assign action to Frontend use <code>Website::setFrontend();</code>
+</p>   
+<pre name="dlhl" class="php">
+public function viewAllAction($menuId = 0)
+{
+    // set frontend mode
+    Website::setFrontend();
+
+    // your code here...
+}
+</pre>
+
+<p>
+   To assign action to Backend use <code>Website::setBackend();</code>
+</p>   
+<pre name="dlhl" class="php">
+public function addAction($menuId = 0)
+{
+    // set backend mode
+    Website::setBackend();
+
+    // your code here...
+}
+</pre>
+
+<p>For advanced use you may define directly backend mode and check privilege access.<br>
+To do this simply call <code>Website::prepareBackendAction();</code></p>
+
+<pre name="dlhl" class="php">
+public function addAction($menuId = 0)
+{
+    // set backend mode
+    // 1st param - action name. e.g. "manage", "add", "insert", "edit", "update" or "delete"
+    // 2st param - privilege category, e.g. "posts", "restaurant_info", "restaurant_menus" etc.
+    // 3st param - redirtion path, e.g. "modules/manage", "posts/view", "modules/settings/code/restaurant" etc.
+    Website::prepareBackendAction('add', 'restaurant_info', 'modules/settings/code/restaurant');
+
+    // your code here...
+}
+</pre>
+<br><br>
+
+
+<a name="extend-framework-helper-classes"></a>
+<p><b>Q: How to extend (override) ApPHP framework helper classes?</b></p>
+<p><b>A:</b> To override ApPHP framework helper classes you have to do following:
+<ol>
+	<li>Create directory named <code>helpers</code> in <code>protected/</code> directory of your application.</li>
+	<li>Copy into this directory a required helper class from the framework directory.</li>
+	<li>Change the code of this class according to yuor needs.</li>
+</ol>
+
+There is also another solution:
+<ol>
+	<li>Create directory named <code>helpers</code> in <code>protected/</code> directory of your application.</li>
+	<li>Copy into this directory a required helper class from the framework directory.</li>
+	<li>Rename an original helper class in directory <code>helpers</code> of yuor application without prefix <code>"C"</code>, for example: <code>CHtml</code> > <code>Html</code>.</li>
+	<li>Create an empty class with original helper name and extend it from the class created on the previous step.</li>
+	<li>In the new class override only the method you need. When new update of ApPHP framework will be released simply replace the code of the class created on step 3.</li>
+	<li>Add to extended class constructor with <code>parent::__construct();</code></li>
+	<li>Before call of extended file - create an object of such class type and then use it.</li>	
+</ol>
+
+Structure of directory <code>helpers</code>
+<ul class="file-structure">
+    <li class="folder-protected">
+        <b>protected/</b> <span class="description">application directory</span>
+        <ul>
+			<li class="folder-protected">
+				<b>helpers/</b> <span class="description">directory of helpers classes</span>
+				<ul>
+					<li class="file">Html.php <span class="description">original framework helper class</span></li>
+					<li class="file">CHtml.php <span class="description">extended class</span></li>
+				</ul>                        
+			</li>
+        </ul>                    
+    </li>
+</ul>
+
+Code of CHtml class
+<pre name="dlhl" class="php">
+&lt;?php
+include('Html.php'); 
+
+class CHtml extends Html
+{
+    /**
+     * Class default constructor
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    public static function overridedMethod()
+    {
+        // ...
+    }
+	
+);
+</pre>
+</p> 
+<br><br>
+
+
+<a name="define-start-page"></a>
+<p><b>Q: How to define default controller and action for application?</b></p>
+<p><b>A:</b> To define default controller and action for application you have to define them in <code>protected/config/main.php</code>:
+
+<pre name="dlhl" class="php">
+&lt;?php
+return array(
+    // default settings 
+    'defaultController' => 'pages',
+    'defaultAction' => 'view',
+);    
+</pre>
+
+or redefine it in module <code>module/config/[module-name].php</code> file using the same syntax:
+
+<pre name="dlhl" class="php">
+&lt;?php
+return array(
+    // default settings (optional, if defined - will be used as application default settings)
+    'defaultController' => 'posts',
+    'defaultAction' => 'index',
+);    
+</pre>
+<br><br>
+
+
+<a name="define-default-action"></a>
+<p><b>Q: How to define my own default action for all project controllers?</b></p>
+<p><b>A:</b> By default the default action for each controller is <code>index</code> -> <code>indexAction</code>.
+
+If you want to change it go to <code>framework/core/CRouter.php</code>, find there 
+
+<pre name="dlhl" class="php">
+&lt;?php
+/**   @var string */
+private $_defaultAction = 'index';
+</pre>
+
+and re-declare action value according to yuor needs.
+Remeber: these changes will affect all controllers in the project.
+<br><br>
+
+
+<a name="modules"></a>
+<h3>Modules <a class="hashlink" href="#modules">¶</a></h3>  
+
+<a name="multiple-translation-config"></a>
+<p><b>Q: How to define multiple translation for module in config file?</b></p>
+<p><b>A:</b> You may translate your module into other languages and tell the framework to
+    copy these files into <code>messages/</code> directory according to related language.
+    <br><br>
+    Below the definition of multiple translation for module in config file:
+</p>
+<pre name="dlhl" class="xml">
+&lt;messages installationPath="protected/messages/*"&gt;
+    &lt;en default="true"&gt;
+        &lt;filename&gt;webforms.php&lt;/filename&gt;
+    &lt;/en&gt;
+    &lt;es&gt;
+        &lt;filename&gt;webforms.php&lt;/filename&gt;
+    &lt;/es&gt;
+    &lt;de&gt;
+        &lt;filename&gt;webforms.php&lt;/filename&gt;
+    &lt;/de&gt;
+&lt;/messages&gt;
+</pre>
+    Single file translation definition:
+<pre name="dlhl" class="xml">
+&lt;messages installationPath="protected/messages/*"&gt;
+    &lt;filename&gt;news.php&lt;/filename&gt;
+&lt;/messages&gt;
+</pre>
+<br><br>
+
+
+<a name="seo-links"></a>
+<p><b>Q: How to create SEO links for module?</b></p>
+<p><b>A:</b> First of all you have to define special rules in your module config file, then you may use
+    allowed formats in your code. Check the example below, now instead of <code>pages/view/id/3</code>
+    you may use following format for module links:
+    <code>pages/view/3</code>, <code>pages/view/3/Test-Page</code>, <code>pages/3/Test-Page</code> etc.
+</p>
+<pre name="dlhl" class="php">
+&lt;?php
+return array(
+    // url manager
+    'urlManager' => array(
+        'rules' => array(
+            'pages/view/id/([0-9]+)' => 'pages/view/id/{$0}',
+            'pages/view/([0-9]+)' => 'pages/view/id/{$0}',
+            'pages/view/([0-9]+)/(.*?)' => 'pages/view/id/{$0}',
+            'pages/([0-9]+)' => 'pages/view/id/{$0}',
+            'pages/([0-9]+)/(.*?)' => 'pages/view/id/{$0}',
+        ),
+    ),        
+);
+</pre>
+<br><br>
+
+
+<a name="installation-updating"></a>
+<p><b>Q: How to install/update module?</b></p>
+<p><b>A:</b> The complete guide to installation and updating modules could be found
+<a href="http://www.apphp.com/php-directy-cmf/index.php?page=module_installation" class="external" target="_new">here</a>. </p> 
+<br><br>
+
+
+<a name="search-in-modules"></a>
+<p><b>Q: How to allow search in module?</b></p>
+<p><b>A:</b> To allow search in module yuo have to perform following:</p>
+
+1. Add to yuor module SQL command that adds this module to <code>search_categories</code> table:
+<br>
+<pre name="dlhl" class="sql">
+// Example for module News, where callback class is model "News" and callback method is "search"
+INSERT INTO `&lt;DB_PREFIX&gt;search_categories` (`id`, `category_code`, `category_name`, `callback_class`, `callback_method`, `items_count`, `is_active`)
+VALUES (NULL, 'news', 'News', 'News', 'search', '20', 1);
+</pre>
+
+2. Add the callback method (usually "search") to the model (callback class) and write the code that returns
+all records according to the search parameters. Below the example of such method for module News:
+<pre name="dlhl" class="php">
+&lt;?php
+/**
+ * Performs search in news
+ * @param string $keywords
+ * @param mixed $itemsCount
+ * @return array array('0'=>array(news), '1'=>total)
+ */	
+public function search($keywords = '', $itemsCount = 10)
+{
+    $result = array();
+    
+    if($keywords !== ''){
+        
+        $limit = !empty($itemsCount) ? '0, '.(int)$itemsCount : '';
+        $condition = CConfig::get('db.prefix').$this->_table.'.is_published = 1 AND '.
+            CConfig::get('db.prefix').$this->_tableTranslation.'.news_text LIKE :keywords OR '.
+            CConfig::get('db.prefix').$this->_tableTranslation.'.news_header LIKE :keywords';
+        
+        // Count total items in result
+        $total = $this->count(array('condition'=>$condition), array(':keywords'=>'%'.$keywords.'%'));
+        
+        // Prepare news result
+        $news = $this->findAll(array('condition'=>$condition, 'limit' => $limit), array(':keywords'=>'%'.$keywords.'%'));
+        foreach($news as $key => $val){
+            $result[0][] = array(
+                'date'    => $val['created_at'],
+                'title'   => $val['news_header'],
+                'content' => $val['news_text'],
+                'link'    => Website::prepareLinkByFormat('news', 'news_link_format', $val['id'], $val['news_header'])
+            );
+        }
+        
+        $result[1] = $total;
+    }
+    
+    return $result;
+}
+</pre>
+
+<br><br>

@@ -1,0 +1,73 @@
+<h1>Special Topics - Setting Up Database Requests Caching</h1>
+
+Caching is a cheap and effective way to improve the performance of your Web applications.
+By storing relatively static data in cache and serving it from cache when requested,
+you can save the time needed to generate the data and improve effectivity of your scripts.
+<br><br>
+
+Using cache in ApPHP Framework mainly involves first of all a right configuring of using
+cache mechanism. The following configuration specifies the cache settings (by default cache
+is turned off).
+<br><br>
+
+<pre name="dlhl" class="php">
+// cache settings 
+'cache' => array(
+    'enable' => true, 
+    'lifetime' => 20,  /* in minutes */
+    'path' => 'protected/tmp/cache/'
+),
+</pre>
+<br>
+
+Cache mechanism is embedded in Directy CMF and you may see the current state of your cache settings
+in Backend panel.
+<br><br>
+<img src="images/cache_backend.png" alt="" class="Cache in Backend Panel" />
+<br><br>
+
+When the application is running, the cache file is created in specified directory and then
+used for next access of this data. Cache can be used only for read requests (<b>SELECT</b>),
+because only the requests of this type generate a result. Write requests (<b>INSERT, UPDATE, etc.</b>)
+can not be cached by the system because they don't generate any result.
+<br><br>
+
+Each SELECT request gets from the system a unique identifier, but sometimes it's impossible for
+some reasons (for example when you use a dinamic parameters in each request). For such cases
+you may define a special identifier manuly (see <code>cacheId</code> parameter in example below). 
+
+<pre name="dlhl" class="php">
+$news = News::model()->findAll(
+    array(
+        'condition'=>'is_published = :isPublished AND created_at < :currentDate',
+        'order'=>'created_at DESC',
+        'limit'=>'0, '.(int)$newsCount,
+        'cacheId'=>'NewsComponent::drawNewsBlock'
+    ),
+    array(
+        ':isPublished'=>1,
+        ':currentDate'=>LocalTime::currentDateTime()
+    )
+);
+</pre>
+<br>
+
+To enable/disable manually caching you may use following methods:
+<code>$this->_db->cacheOn();</code> and <code>$this->_db->cacheOff();</code>.
+This can be useful if you want to keep certain queries from being cached directly in models,
+for example:
+<pre name="dlhl" class="php">
+// Turn caching on
+$this->_db->cacheOn();
+$result = $this->_db->select('SELECT * FROM one_table');
+
+// Turn caching off for this one query
+$this->_db->cacheOff();
+$result = $this->_db->select('SELECT * FROM one_table');
+
+// Turn caching back on
+$this->_db->cacheOn();
+$result = $this->_db->select('SELECT * FROM another_table');
+</pre>
+<br>
+

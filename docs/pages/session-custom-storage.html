@@ -1,0 +1,35 @@
+<h1>Special Topics - Session Custom Data Storage</h1>
+
+Session data array stored in the user's cookie, that contains a Session ID and unless you store session data
+in a database there is no way to validate it. If yuor applications requires little or no security, session ID
+validation may not be needed, but if your application requires a serious security, validation is mandatory.
+Otherwise, an old session could be restored by users that can modify their cookies.
+<br><br>
+If you want to use custom storage for session's data, you have to define in your configuration file following:
+<br>
+
+<pre name="dlhl" class="php">
+// session settings
+'session' => array(
+    'customStorage' => true, 	/* true value means use a custom storage (database), false - standard storage */
+    'cacheLimiter' => '', 	/* to prevent 'Web Page expired' message for POST request use "private,must-revalidate" */
+    'lifetime' => 24,  		/* session timeout in minutes, default: 24 min = 1440 sec */
+),
+</pre>
+<br>
+    
+Also, make sure you have special table in your database:
+<br>
+    
+<pre name="dlhl" class="sql">
+DROP TABLE IF EXISTS `&lt;DB_PREFIX&gt;sessions`;
+CREATE TABLE IF NOT EXISTS `&lt;DB_PREFIX&gt;sessions` (
+  `session_id` varchar(32) NOT NULL,
+  `expires_at` int(11) NOT NULL,
+  `session_data` text NOT NULL,
+  UNIQUE KEY `session_id` (`session_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;
+</pre>
+<br>
+
+Tha's all! Now your session's data will be stored in database.

@@ -1,0 +1,170 @@
+<h1>Special Topics - Security</h1>
+
+<ul>
+	<li><a href="#password-protection">Password Protection</a></li>
+    <li><a href="#cross-site-request-forgery">Cross-Site Request Forgery Prevention (CSRF and XSRF)</a></li>
+    <li><a href="#cross-site-scripting">Cross-Site Scripting Prevention (XSS)</a></li>
+    <li><a href="#brute-force-attacks">Brute-Force Attacks Prevention</a></li>
+	<li><a href="#session-cookies-modifying">Session Cookies Modifying Prevention</a></li>
+</ul>
+<br />
+
+
+<a name="password-protection"></a>
+<h3>Password Protection <a class="hashlink" href="#password-protection">¶</a></h3>
+
+<div class="msg_important">
+Passwords are like keys to your personal home online. You should do everything you can prevent people from
+gaining access to your password. You can also further secure your accounts by using additional authentication methods. 
+Read more about password protection on <a class="external" target="_new" href="http://en.wikipedia.org/wiki/Password">Wikipedia</a>.
+</div>
+<br>
+
+ApPHP Framework provides you few ways to protect passwords for system users:
+<ul>
+	<li>encryption - allows to encrypt password using different encryption algorithms</li>
+	<li>encryptAlgorithm - hashing algorithm used to encrypt password</li>
+	<li>encryptSalt - password-level secret key ("salt") to be used with hashing algorithm</li>
+	<li>hashKey - site-level secret key to be used with hashing algorithm</li>
+</ul>
+<br>
+
+Here the example of password settings for your application defined in <code>config/main.php</code> file:
+<pre name="dlhl" class="php">&lt;?php
+// md5, sha1, sha256, whirlpool, etc
+'password' => array(
+    'encryption' => true,
+    'encryptAlgorithm' => 'sha256',
+    'encryptSalt' => true,
+    'hashKey' => 'your unique hash key here...',    
+),	
+</pre>
+<p><br></p>
+
+
+<a name="cross-site-request-forgery"></a>
+<h3>Cross-Site Request Forgery Prevention <a class="hashlink" href="#cross-site-request-forgery">¶</a></h3>
+
+<div class="msg_important">
+CSRF (also known as a one-click attack or session riding) or XSRF is a type of malicious exploit of
+a website whereby unauthorized commands are transmitted from a user that the website trusts. When a
+user visits a malicious website, a hidden request is sent in his name to a remote server for
+execution of a certain action (most often requests are sent to popular email services or social
+networks, where user is most likely to be registered and authorized).
+Read more about CSRF on <a class="external" target="_new" href="http://en.wikipedia.org/wiki/CSRF">Wikipedia</a>.
+</div>
+<br>
+
+Generally Cross-Site Request Forgery (CSRF) attack occurs when a malicious website causes your
+web browser to execute a un-wanted action on a site you trust it. For example, such web site
+has a special page that contains an image whose src attribute points to a Back-End My Account page: 
+http://site.example/myAccount?changeEmail=yes&to=newEmail. 
+If a user who has a login cookie for this site visits this malicous page, the action of changing
+email will be executed. So, in other words... CSRF exploits the trust that a site has for a
+particular user.
+<br><br>
+
+To prevent CSRF attacks, it is important to use the the rule where GET requests should only be
+allowed to retrieve data rather than modify any data on the server. And for POST requests,
+they should include some random value which can be recognized by the server to ensure the form
+is submitted from and the result is sent back to the same origin.
+<br><br>
+
+ApPHP Framework implements a CSRF prevention scheme to help defeat POST-based attacks. It is based
+on generating a random value in a session or cookie and comparing this value with the value
+submitted via the POST request.
+
+By default, the CSRF prevention is disabled. To enable it, configure the CHttpRequest framework
+component as follows:
+<pre name="dlhl" class="php">&lt;?php
+private $_csrfValidation = true;
+</pre>
+
+or define in your application <code>config/main.php</code> file as follows:
+
+<pre name="dlhl" class="php">&lt;?php
+// validation
+'validation' => array(
+    'csrf' => true,
+),
+</pre>
+
+AJAX. If you are utilizing JavaScript file in your application, then parameter
+<code>APPHP_CSRF_TOKEN:token_value</code> must be added to all your POST requests.
+
+It's automatically added to your FORM, when you use following in your code:
+<pre name="dlhl" class="php">&lt;?php
+CHtml::openForm('WebForms/submit', 'post', array('name'=>'form-contact'));
+</pre>
+
+For the cases when you work with controller that doesn't create token in form,
+but processes it anyway, you may create token explicitly. Below the example
+for such definition.
+<pre name="dlhl" class="php">&lt;?php
+public function insertAction()
+{
+    Website::prepareBackendAction('insert', 'news', 'news/manage');
+
+    $cRequest = A::app()->getRequest();
+    $cRequest->getCsrfTokenValue();
+    ...
+}
+</pre>
+<p><br></p>
+
+
+<a name="cross-site-scripting"></a>
+<h3>Cross-Site Scripting Prevention <a class="hashlink" href="#cross-site-scripting">¶</a></h3>
+<div class="msg_important">
+Cross-site scripting (XSS) is a type of computer security vulnerability typically found in Web applications.
+XSS enables attackers to inject client-side script into Web pages viewed by other users. A cross-site
+scripting vulnerability may be used by attackers to bypass access controls such as the same origin policy.
+Read more about XSS on <a class="external" target="_new" href="http://en.wikipedia.org/wiki/Cross-site_scripting">Wikipedia</a>.
+</div>
+<div class="msg_error">Currently this section in development phase! Please visit our <a class="external" href="http://www.apphp.com/php-framework/index.php" target="_new">website</a> to get more information.</div>
+<p><br></p>
+    
+    
+<a name="brute-force-attacks"></a>
+<h3>Brute-Force Attacks Prevention <a class="hashlink" href="#brute-force-attacks">¶</a></h3>
+
+<div class="msg_important">
+In cryptography, a brute-force attack, or exhaustive key search, is a cryptanalytic attack that can,
+in theory, be used against any encrypted data (except for data encrypted in an information-theoretically
+secure manner). Such an attack might be utilized when it is not possible to take advantage of other
+weaknesses in an encryption system (if any exist) that would make the task easier. It consists of
+systematically checking all possible keys or passwords until the correct one is found. In the worst
+case, this would involve traversing the entire search space.
+Read more about Brute-Force Attacks on <a class="external" target="_new" href="http://en.wikipedia.org/wiki/Brute-force_attack">Wikipedia</a>.
+</div>
+<br>
+
+To prevent Brute-Force attacks, it is important to delay access to the for some time, if we see that
+someone tries to login and search for username andf password. One simple technique that blocks access to
+login page for defined time could make a search algorithm not effective.
+
+<br><br>
+By default, the Brute-Force prevention is disabled. To enable it, or define in your
+application <code>config/main.php</code> file as follows:
+<pre name="dlhl" class="php">&lt;?php
+// validation
+'validation' => array(
+    'bruteforce' => array('enable' => true, 'badLogins' => 5, 'redirectDelay' => 3),
+),
+</pre>
+where 'badLogins' means a number of wrong logis after prevention is turned on and 'redirectDelay'
+is the time is seconds, a while user is unable to acess the login page.
+<br><br>
+This feature must be released on application level, it is already embedded into
+<a href="index.php?page=directy-cmf">Directy CMF</a>.
+<p><br></p>
+
+
+<a name="session-cookies-modifying"></a>
+<h3>Session Cookies Modifying Prevention <a class="hashlink" href="#session-cookies-modifying">¶</a></h3>
+
+To prevent session cookies modifying by user (for restoring old session, for example) you have to store session ID
+in database (or in other custom storage).
+You may find more information about this in <a href="index.php?page=session-custom-storage">Session Custom Storage</a> section.
+<p><br></p>
+

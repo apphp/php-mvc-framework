@@ -8,16 +8,13 @@
  * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
  * @license http://www.apphpframework.com/license/ 
  * 
- * PUBLIC:					PROTECTED:					PRIVATE:		
- * ----------               ----------                  ----------
+ * PUBLIC:                 	PROTECTED:                 	PRIVATE:
+ * ---------------         	---------------            	---------------
  * __construct                                          _getCalledClass
  * testAction
  * errorAction
  * redirect
  * 
- * STATIC:
- * ---------------------------------------------------------------
- *
  */	  
 
 class CController

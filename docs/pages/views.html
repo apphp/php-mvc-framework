@@ -3,20 +3,25 @@
 <ul>
     <li><a href="#general">General Info</a></li>
     <li><a href="#call_view">Call View from the Action</a></li>
-    <li><a href="#pass_data">Passing data to the View</a></li>
+    <li><a href="#rendering">Rendering (passing data to the View)</a></li>
 </ul>
 <br />
 
+
 <a name="general"></a>
-<h3>General Info <a class="top_link" title="Top" href="#top">^</a></h3>  
+<h3>General Info <a class="hashlink" href="#general">¶</a></h3>  
 A view is a (visual) representation of its model. It would ordinarily highlight certain attributes of the
 model and suppress others. In such way it's acting as a filter of presentation. A view is attached to its model
 (or model part) and gets the data necessary for the presentation from the model by asking questions. It
-may also update the model by sending appropriate messages and queries.
+may also update the model by sending appropriate messages and queries. Generally all view files are placed in
+<code>protected/views/{controller-lowercase-name}/</code> directory. There is only one exclusion for view files,
+that related to script components and they must be placed in directory <code>protected/views/components/</code>.
 <br /><br />
+<div class="msg_important">Remeber, that view file name must be in lowercase! Example: views/posts/edit.php</div>
+<br />
 
 <a name="call_view"></a>
-<h3>Call View from the Action <a class="top_link" title="Top" href="#top">^</a></h3>
+<h3>Call View from the Action <a class="hashlink" href="#call_view">¶</a></h3>
 The typical way to create a view in is to use method <code>render</code> of embedded <code>view</code>
 property of the Action.
 <br>
@@ -36,8 +41,10 @@ class AccountController extends CController
 </pre>
 <br />
 
-<a name="pass_data"></a>
-<h3>Passing data to the View (template engine) <a class="top_link" title="Top" href="#top">^</a></h3>
+
+<a name="rendering"></a>
+<h3>Rendering Data - passing data to the View (template engine) <a id="rendering" class="hashlink" href="#rendering">¶</a></h3>
+
 When generating the HTML code of the resulting web page, the view (template engine) processes the data
 received from the action. Data should be passed to the template engine using the following syntax:
 
@@ -50,12 +57,24 @@ $this->_view->text = 'other text here...';
 $title = 'changed title value';
 $this->_view->title = $title;
 
+/* sample 1-3 - call of views from controllers */
 /* sample 1 - full syntax */
 $this->_view->render('controller/view');
 /* sample 2 - short syntax, missing controller means use current controller name */
 $this->_view->render('view'); 
 /* sample 3 - call of another view */
 $this->_view->render('errors/404');
+
+/* sample 4 - call of view from components */
+A::app()->view->renderContent('leftmenu');
+
+/* sample 5 - call of another view from current controller */
+$data = array();
+$data['user_id'] = 2;
+$data['type'] = 'global';
+$this->_view->renderView('statistics', $data);
+/* sample 6 - call of one view from another view */
+$this->_view->renderView('tabs/emails');
 </pre>
 
 Now all variables that were created with <code>$this->_view</code> may be used in our view file

@@ -1,0 +1,59 @@
+<h1>Development - Workflow</h1>
+
+<a name="general"></a>
+<h3>General <a class="hashlink" href="#general">¶</a></h3>
+The following diagram shows the static structure of a ApPHP Framework application:
+<br><br>
+
+<img src="images/workflow-structure.png" alt="" class="illustration" />
+
+<a name="flow"></a>
+<h3>Typical Workflow <a class="hashlink" href="#flow">¶</a></h3>
+This diagram shows a typical workflow of a ApPHP Framework application when it handls a user request:
+<br><br>
+
+<img src="images/workflow-tipical.png" alt="" class="illustration" />
+
+<ul>
+    <li>
+        Site visitor makes a request with the URL, ex.: http://www.yourdomain.com/index.php?url=pages/view&amp;id=1
+        and the Web server handles the request by executing the bootstrap script index.php.
+    </li>
+    <li>
+        The bootstrap script creates an Application instance and runs it:
+<pre name="dlhl" class="php">&lt;?php
+...
+A::init($config)->run();
+</pre>
+    </li>
+    <li>
+        The application receives a user request information from the framework component named <code>CRequest</code>.
+    </li>
+    <li>
+        The application determines the requested controller and action. For this example, the controller
+        is <code>pages</code>, which refers to the <code>PagesController</code> class; and the action is
+        <code>view</code>, whose actual meaning is determined by the controller.        
+    </li>
+    <li>
+        The application creates an instance of the requested controller to handle the user request.
+        The controller determines that the action show refers to a method named <code>viewAction</code>
+        in the controller class. 
+    </li>
+    <li>
+        The action reads a Pages model record whose ID is 1 from the database.
+    </li>
+    <li>
+        The action renders a view named <code>view</code> with the Pages model.
+    </li>
+    <li>
+        The view reads and displays the variables passed from controller.
+    </li>
+    <li>
+        The view may execute widgets.
+    </li>
+    <li>
+        The action completes the view rendering and displays the result to the user using defined
+        templates or layouts.
+    </li>
+</ul>
+<br><br>

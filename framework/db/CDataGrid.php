@@ -23,18 +23,14 @@
  * }
  *
  *
- * PUBLIC:					PROTECTED:				    PRIVATE:				STATIC:
- * -------		            ----------          	    --------                -------
+ * PUBLIC:					PROTECTED:				    PRIVATE:		
+ * ---------------         	---------------            	---------------
  * __construct				_getFieldByType              
  * drawViewMode             _getAll                      
+ * init (static)
+ * dgrid (static)
  *                                                      
  *
- *	
- * STATIC:
- * ---------------------------------------------------------------
- * init
- * dgrid
- * 
  **/
 
 abstract class CDataGrid extends CModel

@@ -27,6 +27,11 @@ function check_session_vars()
    	return (!isset($_SESSION)) ? 'Session support disabled. Please make sure your server provide support for sessions.' : '';
 }
 
+function check_post_vars()
+{
+   	return (!isset($_POST)) ? 'POST support disabled. Please make sure your server provide support for POST.' : '';
+}
+
 function check_module_mod_rewrite()
 {
     if(function_exists('apache_get_modules')){

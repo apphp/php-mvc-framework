@@ -72,8 +72,8 @@ class SetupController extends CController
         
         $this->_view->notifyMessage = '';
         
-        if(version_compare(phpversion(), '5.1.0', '<')){	
-            $this->_view->notifyMessage = CWidget::create('CMessage', array('error', 'This program requires at least <b>PHP version 5.1.0</b> installed. You cannot proceed the installation.'));	
+        if(version_compare(phpversion(), '5.2.3', '<')){	
+            $this->_view->notifyMessage = CWidget::create('CMessage', array('error', 'This program requires at least <b>PHP version 5.2.3</b> installed. You cannot proceed the installation.'));	
         }else if(!is_writable(APPHP_PATH.'/protected/config/')){
             $this->_view->notifyMessage = CWidget::create('CMessage', array('error', 'The directory <b>'.APPHP_PATH.'/protected/config/</b> is not writable! You must grant "write" permissions (access rights 0755 or 777, depending on your system settings) to this directory before you start the installation!'));	
         }else{            

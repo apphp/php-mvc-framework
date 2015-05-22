@@ -10,12 +10,8 @@
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
- *                          _loadMessages
+ * init (static)            _loadMessages
  * 
- * STATIC:
- * ---------------------------------------------------------------
- * init
- *
  */	  
 
 class CMessageSource extends CComponent
@@ -37,7 +33,7 @@ class CMessageSource extends CComponent
 
     /**
      *	Returns the instance of object
-     *	@return CHttpRequest class
+     *	@return current class
      */
 	public static function init()
 	{

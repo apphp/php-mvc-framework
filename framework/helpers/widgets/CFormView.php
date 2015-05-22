@@ -8,15 +8,16 @@
  * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
- * PUBLIC:					PROTECTED:					PRIVATE:		
+ * PUBLIC(static):			PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
- * init                                                 _formField
- *                                                      _drawButtons
+ * init			                                        _formField
+ *                                                      _drawButtons 
  * 
  */	  
 
 class CFormView
 {
+	
     const NL = "\n";
     /** @var string */
     private static $_count = 0;
@@ -67,10 +68,15 @@ class CFormView
      *          'field_13'=>array('type'=>'radioButton', 'title'=>'Field 13', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'checked'=>'true', 'htmlOptions'=>array()),
      *          'field_14'=>array('type'=>'radioButtonList', 'title'=>'Field 14', 'tooltip'=>'', 'mandatoryStar'=>true, 'checked'=>0, 'data'=>array(), 'htmlOptions'=>array()),
 	 *          'field_15'=>array('type'=>'imageUpload', 'title'=>'Field 15', 'tooltip'=>'', 'mandatoryStar'=>false, 'value'=>'', 
-	 *          	'imageOptions' =>array('showImage'=>true, 'showImageName'=>true, 'showImageSize'=>true, 'imagePath'=>'templates/backend/images/accounts/', 'imageClass'=>'avatar'),
+	 *          	'imageOptions' =>array('showImage'=>true, 'showImageName'=>true, 'showImageSize'=>true, 'imageClass'=>'avatar'),
 	 *          	'deleteOptions'=>array('showLink'=>true, 'linkUrl'=>'admins/edit/avatar/delete', 'linkText'=>'Delete'),
-	 *          	'fileOptions'  =>array('showAlways'=>false, 'class'=>'file', 'size'=>'25')
+	 *          	'fileOptions'=>array('showAlways'=>false, 'class'=>'file', 'size'=>'25', 'filePath'=>'templates/backend/files/accounts/')
 	 *          ),
+     *          'field_16'=>array('type'=>'fileUpload', 'title'=>'Field 16', 'tooltip'=>'', 'mandatoryStar'=>false, 'value'=>'',
+	 *          	'iconOptions'=>array('showType'=>true, 'showFileName'=>true, 'showFileSize'=>true),
+	 *          	'deleteOptions'=>array('showLink'=>true, 'linkUrl'=>'templates/backend/files/accounts/', 'linkText'=>'Delete'),
+	 *          	'fileOptions'=>array('showAlways'=>false, 'class'=>'file', 'size'=>'25', 'filePath'=>'templates/backend/files/accounts/')
+     *          ),
      *       ),
      *       'checkboxes'=>array(
      *           'remember'=>array('type'=>'checkbox', 'title'=>'Remember me', 'tooltip'=>'', 'value'=>'1', 'checked'=>false),
@@ -138,7 +144,9 @@ class CFormView
         foreach($fields as $field => $fieldInfo){
             if(preg_match('/separator/i', $field) && is_array($fieldInfo)){                
                 $legend = isset($fieldInfo['separatorInfo']['legend']) ? $fieldInfo['separatorInfo']['legend'] : '';                
-				unset($fieldInfo['separatorInfo']);				
+				if(isset($fieldInfo['separatorInfo'])){
+					unset($fieldInfo['separatorInfo']);
+				}
                 if($fieldSetType == 'tabs'){
 					$content = '';
 					foreach($fieldInfo as $iField => $iFieldInfo){						
@@ -335,7 +343,12 @@ class CFormView
 			case 'imageupload':
 				// image options
 				$showImage = isset($fieldInfo['imageOptions']['showImage']) ? (bool)$fieldInfo['imageOptions']['showImage'] : false;
-				$imagePath = isset($fieldInfo['imageOptions']['imagePath']) ? $fieldInfo['imageOptions']['imagePath'] : '';
+				// imagePath is deprecated from v0.6.0
+				if(isset($fieldInfo['imageOptions']['imagePath'])){
+					$filePath = $fieldInfo['imageOptions']['imagePath'];	
+				}else{
+					$filePath = isset($fieldInfo['fileOptions']['filePath']) ? $fieldInfo['fileOptions']['filePath'] : '';	
+				}				
 				$showImageName = isset($fieldInfo['imageOptions']['showImageName']) ? (bool)$fieldInfo['imageOptions']['showImageName'] : false;
 				$showImageSize = isset($fieldInfo['imageOptions']['showImageSize']) ? (bool)$fieldInfo['imageOptions']['showImageSize'] : false;
 				$imageClass = isset($fieldInfo['imageOptions']['imageClass']) ? $fieldInfo['imageOptions']['imageClass'] : '';
@@ -353,19 +366,68 @@ class CFormView
 								
 				$fieldHtml = CHtml::openTag('div', array('style'=>'display:inline-block;'));
 				// image
-				if($showImage && !empty($value)) $fieldHtml .= CHtml::image($imagePath.$value, '', $imageHtmlOptions).'<br>';
+				if($showImage && !empty($value)) $fieldHtml .= CHtml::image($filePath.$value, '', $imageHtmlOptions).'<br>';
 				// image text 
 				if($showImageName && !empty($value)) $imageText .= $value.' ';
 				if($showImageSize && !empty($value)){
-					$imageText .= ' ('.CFile::getFileSize($imagePath.$value, 'kb').' Kb) ';
+					$imageText .= ' ('.CFile::getFileSize($filePath.$value, 'kb').' Kb) ';
 				}
 				// delete link
 				if($showDeleteLink && !empty($value) && APPHP_MODE !== 'demo'){
 					$imageText .= ' &nbsp;'.CHtml::link($deleteLinkText, (!empty($deleteLinkPath) ? $deleteLinkPath : '#'));	
 				} 
 				// middle text
-				if($imageText) $fieldHtml .= CHtml::label($imageText, '', array('style'=>'width:100%;'));				
+				if($imageText) $fieldHtml .= CHtml::label($imageText, '', array('style'=>'width:100%;margin-bottom:5px;'));				
 				// file field
+				$fileHtmlOptions = array('style' => 'margin-bottom:5px;');
+				if(APPHP_MODE == 'demo') $fileHtmlOptions['disabled'] = 'disabled';
+				if($showAlways || empty($value)) $fieldHtml .= CHtml::fileField($field, $value, $fileHtmlOptions);				
+				$fieldHtml .= CHtml::closeTag('div');				
+				break;
+			case 'fileupload':
+				// file options
+				$showType = isset($fieldInfo['iconOptions']['showType']) ? (bool)$fieldInfo['iconOptions']['showType'] : false;
+				$showFileName = isset($fieldInfo['iconOptions']['showFileName']) ? (bool)$fieldInfo['iconOptions']['showFileName'] : true;
+				$showFileSize = isset($fieldInfo['iconOptions']['showFileSize']) ? (bool)$fieldInfo['iconOptions']['showFileSize'] : false;
+				$filePath = isset($fieldInfo['fileOptions']['filePath']) ? $fieldInfo['fileOptions']['filePath'] : '';
+				
+				$imageHtmlOptions = array();
+				if(!empty($imageClass)) $imageHtmlOptions['class'] = $imageClass;
+				// delete link options
+				$showDeleteLink = isset($fieldInfo['deleteOptions']['showLink']) ? (bool)$fieldInfo['deleteOptions']['showLink'] : false;
+				$deleteLinkPath = isset($fieldInfo['deleteOptions']['linkUrl']) ? $fieldInfo['deleteOptions']['linkUrl'] : '';
+				$deleteLinkText = isset($fieldInfo['deleteOptions']['linkText']) ? $fieldInfo['deleteOptions']['linkText'] : A::t('core', 'Delete');
+				$icontText = '';
+				// file options
+				$fileHtmlOptions = isset($fieldInfo['fileOptions']) ? $fieldInfo['fileOptions'] : '';
+				$showAlways = isset($fieldInfo['fileOptions']['showAlways']) ? (bool)$fieldInfo['fileOptions']['showAlways'] : false;
+				if($showAlways) unset($fileHtmlOptions['showAlways']);
+								
+				$fieldHtml = CHtml::openTag('div', array('style'=>'display:inline-block;'));
+				// file icon
+				if($showType && !empty($value)){
+					$ext = CFile::getExtension($filePath.$value);
+					$iconsPath = 'templates/backend/images/mimetypes/';
+					if(file_exists($iconsPath.$ext.'.png')){
+						$fieldHtml .= CHtml::image($iconsPath.$ext.'.png', 'mime type - '.$ext);
+					}else{
+						$fieldHtml .= CHtml::image($iconsPath.'file.png', 'unknown mime type');
+					}
+					$fieldHtml .= '<br>';
+				}
+				// file text 
+				if($showFileName && !empty($value)) $icontText .= $value.' ';
+				if($showFileSize && !empty($value)){
+					$icontText .= ' ('.CFile::getFileSize($filePath.$value, 'kb').' Kb) ';
+				}
+				// delete link
+				if($showDeleteLink && !empty($value) && APPHP_MODE !== 'demo'){
+					$icontText .= ' &nbsp;'.CHtml::link($deleteLinkText, (!empty($deleteLinkPath) ? $deleteLinkPath : '#'));	
+				} 
+				// middle text
+				if($icontText) $fieldHtml .= CHtml::label($icontText, '', array('style'=>'width:100%;margin-bottom:5px;'));
+				// file field
+				$fileHtmlOptions = array('style' => 'margin-bottom:5px;');
 				if(APPHP_MODE == 'demo') $fileHtmlOptions['disabled'] = 'disabled';
 				if($showAlways || empty($value)) $fieldHtml .= CHtml::fileField($field, $value, $fileHtmlOptions);				
 				$fieldHtml .= CHtml::closeTag('div');				

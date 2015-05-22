@@ -8,29 +8,64 @@
  * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
- * PUBLIC:					PROTECTED:					PRIVATE:		
+ * PUBLIC (static):			PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
  * create
+ * salt
+ * equals
  * getRandomString
+ * encrypt
+ * decrypt
  * 
  */	  
 
 class CHash
-{    
+{
+	
     /**
      * Creates hash for given password 
      * @param string $algorithm (md5, sha1, sha256, whirlpool, etc.)
      * @param string $data 
-     * @param string $salt (should be the same throughout the system probably)
+     * @param string $salt
      * @return string (hashed/salted data)
      */
-    public static function create($algorithm, $data, $salt)
-    {        
-        $context = hash_init($algorithm, HASH_HMAC, $salt);
+    public static function create($algorithm, $data, $salt = '')
+    {
+		if(!empty($salt)){
+			$context = hash_init($algorithm, HASH_HMAC, $salt);	
+		}else{
+			$context = hash_init($algorithm);	
+		}
+        
         hash_update($context, $data);
         
         return hash_final($context);        
     }
+
+    /**
+     * Generates salt
+     * @return string
+     */
+    public static function salt()
+    {
+		return base64_encode(mcrypt_create_iv(24, MCRYPT_DEV_URANDOM));	
+	}
+	
+    /**
+     * Compares two strings $a and $b in length-constant time
+     * @param string $a
+     * @param string $b
+     * @return bool
+     */
+    public static function equals($a, $b)
+    {
+		$diff = strlen($a) ^ strlen($b);
+		for($i = 0; $i < strlen($a) && $i < strlen($b); $i++)
+		{
+			$diff |= ord($a[$i]) ^ ord($b[$i]);
+		}
+		return $diff === 0; 
+	}
 
     /**
      * Creates random string
@@ -43,7 +78,8 @@ class CHash
     {
         $type = isset($params['type']) ? $params['type'] : '';
         $case = isset($params['case']) ? $params['case'] : '';
-        if($type == 'numeric'){
+        
+		if($type == 'numeric'){
             $template = '1234567890';    
         }else if($type == 'positiveNumeric'){
             $template = '123456789';    
@@ -52,16 +88,19 @@ class CHash
         }else{
             $template = '1234567890abcdefghijklmnopqrstuvwxyz';
         }
-        if($case == 'upper') $template = strtoupper($template);
+        
+		if($case == 'upper') $template = strtoupper($template);
         settype($template, 'string');
         settype($length, 'integer');
         settype($output, 'string');
         settype($a, 'integer');
         settype($b, 'integer');           
-        for($a = 0; $a < $length; $a++){
+        
+		for($a = 0; $a < $length; $a++){
             $b = rand(0, strlen($template) - 1);
             $output .= $template[$b];
-        }       
+        }
+		
         return $output;       
     }
     

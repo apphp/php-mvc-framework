@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
- * PUBLIC:					PROTECTED:					PRIVATE:		
+ * PUBLIC (static):			PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
  * create
  * 
@@ -28,14 +28,14 @@ class CWidget
 
         if(!class_exists($className)){
             CDebug::addMessage('warnings', 'missing-helper', A::t('core', 'Cannot find widget class: {class}', array('{class}'=>$className)));    
-        }else{
+        }else{			
             // for PHP_VERSION >= 5.3.0 you may use
             // $result = $className::init($params);			
 			if(strtolower($className) == 'cmessage'){
-				$result = @call_user_func_array($className.'::init', $params);
+				$result = call_user_func_array($className.'::init', $params);
 			}else{
 				// params is assosiative array
-				$result = @call_user_func($className.'::init', $params);
+				$result = call_user_func($className.'::init', $params);
 			}
 			return $result;
 		}

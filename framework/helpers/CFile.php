@@ -8,11 +8,13 @@
  * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
- * PUBLIC:					PROTECTED:					PRIVATE:		
+ * PUBLIC (static):			PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
  * getExtension          	                            _findFilesRecursive
- * deleteDirectory                                      _validatePath
- * emptyDirectory                                       _errorHanler
+ * getMimeType        									_validatePath
+ * getMimeTypeByExtension								_errorHanler
+ * deleteDirectory                                      
+ * emptyDirectory                                       
  * copyDirectory
  * isDirectoryEmpty
  * getDirectoryFilesNumber
@@ -37,6 +39,102 @@ class CFile
 	public static function getExtension($path)
 	{
 		return pathinfo($path, PATHINFO_EXTENSION);
+	}
+
+	/**
+	 * Determines the MIME type of the specified file
+	 * @param string $file 
+	 * @return string the MIME type
+	 */
+	public static function getMimeType($file, $checkExtension = true)
+	{
+		if(function_exists('finfo_open')){
+			$options = defined('FILEINFO_MIME_TYPE') ? FILEINFO_MIME_TYPE : FILEINFO_MIME;
+			$info = finfo_open($options);
+
+			if($info && ($result=finfo_file($info, $file)) !== false){
+				return $result;
+			}
+		}
+
+		if(function_exists('mime_content_type') && ($result = mime_content_type($file)) !== false){
+			return $result;
+		}
+
+		return $checkExtension ? self::getMimeTypeByExtension($file) : null;
+	}
+
+	/**
+	 * Determines the MIME type based on the extension name of the specified file
+	 * @param string $file
+	 * @return string the MIME type
+	 */
+	public static function getMimeTypeByExtension($file)
+	{
+		// Predefined mime types
+		$mime_types = array(
+            'txt' => 'text/plain',
+            'htm' => 'text/html',
+            'html' => 'text/html',
+            'php' => 'text/html',
+            'css' => 'text/css',
+            'js' => 'application/javascript',
+            'json' => 'application/json',
+            'xml' => 'application/xml',
+            'swf' => 'application/x-shockwave-flash',
+            'flv' => 'video/x-flv',
+
+            // images
+            'png' => 'image/png',
+            'jpe' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'jpg' => 'image/jpeg',
+            'gif' => 'image/gif',
+            'bmp' => 'image/bmp',
+            'ico' => 'image/vnd.microsoft.icon',
+            'tiff' => 'image/tiff',
+            'tif' => 'image/tiff',
+            'svg' => 'image/svg+xml',
+            'svgz' => 'image/svg+xml',
+
+            // archives
+            'zip' => 'application/zip',
+            'rar' => 'application/x-rar-compressed',
+            'exe' => 'application/x-msdownload',
+            'msi' => 'application/x-msdownload',
+            'cab' => 'application/vnd.ms-cab-compressed',
+
+            // audio/video
+            'mp3' => 'audio/mpeg',
+            'qt' => 'video/quicktime',
+            'mov' => 'video/quicktime',
+
+            // adobe
+            'pdf' => 'application/pdf',
+            'psd' => 'image/vnd.adobe.photoshop',
+            'ai' => 'application/postscript',
+            'eps' => 'application/postscript',
+            'ps' => 'application/postscript',
+
+            // ms office
+            'doc' => 'application/msword',
+            'rtf' => 'application/rtf',
+            'xls' => 'application/vnd.ms-excel',
+            'ppt' => 'application/vnd.ms-powerpoint',
+
+            // open office
+            'odt' => 'application/vnd.oasis.opendocument.text',
+            'ods' => 'application/vnd.oasis.opendocument.spreadsheet'
+		);
+			
+		if(($ext = pathinfo($file, PATHINFO_EXTENSION)) !== ''){
+			$ext = strtolower($ext);
+			if(isset($mime_types[$ext])){
+				return $mime_types[$ext];
+			}
+		}
+
+		return '';
 	}
 
 	/**
@@ -89,11 +187,9 @@ class CFile
 			if(!file_exists(trim($dest, '/').'/')){
                 mkdir((($fullPath) ? APPHP_PATH.'/' : '').$dest);
             }
-            if(isset($options['newDirMode'])){
-                @chmod($dest, $options['newDirMode']);
-            }else{
-                @chmod($dest, 0777);
-            }
+            if(is_dir($dest)){
+				@chmod($dest, (isset($options['newDirMode']) ? $options['newDirMode'] : 0777));
+			}
 			while(false !== ($file = readdir($dir))){	
 				if(($file != '.') && ($file != '..')){				
 					$fromDir = trim($src, '/').'/'.$file;

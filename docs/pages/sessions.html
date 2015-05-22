@@ -1,0 +1,144 @@
+<h1>Development - Sessions</h1>
+
+<ul>
+    <li><a href="#initializing_session">Initializing a Session</a></li>
+	<li><a href="#session_preferences">Session Preferences</a></li>
+    <li><a href="#adding_session_data">Adding Custom Session Data</a></li>
+    <li><a href="#retrieving_session_data">Retrieving Session Data</a></li>
+	<li><a href="#flashdata">Flashdata</a></li>
+	<li><a href="#saving_session_to_database">Saving Session Data to a Database</a></li>
+	<li><a href="#destroying_session">Destroying a Session</a></li>
+</ul>
+<br />
+
+<a name="initializing_session"></a>
+<h3>Initializing a Session <a class="hashlink" href="#initializing_session">¶</a></h3>  
+
+In ApPHP Framework Sessions are typically run globally, so appropriate component is auto-loaded by the system.
+For the most part the session component will run unattended in the background, so you may read,
+update or delete session data without any special initial operations.
+<p><br></p>
+
+
+<a name="session_preferences"></a>
+<h3>Sessions Preferences <a class="hashlink" href="#session_preferences">¶</a></h3>
+
+You can find the following Session related preferences in your <code>protected/config/main.php</code> file:
+<br>
+<pre name="dlhl" class="php">
+// session settings
+'session' => array(
+    'customStorage' => false, 	/* true value means use a custom storage (database), false - standard storage */
+    'cacheLimiter' => '', 	/* to prevent 'Web Page expired' message for POST request use "private,must-revalidate" */
+    'lifetime' => 24,  		/* session timeout in minutes, default: 24 min = 1440 sec */
+),
+</pre>
+<p><br></p>
+
+
+<a name="adding_session_data"></a>
+<h3>Adding Custom Session Data <a class="hashlink" href="#adding_session_data">¶</a></h3>  
+
+If you want to add/store data in a session, use the following syntax:
+<br />
+<pre name="dlhl" class="php">
+A::app()->getSession()->set('some_name', 'some_value');
+</pre>
+
+You may also save arrays in sessions. Below the example of such code:
+<br />
+<pre name="dlhl" class="php">
+$userData = array(
+    'username'  => 'johnsmith',
+    'email'     => 'johnsmith@email.me',
+    'logged_at' => date('Y-m-d H:i:s'),
+    'logged_in' => true
+);
+
+A::app()->getSession()->set('some_name', $userData);
+</pre>
+
+Sometimes to make your code more readable, you can make it more compact by placing <code>A::app()->getSession()</code>
+in a separate variable, that may be used over the rest of code.
+<br />
+<pre name="dlhl" class="php">
+$cSession = A::app()->getSession();
+...	
+$cSession->set('some_name', 'some_value');
+</pre>
+
+<div class="msg_error">
+	Remeber: Cookies can only hold 4KB of data, so be careful not to exceed the capacity.
+	The encryption process in particular produces a longer data string than the original so keep
+	careful track of how much data you are storing. For special cases you may use
+	<a href="index.php?page=session-custom-storage">Custom Data Storage</a>.
+</div>
+<p><br></p>
+
+
+<a name="retrieving_session_data"></a>
+<h3>Retrieving Session Data <a class="hashlink" href="#retrieving_session_data">¶</a></h3>
+
+Any piece of information from the session is available using the following syntax:
+<br />
+<pre name="dlhl" class="php">
+A::app()->getSession()->get('some_name');
+</pre>
+
+For example, to fetch the <code>user_id</code> you will do this:
+<br />
+<pre name="dlhl" class="php">
+$userId = A::app()->getSession()->get('user_id');
+// alternative way
+$cSession = A::app()->getSession();
+$userId = $cSession->get('user_id');
+</pre>
+<p><br></p>
+
+
+<a name="flashdata"></a>
+<h3>Flashdata <a class="hashlink" href="#flashdata">¶</a></h3>
+
+ApPHP Framework supports co-called "flashdata", or session data that will be available on the next server request
+(or until you read it), and then automatically cleared. Flashdata can be very useful, typically for informational
+or status messages (for example: "record X has been deleted").
+<br><br>
+Note: Flash variables are postfaced with "_flash" to avoid name overlapping with your own session names.
+<br><br>
+To add flashdata:
+<br />
+<pre name="dlhl" class="php">
+A::app()->getSession()->setFlash('delete_message', 'This record has been sucessfully deleted!');
+</pre>
+
+To read a flashdata variable:
+<br />
+<pre name="dlhl" class="php">
+$msg = A::app()->getSession()->getFlash('delete_message');
+</pre>
+
+You may also check if flashdata exists:
+<br />
+<pre name="dlhl" class="php">
+if(A::app()->getSession()->hasFlash('delete_message')){
+    // do something
+}
+</pre>
+<p><br></p>
+
+
+<a name="saving_session_to_database"></a>
+<h3>Saving Session Data to a Database <a class="hashlink" href="#saving_session_to_database">¶</a></h3>
+
+ApPHP Framework supports sacing sessions in custom storage, for example in database.
+You may read more about this in <a href="index.php?page=session-custom-storage">Session Custom Storage</a> section.
+<p><br></p>
+
+
+<a name="destroying_session"></a>
+<h3>Destroying a Session <a class="hashlink" href="#destroying_session">¶</a></h3>
+To clear the current session:
+<pre name="dlhl" class="php">
+A::app()->getSession()->endSession();
+</pre>
+<p><br></p>

@@ -14,6 +14,14 @@ General update intructions
 - Check if everything is OK, if not - revert from backup and post issues to ApPHP issue tracker.
 
 
+Updating from v0.5.9
+---------------------
+- view files from protected/components/views/ must be moved to protected/views/components/ 
+
+Updating from v0.4.4
+---------------------
+- general update instructions
+
 Updating from v0.3.4
 ---------------------
 - replace in all controllers $this->view with $this->_view
@@ -33,4 +41,4 @@ Updating from v0.1.0 - v0.1.2
 
 Updating from v0.0.1 - v0.0.3
 ---------------------
-- general update intructions
+- general update instructions

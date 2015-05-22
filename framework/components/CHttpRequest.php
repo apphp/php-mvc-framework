@@ -12,17 +12,27 @@
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
  * __construct              _cleanRequest               _getParam
+ * __call
+ * init (static)
  * stripSlashes
  * getBasePath
  * getBaseUrl
  * getRequestUri
  * getUserHostAddress
+ * getUserAgent
  * setBaseUrl
  * getQuery
+ * setQuery
+ * get (alias to getQuery/setQuery)
  * getPost
  * getPostWith
+ * postWith (alias to getPostWith)
  * setPost
+ * post (alias to getPost/setPost)
  * getRequest
+ * isAjaxRequest
+ * isPutRequest
+ * isDeleteRequest
  * isPostRequest
  * isPostExists
  * getCsrfValidation
@@ -30,11 +40,7 @@
  * getCsrfTokenValue
  * validateCsrfToken
  * downloadFile
- * 
- *
- * STATIC:
- * ---------------------------------------------------------------
- * init
+ * getBrowser
  * 
  */	  
 
@@ -68,14 +74,47 @@ class CHttpRequest extends CComponent
 		$this->_baseUrl = $this->setBaseUrl();
 	}
     
+	/**
+	 * Triggered when invoking inaccessible methods in an object context
+	 * @param string $method
+	 * @param array $args
+	 * @return mixed
+	 */
+	public function __call($method, $args)
+	{
+		switch(strtolower($method)){
+			case 'post':
+				if(count($args) == 1){
+					return $this->getPost($args[0]);
+				}else if(count($args) == 2){
+					return $this->setPost($args[0], $args[1]);
+				}
+				break;
+			
+			case 'get':
+				if(count($args) == 1){
+					return $this->getQuery($args[0]);
+				}else if(count($args) == 2){
+					return $this->setQuery($args[0], $args[1]);
+				}
+				break;
+			
+			case 'postWith':
+				if(count($args) == 1){
+					return $this->getPostWith($args[0]);
+				}				
+				break;
+		}
+	}
+
     /**
      *	Returns the instance of object
-     *	@return CHttpRequest class
+     *	@return current class
      */
 	public static function init()
 	{
 		return parent::init(__CLASS__);
-	}
+	}    
 
 	/**
 	 * Strips slashes from data
@@ -112,6 +151,16 @@ class CHttpRequest extends CComponent
 	public function getUserHostAddress()
 	{
 		return isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1';
+	}
+
+	/**
+	 * Gets a string denoting the user agent being which is accessing the page.
+	 * A typical example is: Mozilla/4.5 [en] (X11; U; Linux 2.2.9 i586).
+	 * @return string 
+	 */
+	public function getUserAgent()
+	{
+		return isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
 	}
 
 	/**
@@ -172,6 +221,7 @@ class CHttpRequest extends CComponent
      *	@param string $name
      *	@param string|array $filters
      *	@param string $default
+     *	@see CFilter
      *	@return mixed
      */
 	public function getQuery($name, $filters = '', $default = '')
@@ -180,10 +230,27 @@ class CHttpRequest extends CComponent
 	}
     
     /**
+     *	Sets value to global array $_GET
+     *	@param string $name
+     *	@param string $value
+     *	@return bool
+     */
+	public function setQuery($name, $value = '')
+	{
+		if(isset($_GET)){
+			$_GET[$name] = $value;
+			return true;
+		}
+		
+		return false;
+	}
+
+    /**
      *	Returns parameter from global array $_POST
      *	@param string $name
      *	@param string|array $filters
      *	@param string $default
+     *	@see CFilter
      *	@return mixed
      */
 	public function getPost($name, $filters = '', $default = '')
@@ -207,7 +274,8 @@ class CHttpRequest extends CComponent
             if(preg_match('/'.$name.'/i', $key)){
                 $result[$key] = $this->_getParam('post', $key, $filters, $default);
             }
-        }            
+        }
+		
         return $result;
 	}
 
@@ -219,10 +287,11 @@ class CHttpRequest extends CComponent
      */
 	public function setPost($name, $value = '')
 	{
-		if(isset($_POST[$name])){
+		if(isset($_POST)){
 			$_POST[$name] = $value;
 			return true;
 		}
+		
 		return false;
 	}
 
@@ -236,6 +305,36 @@ class CHttpRequest extends CComponent
 	public function getRequest($name, $filters = '', $default = '')
 	{
 		return $this->_getParam('request', $name, $filters, $default);		
+	}
+
+	/**
+	 * Returns whether there is an AJAX (XMLHttpRequest) request
+	 * @return boolean
+	 * @since 0.6.0
+	 */
+	public function isAjaxRequest()
+	{
+		return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
+	}
+
+	/**
+	 * Returns whether there is a PUT request
+	 * @return boolean
+	 * @since 0.6.0
+	 */
+	public function isPutRequest()
+	{
+		return isset($_SERVER['REQUEST_METHOD']) && !strcasecmp($_SERVER['REQUEST_METHOD'], 'PUT');
+	}
+
+	/**
+	 * Returns whether there is a DELETE request
+	 * @return boolean 
+	 * @since 0.6.0
+	 */
+	public function isDeleteRequest()
+	{
+		return isset($_SERVER['REQUEST_METHOD']) && !strcasecmp($_SERVER['REQUEST_METHOD'], 'DELETE');
 	}
 
 	/**
@@ -278,7 +377,7 @@ class CHttpRequest extends CComponent
 	/**
 	 * Returns the random token value used to perform CSRF validation
 	 * @return string 
-	 * @see _csrfValidation
+	 * @see $this->_csrfValidation()
 	 */
 	public function getCsrfTokenValue()
 	{
@@ -292,6 +391,7 @@ class CHttpRequest extends CComponent
 				// ...
 			}
 		}
+		
 		return $this->_csrfTokenValue;
 	}
 	
@@ -372,11 +472,12 @@ class CHttpRequest extends CComponent
 		}else if($type == 'request' && (isset($_GET[$name]) || isset($_POST[$name]))){
 			$value = isset($_GET[$name]) ? $_GET[$name] : $_POST[$name];
 		}
+		
 		if($value !== ''){
 			if(!is_array($filters)) $filters = array($filters);
 			foreach($filters as $filter){
 				$value = CFilter::sanitize($filter, $value);
-			}
+			}			
 			return $value;
 		}else{
 			return $default;
@@ -406,6 +507,24 @@ class CHttpRequest extends CComponent
 		echo $content;
 		
         if($terminate) exit(0);
+	}
+ 
+	/**
+	 * Returns information about the browser of user
+	 * @param string $key
+	 * @param string $userAgent
+	 * @return array 
+	 * @see http://www.php.net/manual/en/function.get-browser.php
+	 */
+	public function getBrowser($key = '', $userAgent = null)
+	{
+		$browser = get_browser($userAgent, true);
+		
+		if(!empty($key)){		
+			return isset($browser[$key]) ? $browser[$key] : '';
+		}
+		
+		return $browser;
 	}
  
 }

@@ -9,14 +9,15 @@
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
- * ----------               ----------                  ----------
+ * ---------------         	---------------            	---------------
  * __construct                                          
  * __set
  * __get
  * setMetaTags
  * getMetaTags
- * renderContent
  * render
+ * renderContent
+ * renderView
  * setTemplate
  * getTemplate
  * setController
@@ -24,9 +25,6 @@
  * setAction
  * getAction
  * getContent
- * 
- * STATIC:
- * ---------------------------------------------------------------
  * 
  */	  
 
@@ -51,7 +49,7 @@ class CView
 	/** @var bool */
 	private $_isRendered = false;
 	/** @var bool */
-	private $_isComRendered = false;
+	private $_isCompRendered = false;
 
 
 	/** @var mixed */
@@ -128,63 +126,9 @@ class CView
 		}
         return $tagValue;
     }
-
+   
  	/**
- 	 * Render a view for component
- 	 * @param string $view
- 	 * @return void
- 	 */
-	public function renderContent($view)
-	{
-        if($this->_isComRendered){
-			CDebug::addMessage('warnings', 'render-double-call', A::t('core', 'Double call of function {function} with parameters: {params}', array('{function}'=>'renderContent()', '{params}'=>$params)));
-			return '';
-		}
-
-        // check if this method is called by CController classes only
-        $trace = debug_backtrace();
-        if(isset($trace[1])){
-            $calledByClass = get_parent_class($trace[1]['class']);
-            if($calledByClass != '' && $calledByClass != 'CComponent'){
-				CDebug::addMessage('errors', 'render-content-caller', A::t('core', 'The View::renderContent() method cannot be called by {class} class. Component classes allowed only.', array('{class}'=>$calledByClass)));
-                return false;                
-            }
-        }
-
-        $content = '';
-        $this->__viewFile = strtolower(APPHP_PATH.DS.'protected'.DS.'components'.DS.'views'.DS.$view.'.php');
-
-        if(is_file($this->__viewFile) && file_exists($this->__viewFile)){
-            // prepare content from view file
-            foreach($this->_vars as $key => $value){
-                $$key = $value;
-            }		
-
-            if(file_exists($this->__viewFile)){
-                ob_start();
-                include $this->__viewFile;
-                $this->_content = ob_get_contents();
-                ob_end_clean();
-            }else{
-                if(preg_match('/[A-Z]/', $this->_controller)){
-                    CDebug::addMessage('errors', 'renderContent-view', A::t('core', 'The system is unable to find the requested view file: {file}. Case sensitivity mismatch!', array('{file}'=>$this->__viewFile)));
-                }else{
-                    CDebug::addMessage('errors', 'renderContent-view', A::t('core', 'The system is unable to find the requested view file: {file}', array('{file}'=>$this->__viewFile)));
-                }
-            }
-
-            echo $this->_content;
-
-        }else{
-            CDebug::addMessage('errors', 'component-render-view', A::t('core', 'The system is unable to find the requested component view file: {file}', array('{file}'=>$this->__viewFile)));
-        }
-        
-		$this->_isComRendered = true;
-        echo $content;
-    }
-    
- 	/**
- 	 * Render a view with/without template for comtrollers
+ 	 * Renders a view with/without template for comtrollers
  	 * @param string $params (controller/view or hidden controller/view)
  	 * @param bool $isPartial
  	 * @throws Exception
@@ -209,7 +153,6 @@ class CView
         
 		try{
 			$this->__isTemplateFound = true;			
-			$paramsParts = explode('/', $params);
 			
 			// set default controller and action
 			$this->__controller = $this->_controller;
@@ -217,6 +160,7 @@ class CView
 
 			// set controller and action according to passed params
 			if(!empty($params)){
+				$paramsParts = explode('/', $params);
 				$parts = count($paramsParts);
 				if($parts == 1){
 					$this->__view = isset($paramsParts[0]) ? $paramsParts[0] : $this->_action;
@@ -300,6 +244,130 @@ class CView
 		$this->_isRendered = true;
 	} 	
  
+	/**
+ 	 * Renders a view for components
+ 	 * @param string $view
+ 	 * @return void
+ 	 */
+	public function renderContent($view)
+	{
+        if($this->_isCompRendered){
+			CDebug::addMessage('warnings', 'render-double-call', A::t('core', 'Double call of function {function} with parameters: {params}', array('{function}'=>'renderContent()', '{params}'=>$params)));
+			return '';
+		}
+
+        // check if this method is called by CController classes only
+        $trace = debug_backtrace();
+        if(isset($trace[1])){
+            $calledByClass = get_parent_class($trace[1]['class']);
+            if($calledByClass != '' && $calledByClass != 'CComponent'){
+				CDebug::addMessage('errors', 'render-content-caller', A::t('core', 'The View::renderContent() method cannot be called by {class} class. Component classes allowed only.', array('{class}'=>$calledByClass)));
+                return false;                
+            }
+        }
+
+        $content = '';
+		// [28.02.2014] DEPRECATED
+        //$this->__viewFile = strtolower(APPHP_PATH.DS.'protected'.DS.'components'.DS.'views'.DS.$view.'.php');
+		$this->__viewFile = strtolower(APPHP_PATH.DS.'protected'.DS.'views'.DS.'components'.DS.$view.'.php');
+
+        if(is_file($this->__viewFile) && file_exists($this->__viewFile)){
+            // prepare content from view file
+            foreach($this->_vars as $key => $value){
+                $$key = $value;
+            }		
+
+            if(file_exists($this->__viewFile)){
+                ob_start();
+                include $this->__viewFile;
+                $this->_content = ob_get_contents();
+                ob_end_clean();
+            }else{
+                if(preg_match('/[A-Z]/', $this->_controller)){
+                    CDebug::addMessage('errors', 'render-content', A::t('core', 'The system is unable to find the requested view file: {file}. Case sensitivity mismatch!', array('{file}'=>$this->__viewFile)));
+                }else{
+                    CDebug::addMessage('errors', 'render-content', A::t('core', 'The system is unable to find the requested view file: {file}', array('{file}'=>$this->__viewFile)));
+                }
+            }
+
+            echo $this->_content;
+			
+			CDebug::addMessage('params', 'render-content', $this->__viewFile);
+
+        }else{
+            CDebug::addMessage('errors', 'render-content', A::t('core', 'The system is unable to find the requested component view file: {file}', array('{file}'=>$this->__viewFile)));
+        }
+        
+		$this->_isCompRendered = true;
+        echo $content;
+    }
+
+ 	/**
+ 	 * Renders a view from another view
+ 	 * @param string $params (controller/view)
+ 	 * @param array $data
+ 	 * @throws Exception
+ 	 * @return void
+ 	 */
+	public function renderView($params, $data = array())
+	{		
+		try{
+			// set default controller and action
+			$controller = $this->_controller;
+			$view = CConfig::get('defaultAction');
+
+			// set controller and action according to passed params
+			$paramsParts = explode('/', $params);			
+			if(!empty($params)){
+				$parts = count($paramsParts);
+				if($parts == 1){
+					if(isset($paramsParts[0])) $view = $paramsParts[0];
+				}else if($parts >= 2){
+					if(isset($paramsParts[0])) $controller = $paramsParts[0];
+					if(isset($paramsParts[1])) $view = $paramsParts[1];
+				}
+			}
+
+			$controller = strtolower($controller);
+
+			$viewFile = APPHP_PATH.DS.'protected'.DS.'views'.DS.$controller.DS.$view.'.php';
+			if(is_file($viewFile)){
+				// check application view
+			}else{
+				// check modules view
+				$viewFile = APPHP_PATH.DS.'protected'.DS.A::app()->mapAppModule($controller).'views'.DS.$controller.DS.$view.'.php';
+			}
+			// force using lower-case names for view files
+			$viewFile = strtolower($viewFile);
+
+			// prepare content from view file
+			if(is_array($data)){
+				foreach($data as $key => $value){
+					$$key = $value;
+				}
+			}
+			if(file_exists($viewFile)){
+				ob_start();
+				include $viewFile;
+				$this->_content = ob_get_contents();
+				ob_end_clean();
+			}else{
+				if(preg_match('/[A-Z]/', $this->_controller)){
+					CDebug::addMessage('errors', 'render-view', A::t('core', 'The system is unable to find the requested view file: {file}. Case sensitivity mismatch!', array('{file}'=>$viewFile)));
+				}else{
+					CDebug::addMessage('errors', 'render-view', A::t('core', 'The system is unable to find the requested view file: {file}', array('{file}'=>$viewFile)));						
+				}
+			}				
+
+			echo $this->_content;
+			
+			CDebug::addMessage('params', 'render-view', $viewFile);
+
+		}catch(Exception $e){
+			CDebug::addMessage('errors', 'render-view', $e->getMessage());
+		}
+	} 	
+
 	/**	 
 	 * Template setter
 	 * @param string $template

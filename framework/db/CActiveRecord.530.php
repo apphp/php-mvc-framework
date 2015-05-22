@@ -8,15 +8,18 @@
  * @link http://www.apphpframework.com/
  * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
  * @license http://www.apphpframework.com/license/
+ * @version PHP 5.3.0 or higher
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		        
- * ----------               ----------                  ----------              
- * __construct              _relations                  _createObjectFromTable
- * __set                    _customFields               _getRelations
- * __get                    _beforeSave                 _getCustomFields
- * __unset                  _afterSave                  _addCustomFields
- *                          _beforeDelete               _removeCustomFields     
- * set                      _afterDelete
+ * ---------------         	---------------            	---------------
+ * __construct              _relations                  _parentModel (static)
+ * __set                    _customFields               _createObjectFromTable
+ * __get                    _beforeSave                 _getRelations
+ * __unset                  _afterSave                  _getCustomFields
+ * __callStatic				_beforeDelete               _addCustomFields
+ *                          _afterDelete				_removeCustomFields     
+ * init (static)
+ * set                      
  * get                                                  
  * getError                                             
  * getErrorMessage
@@ -44,6 +47,7 @@
  * deleteByPk
  * deleteAll
  *
+ * distinct
  * refresh
  * exists
  * count
@@ -51,17 +55,14 @@
  * sum
  * 
  *
- * STATIC:
- * ---------------------------------------------------------------
- * init
- * model
- *
  */	  
 
 abstract class CActiveRecord extends CModel
 {	
 	/** @var object */    
     private static $_instance;
+	/** @var string */    
+    private static $_className;
 	/** @var Database */
 	protected $_db;	
 	/**	@var boolean */
@@ -129,39 +130,7 @@ abstract class CActiveRecord extends CModel
         $this->_error = CDatabase::getError();
         $this->_errorMessage = CDatabase::getErrorMessage();
 	}
-
-	/**
-	 * Initializes the database class
-	 * @param array $params
-	 */
-	public static function init($params = array())
-	{
-		if(self::$_instance == null) self::$_instance = new self($params);
-        
-        return self::$_instance;    		
-	}
-    
-	/**
-	 * Returns the static model of the specified AR class
-	 * @param string $className
-	 * 
-	 * EVERY derived AR class must override this method in following way,
-	 * <pre>
-	 * public static function model($className = __CLASS__)
-	 * {
-	 *     return parent::model($className);
-	 * }
-	 * </pre>
-	 */
-	public static function model($className = __CLASS__)
-	{        
-		if(isset(self::$_models[$className])){
-			return self::$_models[$className];
-		}else{
-			return self::$_models[$className] = new $className(null);
-		}        
-    }
-
+   
 	/**	
 	 * Setter
 	 * @param $index
@@ -193,6 +162,33 @@ abstract class CActiveRecord extends CModel
 	public function __unset($index)
 	{
 		if(isset($this->_columns[$index])) unset($this->_columns[$index]);
+	}
+
+	/**
+	 * Triggered when invoking inaccessible methods in an object context
+	 * We use this method to avoid calling model($className = __CLASS__) in derived class
+	 * @param string $method
+	 * @param array $args
+	 * @version PHP 5.3.0 or higher
+	 * @return mixed
+	 */
+	public static function __callStatic($method, $args)
+	{
+		if(strtolower($method) == 'model'){
+			if(count($args) == 1){
+				return self::_parentModel($args[0]);
+			}
+		}		
+	}
+
+	/**
+	 * Initializes the database class
+	 * @param array $params
+	 */
+	public static function init($params = array())
+	{
+		if(self::$_instance == null) self::$_instance = new self($params);        
+        return self::$_instance;    		
 	}
 
 	/**	
@@ -294,6 +290,10 @@ abstract class CActiveRecord extends CModel
         $value = isset($params['value']) ? $params['value'] : '';
         $fields = isset($params['fields']) ? $params['fields'] : array();
         $resultArray = array();
+
+		if($this->_tableTranslation == ''){
+			CDebug::AddMessage('errors', 'get-translations', A::t('core', 'Property "{class}.{name}" is not defined.', array('{class}'=>self::$_className, '{name}'=>'_tableTranslation')));		
+		}		
         
 		$result = $this->_db->select(
             'SELECT * FROM '.CConfig::get('db.prefix').$this->_tableTranslation.' WHERE '.$key.' = :'.$key,
@@ -336,8 +336,31 @@ abstract class CActiveRecord extends CModel
     
 
     /*****************************************************************
-     *  ACTIVE RECORED METHODS
+     *  ACTIVE RECORD METHODS
      *****************************************************************/    
+	/**
+	 * Returns the static model of the specified AR class
+	 * @param string $className
+	 * 
+	 * EVERY derived AR class must define model() method in the following way,
+	 * <pre>
+	 * public static function model()
+	 * {
+	 *     return parent::model(__CLASS__);
+	 * }
+	 * </pre>
+	 */
+	private static function _parentModel($className = __CLASS__)
+	{
+		self::$_className = $className;
+		
+		if(isset(self::$_models[$className])){
+			return self::$_models[$className];
+		}else{
+			return self::$_models[$className] = new $className(null);
+		}        
+    }
+
 	/**
     * Create empty object from table
     * @return bool
@@ -369,6 +392,7 @@ abstract class CActiveRecord extends CModel
     /**
      * This method queries your database to find first related object
      * Ex.: find('postID = :postID AND isActive = :isActive', array(':postID'=>10, 'isActive'=>1));
+     * Ex.: find(array('condition'=>'postID = :postID AND isActive = :isActive', 'order|orderBy'=>'id DESC'), 'params'=>array(':postID'=>10, 'isActive'=>1)));
      * @param mixed $conditions
      * @param array $params
      */
@@ -376,7 +400,11 @@ abstract class CActiveRecord extends CModel
     {
         if(is_array($conditions)){
             $where = isset($conditions['condition']) ? $conditions['condition'] : '';
-            $order = isset($conditions['order']) ? $conditions['order'] : '';             
+			if(isset($conditions['order'])){
+				$order = isset($conditions['order']) ? $conditions['order'] : '';	
+			}else if(isset($conditions['orderBy'])){
+				$order = isset($conditions['orderBy']) ? $conditions['orderBy'] : '';	
+			}
         }else{
             $where = $conditions;
             $order = '';
@@ -409,6 +437,7 @@ abstract class CActiveRecord extends CModel
     /**
      * This method queries your database to find related objects by PK
      * Ex.: findByPk($pk, 'postID = :postID AND isActive = :isActive', array(':postID'=>10, 'isActive'=>1));
+     * Ex.: findByPk($pk, array('condition'=>'postID = :postID AND isActive = :isActive', 'order|orderBy'=>'id DESC'), 'params'=>array(':postID'=>10, 'isActive'=>1)));
      * @param string $pk
      * @param mixed $conditions
      * @param array $params 
@@ -418,7 +447,11 @@ abstract class CActiveRecord extends CModel
     {
         if(is_array($conditions)){
             $where = isset($conditions['condition']) ? $conditions['condition'] : '';
-            $order = isset($conditions['order']) ? $conditions['order'] : '';             
+			if(isset($conditions['order'])){
+				$order = isset($conditions['order']) ? $conditions['order'] : '';
+			}else if(isset($conditions['orderBy'])){
+				$order = isset($conditions['orderBy']) ? $conditions['orderBy'] : '';	
+			}
         }else{
             $where = $conditions;
             $order = '';
@@ -453,7 +486,7 @@ abstract class CActiveRecord extends CModel
     /**
      * This method queries your database to find related objects by attributes
      * Ex.: findByAttributes($attributes, 'postID = :postID AND isActive = :isActive', array(':postID'=>10, 'isActive'=>1));
-     * Ex.: findByAttributes($attributes, array('condition'=>'postID = :postID AND isActive = :isActive', 'order'=>'id DESC', 'limit'=>'0, 10'), 'params'=>array(':postID'=>10, 'isActive'=>1)));
+     * Ex.: findByAttributes($attributes, array('condition'=>'postID = :postID AND isActive = :isActive', 'order|orderBy'=>'id DESC', 'limit'=>'0, 10'), 'params'=>array(':postID'=>10, 'isActive'=>1)));
      * Ex.: $attributes = array('first_name'=>$firstName, 'last_name'=>$lastName);
      * @param array $attributes
      * @param mixed $conditions
@@ -463,7 +496,11 @@ abstract class CActiveRecord extends CModel
     {
         if(is_array($conditions)){
             $where = isset($conditions['condition']) ? $conditions['condition'] : '';
-            $order = isset($conditions['order']) ? $conditions['order'] : '';
+			if(isset($conditions['order'])){
+				$order = isset($conditions['order']) ? $conditions['order'] : '';
+			}else if(isset($conditions['orderBy'])){
+				$order = isset($conditions['orderBy']) ? $conditions['orderBy'] : '';	
+			}
             $limit = isset($conditions['limit']) ? $conditions['limit'] : '';
         }else{
             $where = $conditions;
@@ -499,16 +536,26 @@ abstract class CActiveRecord extends CModel
     /** 
      * This method queries your database to find all related objects
      * Ex.: findAll('post_id = :postID AND is_active = :isActive', array(':postID'=>10, ':isActive'=>1));
-     * Ex.: findAll(array('condition'=>'post_id = :postID AND is_active = :isActive', 'group'=>'', 'order'=>'id DESC', 'limit'=>'0, 10', 'cacheId'=>''), array(':postID'=>10, ':isActive'=>1));
+     * Ex.: findAll(array('condition'=>'post_id = :postID AND is_active = :isActive', 'group|groupBy'=>'', 'order|orderBy'=>'id DESC', 'limit'=>'0, 10', 'cacheId'=>''), array(':postID'=>10, ':isActive'=>1));
+     * Ex.: findAll(CConfig::get('db.prefix').$this->_tableTranslation.'.news_text LIKE :keywords', array(':keywords'=>'%'.$keywords.'%'));
      * @param mixed $conditions
-     * @param array $params 
+     * @param array $params
+     * @return array
      */
 	public function findAll($conditions = '', $params = array(), $fetchMode = PDO::FETCH_ASSOC)
     {
         if(is_array($conditions)){
             $where = isset($conditions['condition']) ? $conditions['condition'] : '';
-            $group = isset($conditions['group']) ? $conditions['group'] : '';
-            $order = isset($conditions['order']) ? $conditions['order'] : '';
+			if(isset($conditions['group'])){
+				$group = isset($conditions['group']) ? $conditions['group'] : '';
+			}else if(isset($conditions['groupBy'])){
+				$group = isset($conditions['groupBy']) ? $conditions['groupBy'] : '';
+			}            
+			if(isset($conditions['order'])){
+				$order = isset($conditions['order']) ? $conditions['order'] : '';
+			}else if(isset($conditions['orderBy'])){
+				$order = isset($conditions['orderBy']) ? $conditions['orderBy'] : '';	
+			}
             $limit = isset($conditions['limit']) ? $conditions['limit'] : '';
             $cacheId = isset($conditions['cacheId']) ? $conditions['cacheId'] : '';
         }else{
@@ -518,7 +565,8 @@ abstract class CActiveRecord extends CModel
             $limit = '';
             $cacheId = '';
         }
-        $whereClause = !empty($where) ? ' WHERE '.$where : '';
+        
+		$whereClause = !empty($where) ? ' WHERE '.$where : '';
         $groupBy = !empty($group) ? ' GROUP BY '.$group : '';
         $orderBy = !empty($order) ? ' ORDER BY '.$order : '';
         $limitClause = !empty($limit) ? ' LIMIT '.$limit : '';
@@ -737,6 +785,16 @@ abstract class CActiveRecord extends CModel
         return false;
     }
     
+    /**
+    * This method selects distinct value
+    * @param string $field
+    * @return array
+    */
+    public function distinct($field = '')
+    {
+        return $this->findAll(array('group'=>CConfig::get('db.prefix').$this->_table.'.'.$field));
+    }
+
     /**
     * This method reloads model data according to the current primary key
     * @return object

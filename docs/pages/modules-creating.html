@@ -1,0 +1,511 @@
+<h1>Application Modules - Creating a Simple Module / Step by Step Instructions </h1>
+
+These step-by-step instructions will help you to create a simple (basic) module.
+<br><br>
+
+Take in account that we use following terms and signs:
+<br><br>
+
+[MODULE_NAME] - module name, e.g <b>Blog</b> or <b>Orders</b><br>
+[MODULE_NAME_LC] - module lowercase name, e.g <b>blog</b> or <b>orders</b><br>
+[MODULE_DESCRIPTION] - module text description<br>
+[CONTROLLER_NAME] - the main controller for module (module may have few controller), e.g <b>Posts</b><br>
+[CONTROLLER_NAME_LC] - the main controller lowercase name, e.g <b>posts</b><br>
+[MODEL_NAME] - the main model for module (module may have few models), e.g <b>Posts</b><br>
+[PROPERTY_KEY] - property key, e.g. <b>shortcode</b><br>
+[PROPERTY_VALUE] - property value, e.g. <b>{module:blog}</b><br>
+[PROPERTY_NAME] - property name, e.g. <b>Shortcode</b><br>
+[PROPERTY_DESCRIPTION] - property description, e.g. <b>This shortcode allows you to display...</b><br>
+[PRIVILEGE_CODE] - the code of privilege, e.g: <b>menus_add</b>, <b>menus_edit</b> or <b>menus_delete</b>
+
+
+<h2 class="content">Content</h2>
+<ul>
+    <li><a href="#step1">Step 1. Creating Module Directory.</a></li>
+    <li><a href="#step2">Step 2. Creating CHANGELOG File.</a></li>
+    <li><a href="#step3">Step 3. Creating info.xml File.</a></li>
+    <li><a href="#step4">Step 4. Creating Main Component.</a></li>
+    <li><a href="#step5">Step 5. Creating Config Files.</a></li>    
+    <li><a href="#step6">Step 6. Creating SQL Dump Files.</a></li>
+    <li><a href="#step7">Step 7. Creating Controllers.</a></li>
+    <li><a href="#step8">Step 8. Creating Models.</a></li>
+    <li><a href="#step9">Step 9. Creating Views.</a></li>    
+    <li><a href="#download_module_code">Download Module Code.</a></li>    
+    
+</ul>
+<br><br>
+
+
+<a name="step1"></a>
+<h3>Step 1. Creating Module Directory. <a class="hashlink" href="#step1">¶</a></h3>
+Create a new directory named <code>[MODULE_NAME_LC]</code> in <code>protected/modules/</code>
+
+<ul class="file-structure">
+    <li class="folder-protected">
+        <b>protected/</b>
+        <ul>
+            <li class="folder-protected">
+                <b>modules/</b>  <span class="description">directory where all modules are placed</span><br>
+                <ul>
+                    <li class="folder-protected">
+                        <b>[MODULE_NAME_LC]/</b> <span class="description"></span><br>
+                    </li>
+                </ul>
+            </li>
+        </ul>        
+    </li>
+</ul>
+<br><br>
+
+
+<a name="step2"></a>
+<h3>Step 2. Creating CHANGELOG File. <a class="hashlink" href="#step2">¶</a></h3>
+Create in <code>protected/modules/[MODULE_NAME_LC]/</code> a <code>CHANGELOG</code> file with a following content:
+<pre>
+Version 0.0.1
+----------------------------
+Initial release
+</pre>
+<br><br>
+
+
+<a name="step3"></a>
+<h3>Step 3. Creating info.xml File. <a class="hashlink" href="#step3">¶</a></h3>
+This file contains information about the new module. It defines the files that need to be installed
+by the ApPHP Framework installer and specifies configuration parameters for the module.
+Below the content of this file:
+
+<ul class="file-structure">
+    <li class="folder-protected">
+        <b>modules/</b> <span class="description">directory where all modules are placed</span>
+        <ul>
+            <li class="folder-protected">
+                <b>[MODULE_NAME_LC]/</b> <span class="description">directory for storing module files</span><br>
+                <ul>
+                    <li class="folder-protected">
+                        <a href="#step4"><b>components/</b></a> <span class="description">module components folder</span><br>
+                        <ul>
+                            <li class="file">[MODULE_NAME]Component.php <span class="description">module main component</span></li>                
+                        </ul>
+                    </li>                
+                    <li class="folder-protected">
+                        <b>config/</b> <br>
+                        <ul>
+                            <li class="file">main.php</a> <span class="description">main configuration</span></li>
+                            <li class="file">[MODULE_NAME_LC].php</a> <span class="description">special configuration (movable file)</span></li>                
+                        </ul>
+                    </li>                
+                    <li class="folder-protected">
+                        <b>controllers/</b> <span class="description">module controllers</span><br>
+                        <ul>
+                            <li class="file">[CONTROLLER_NAME]Controller.php</li>                
+                        </ul>
+                    </li>
+                    <li class="folder-protected">
+                        <b>data/</b> <span class="description">module data files</span><br>
+                        <ul>
+                            <li class="file">install.mysql.sql</li>                
+                            <li class="file">uninstall.mysql.sql</li>                
+                            <li class="file">update.002.mysql.sql</li>
+                        </ul>
+                    </li>
+                    <li class="folder-protected">
+                        <b>images/</b> <span class="description">module images</span><br>
+                        <ul>
+                            <li class="file">icon.png</li>                
+                        </ul>
+                    </li>
+                    <li class="folder-protected">
+                        <b>messages/</b> <span class="description">module messages (localization files)</span><br>
+                        <ul>
+                            <li class="file">[MODULE_NAME_LC].php</li>                
+                        </ul>
+                    </li>
+                    <li class="folder-protected">
+                        <b>models/</b> <span class="description">module models</span><br>
+                        <ul>
+                            <li class="file">[MODEL_NAME].php</li>                
+                        </ul>
+                    </li>
+                    <li class="folder-protected">
+                        <b>vews/</b> <span class="description">model views</span><br>
+                        <ul>
+                            <li class="folder-protected">
+                                <b>[CONTROLLER_NAME_LC]/</b> <span class="description">view files for controller</span><br>
+                                <ul>
+                                    <li class="file">add.php</li>                
+                                    <li class="file">edit.php</li>                
+                                    <li class="file">manage.php</li>                
+                                    <li class="file">view.php</li>                
+                                    <li class="file">viewall.php</li>                
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="file">CHANGELOG <span class="description">change log file</span></li>
+                    <li class="file">info.xml <span class="description">main information file</span></li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+</ul>
+<br><br>
+
+<a name="step4"></a>
+<h3>Step 4. Creating Main Component. <a class="hashlink" href="#step4">¶</a></h3>
+Create directory <code>components/</code> and create there an empty component file, called
+<code>[MODULE_NAME]Component.php</code>.
+
+<pre name="dlhl" class="php">
+&lt;?php
+/**
+* [MODULE_NAME]Component
+*
+* PUBLIC:                  PRIVATE
+* -----------              ------------------
+* prepareTab
+* drawShortcode
+* 
+* STATIC
+* -------------------------------------------
+* init
+* 
+*/
+
+class [MODULE_NAME]Component extends CComponent{
+
+    const NL = "\n";
+
+    public static function init()
+    {
+        return parent::init(__CLASS__);
+    }
+
+    /**
+     * Prepares [MODULE_NAME] module tabs
+     * @param string $activeTab
+     */
+    public static function prepareTab($activeTab = 'info')
+    {
+        return CWidget::create('CTabs', array(
+            'tabsWrapper'=>array('tag'=>'div', 'class'=>'title'),
+            'tabsWrapperInner'=>array('tag'=>'div', 'class'=>'tabs'),
+            'contentWrapper'=>array(),
+            'contentMessage'=>'',
+            'tabs'=>array(
+                A::t('[MODULE_CODE]', 'Settings') => array(
+                    'href'=>'modules/settings/code/[MODULE_CODE]',
+                    'id'=>'tabSettings', 'content'=>'', 'active'=>false,
+                    'htmlOptions'=>array('class'=>'modules-settings-tab')
+                ),
+                A::t('[MODULE_CODE]', '[CONTROLLER_NAME]') => array(
+                    'href'=>'[CONTROLLER_NAME]/index', 'id'=>'tabInfo', 'content'=>'',
+                    'active'=>($activeTab == 'info' ? true : false)
+                ),
+            ),
+            'events'=>array(
+                //'click'=>array('field'=>$errorField)
+            ),
+            'return'=>true,
+        ));
+    }
+
+    /**
+     * Draws shortcode output
+     * @param array $params
+     */
+    public static function drawShortcode($params = array())
+    {
+        $output = '';
+        // ... your code here
+        
+        return $output;
+    }
+    
+}    
+</pre>
+<br><br>
+
+
+<a name="step5"></a>
+<h3>Step 5. Creating Config Files. <a class="hashlink" href="#step5">¶</a></h3>
+There are minimum two (2) types of configuration files, that present in module:
+<ul>
+    <li>main.php - includes module general settings
+        (stays in the origianl module directory after installation)</li>
+    <li>[MODULE_CODE].php - includes information about module component classes and will
+         be copied into <code>protected/config/</code> directory during installation
+         process, then merged by Framework with other configuration files.</li>
+</ul>
+
+Lets see the examples of such files, here the <code>main.php</code>:
+
+<pre name="dlhl" class="php">
+&lt;?php
+
+return array(
+    // module classes
+    'classes' => array(
+        '[MODULE_NAME]Component',
+        '[MODEL_NAME]',
+    ),
+    // management links
+    'managementLinks' => array(
+        A::t('[MODULE_CODE]', '[MODULE_NAME]') => '[MODEL_NAME]/manage'
+    ),    
+);
+</pre>
+
+and here the <code>[MODULE_CODE].php</code>:
+
+<pre name="dlhl" class="php">
+&lt;?php
+
+return array(
+    // module components
+    'components' => array(
+        '[MODULE_NAME]Component' => array('enable' => true, 'class' => '[MODULE_NAME]Component'),
+    ),
+
+);    
+</pre>
+<br><br>
+
+
+<a name="step6"></a>
+<h3>Step 6. Creating SQL Dump Files. <a class="hashlink" href="#step6">¶</a></h3>
+Each module must have at least two (2) SQL dump files for successfull installation:
+<code>install.sql</code> and <code>uninstall.sql</code>. As an option you may also
+create a file for updating <code>update.sql</code> (if you're planning to release
+updates for your module in the future).
+<br><br>
+All these files must be placed in <code>data/</code> directory and will be used by 
+ApPHP Framework and Directy CMF for installation of the module.
+<br><br>
+Each SQL dump file must include at minimum SQL commands, lets check them.
+<br><br>
+<code>install.mysql.sql</code>:
+<pre name="dlhl" class="sql" style="overflow-x:auto;margin-left:0px;" />
+INSERT INTO `&lt;DB_PREFIX&gt;modules` (`id`, `code`, `name`, `description`, `version`, `icon`, `show_on_dashboard`, `show_in_menu`, `is_installed`, `is_system`, `is_active`, `sort_order`)
+VALUES (NULL, '[MODULE_CODE]', '[MODULE_NAME]', '[MODULE_DESCRIPTION]', '0.0.1', 'icon.png', 0, 0, 1, 0, 1, 0);
+
+INSERT INTO `&lt;DB_PREFIX&gt;module_settings` (`id`, `module_code`, `property_key`, `property_value`, `name`, `description`, `property_type`, `property_source`, `is_required`) VALUES
+(NULL, '[MODULE_CODE]', '[PROPERTY_KEY]', '[PROPERTY_VALUE]', '[PROPERTY_NAME]', '[PROPERTY_DESCRIPTION]', 'label', '', '0');
+
+INSERT INTO `&lt;DB_PREFIX&gt;privileges` (`id`, `category`, `code`, `name`, `description`) VALUES (NULL, '[MODULE_CODE]', '[PRIVILEGE_ACTION]', '[PRIVILEGE_NAME]', '[PRIVILEGE_DESCRIPTION]'); 
+INSERT INTO `&lt;DB_PREFIX&gt;role_privileges` (`id`, `role_id`, `privilege_id`, `is_active`) VALUES (NULL, 1, (SELECT MAX(id) FROM `&lt;DB_PREFIX&gt;privileges`), 1), (NULL, 2, (SELECT MAX(id) FROM `&lt;DB_PREFIX&gt;privileges`), 1), (NULL, 3, (SELECT MAX(id) FROM `&lt;DB_PREFIX&gt;privileges`), 0);
+</pre>
+
+<code>update.mysql.sql</code>:
+<pre name="dlhl" class="sql" style="overflow-x:auto;margin-left:0px;" />
+# any update, insert, delete, etc. operations related to module changes 
+</pre>
+
+<code>uninstall.mysql.sql</code>:
+<pre name="dlhl" class="sql" style="overflow-x:auto;margin-left:0px;" />
+DELETE FROM `&lt;DB_PREFIX&gt;modules` WHERE `code` = '[MODULE_CODE]';
+DELETE FROM `&lt;DB_PREFIX&gt;module_settings` WHERE `module_code` = '[MODULE_CODE]';
+
+DELETE FROM `&lt;DB_PREFIX&gt;role_privileges` WHERE `privilege_id` IN (SELECT id FROM `&lt;DB_PREFIX&gt;privileges` WHERE `category` = '[MODULE_CODE]');
+DELETE FROM `&lt;DB_PREFIX&gt;privileges` WHERE `category` = '[MODULE_CODE]';
+
+# delete other tables related to this module
+</pre>
+<br><br>
+
+<a name="step7"></a>
+<h3>Step 7. Creating Controllers. <a class="hashlink" href="#step7">¶</a></h3>
+Generally each module has at least one (main) controller class (there is only one exception, when you
+create a module that has no public access at all).
+<br><br>
+Below you may see the standard definition of the controller class (<code>[CONTROLLER_NAME]Controller.php</code> file).<br>
+Remember that this is only a sample code for controller class, more examples available in the module archive <a href="#download_module_code">dummy_module.zip</a>.
+
+<pre name="dlhl" class="php">
+&lt;?php
+/**
+* Class [CONTROLLER_NAME]Controller
+*
+* PUBLIC:                  PRIVATE
+* -----------              ------------------
+* __construct              
+* indexAction
+*/
+class [CONTROLLER_NAME]Controller extends CController
+{
+    /**
+     * Class default constructor
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        
+        // block access if the module is not installed
+        if(!Modules::model()->exists("code = '[MODULE_CODE]' AND is_installed = 1")){
+            if(CAuth::isLoggedInAsAdmin()){
+                $this->redirect('modules/index');
+            }else{
+                $this->redirect('index/index');
+            }
+        }
+
+        // set meta tags according to active language
+        Website::setMetaTags(array('title'=>A::t('[MODULE_CODE]', '[CONTROLLER_NAME] Management')));
+    }
+
+    /**
+     * Controller default action handler
+     */
+    public function indexAction()
+    {
+        //$this->redirect('.../manage');  
+    }    
+    
+}
+</pre>
+<p><br></p>
+
+
+<a name="step8"></a>
+<h3>Step 8. Creating Models. <a class="hashlink" href="#step8">¶</a></h3>
+Like in case of controllers, module has at least one (main) controller class (there is only one exception, when your
+module doesn't store information at all).
+<br><br>
+Here the example of the standard model class (<code>[MODEL_NAME].php</code> file).<br>
+Remember that this is only a sample code for model class, more examples available in the module archive <a href="#download_module_code">dummy_module.zip</a>.
+<pre name="dlhl" class="php">
+&lt;?php
+/**
+ * Template of [MODEL_NAME] model 
+ *
+ * PUBLIC:                 PRIVATE
+ * -----------             ------------------
+ * __construct
+ * relations
+ *
+ * STATIC:
+ * ---------------------------------------------------------------
+ * model
+ *
+ */
+class [MODEL_NAME] extends CActiveRecord
+{
+
+    /** @var string */    
+    protected $_table = '[MODEL_TABLE]';
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Returns the static model of the specified AR class
+     */
+    public static function model()
+    {
+        return parent::model(__CLASS__);
+    }
+    
+	/**
+     * Used to define relations between different tables in database and current $_table
+	 * This method should be overridden
+	 */
+    protected function _relations()
+    {
+       /* return array(
+        *    'field_name' => array(
+        *        self::BELONGS_TO,
+        *        'table_name',
+        *        'field_name',
+        *        'condition'=>'',
+        *        'joinType'=>self::LEFT_OUTER_JOIN,
+        *        'fields'=>array('name'=>'language_name')
+        *    ),
+        * );
+        */
+    }
+}
+</pre>
+<p><br></p>
+
+
+<a name="step9"></a>
+<h3>Step 9. Creating Views. <a class="hashlink" href="#step9">¶</a></h3>
+View presentation file must be created for each controller's action (there is only exception when you're
+planning to use view from another action or perform redirection). 
+<br><br>
+Here the example of the standard view file (<code>manage.php</code> file).<br>
+Remember that this is only a sample code for view files, more examples available in the module archive <a href="#download_module_code">dummy_module.zip</a>.
+
+<pre name="dlhl" class="php" style="overflow-x:auto;margin-left:0px;" />
+&lt;?php
+    $this->_activeMenu = '[MODULE_CODE]/manage';
+    $this->_breadCrumbs = array(
+        array('label'=>A::t('[MODULE_CODE]', 'Modules'), 'url'=>'modules/'),
+        array('label'=>A::t('[MODULE_CODE]', '[MODULE_NAME]'), 'url'=>'modules/settings/code/[MODULE_CODE]'),
+        array('label'=>A::t('[MODULE_CODE]', '[CONTROLLER_NAME] Management'), 'url'=>'[MODULE_CODE]/manage'),
+    );    
+?&gt;
+&lt;h1&gt;&lt;?php echo A::t('[MODULE_CODE]', '[CONTROLLER_NAME] Management'); ?&gt;&lt;/h1&gt;
+&lt;div class="bloc"&gt;
+    &lt;?php echo $tabs; ?&gt;
+
+    &lt;div class="content"&gt;
+    &lt;?php 
+        echo $actionMessage;
+
+        if(Admins::hasPrivilege('modules', 'edit') && Admins::hasPrivilege('[MODEL_CODE]', 'add')){
+            echo '&lt;a href="[CONTROLLER_NAME]/add" class="add-new"&gt;'.A::t('[MODULE_CODE]', 'Add [CONTROLLER_NAME]').'&lt;/a>';
+        }
+        
+        echo CWidget::create('CGridView', array(
+            'model'=>'[MODEL_NAME]',
+            'actionPath'=>'[CONTROLLER_NAME_LC]/manage',
+            'condition'=>'',
+            //'defaultOrder'=>array('field_1'=>'DESC'),
+            'passParameters'=>true,
+            'pagination'=>array('enable'=>true, 'pageSize'=>20),
+            'sorting'=>true,
+            'filters'=>array(
+                'field_1' => array('title'=>'Field 1', 'type'=>'textbox', 'operator'=>'=', 'width'=>'', 'maxLength'=>''),
+                'field_2' => array('title'=>'Field 2', 'type'=>'enum', 'operator'=>'=', 'width'=>'', 'source'=>array('0'=>'No', '1'=>'Yes')),
+                'field_3' => array('title'=>'Field 3', 'type'=>'datetime', 'operator'=>'=', 'width'=>'80px', 'maxLength'=>'', 'format'=>''),
+            ),
+            'fields'=>array(
+                'field_1' => array('title'=>'Field 1', 'type'=>'concat', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>true, 'concatFields'=>array('first_name', 'last_name'), 'concatSeparator'=>', ',),
+                'field_2' => array('title'=>'Field 2', 'type'=>'decimal', 'align'=>'', 'width'=>'', 'class'=>'right', 'headerClass'=>'right', 'isSortable'=>true, 'format'=>'american|european'),
+                'field_3' => array('title'=>'Field 3', 'type'=>'enum', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerClass'=>'center', 'isSortable'=>true, 'source'=>array('0'=>'No', '1'=>'Yes')),
+                'field_4' => array('title'=>'Field 4', 'type'=>'image', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerClass'=>'center', 'isSortable'=>false, 'imagePath'=>'images/flags/', 'defaultImage'=>'', 'imageWidth'=>'16px', 'imageHeight'=>'16px', 'alt'=>''),
+                'field_5' => array('title'=>'Field 5', 'type'=>'label', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'format'=>''),
+                'field_6' => array('title'=>'Field 6', 'type'=>'link', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerClass'=>'center', 'isSortable'=>false, 'linkUrl'=>'path/to/param/{id}', 'linkText'=>''),
+            ),
+            'actions'=>array(
+                'edit'    => array(
+                    'disabled'=>!Admins::hasPrivilege('modules', 'edit') || !Admins::hasPrivilege('[MODEL_CODE]', 'edit'),
+                    'link'=>'[CONTROLLER_NAME_LC]/edit/id/{id}', 'imagePath'=>'templates/backend/images/edit.png', 'title'=>A::t('[MODULE_CODE]', 'Edit this record')
+                ),
+                'delete'  => array(
+                    'disabled'=>!Admins::hasPrivilege('modules', 'edit') || !Admins::hasPrivilege('[MODEL_CODE]', 'delete'),
+                    'link'=>'[CONTROLLER_NAME_LC]/delete/id/{id}', 'imagePath'=>'templates/backend/images/delete.png', 'title'=>A::t('[MODULE_CODE]', 'Delete this record'), 'onDeleteAlert'=>true
+                )
+            ),
+            'return'=>true,
+        ));        
+    ?&gt;        
+    &lt;/div&gt;
+&lt;/div&gt;
+</pre>
+<p><br></p>
+
+
+<a name="download_module_code"></a>
+<h3>Download Module Code. <a class="hashlink" href="#download_module_code">¶</a></h3>
+Here you may download code examples for "dummy module".
+<br><br>
+Remember, that this only an example, you may need to add more features and procedures to
+make your module works as expected.
+<br><br>
+<a href="download/dummy_module.zip" class="btn-download">Download Module ▼</a>
+<br><br>
+<p><br></p>

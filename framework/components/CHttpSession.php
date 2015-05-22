@@ -10,8 +10,9 @@
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ----------               ----------                  ---------- 
- * __construct                                          _openSession
- * set                                                  _setCookieMode 
+ * __construct                                          _startSession
+ * init (static)										_setCookieMode 
+ * set                                                  
  * get
  * remove
  * isExists
@@ -20,15 +21,13 @@
  * hasFlash
  * setSessionName
  * getSessionName
+ * setTimeout
  * getTimeout
  * setSessionPrefix
  * endSession
- * closeSession
  * getCookieMode
  * 
- * STATIC:
- * ---------------------------------------------------------------
- * init
+ * closeSession
  *
  */	  
 
@@ -72,17 +71,18 @@ class CHttpSession extends CComponent
 		}else{
 			$this->setSessionPrefix('apphp_'.CConfig::get('installationKey'));		
 		}
-		if($this->_autoStart) $this->_openSession();
+
+		if($this->_autoStart) $this->_startSession();
 	}
 
     /**
      *	Returns the instance of object
-     *	@return CHttpSession class
+     *	@return current class
      */
 	public static function init()
 	{
 		return parent::init(__CLASS__);
-	}
+	}    
 
 	/**
 	 * Sets session variable 
@@ -155,6 +155,7 @@ class CHttpSession extends CComponent
 	/**
 	 * Checks if has flash data
 	 * @param string $name
+	 * @return bool
 	 */
 	public function hasFlash($name)
 	{
@@ -191,12 +192,23 @@ class CHttpSession extends CComponent
 	}
 
 	/**
+	 * Sets the number of seconds after which data will be seen as 'garbage' and cleaned up
+	 * @param int $value 
+	 */
+	public function setTimeout($value)
+	{
+		ini_set('session.gc_maxlifetime', (int)$value);
+	}
+
+	/**
      * Returns the number of seconds after which data will be seen as 'garbage' and cleaned up
 	 * @return integer 
 	 */
 	public function getTimeout()
 	{
-		return (int)ini_get('session.gc_maxlifetime');
+		// Get lifetime value from configuration file (in minutes)
+		$maxlifetime = CConfig::get('session.lifetime');
+		return (!empty($maxlifetime)) ? (int)($maxlifetime * 60) : (int)ini_get('session.gc_maxlifetime');
 	}
 
 	/**
@@ -208,16 +220,6 @@ class CHttpSession extends CComponent
 			@session_unset();
 			@session_destroy();
 		}
-	}
-
-	/**
-	 * Session close handler
-	 * Do not call this method directly
-	 * @return boolean 
-	 */
-	public function closeSession()
-	{
-		return true;
 	}
 
 	/**
@@ -236,10 +238,26 @@ class CHttpSession extends CComponent
 	}
 
 	/**
+	 * Session close handler
+	 * Do not call this method directly
+	 * @return boolean 
+	 */
+	public function closeSession()
+	{
+		return true;
+	}
+
+	/**
 	 * Starts the session if it has not started yet
 	 */
-	private function _openSession()
+	private function _startSession()
 	{
+		// Set lifetime value from configuration file (in minutes)
+		$maxLifetime = CConfig::get('session.lifetime');		
+		if(!empty($maxLifetime) && $maxLifetime != ini_get('session.gc_maxlifetime')){
+			$this->setTimeout($maxLifetime);
+		} 
+
 		@session_start();
 		if(APPHP_MODE == 'debug' && session_id() == ''){
             Debug::addMessage('errors', 'session', A::t('core', 'Failed to start session'));

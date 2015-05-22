@@ -1,0 +1,47 @@
+<?php
+/**
+ * CNumber is a helper class that provides a set of helper methods for common number operations
+ *
+ * @project ApPHP Framework
+ * @author ApPHP <info@apphp.com>
+ * @link http://www.apphpframework.com/
+ * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
+ * @license http://www.apphpframework.com/license/
+ *
+ * PUBLIC (static):			PROTECTED:					PRIVATE:		
+ * ----------               ----------                  ----------
+ * americanFormat
+ * europeanFormat
+ * 
+ */	  
+
+class CNumber
+{
+	
+    /**
+     * Format number to american format (1.000,00 => 1,000.00)
+     * @param mixed $number
+     * @param array $params
+     */
+    public static function americanFormat($number, $params = array())
+    {
+        $thousandSeparator = isset($params['thousandSeparator']) ? (bool)$params['thousandSeparator'] : true;
+        $number = str_replace(',', '#', $number);
+        $number = str_replace('.', (($thousandSeparator) ? ',' : ''), $number);
+        $number = str_replace('#', '.', $number);
+        return $number;
+    }
+
+    /**
+     * Format number to eropean format (1,000.00 => 1.000,00)
+     * @param mixed $number
+     * @param array $params
+     */
+    public static function europeanFormat($number, $params = array())
+    {
+        $number = str_replace('.', '#', $number);
+        $number = str_replace(',', '.', $number);
+        $number = str_replace('#', ',', $number);
+        return $number;
+    }
+}

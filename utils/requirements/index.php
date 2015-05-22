@@ -14,8 +14,9 @@ include('inc/functions.inc.php');
  */
 $requirements = array(
 	array('Web Server',           false, get_server_info(), true, 'ApPHP Framework', ''),
-	array('PHP version',          true,  PHP_VERSION, version_compare(PHP_VERSION,'5.1.0','>='), 'ApPHP Framework', 'PHP 5.1.0 or higher is required.'),
-	array('PHP error_get_last() function',     false, (function_exists('error_get_last')) ? 'exists' : '', function_exists('error_get_last'), 'ApPHP Framework', 'PHP >= 5.2.0'),
+	array('PHP version',          true,  PHP_VERSION, version_compare(PHP_VERSION, '5.2.3', '>='), 'ApPHP Framework', 'PHP 5.2.3 or higher is required.'),
+	array('PHP error_get_last() function',  false, (function_exists('error_get_last')) ? 'exists' : '', function_exists('error_get_last'), 'ApPHP Framework', 'PHP >= 5.2.0'),
+	array('$_POST variable',      true,  (($message = check_post_vars()) === '') ? 'exists' : '', ($message === ''), 'ApPHP Framework', $message),
 	array('$_SERVER variable',    true,  (($message = check_server_vars(realpath(__FILE__))) === '') ? 'exists' : '', ($message === ''), 'ApPHP Framework', $message),
 	array('$_SESSION variable',   true,  (($message = check_session_vars()) === '') ? 'exists' : '', ($message === ''), 'ApPHP Framework', $message),
 	array('Apache module mod_rewrite',   true,  (($message = check_module_mod_rewrite()) == true) ? 'enabled' : '', $message, 'ApPHP Framework', 'Required for normal site work, SEO links.'),    

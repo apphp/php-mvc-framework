@@ -1,0 +1,288 @@
+<h1>Application Modules - Structure</h1>
+
+Each module represents a separate physical directory, where placed it's all files.
+Some of the files may be moved to another folders according to develop needs while
+installation/unstallation process. All modules must be placed in <code>protected/modules/</code>
+directory.
+<br><br>
+
+Below the minimum file structure for the standard module. Take in account that you may define
+update files like: <code>update.002.mysql.sql</code>, <code>update.003.mysql.sql</code>, etc. While updating procedure
+the system will run them automatically according to their order. 
+
+<ul class="file-structure">
+    <li class="folder-protected">
+        <b>modules/</b> <span class="description">directory where all modules are placed</span>
+        <ul>
+            <li class="folder-protected">
+                <b>module/</b> <span class="description"></span><br>
+                <ul>
+                    <li class="folder-protected">
+                        <b>config/</b> <br>
+                        <ul>
+                            <li class="file">main.php <span class="description">main configuration</span></li>
+                        </ul>
+                    </li>                
+                    <li class="folder-protected">
+                        <b>data/</b> <br>
+                        <ul>
+                            <li class="file">install.mysql.sql</li>                
+                            <li class="file">uninstall.mysql.sql</li>                
+                            <li class="file">update.mysql.sql</li>                
+                        </ul>
+                    </li>
+                    <li class="file">CHANGELOG</li>                
+                    <li class="file">info.xml</li>                
+                </ul>
+            </li>
+        </ul>
+    </li>
+</ul>
+<br><br>
+
+Here the file structure for a real News module:
+
+<ul class="file-structure">
+    <li class="folder-protected">
+        <b>modules/</b> <span class="description">directory where all modules are placed</span>
+        <ul>
+            <li class="folder-protected">
+                <b>news/</b> <span class="description">directory for storing News module files</span><br>
+                <ul>
+                    <li class="folder-protected">
+                        <b>components/</b> <span class="description">module components folder</span><br>
+                        <ul>
+                            <li class="file"><a href="#component-news">NewsComponent.php</a> <span class="description">module main component</span></li>                
+                        </ul>
+                    </li>                
+                    <li class="folder-protected">
+                        <b>config/</b> <br>
+                        <ul>
+                            <li class="file"><a href="#config-main">main.php</a> <span class="description">main configuration</span></li>
+                            <li class="file"><a href="#config-news">news.php</a> <span class="description">special configuration (movable file)</span></li>                
+                        </ul>
+                    </li>                
+                    <li class="folder-protected">
+                        <b>controllers/</b> <span class="description">module controllers</span><br>
+                        <ul>
+                            <li class="file">NewsController.php</li>                
+                        </ul>
+                    </li>
+                    <li class="folder-protected">
+                        <b>data/</b> <span class="description">module data files</span><br>
+                        <ul>
+                            <li class="file">install.mysql.sql</li>                
+                            <li class="file">uninstall.mysql.sql</li>                
+                            <li class="file">update.002.mysql.sql</li>
+                            <li class="file">update.003.mysql.sql</li>
+                        </ul>
+                    </li>
+                    <li class="folder-protected">
+                        <b>images/</b> <span class="description">module images</span><br>
+                        <ul>
+                            <li class="file">icon.png</li>                
+                        </ul>
+                    </li>
+                    <li class="folder-protected">
+                        <b>messages/</b> <span class="description">module messages (localization files)</span><br>
+                        <ul>
+                            <li class="file">news.php</li>                
+                        </ul>
+                    </li>
+                    <li class="folder-protected">
+                        <b>models/</b> <span class="description">module models</span><br>
+                        <ul>
+                            <li class="file">News.php</li>                
+                        </ul>
+                    </li>
+                    <li class="folder-protected">
+                        <b>vews/</b> <span class="description">model views</span><br>
+                        <ul>
+                            <li class="folder-protected">
+                                <b>news/</b> <span class="description">view files for controller CNews</span><br>
+                                <ul>
+                                    <li class="file">add.php</li>                
+                                    <li class="file">edit.php</li>                
+                                    <li class="file">manage.php</li>                
+                                    <li class="file">view.php</li>                
+                                    <li class="file">viewall.php</li>                
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="file"><a href="#changelog">CHANGELOG</a> <span class="description">change log file</span></li>                
+                    <li class="file"><a href="#info-xml">info.xml</a> <span class="description">main information file</span></li>                
+                </ul>
+            </li>
+        </ul>
+    </li>
+</ul>
+<br><br>
+
+<a name="changelog"></a><br>
+<code>info.xml</code> - change log file <a class="hashlink" href="#changelog">¶</a>
+<pre name="dlhl">
+Version 0.0.1
+----------------------------
+Initial release    
+</pre>
+<br>
+
+<a name="info-xml"></a><br>
+<code>info.xml</code> - main information file <a class="hashlink" href="#info-xml">¶</a>
+<pre name="dlhl" class="xml">
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;install version="1.0" type="module"&gt;
+    &lt;name&gt;News&lt;/name&gt;
+    &lt;description&gt;News module allows creating and displaying news on the site&lt;/description&gt;				 
+    &lt;version&gt;0.0.1&lt;/version&gt;
+    &lt;creationDate&gt;15/08/2013&lt;/creationDate&gt;
+    &lt;lastChangedDate&gt;29/09/2013&lt;/lastChangedDate&gt;
+    &lt;author&gt;ApPHP&lt;/author&gt;
+    &lt;authorEmail&gt;info@apphp.com&lt;/authorEmail&gt;
+    &lt;authorUrl&gt;http://www.apphp.com&lt;/authorUrl&gt;
+    &lt;copyright&gt;ApPHP&lt;/copyright&gt;
+    &lt;license&gt;LGPL&lt;/license&gt;
+    &lt;manual&gt;&lt;/manual&gt;
+    &lt;icon&gt;images/modules/news/icon.png&lt;/icon&gt;
+    &lt;moduleType&gt;application&lt;/moduleType&gt;
+    &lt;code&gt;news&lt;/code&gt;
+    &lt;files&gt;
+        &lt;filename&gt;info.xml&lt;/filename&gt;
+        &lt;components&gt;
+            &lt;filename&gt;NewsComponent.php&lt;/filename&gt;
+        &lt;/components&gt;
+        &lt;config installationPath="protected/config/"&gt;
+            &lt;filename exclude="yes"&gt;main.php&lt;/filename&gt;
+            &lt;filename&gt;news.php&lt;/filename&gt;
+        &lt;/config&gt;
+        &lt;controllers&gt;
+            &lt;filename&gt;NewsController.php&lt;/filename&gt;
+        &lt;/controllers&gt;
+        &lt;data&gt;
+            &lt;install&gt;install.mysql.sql&lt;/install&gt;
+            &lt;update&gt;
+                &lt;filename&gt;update.002.mysql.sql&lt;/filename&gt;
+                &lt;filename&gt;update.003.mysql.sql&lt;/filename&gt;
+            &lt;/update&gt;
+            &lt;uninstall&gt;uninstall.mysql.sql&lt;/uninstall&gt;
+        &lt;/data&gt;
+        &lt;images installationPath="images/modules/news/"&gt;
+            &lt;filename&gt;icon.png&lt;/filename&gt;
+        &lt;/images&gt;
+        &lt;robots exclude="yes"&gt;
+            &lt;filename&gt;robots.txt&lt;/filename&gt;
+        &lt;/robots&gt;
+        &lt;messages installationPath="protected/messages/*"&gt;
+           	&lt;filename&gt;news.php&lt;/filename&gt;
+        &lt;/messages&gt;
+    &lt;/files&gt;
+&lt;/install&gt;</pre>
+
+<a name="config-main"></a><br>
+<code>config/main.php</code> - main configuration file <a class="hashlink" href="#config-main">¶</a>
+<pre name="dlhl" class="php">
+&lt;?php
+return array(
+    // module classes
+    'classes' => array(
+        'NewsComponent',
+        'News',
+    ),
+    // management links
+    'managementLinks' => array(
+        A::t('news', 'News') => 'news/manage'
+    ),    
+);    
+</pre>
+
+<a name="config-news"></a><br>
+<code>config/news.php</code> - special configuration (movable file, will be copied to <code>protected/config/</code> directory) <a class="hashlink" href="#config-news">¶</a>
+<pre name="dlhl" class="php">
+&lt;?php
+return array(
+    // module components (optional)
+    'components' => array(
+        'NewsComponent' => array('enable' => true, 'class' => 'NewsComponent'),               
+    ),
+
+    // url manager (optional)
+    'urlManager' => array(
+        'rules' => array(
+            'news/view/id/([0-9]+)' => 'news/view/id/{$0}',
+            'news/view/id/([0-9]+)/(.*?)' => 'news/view/id/{$0}',
+            'news/view/([0-9]+)' => 'news/view/id/{$0}',
+            'news/view/([0-9]+)/(.*?)' => 'news/view/id/{$0}',
+            'news/([0-9]+)' => 'news/view/id/{$0}',
+            'news/([0-9]+)/(.*?)' => 'news/view/id/{$0}',
+        ),
+    ),    
+
+    // default settings (optional, if defined - will be used as application default settings)
+    'defaultController' => 'pages',
+    'defaultAction' => 'view',
+);    
+</pre>
+
+<a name="component-news"></a><br>
+<code>components/NewsComponent.php</code> - module main component <a class="hashlink" href="#component-news">¶</a>
+<pre name="dlhl" class="php">
+&lt;?php
+class NewsComponent extends CComponent
+{
+    const NL = "\n";
+	
+    /**
+     * Draws last news side block
+     */
+    public static function drawNewsBlock($title = '')
+    {
+        $output = '';
+        $headerLength = 80;
+        $newsCount = 3;
+		
+        $headerLength = ModulesSettings::model()->param('news', 'news_header_length');
+        $newsCount = ModulesSettings::model()->param('news', 'news_count');
+        
+        // fetch datetime format from settings table
+        // or $settings = Bootstrap::init()->getSettings();
+        $settings = Settings::model()->findByPk(1);
+        $dateTimeFormat = $settings->date_format;
+        
+        $news = News::model()->findAll(
+            array(
+                'condition'=>'is_published = :isPublished AND created_at < :currentDate',
+                'order'=>'created_at DESC', 'limit'=>'0, '.(int)$newsCount
+            ),
+            array(':isPublished'=>1, ':currentDate'=>LocalTime::currentDateTime())
+        );
+
+        $output .= '&lt;div class="side-panel-block"&gt;';
+        $output .= '&lt;h3 class="title"&gt;'.$title.'&lt;/h3&gt;';
+        if(is_array($news) && count($news) > 0){
+            foreach($news as $key => $val){
+                $output .= '&lt;div class="block-body"&gt;	
+                    &lt;p class="block-title"&gt;
+                        &lt;a href="news/view/id/'.$val['id'].'">
+                            '.CString::substr($val['news_header'], $headerLength).'
+                        &lt;/a&gt;
+                    &lt;/p&gt;
+                    &lt;p class="block-date"&gt;'.date($dateTimeFormat, strtotime($val['created_at'])).'&lt;/p&gt;
+                    &lt;p class="block-content"&gt;'.CString::substr(strip_tags($val['news_text']), 125, '', true).'
+                        &lt;a class="more more-news" href="news/view/id/'.$val['id'].'">
+                            '.A::t('news', 'read more').' &raquo;
+                        &lt;/a&gt;
+                    &lt;/p&gt;
+                &lt;/div&gt;';							
+            }
+        }else{
+            $output .= A::t('news', 'No News Found');
+        }
+        $output .= '&lt;/div>';
+        
+        return $output;
+    }    
+}
+</pre>
+
+<br><br>

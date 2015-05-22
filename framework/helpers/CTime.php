@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
- * PUBLIC:					PROTECTED:					PRIVATE:		
+ * PUBLIC (static):			PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
  * isValidDate
  * isValidTime
@@ -54,24 +54,23 @@ class CTime
      * 	@param string $units
      * 	@return long
      */
-    function getTimeDiff($endTime, $startTime, $units = 'second')
+    public static function getTimeDiff($endTime, $startTime, $units = 'second')
     {
         $difference = strtotime($endTime) - strtotime($startTime);
         if($units == 'day') return $difference / 86400;
         if($units == 'hour') return $difference / 3600;
         if($units == 'minute') return $difference / 60;
         return $difference;
-    }
+    }	
 	
-	
-     /**
+    /**
      * 	Returns info about given date formatted according to the specified format
      * 	used to replace date_parse_from_format() function (PHP 5.3+)
      * 	@param string $format
      * 	@param string $date
      * 	@return array
      */
-    function dateParseFromFormat($format, $date)
+    public static function dateParseFromFormat($format, $date)
     {
 		if(function_exists('date_parse_from_format')){
 			return date_parse_from_format($format, $date);

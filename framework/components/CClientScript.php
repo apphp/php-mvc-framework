@@ -11,6 +11,7 @@
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
  * __construct
+ * init (static)
  * registerCssFile
  * registerCss
  * registerScriptFile
@@ -21,9 +22,6 @@
  * renderBodyBegin
  * renderBodyEnd
  *
- * STATIC:
- * ---------------------------------------------------------------
- * init
  * 
  */	  
 
@@ -66,12 +64,12 @@ class CClientScript extends CComponent
 
     /**
      *	Returns the instance of object
-     *	@return CClientScript class
+     *	@return current class
      */
 	public static function init()
 	{
 		return parent::init(__CLASS__);
-	}
+	}    
 
 	/**
 	 * Registers a CSS file
@@ -234,21 +232,21 @@ class CClientScript extends CComponent
 			if($completePage){
 				$scripts[] = "jQuery(function($){\n".implode("\n",$this->_scripts[self::POS_JQUERY_READY])."\n});";
 			}else{
-				$scripts[] = implode("\n",$this->_scripts[self::POS_JQUERY_READY]);
+				$scripts[] = implode("\n", $this->_scripts[self::POS_JQUERY_READY]);
 			}
 		}
 		if(isset($this->_scripts[self::POS_DOC_READY])){
 			if($completePage){
 				$scripts[] = "jQuery(document).ready(function(){\n".implode("\n", $this->_scripts[self::POS_DOC_READY])."\n});";
 			}else{
-				$scripts[] = implode("\n",$this->_scripts[self::POS_DOC_READY]);
+				$scripts[] = implode("\n", $this->_scripts[self::POS_DOC_READY]);
 			}			
 		}
 		if(isset($this->_scripts[self::POS_ON_LOAD])){
 			if($completePage){
 				$scripts[] = "jQuery(window).load(function(){\n".implode("\n", $this->_scripts[self::POS_ON_LOAD])."\n});";
 			}else{
-				$scripts[] = implode("\n",$this->_scripts[self::POS_ON_LOAD]);
+				$scripts[] = implode("\n", $this->_scripts[self::POS_ON_LOAD]);
 			}
 		}
 		if(!empty($scripts)) $html = CHtml::script(implode("\n", $scripts))."\n";

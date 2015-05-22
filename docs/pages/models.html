@@ -18,7 +18,7 @@
 <br />
 
 <a name="general"></a>
-<h3>General Info <a class="top_link" title="Top" href="#top">^</a></h3>  
+<h3>General Info <a class="hashlink" href="#general">¶</a></h3>  
 Database manipulation classes representes the "Model" layer as it defined in MVC. ApPHP framework contains
 core class called Model for the implementation of database models. Description classes for entities used
 in applications must extend this class. Model class files must be located in subdirectory 
@@ -27,7 +27,7 @@ in applications must extend this class. Model class files must be located in sub
 
 
 <a name="pdo"></a>
-<h3>Working with PDO <a class="top_link" title="Top" href="#top">^</a></h3>  
+<h3>Working with PDO <a class="hashlink" href="#pdo">¶</a></h3>  
 A model description may contain the application's table name as a value of the <code>$_table</code> variable
 (optional) and a class constructor, that calls to the base (parent) class constructor.
 <br /><br />
@@ -37,6 +37,9 @@ Example of a model that extends from CModel class that uses PDO extension:
 <pre name="dlhl" class="php">
 class Accounts extends CModel
 {
+    /** @var object */    
+    private static $_instance;
+
     protected $_table = CConfig::get('db.prefix').'accounts';
     
     public function __construct()
@@ -44,6 +47,18 @@ class Accounts extends CModel
         parent::__construct();
     }
     
+    /**
+     * Returns the static model of the current class
+    */
+    public static function model()
+    {
+        if(self::$_instance == null){
+            self::$_instance = new self();
+        }
+
+        return self::$_instance;
+    }
+
     // returns some data
     public function getInfo()
     {
@@ -56,6 +71,9 @@ class Accounts extends CModel
         return result;
     }
 }
+
+// Example of usage
+Accounts::model()->getInfo();
 </pre>
 
 CModel query methods:
@@ -81,7 +99,7 @@ $this->_db->customQuery('SELECT * FROM '.$this->_table.' WHERE id = '.(int)$id);
 $this->_db->customExec("INSERT INTO ".$this->_table."(id, name) VALUES (NULL, 'John Smith')");    
 </pre>
 
-<b>Notes</b>:
+<strong>Notes</strong>:
 <ul>
     <li>:id is a named placeholder</li>
     <li>i:id is a key in the array of values, where i denotes the Integer data type
@@ -89,7 +107,7 @@ $this->_db->customExec("INSERT INTO ".$this->_table."(id, name) VALUES (NULL, 'J
     <li>array('i:id'=>10) is the array of value</li>
 </ul>
 
-<b>Available data types for placeholders</b>:
+<strong>Available data types for placeholders</strong>:
 <ul>
     <li>'s': String/Char</li>
     <li>'i': Integer</li>
@@ -103,9 +121,21 @@ the String type is used by default. Using of placeholders makes the creating of 
 what is more important, eliminates the possibility of writing code prone to SQL injection vulnerabilities.    
 <br /><br />
 
+<strong>Direct usage of CDatabase</strong>:
+<br /><br />
+In some cases you may need to access database directly from controllers, models or even views.
+Such practise may be useful when you have no model for specific database table or you simply want to perform a separate query
+without using of models:
+<pre name="dlhl" class="php">
+// Example of direct usage of CDatabase
+$result = CDatabase::init()->select('SELECT COUNT(*) as cnt FROM '.CConfig::get('db.prefix').'sessions');
+</pre>
+<br /><br />
+
+
 
 <a name="active_records"></a>
-<h3>Working with Active Records <a class="top_link" title="Top" href="#top">^</a></h3>
+<h3>Working with Active Records <a class="hashlink" href="#active_records">¶</a></h3>
 <a name="defining_ar_class"></a>
 
 Although PDO can handle virtually any database-related task, chances are that we would spend
@@ -135,9 +165,9 @@ class Accounts extends CActiveRecord
     /**
      * Returns the static model of the specified AR class
      */
-    public static function model($className = __CLASS__)
+    public static function model()
     {
-       return parent::model($className);
+       return parent::model(__CLASS__);
     }
     
     /**
@@ -312,6 +342,8 @@ $page = Pages::model()->findByPk($pk, $conditions, $params);
 $page = Pages::model()->findByAttributes($attributes, $conditions, $params);
 // find all rows satisfying the specified conditions
 $page = Pages::model()->findAll($conditions, $params);
+// find all rows satisfying the specified conditions with %LIKE%
+$news = News:model()->findAll(CConfig::get('db.prefix').$this->_tableTranslation.'.news_text LIKE :keywords', array(':keywords'=>'%'.$keywords.'%'));
 </pre>
 <br>
     
@@ -321,6 +353,8 @@ $page = Pages::model()->findAll($conditions, $params);
 There are some additional methods which helps you to work with AR.
 
 <pre name="dlhl" class="php">
+// returns recordset with distinct values of the given field
+$page = Pages::model()->distinct($field);
 // check if there is at least one row satisfying the specified condition
 $page = Pages::model()->exists($conditions, $params);
 // finds the number of rows satisfying the specified query condition

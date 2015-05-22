@@ -4,11 +4,9 @@
  *
  * PUBLIC:                 PROTECTED                  PRIVATE
  * -----------             ------------------         ------------------
- * __construct             _relations  
+ * __construct             _relations
+ * model (static)
  *
- * STATIC:
- * ---------------------------------------------------------------
- * model
  *
  */
 class ClassName extends CActiveRecord
@@ -25,9 +23,9 @@ class ClassName extends CActiveRecord
 	/**
 	 * Returns the static model of the specified AR class
 	 */
-	public static function model($className = __CLASS__)
+	public static function model()
 	{
-		return parent::model($className);
+		return parent::model(__CLASS__);
 	}
 	
 	/**

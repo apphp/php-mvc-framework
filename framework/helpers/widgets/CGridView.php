@@ -8,14 +8,16 @@
  * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
- * PUBLIC:					PROTECTED:					PRIVATE:		
+ * PUBLIC (static):			PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
- * init                                                 _additionalParams 
- * 
+ * init													_additionalParams
+ * 														_customParams
+ * 														
  */	  
 
 class CGridView
 {
+	
     const NL = "\n";
 
     /**
@@ -27,7 +29,9 @@ class CGridView
      *   - insert code (for all fields): 'prependCode=>'', 'appendCode'=>''
      *   - to perform search by few fields define them comma separated: 'field1,field2' => array(...)
      *   - for filters attribute 'table' is empty by default. Remember: to add CConfig::get('db.prefix') in 'table'=>CConfig::get('db.prefix').'table'
-     *   - 'data'=>'' attribute for type 'label' allows to show data from PHP variables
+     *   - 'data'=>'' - attribute for type 'label', allows to show data from PHP variables
+     *   - 'case'=>'normal' - attribute for type 'label', allows to convert value to 'upper', 'lower' or 'camel' cases
+     *   - 'maxLength'=>'X' - attribute for type 'label', specifies to show maximum X characters of the string
      *   
      * Usage:
      *  echo CWidget::create('CGridView', array(
@@ -36,6 +40,7 @@ class CGridView
      *    'condition'=>CConfig::get('db.prefix').'countries.id <= 30',
      *    'defaultOrder'=>array('field_1'=>'DESC', 'field_2'=>'ASC' [,...]),
      *    'passParameters'=>false,
+     *    'customParameters'=>array('param_1'=>'integer', 'param_1'=>'string' [,...]),
 	 *    'pagination'=>array('enable'=>true, 'pageSize'=>20),
 	 *    'sorting'=>true,
      *    'filters'=>array(
@@ -50,7 +55,7 @@ class CGridView
 	 *       'field_4' => array('title'=>'Field 4', 'type'=>'datetime', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'format'=>''),
 	 *       'field_5' => array('title'=>'Field 5', 'type'=>'enum', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerClass'=>'center', 'isSortable'=>true, 'source'=>array('0'=>'No', '1'=>'Yes')),
 	 *       'field_6' => array('title'=>'Field 6', 'type'=>'image', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerClass'=>'center', 'isSortable'=>false, 'imagePath'=>'images/flags/', 'defaultImage'=>'', 'imageWidth'=>'16px', 'imageHeight'=>'16px', 'alt'=>''),
-	 *       'field_7' => array('title'=>'Field 7', 'type'=>'label', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'stripTags'=>false),
+	 *       'field_7' => array('title'=>'Field 7', 'type'=>'label', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'stripTags'=>false, 'case'=>'', 'maxLength'=>''),
 	 *       'field_8' => array('title'=>'Field 8', 'type'=>'link', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerClass'=>'center', 'isSortable'=>false, 'linkUrl'=>'path/to/param/{field_name}', 'linkText'=>'', 'definedValues'=>array(), 'htmlOptions'=>array()),
 	 *    ),
 	 *    'actions'=>array(
@@ -62,24 +67,31 @@ class CGridView
     */
     public static function init($params = array())
     {       
-        $output 	   = '';
-        $model 		   = isset($params['model']) ? $params['model'] : '';
-		$actionPath    = isset($params['actionPath']) ? $params['actionPath'] : '';
-		$condition 	   = isset($params['condition']) ? $params['condition'] : '';
-		$defaultOrder  = isset($params['defaultOrder']) ? $params['defaultOrder'] : '';
-		$passParameters = isset($params['passParameters']) ? (bool)$params['passParameters'] : false;
-        $return 	   = isset($params['return']) ? (bool)$params['return'] : true;
-		$fields 	   = isset($params['fields']) ? $params['fields'] : array();
-		$filters	   = isset($params['filters']) ? $params['filters'] : array();
-		$actions 	   = isset($params['actions']) ? $params['actions'] : array();
-		$activeActions = is_array($actions) ? count($actions) : 0;
+        $output 	   		= '';
+        $model 		   		= isset($params['model']) ? $params['model'] : '';
+		$actionPath    		= isset($params['actionPath']) ? $params['actionPath'] : '';
+		$condition 	   		= isset($params['condition']) ? $params['condition'] : '';
+		$defaultOrder  		= isset($params['defaultOrder']) ? $params['defaultOrder'] : '';
+		$passParameters 	= isset($params['passParameters']) ? (bool)$params['passParameters'] : false;
+		$customParameters 	= isset($params['customParameters']) ? $params['customParameters'] : false;
+        $return 	   		= isset($params['return']) ? (bool)$params['return'] : true;
+		$fields 	   		= isset($params['fields']) ? $params['fields'] : array();
+		$filters	   		= isset($params['filters']) ? $params['filters'] : array();
+		$actions 	   		= isset($params['actions']) ? $params['actions'] : array();
+		$activeActions 		= is_array($actions) ? count($actions) : 0;
+		$onDeleteRecord 	= false;
 		
 		$baseUrl = A::app()->getRequest()->getBaseUrl();		
 
 		// remove disabled actions
 		if(is_array($actions)){
 			foreach($actions as $key => $val){
-				if(isset($val['disabled']) && (bool)$val['disabled'] === true) unset($actions[$key]);
+				if(isset($val['disabled']) && (bool)$val['disabled'] === true){
+					unset($actions[$key]);
+				}
+				if(isset($val['onDeleteAlert']) && (bool)$val['onDeleteAlert'] === true){
+					$onDeleteRecord = true;
+				}
 			}
 			$activeActions = count($actions);
 		}
@@ -126,7 +138,7 @@ class CGridView
 					case 'enum':
 						$source = isset($fValue['source']) ? $fValue['source'] : array();
 						$sourceCount = count($source);
-						if($sourceCount > 1 || ($sourceCount == 1 && $source[0] != '')){
+						if($sourceCount > 1 || ($sourceCount == 1 && isset($source[0]) && $source[0] != '')){
 							$output .= (count($source)) ? CHtml::dropDownList($fKey, $fieldValue, $source, array('style'=>$width)) : 'no';	
 						}else{
 							$output .= A::t('core', 'none');
@@ -224,7 +236,7 @@ class CGridView
 		$pageSize = isset($params['pagination']['pageSize']) ? abs((int)$params['pagination']['pageSize']) : '10';
 		$totalRecords = $totalPageRecords = 0;
 		$currentPage = '';
-        $objModel = @call_user_func_array($model.'::model', array());    
+        $objModel = call_user_func_array($model.'::model', array());    
 		if(!$objModel){
             CDebug::addMessage('errors', 'missing-model', A::t('core', 'Unable to find class "{class}".', array('{class}'=>$model)), 'session');                        
             return '';
@@ -287,6 +299,7 @@ class CGridView
 						$linkUrl = $actionPath.'?'.'sort_by='.$key.'&sort_dir='.$colSortDir;
 						$linkUrl .= !empty($currentPage) ? '&page='.$currentPage : '';
 						$linkUrl .= !empty($filterUrl) ? '&'.$filterUrl : '';
+						$linkUrl .= self::_customParams($customParameters, '&');
 						$title = CHtml::link($title.$sortImg, $linkUrl);
 					}
 					$output .= CHtml::tag('th', array('class'=>$headerClass, 'style'=>$style), $title).self::NL;
@@ -298,7 +311,7 @@ class CGridView
             $output .= CHtml::closeTag('thead').self::NL;
 			
 			// draw content 
-			$output .= CHtml::openTag('tbody');			
+			$output .= CHtml::openTag('tbody').self::NL;
 			for($i = 0; $i < $totalPageRecords; $i++){
 				$output .= CHtml::openTag('tr').self::NL;
 				$id = (isset($records[$i]['id'])) ? $records[$i]['id'] : '';
@@ -328,7 +341,8 @@ class CGridView
 								}
 							}
 							$output .= $concatResult;
-							break;							
+							break;
+						
                         case 'decimal':
                             if($format === 'european'){
                                 $fieldValue = str_replace('.', '#', $fieldValue);
@@ -336,7 +350,8 @@ class CGridView
                                 $fieldValue = str_replace('#', ',', $fieldValue);
                             }
                             $output .= $fieldValue;
-                            break;							
+                            break;
+						
                         case 'datetime':
 							if(is_array($definedValues) && isset($definedValues[$fieldValue])){
 								$fieldValue = $definedValues[$fieldValue];
@@ -344,14 +359,17 @@ class CGridView
                                 $fieldValue = date($format, strtotime($fieldValue));
                             }
 							$output .= $fieldValue;
-                            break;							
+                            break;
+						
                         case 'enum':
 							$source = isset($val['source']) ? $val['source'] : '';							
 							$output .= isset($source[$fieldValue]) ? $source[$fieldValue] : '';	
                             break;
+						
 						case 'index':
                             $output .= ($i+1).'.';
                             break;
+						
 						case 'image':
 							$imagePath = isset($val['imagePath']) ? $val['imagePath'] : '';
 							$defaultImage = isset($val['defaultImage']) ? $val['defaultImage'] : '';
@@ -362,6 +380,7 @@ class CGridView
 							if((!$fieldValue || !file_exists($imagePath.$fieldValue)) && !empty($defaultImage)) $fieldValue = $defaultImage;
 							$output .= CHtml::image($imagePath.$fieldValue, $alt, $htmlOptions).self::NL;
 							break;
+						
 						case 'link':
                             // old - $linkUrl = isset($val['linkUrl']) ? str_ireplace('{id}', $id, $val['linkUrl']) : '#';
                             $linkUrl = isset($val['linkUrl']) ? $val['linkUrl'] : '#';
@@ -381,18 +400,34 @@ class CGridView
                             }                            
 							$output .= CHtml::link($linkText, $linkUrl, $htmlOptions);
 							break;
+						
 						case 'label':
 						default:
                             if(isset($val['data']) && $val['data'] != '') $fieldValue = $val['data'];
-                            $stripTags = isset($val['stripTags']) ? (bool)$val['stripTags'] : false;
-                            if($stripTags) $fieldValue = strip_tags($fieldValue);
-                            
 							if(is_array($definedValues) && isset($definedValues[$fieldValue])){
 								$fieldValue = $definedValues[$fieldValue];
                             }else if($format != '' && $format != 'american' && $format != 'european'){
                                 $fieldValue = date($format, strtotime($fieldValue));
-                            }                            
-
+                            }else{
+								$stripTags = isset($val['stripTags']) ? (bool)$val['stripTags'] : false;
+								if($stripTags){
+									$fieldValue = strip_tags($fieldValue);
+								}
+								
+								$case = isset($val['case']) ? strtolower($val['case']) : false;
+								if($case == 'upper'){
+									$fieldValue = strtoupper($fieldValue);
+								}else if($case == 'lower'){
+									$fieldValue = strtolower($fieldValue);
+								}else if($case == 'camel'){
+									$fieldValue = ucwords($fieldValue);
+								}
+								
+								$maxLength = isset($val['maxLength']) ? (int)$val['maxLength'] : '';
+								if(!empty($maxLength)){
+									$fieldValue = CHtml::tag('span', array('title'=>$fieldValue), CString::substr($fieldValue, $maxLength, '', true));
+								}								
+							}
 							$output .= $fieldValue;
 							break;
 					}
@@ -400,25 +435,28 @@ class CGridView
 					$output .= CHtml::closeTag('td').self::NL;
 				}
 				if($activeActions > 0){
-					$output .= CHtml::openTag('td', array('class'=>'actions'));
+					$output .= CHtml::openTag('td', array('class'=>'actions')).self::NL;
 					foreach($actions as $aKey => $aVal){
-						$htmlOptions = array('class'=>'tooltip-link');
-						if(isset($aVal['title'])) $htmlOptions['title'] = $aVal['title'];
+						$htmlOptions = array('class'=>'tooltip-link gridview-delete-link');
+						$htmlOptions['data-id'] = $id;
+						if(isset($aVal['title'])){
+							$htmlOptions['title'] = $aVal['title'];
+						}
 						if(isset($aVal['onDeleteAlert']) && $aVal['onDeleteAlert'] == true){
-							A::app()->getClientScript()->registerScript(
-								'delete-record',
-								'function onDeleteRecord(){return confirm("'.A::t('core', 'Are you sure you want to delete this record?').'");}',
-								2
-							);
-							$htmlOptions['onclick'] = 'return onDeleteRecord();';
+							$htmlOptions['data-id'] = $id;
+							$htmlOptions['onclick'] = 'return onDeleteRecord(this);';
 						}
 						$imagePath = isset($aVal['imagePath']) ? $aVal['imagePath'] : '';
 						$linkUrl = isset($aVal['link']) ? str_ireplace('{id}', $id, $aVal['link']) : '#';
 						// add additional parameters if allowed
-						if($linkUrl != '#') $linkUrl .= self::_additionalParams($passParameters);
+						if($linkUrl != '#'){
+							$linkUrl .= self::_additionalParams($passParameters);
+							$linkUrl .= self::_customParams($customParameters);
+						}						
+						
 						$linkLabel = (!empty($imagePath) ? '<img src="'.$imagePath.'" alt="'.$aKey.'" />' : $aKey);
 						
-						$output .= CHtml::link($linkLabel, $linkUrl, $htmlOptions).' ';
+						$output .= CHtml::link($linkLabel, $linkUrl, $htmlOptions).self::NL;
 					}
 					$output .= CHtml::closeTag('td').self::NL;
 				}
@@ -428,6 +466,15 @@ class CGridView
             $output .= CHtml::closeTag('tbody').self::NL;
 			$output .= CHtml::closeTag('table').self::NL;
 			
+			// register script if onDeleteAlert is true
+			if($onDeleteRecord){
+				A::app()->getClientScript()->registerScript(
+					'delete-record',
+					'function onDeleteRecord(el){return confirm("ID: " + $(el).data("id") + "\n'.A::t('core', 'Are you sure you want to delete this record?').'");}',
+					2
+				);				
+			}
+
 			// draw pagination
 			if($pagination){			
 				$paginationUrl = $actionPath;
@@ -451,10 +498,12 @@ class CGridView
     /**
 	 * Prepare additional parameters that will be passed
 	 * @param bool $allow
+	 * @return string
      */
 	private static function _additionalParams($allow = false)
     {
 		$output = '';
+		
 		if($allow){
 			$page = A::app()->getRequest()->getQuery('page', 'integer', 1);
 			$sortBy = A::app()->getRequest()->getQuery('sort_by', 'string');
@@ -463,7 +512,29 @@ class CGridView
 			$output .= ($sortDir) ? '/sort_dir/'.$sortDir : '';
 			$output .= ($page) ? '/page/'.$page : '';
 		}
+		
 		return $output;
 	}
  
+    /**
+	 * Prepare custom parameters that will be passed
+	 * @param array $params
+	 * @param string $glue
+	 * @return string
+     */
+	private static function _customParams($params, $glue = '/')
+    {
+		$output = '';
+
+		if(is_array($params)){
+			foreach($params as $key => $val){
+				$operator_glue = ($glue == '&' || $glue == '&amp;') ? '&' : '/';
+				$operator_equals = ($glue == '&' || $glue == '&amp;') ? '=' : '/';
+				
+				$output .= $operator_glue.$key.$operator_equals.A::app()->getRequest()->getQuery($key, $val);	
+			}
+		}
+		
+		return $output;
+	}
 }

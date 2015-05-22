@@ -8,14 +8,15 @@
  * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
- * PUBLIC:					PROTECTED:					PRIVATE:		
+ * PUBLIC (static):			PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
- * init                                                 
+ * init                                               
  * 
  */	  
 
 class CFormValidation
 {
+	
     const NL = "\n";
 
     /**
@@ -26,7 +27,7 @@ class CFormValidation
      * - possible validation types:
      *  	alpha, numeric, alphanumeric, variable, mixed, phone, phoneString, username, timeZone
      *  	password, email, fileName, identity|identityCode, date, integer, positiveInteger,
-     *  	float, any, confirm, url, range ('minValue'=>'' and 'maxValue'=>''), set, text
+     *  	float, any, confirm, url, ip, range ('minValue'=>'' and 'maxValue'=>''), set, text
      * - attribute 'validation'=>array(..., 'forbiddenChars'=>array('+', '$')) is used to define forbidden characters
      * - attribute 'validation'=>array(..., 'trim'=>true) - removes spaces from field value before validation
      * 
@@ -100,7 +101,7 @@ class CFormValidation
                         $required = false;
                     }else{
                         if(function_exists('image_type_to_mime_type') && function_exists('exif_imagetype')){
-                            $fileType = image_type_to_mime_type(exif_imagetype($fileTempName));
+                            $fileType = !empty($fileTempName) ? image_type_to_mime_type(exif_imagetype($fileTempName)) : '';
                         }else{
                             if(strrpos($fileTempName, '.') > 0){
                                 $fileType = substr($fileTempName, strrpos($fileTempName, '.')+1);                            
@@ -113,7 +114,13 @@ class CFormValidation
                         $fileWidth = CImage::getImageSize($fileTempName, 'width');
                         $fileHeight = CImage::getImageSize($fileTempName, 'height');
                     }
-                } 
+                }else if($type == 'file'){
+                    if($required && !isset($_FILES[$field]['tmp_name'])){
+                        $required = false;
+                    }else{
+						$fileType = CFile::getMimeType($fileTempName);
+					}					
+				}
 	
                 if($required && empty($fileSize)){
                     $valid = false;
@@ -126,7 +133,7 @@ class CFormValidation
                         $errorMessage = A::t($msgSource, 'Invalid file size for field {title}: {file_size} (max. allowed: {max_allowed})', array('{title}'=>$title, '{file_size}'=>$sFileSize, '{max_allowed}'=>$sMaxAllowed));
                     }else if(!empty($fileMimeTypes) && !in_array($fileType, $fileMimeTypes)){
 						$valid = false;
-                        $errorMessage = A::t($msgSource, 'Invalid file type for field {title}: you may only upload {mime_type} files.', array('{title}'=>$title, '{mime_type}'=>$fileMimeType));
+                        $errorMessage = A::t($msgSource, 'Invalid file type for field {title}: you may only upload {mime_type} files.', array('{title}'=>$title.' ('.$fileType.')', '{mime_type}'=>$fileMimeType));
                     }else if($maxWidth !== '' && $fileWidth > $maxWidth){
 						$valid = false;
                         $errorMessage = A::t($msgSource, 'Invalid image width for field {title}: {image_width}px (max. allowed: {max_allowed}px)', array('{title}'=>$title, '{image_width}'=>$fileWidth, '{max_allowed}'=>$maxWidth));
@@ -140,23 +147,49 @@ class CFormValidation
                         if(APPHP_MODE == 'demo'){
                             $valid = false;
                             $errorMessage = A::t($msgSource, 'This operation is blocked in Demo Mode!');                        
-                        }else if(@move_uploaded_file($fileTempName, $targetFullName)){							
-                            // uploaded - ok, save info in return array
-							$output['uploadedFiles'][] = $targetFullName;
-                        }else{
-                            $valid = false;
-                            $errorMessage = A::t($msgSource, 'An error occurred while uploading your file for field {title}. Please try again.', array('{title}'=>$title));
-                            if(version_compare(PHP_VERSION, '5.2.0', '>=')){	
-                                $err = error_get_last();
-                                if(isset($err['message']) && $err['message'] != ''){
-                                    $lastError = $err['message'].' | file: '.$err['file'].' | line: '.$err['line'];
-                                    CDebug::addMessage('errors', 'fileUploading', $lastError);
-                                    @trigger_error('');
-                                }
-                            }else{
-                                CDebug::addMessage('errors', 'fileUploading', $fileError);
-                            }
-                        }
+						}
+						// prevent malicious users and possible file upload attacks
+						else if(@is_uploaded_file($fileTempName)){
+							if(@move_uploaded_file($fileTempName, $targetFullName)){
+								// uploaded - ok, save info in return array
+								$output['uploadedFiles'][] = $targetFullName;
+							}else{
+								$valid = false;
+								$errorMessage = A::t($msgSource, 'An error occurred while uploading your file for field {title}. Please try again.', array('{title}'=>$title));
+								if(version_compare(PHP_VERSION, '5.2.0', '>=')){
+									$err = error_get_last();
+									if(isset($err['message']) && $err['message'] != ''){
+										$lastError = $err['message'].' | file: '.$err['file'].' | line: '.$err['line'];
+										CDebug::addMessage('errors', 'fileUploading', $lastError);
+										@trigger_error('');
+									}
+								}else{
+									CDebug::addMessage('errors', 'fileUploading', $fileError);
+									//switch($HTTP_POST_FILES['userfile']['error']){
+									//	case 0: //no error; possible file attack!
+									//	  echo "There was a problem with your upload.";
+									//	  break;
+									//	case 1: //uploaded file exceeds the upload_max_filesize directive in php.ini
+									//	  echo "The file you are trying to upload is too big.";
+									//	  break;
+									//	case 2: //uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the html form
+									//	  echo "The file you are trying to upload is too big.";
+									//	  break;
+									//	case 3: //uploaded file was only partially uploaded
+									//	  echo "The file you are trying upload was only partially uploaded.";
+									//	  break;
+									//	case 4: //no file was uploaded
+									//	  echo "You must select an image for upload.";
+									//	  break;
+									//	default: //a default error, just in case!  :)
+									//	  echo "There was a problem with your upload.";
+									//	  break;
+									//}
+								}
+							}
+						}else{
+							CDebug::addMessage('errors', 'fileUploading', A::t($msgSource, 'Possible file upload attack: file {filename}.', array('{filename}'=>$fileTempName)));
+						}
                     }                    
                 }
             }else if($required && trim($fieldValue) == ''){
@@ -292,6 +325,10 @@ class CFormValidation
                         case 'url':
                             $valid = CValidator::isUrl($fieldValue);
                             $errorMessage = A::t($msgSource, 'The field {title} must be a valid URL string value! Please re-enter.', array('{title}'=>$title));
+                            break;
+                        case 'ip':
+                            $valid = CValidator::isIpAddress($fieldValue);
+                            $errorMessage = A::t($msgSource, 'The field {title} must be a valid IP address! Please re-enter.', array('{title}'=>$title));
                             break;
                         case 'any':
                         default:                        

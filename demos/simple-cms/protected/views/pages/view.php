@@ -2,12 +2,10 @@
 if(!empty($mainText)){
 	echo '<div class="main_msg">'.$mainText.'</div>';
 }
-
 if(!empty($pages)){
 
-
     foreach($pages as $page){
-        
+   	
    		if($viewOnePage){
    			$pageHeader = $page['header_text'];
    		}else{
@@ -44,6 +42,6 @@ if(!empty($pages)){
         ));            
     }    
 
-}
-
+}    
 ?>
+

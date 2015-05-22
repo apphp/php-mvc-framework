@@ -14,11 +14,14 @@
  * PDO::query() should be used when you expect a resultset to be returned.
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
- * ----------               ----------                  ----------
+ * ---------------         	---------------            	---------------
  * __construct                                          _errorLog
- * cacheOn                                              _interpolateQuery 
- * cacheOff                                             _prepareParams
- * select                                               _enableCache
+ * init (static)                                        _fatalErrorPageContent (static)
+ * getError (static)									_interpolateQuery 
+ * getErrorMessage (static)								_prepareParams
+ * cacheOn                                              _enableCache
+ * cacheOff                                             
+ * select                                               
  * insert                                               
  * update                                               
  * delete
@@ -28,12 +31,6 @@
  * showTables
  * showColumns
  * getVersion
- * 
- * STATIC:
- * ---------------------------------------------------------------
- * init                                                 _fatalErrorPageContent
- * getError
- * getErrorMessage 
  * 
  */	  
 
@@ -335,7 +332,7 @@ class CDatabase extends PDO
 			$result = false;
 		}
 
-        CDebug::AddMessage('queries', ++self::$count.'. delete | <i>'.A::t('core', 'total').': '.(($result) ? $result : '0 (<b>error</b>)').'</i>', $sql);
+        CDebug::AddMessage('queries', ++self::$count.'. delete | <i>'.A::t('core', 'total').': '.(($result) ? $result : '0 (<b>warning</b>)').'</i>', $sql);
 		return $result; 
     }
 	

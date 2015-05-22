@@ -8,14 +8,13 @@
  * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
- * PUBLIC:					PROTECTED:					PRIVATE:		
- * ----------               ----------                  ----------
- * 
- * STATIC:
- * ---------------------------------------------------------------
- * init                                                 _getFormattedMicrotime
- * display
+ * PUBLIC (static):			PROTECTED:					PRIVATE (static):		
+ * ---------------         	---------------            	---------------
+ * init                     							_getFormattedMicrotime
+ * dump
  * d
+ * console
+ * c
  * write
  * addMessage
  * getMessage
@@ -33,6 +32,8 @@ class CDebug
 	private static $_arrGeneral;
 	/** @var array */
     private static $_arrParams;
+	/** @var array */
+    private static $_arrConsole;
 	/** @var array */
     private static $_arrWarnings;    
 	/** @var array */
@@ -52,34 +53,72 @@ class CDebug
     }
 
     /**
-     * Alias to method 'display'
+     * Alias to method 'dump'
      * @param mixed $param
      * @param bool $terminate
+     * @param bool $useDbug
      * @return HTML dump
      */
-    public static function d($param, $terminate = false)
+    public static function d($param, $terminate = false, $useDbug = true)
     {
-        self::display($param, $terminate);
+        self::dump($param, $terminate, $useDbug);
     }
 
     /**
      * Displays parameter on the screen
      * @param mixed $param
      * @param bool $terminate
+     * @param bool $useDbug
      * @return HTML dump
      */
-    public static function display($param, $terminate = false)
+    public static function dump($param, $terminate = false, $useDbug = true)
     {
-        if($terminate) echo '<!DOCTYPE html><head><meta charset="UTF-8" /></head><html><body>';
-        echo '<pre>';
-        print_r($param);
-        echo '</pre>';
-        if($terminate){ echo '</body></html>'; exit(0); }
+        if($terminate){
+			@header('content-type: text/html; charset=utf-8');
+			echo '<!DOCTYPE html><html><head><meta charset="UTF-8" /></head><body>';
+		}
+
+		if($useDbug){
+			include_once(dirname(__FILE__).DS.'..'.DS.'vendors'.DS.'dbug'.DS.'dbug.php');
+			new dBug($param);
+		}else{
+			echo '<pre>';
+			print_r($param);
+			echo '</pre>';			
+		}
+		
+        if($terminate){
+			echo '</body></html>';
+			exit(0);
+		}
     }
+
+    /**
+     * Alias to method 'console'
+     * @param mixed $val
+     * @param string $key
+     * @return HTML dump
+     */
+    public static function c($val, $key = '')
+    {
+        self::console($val, $key);
+    }
+
+    /**
+     * Displays parameter on the screen
+     * @param mixed $val
+     * @param string $key
+     * @return HTML dump
+     */
+    public static function console($val, $key = '')
+    {
+		self::addMessage('console', $key, $val);		
+	}
 
     /**
      * Write string to the debug stack
      * @param string $val
+     * @param string $key
      * @param string $storeType
      */
     public static function write($val = '', $key = '', $storeType = '')
@@ -108,6 +147,22 @@ class CDebug
         else if($type == 'errors') self::$_arrErrors[$key][] = CFilter::sanitize('string', $val);
 		else if($type == 'warnings') self::$_arrWarnings[$key][] = CFilter::sanitize('string', $val);
 		else if($type == 'queries') self::$_arrQueries[$key][] = CFilter::sanitize('string', $val);
+		else if($type == 'console'){
+			if(is_array($val)){
+				$value = $val;
+			}elseif(is_object($val)){
+				$value = array('class'=>get_class($val), 'properties'=>get_object_vars($val), 'methods'=>get_class_methods($val));				
+			}else{
+				$value = CFilter::sanitize('string', $val);	
+			}
+			
+			$key = CFilter::sanitize('string', $key);
+			if($key != ''){
+				self::$_arrConsole[$key] = $value;
+			}else{
+				self::$_arrConsole[] = $value;
+			}
+		}
     }    
 
     /**
@@ -146,6 +201,10 @@ class CDebug
             A::app()->getSession()->remove('debug-warnings');
  		}		
 
+		// debug bar status
+		$debugBarState = isset($_COOKIE['debugBarState']) ? $_COOKIE['debugBarState'] : 'min';
+		$onDblClick = 'appTabsMinimize()';
+
         $panelAlign = (A::app()->getLanguage('direction') == 'rtl') ? 'left' : 'right';
         $panelTextAlign = (A::app()->getLanguage('direction') == 'rtl') ? 'right' : 'left';		
 		echo $nl.'<style type="text/css" >
@@ -156,9 +215,10 @@ class CDebug
 			#debug-panel a {text-decoration:none;color:#bbb;font-weight:normal;}
 			#debug-panel a.debugArrow {color:#222;}
             #debug-panel pre {border:0px;}
+			#debug-panel strong {font-weight:bold;}
 		</style>
 		<script type="text/javascript">
-			var arrDebugTabs = ["General","Params","Warnings","Errors","Queries"];
+			var arrDebugTabs = ["General","Params","Console","Warnings","Errors","Queries"];
 			var debugTabsHeight = "200px";
 			function appSetCookie(state, tab){ document.cookie = "debugBarState="+state+"; path=/"; if(tab !== null) document.cookie = "debugBarTab="+tab+"; path=/"; }
 			function appGetCookie(name){ if(document.cookie.length > 0){ start_c = document.cookie.indexOf(name + "="); if(start_c != -1){ start_c += (name.length + 1); end_c = document.cookie.indexOf(";", start_c); if(end_c == -1) end_c = document.cookie.length; return unescape(document.cookie.substring(start_c,end_c)); }} return ""; }
@@ -204,23 +264,53 @@ class CDebug
 			<a id="debugArrowMaximize" class="debugArrow" style="display:;" href="javascript:void(0)" title="Maximize" onclick="javascript:appTabsMaximize()">&#9744;</a>
 			<a id="debugArrowMinimize" class="debugArrow" style="display:none;" href="javascript:void(0)" title="Minimize" onclick="javascript:appTabsMiddle()">&#9635;</a>
 			<span>
-				&nbsp;<a id="tabGeneral" href="javascript:void(\'General\')" onclick="javascript:appExpandTabs(\'auto\', \'General\')">'.A::t('core', 'General').'</a> &nbsp;|&nbsp;
-				&nbsp;<a id="tabParams" href="javascript:void(\'Params\')" onclick="javascript:appExpandTabs(\'auto\', \'Params\')">'.A::t('core', 'Params').' ('.count(self::$_arrParams).')</a> &nbsp;|&nbsp;
-				&nbsp;<a id="tabWarnings" href="javascript:void(\'Warnings\')" onclick="javascript:appExpandTabs(\'auto\', \'Warnings\')">'.A::t('core', 'Warnings').' ('.count(self::$_arrWarnings).')</a> &nbsp;|&nbsp;
-				&nbsp;<a id="tabErrors" href="javascript:void(\'Errors\')" onclick="javascript:appExpandTabs(\'auto\', \'Errors\')">'.A::t('core', 'Errors').' ('.count(self::$_arrErrors).')</a> &nbsp;|&nbsp;
-				&nbsp;<a id="tabQueries" href="javascript:void(\'Queries\')" onclick="javascript:appExpandTabs(\'auto\', \'Queries\')">'.A::t('core', 'SQL Queries').' ('.count(self::$_arrQueries).')</a>
+				&nbsp;<a id="tabGeneral" href="javascript:void(\'General\')" onclick="javascript:appExpandTabs(\'auto\', \'General\')" ondblclick="javascript:'.$onDblClick.'">'.A::t('core', 'General').'</a> &nbsp;|&nbsp;
+				&nbsp;<a id="tabParams" href="javascript:void(\'Params\')" onclick="javascript:appExpandTabs(\'auto\', \'Params\')" ondblclick="javascript:'.$onDblClick.'">'.A::t('core', 'Params').' ('.count(self::$_arrParams).')</a> &nbsp;|&nbsp;
+				&nbsp;<a id="tabConsole" href="javascript:void(\'Console\')" onclick="javascript:appExpandTabs(\'auto\', \'Console\')" ondblclick="javascript:'.$onDblClick.'">'.A::t('core', 'Console').' ('.count(self::$_arrConsole).')</a> &nbsp;|&nbsp;
+				&nbsp;<a id="tabWarnings" href="javascript:void(\'Warnings\')" onclick="javascript:appExpandTabs(\'auto\', \'Warnings\')" ondblclick="javascript:'.$onDblClick.'">'.A::t('core', 'Warnings').' ('.count(self::$_arrWarnings).')</a> &nbsp;|&nbsp;
+				&nbsp;<a id="tabErrors" href="javascript:void(\'Errors\')" onclick="javascript:appExpandTabs(\'auto\', \'Errors\')" ondblclick="javascript:'.$onDblClick.'">'.A::t('core', 'Errors').' ('.count(self::$_arrErrors).')</a> &nbsp;|&nbsp;
+				&nbsp;<a id="tabQueries" href="javascript:void(\'Queries\')" onclick="javascript:appExpandTabs(\'auto\', \'Queries\')" ondblclick="javascript:'.$onDblClick.'">'.A::t('core', 'SQL Queries').' ('.count(self::$_arrQueries).')</a>
 			</span>				
 		</legend>
 		
 		<div id="contentGeneral" style="display:none;padding:10px;height:200px;overflow-y:auto;">
-			'.A::t('core', 'Total running time').': '.round((float)self::$_endTime - (float)self::$_startTime, 6).' sec.<br>
-			'.A::t('core', 'Framework v').A::getVersion().'<br>';
+			'.A::t('core', 'Script name').': '.CConfig::get('name').'<br>
+			'.A::t('core', 'Script version').': '.CConfig::get('version').'<br>
+			'.A::t('core', 'Framework version').': '.A::getVersion().'<br>
+			'.A::t('core', 'PHP version').': '.phpversion().'<br>
+			'.ucfirst(CConfig::get('db.driver')).' '.A::t('core', 'version').': '.CDatabase::init()->getVersion().'<br><br>
+			'.A::t('core', 'Total running time').': '.round((float)self::$_endTime - (float)self::$_startTime, 6).' sec.<br><br>';
 			if(count(self::$_arrGeneral) > 0){
+				echo '<strong>CLASSES</strong>:';
 				echo '<pre>';
 				print_r(self::$_arrGeneral);
-				echo '</pre>';            
-			}			
-			echo 'POST:';
+				echo '</pre>';
+				echo '<br>';
+			}						
+		echo '</div>
+	
+		<div id="contentParams" style="display:none;padding:10px;height:200px;overflow-y:auto;">';
+			
+			echo '<strong>APPLICATION</strong>:';
+			if(count(self::$_arrParams) > 0){
+				echo '<pre>';
+				print_r(self::$_arrParams);
+				echo '</pre><br>';            
+			}
+
+			echo '<strong>$_GET</strong>:';
+			echo '<pre style="white-space:pre-wrap;">';
+            $arrGet = array();
+			if(isset($_GET)){
+                foreach($_GET as $key => $val){
+                    $arrGet[$key] = is_array($val) ? $val : strip_tags($val);
+                }
+            }
+            print_r($arrGet);
+			echo '</pre>';
+			echo '<br>';
+			
+			echo '<strong>$_POST</strong>:';
 			echo '<pre style="white-space:pre-wrap;">';
             $arrPost = array();
 			if(isset($_POST)){
@@ -229,22 +319,57 @@ class CDebug
                 }
             }
             print_r($arrPost);
-			echo '</pre>';            
+			echo '</pre>';
+			echo '<br>';
+
+			echo '<strong>$_COOKIE</strong>:';
+			echo '<pre style="white-space:pre-wrap;">';
+            $arrCookie = array();
+			if(isset($_COOKIE)){
+                foreach($_COOKIE as $key => $val){
+                    $arrCookie[$key] = is_array($val) ? $val : strip_tags($val);
+                }
+            }
+            print_r($arrCookie);
+			echo '</pre>';
+			echo '<br>';
+
+			echo '<strong>$_SESSION</strong>:';
+			echo '<pre style="white-space:pre-wrap;">';
+            $arrSession = array();
+			if(isset($_SESSION)){
+                foreach($_SESSION as $key => $val){
+                    $arrSession[$key] = is_array($val) ? $val : strip_tags($val);
+                }
+            }
+            print_r($arrSession);
+			echo '</pre>';
+			echo '<br>';
+
+			echo '<strong>CONSTANTS</strong>:';
+			echo '<pre style="white-space:pre-wrap;">';
+            $arrConstants = @get_defined_constants(true);
+			$arrUserConstants = isset($arrConstants['user']) ? $arrConstants['user'] : array();
+            print_r($arrUserConstants);
+			echo '</pre>';
+			echo '<br>';
+
 		echo '</div>
 	
-		<div id="contentParams" style="display:none;padding:10px;height:200px;overflow-y:auto;">';
-			if(count(self::$_arrParams) > 0){
+		<div id="contentConsole" style="display:none;padding:10px;height:200px;overflow-y:auto;">';
+			if(count(self::$_arrConsole) > 0){
 				echo '<pre>';
-				print_r(self::$_arrParams);
-				echo '</pre><br>';            
+				print_r(self::$_arrConsole);
+				echo '</pre>';            
 			}
 		echo '</div>
-	
+
 		<div id="contentWarnings" style="display:none;padding:10px;height:200px;overflow-y:auto;">';
 			if(count(self::$_arrWarnings) > 0){
 				echo '<pre>';
 				print_r(self::$_arrWarnings);
-				echo '</pre>';            
+				echo '</pre>';
+				echo '<br>';
 			}
 		echo '</div>
 	
@@ -253,7 +378,8 @@ class CDebug
 				foreach(self::$_arrErrors as $msg){
 					echo '<pre style="white-space:normal;word-wrap:break-word;">';
                     print_r($msg);
-                    echo '</pre><br>';
+                    echo '</pre>';
+					echo '<br>';
                 }               
 			}
 		echo '</div>
@@ -270,8 +396,6 @@ class CDebug
 		</fieldset>
 		</div>';
 		
-		$debugBarState = isset($_COOKIE['debugBarState']) ? $_COOKIE['debugBarState'] : 'min';
-		//echo isset($_COOKIE['debugBarState']) ? $_COOKIE['debugBarState'] : '--';
 		if($debugBarState == 'max'){
 			echo '<script type="text/javascript">appTabsMaximize();</script>';
 		}else if($debugBarState == 'middle'){

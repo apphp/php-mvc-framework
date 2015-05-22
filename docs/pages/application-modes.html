@@ -1,0 +1,21 @@
+<h1>Development - Application Modes</h1>
+
+There are several modes by which your can run your application.
+<br><br>
+
+<ul>
+    <li>production - used when application uploaded to external use</li>
+    <li>debug - normally used in development process</li>
+    <li>demo - used to show features of application without possibility to change important things in database</li>
+    <li>test - used for testing purposes</li>
+    <li>hidden - used to cases when framework must run in background without output into browser</li>
+</ul>
+
+The mode for each application must be defined in <code>index.php</code> file.
+
+<pre name="dlhl" class="php">
+// production | debug | demo | test | hidden
+defined('APPHP_MODE') or define('APPHP_MODE', 'debug');</pre>
+<br>
+You may find more information abount index dispatcher file <a href="index.php?page=file-structure#index-main" target="_parent">here</a>.
+<br><br>
