@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
@@ -24,7 +24,7 @@ class CCurrency
      */
     public static function format($price, $params = array())
     {
- 		// get currency info
+ 		// Get currency info
         $rate               = isset($params['rate']) ? $params['rate'] : A::app()->getCurrency('rate');		
         $decimals           = isset($params['decimals']) ? $params['decimals'] : A::app()->getCurrency('decimals');		
         $symbol             = isset($params['symbol']) ? $params['symbol'] : A::app()->getCurrency('symbol');
@@ -33,7 +33,7 @@ class CCurrency
         $thousandsSeparator = isset($params['thousandsSeparator']) ? $params['thousandsSeparator'] : '';
 		
         $return  = ($symbolPlace == 'before') ? $symbol : '';
-        $return .= ($decimals != '' && $rate != '') ? number_format($price * $rate, $decimals, $decimalSeparator, $thousandsSeparator) : $price;
+        $return .= ($decimals != '' && $rate != '') ? number_format((float)($price * $rate), $decimals, $decimalSeparator, $thousandsSeparator) : $price;
         $return .= ($symbolPlace == 'after') ? $symbol : '';
                
         return $return;

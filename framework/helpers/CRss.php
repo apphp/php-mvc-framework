@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
@@ -34,7 +34,7 @@
  * 	$rssIds .= (($i > 0) ? '-' : '').$allNews[0][$i]['id'];
  * }
  * 
- * // check if there difference between RSS IDs, so we have to update RSS file		
+ * // Check if there difference between RSS IDs, so we have to update RSS file		
  * if($rssLastIds != $rssIds){
  *    for($i=0; $i < $allNews[1] && $i < 10; $i++){					
  *       $rss_text = RSSFeed::CleanTextRss(strip_tags($allNews[0][$i]['body_text']));

@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
  * @license http://www.apphpframework.com/license/ 
  * 
  * PUBLIC:                 	PROTECTED:                 	PRIVATE:
@@ -79,7 +79,7 @@ class CController
 		$params = '';
 		$baseUrl = A::app()->getRequest()->getBaseUrl();
 		
-		// set controller and action according to given parameters
+		// Set controller and action according to given parameters
 		if(!empty($path)){
 			$parts = count($paramsParts);
 			if($parts == 1){
@@ -97,10 +97,10 @@ class CController
 			}
 		}
                 
-        // close the session with user data
+        // Close the session with user data
         A::app()->getSession()->closeSession();
 
-        // perform redirection
+        // Perform redirection
         header('location: '.$baseUrl.$controller.'/'.$action.$params);
         exit;
     }
@@ -114,9 +114,11 @@ class CController
 		if(function_exists('get_called_class')) return get_called_class();
 		$bt = debug_backtrace();
 		if(!isset($bt[1])){
-			return false; // cannot find called class -> stack level too deep
+			// Cannot find called class -> stack level too deep
+			return false; 
 		}else if(!isset($bt[1]['type'])){
-			return false; // type not set
+			// Type not set
+			return false; 
 		}else switch ($bt[1]['type']) { 
 			case '::': 
 				$lines = file($bt[1]['file']); 
@@ -127,23 +129,25 @@ class CController
 					$callerLine = $lines[$bt[1]['line']-$i] . $callerLine; 
 				}while (stripos($callerLine,$bt[1]['function']) === false); 
 				preg_match('/([a-zA-Z0-9\_]+)::'.$bt[1]['function'].'/', $callerLine, $matches); 
-				if(!isset($matches[1])){ 					
-					return false; // could not find caller class: originating method call is obscured
+				if(!isset($matches[1])){
+					// Could not find caller class: originating method call is obscured
+					return false; 
 				}
 				return $matches[1]; 
 				break;
 			case '->': switch ($bt[1]['function']) { 
 					case '__get': 
-						// edge case -> get class of calling object 
-						if(!is_object($bt[1]['object'])){							
-							return false; // edge case fail. __get called on non object
+						// Edge case -> get class of calling object 
+						if(!is_object($bt[1]['object'])){
+							// Edge case fail. __get called on non object
+							return false; 
 						}
 						return get_class($bt[1]['object']); 
 					default: return $bt[1]['class']; 
 				}
 				break;
 			default:
-				// unknown backtrace method type
+				// Unknown backtrace method type
 				return false;
 				break;
 		}

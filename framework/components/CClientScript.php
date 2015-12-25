@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
@@ -124,7 +124,7 @@ class CClientScript extends CComponent
 	 */
 	public function registerCoreScript($name)
 	{
-	    // registers core script	
+	    // Registers core script	
 	}
 	
 	/**
@@ -249,7 +249,7 @@ class CClientScript extends CComponent
 				$scripts[] = implode("\n", $this->_scripts[self::POS_ON_LOAD]);
 			}
 		}
-		if(!empty($scripts)) $html = CHtml::script(implode("\n", $scripts))."\n";
+		if(!empty($scripts)) $html .= CHtml::script(implode("\n", $scripts))."\n";
 		
 		if($completePage){
 			$output = str_replace('<%%%end%%%>', $html, $output);

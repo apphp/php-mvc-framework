@@ -17,6 +17,10 @@ before including the <code>Apphp.php</code> file. Remember, that running the app
 mode is less efficient because it keeps many internal logs, but on other other hand, debug mode
 is also more helpful during the development stage because it provides useful debugging information
 that will help you easy find and handle errors when occur.
+
+<br><br>
+<img src="images/debug_panel.png" alt="ApPHP MVC Framework - debug panel" class="illustration">
+
 <br><br>
 You may also use <code>CDebug</code> core class to put the debug text on the debug console.
 It's useful for "on fly" debugging. The debug text will be shown in the tag General of debug console:
@@ -42,6 +46,11 @@ CDebug::console($myArray);
 CDebug::console($myText, 'Test variable');
 // another option: c() is alias of console()
 CDebug::c($myText); 
+</pre>
+Also, it's possible to print the last query. You may do it in the following way:
+<pre name="dlhl" class="php">&lt;?php
+echo YourModel::model()->lastQuery();
+echo CDatabase::init()->lastQuery();
 </pre>
 <br><br>
 

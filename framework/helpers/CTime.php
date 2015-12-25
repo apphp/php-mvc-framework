@@ -5,13 +5,15 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
  * isValidDate
  * isValidTime
+ * isEmptyDate
+ * isEmptyDateTime
  * getTimeDiff
  * dateParseFromFormat
  * 
@@ -46,6 +48,26 @@ class CTime
 		if($second > 59 || $second < 0) return false;
 		return true;
 	}
+	
+	/**
+	 * Checks if a given datetime has empty value
+	 * @param string $datetime
+	 * @return boolean
+	 */
+	public static function isEmptyDate($date)
+	{
+		return ($date == '0000-00-00' || empty($date)) ? true : false;
+	}
+
+	/**
+	 * Checks if a given datetime has empty value
+	 * @param string $datetime
+	 * @return boolean
+	 */
+	public static function isEmptyDateTime($dateTime)
+	{
+		return ($dateTime == '0000-00-00 00:00:00' || empty($dateTime)) ? true : false;
+	}
 
     /**
      * 	Returns time difference in seconds
@@ -75,7 +97,7 @@ class CTime
 		if(function_exists('date_parse_from_format')){
 			return date_parse_from_format($format, $date);
 		}else{
-			// reverse engineer date formats
+			// Reverse engineer date formats
 			$keys = array(
 				'Y' => array('year', '\d{4}'),              
 				'y' => array('year', '\d{2}'),              
@@ -96,7 +118,7 @@ class CTime
 				's' => array('second', '\d{2}')             
 			);
 	
-			// converting format to regex
+			// Converting format to regex
 			$regex = '';
 			$chars = str_split($format);
 			foreach($chars as $n => $char){
@@ -113,7 +135,7 @@ class CTime
 	
 			$dt = array();
 			$dt['error_count'] = 0;
-			// test for matching
+			// Test for matching
 			if(preg_match('#^'.$regex.'$#', $date, $dt)){
 				foreach($dt as $key => $val){
 					if(is_int($key)) unset($dt[$key]);

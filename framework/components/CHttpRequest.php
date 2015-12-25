@@ -6,7 +6,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
@@ -35,12 +35,14 @@
  * isDeleteRequest
  * isPostRequest
  * isPostExists
+ * isSecureConnection
  * getCsrfValidation
  * getCsrfTokenKey
  * getCsrfTokenValue
  * validateCsrfToken
  * downloadFile
  * getBrowser
+ * getPort
  * 
  */	  
 
@@ -61,7 +63,11 @@ class CHttpRequest extends CComponent
 	private $_csrfTokenValue = null;
 	/** @var string session or cookie */
 	private $_csrfTokenType = 'session';
-	
+	/** @var int port number */
+	private $_port = null;
+	/** @var int secure port number */
+	private $_securePort = null;
+		
 	
 	/**
 	 * Class default constructor
@@ -174,25 +180,27 @@ class CHttpRequest extends CComponent
 	
 	/**
 	 * Sets base URL
-	 * @param boolean $absolute
+	 * @param boolean $absolutePath
 	 */
-	public function setBaseUrl($absolute = true)
+	public function setBaseUrl($absolutePath = true)
 	{
 		$absolutePart = '';
 		
-		if($absolute){
+		if($absolutePath){
 			$protocol = 'http://';
 			$port = '';
 			$httpHost = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
+			
 			if((isset($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) != 'off')) ||
 				strtolower(substr($_SERVER['SERVER_PROTOCOL'], 0, 5)) == 'https'){
 				$protocol = 'https://';
-			}	
-			if(isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] != '80'){
-				if(!strpos($httpHost, ':')){
-					$port = ':'.$_SERVER['SERVER_PORT'];
-				}
+			}			
+			
+			$portNumber = $this->getPort();			
+			if($portNumber != '80' && !strpos($httpHost, ':')){
+				$port = ':'.$portNumber;
 			}
+			
 			$absolutePart = $protocol.$httpHost.$port;
 		}
 
@@ -344,8 +352,8 @@ class CHttpRequest extends CComponent
 	public function isPostRequest()
 	{
 		return isset($_SERVER['REQUEST_METHOD']) && !strcasecmp($_SERVER['REQUEST_METHOD'], 'POST');
-	}
-	
+	}	
+ 
 	/**
 	 * Returns whether there is a POST variable exists
 	 * @param string $name
@@ -354,6 +362,15 @@ class CHttpRequest extends CComponent
 	public function isPostExists($name)
 	{
 		return isset($_POST[$name]);
+	}
+
+	/**
+	 * Return if the request is sent via secure channel (https)
+	 * @return boll
+	 */
+	public function isSecureConnection()
+	{
+		return isset($_SERVER['HTTPS']) && !strcasecmp($_SERVER['HTTPS'], 'on');
 	}
 
 	/**
@@ -381,7 +398,7 @@ class CHttpRequest extends CComponent
 	 */
 	public function getCsrfTokenValue()
 	{
-		// check and set token
+		// Check and set token
 		if($this->_csrfTokenValue === null){
 			if($this->_csrfTokenType == 'session'){
 				$this->_csrfTokenValue = md5(uniqid(rand(), true));	
@@ -400,7 +417,7 @@ class CHttpRequest extends CComponent
 	 */
 	public function validateCsrfToken()
 	{
-		// validate only POST requests
+		// Validate only POST requests
 		if($this->isPostRequest()){			
 			if(A::app()->getSession()->isExists('token') && isset($_POST[$this->_csrfTokenKey])){
 				$tokenFromSession = A::app()->getSession()->get('token');
@@ -409,6 +426,7 @@ class CHttpRequest extends CComponent
 			}else{
 				$valid = false;
 			}
+			
 			if(!$valid){
 				unset($_POST);
 				CDebug::addMessage('warnings', 'csrf_token', A::t('core', 'The CSRF token could not be verified.'));
@@ -423,7 +441,7 @@ class CHttpRequest extends CComponent
 	 */
 	protected function _cleanRequest()
 	{
-		// clean request
+		// Clean request
 		if(function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()){
 			$_GET = $this->stripSlashes($_GET);
 			$_POST = $this->stripSlashes($_POST);
@@ -449,7 +467,7 @@ class CHttpRequest extends CComponent
 			if(isset($_GET[$name])){
 				$value = $_GET[$name];
 			}else{
-				// check for variant
+				// Check for variant
 				// URL: http://localhost/site/page/contact/param1/aaa/param2/bbb/param3/ccc
 				$request = isset($_GET['url']) ? $_GET['url'] : '';
 				$split = explode('/', trim($request,'/'));
@@ -508,7 +526,7 @@ class CHttpRequest extends CComponent
 		
         if($terminate) exit(0);
 	}
- 
+
 	/**
 	 * Returns information about the browser of user
 	 * @param string $key
@@ -527,4 +545,34 @@ class CHttpRequest extends CComponent
 		return $browser;
 	}
  
+ 	/**
+	 * Returns the port to use for insecure requests
+	 * Defaults to 80 or the port specified by the server (if the current request is insecure)
+	 * @return int
+	 * @since 0.7.0
+	 */
+	public function getPort()
+	{
+		if($this->_port === null){
+			$this->_port = !$this->isSecureConnection() && isset($_SERVER['SERVER_PORT']) ? (int)$_SERVER['SERVER_PORT'] : 80;
+		}
+		
+		return $this->_port;
+	}
+ 
+	/**
+	 * Returns the port to use for secure requests
+	 * Defaults to 443, or the port specified by the server (if the current request is secure)
+	 * @return int
+	 * @since 0.7.0
+	 */
+	public function getSecurePort()
+	{
+		if($this->_securePort === null){
+			$this->_securePort = $this->isSecureConnection() && isset($_SERVER['SERVER_PORT']) ? (int)$_SERVER['SERVER_PORT'] : 443;
+		}
+		
+		return $this->_securePort;
+	}
+	
 }

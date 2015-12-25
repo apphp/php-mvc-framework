@@ -14,31 +14,36 @@ General update intructions
 - Check if everything is OK, if not - revert from backup and post issues to ApPHP issue tracker.
 
 
-Updating from v0.5.9
----------------------
-- view files from protected/components/views/ must be moved to protected/views/components/ 
-
-Updating from v0.4.4
----------------------
+Updating from 0.6.9 to 0.7.7
+------------------------------
 - general update instructions
 
-Updating from v0.3.4
----------------------
+Updating from 0.5.9 to 0.6.9
+------------------------------
+- view files from protected/components/views/ must be moved to protected/views/components/
+- in widget CCaptcha changed syntax definition, see CCaptcha description
+
+Updating from 0.4.4 to 0.5.9
+------------------------------
+- general update instructions
+
+Updating from 0.3.4 to 0.4.4
+------------------------------
 - replace in all controllers $this->view with $this->_view
 - replace in all models $this->db with $this->_db
 
-Updating from v0.2.4
----------------------
+Updating from 0.2.4 to 0.3.4
+------------------------------
 - setting default time zone removed from A class and placed into CLocalTime component. Ex.: A::app()->getLocalTime()->setTimeZone('UTC');	
 - changed syntax for all widgets. Ex.: from CWidget::gridView(...) to CWidget::create('CGridView', ...)
 - rename all framework files that used by the code with prefix "C", ex: Model -> CModel, Controller -> CController, etc.
 - in widgets: CFormView, CFormValidation and CGridView attribute 'label'=>'' renamed into 'title'=>''
 
-Updating from v0.1.0 - v0.1.2
----------------------
+Updating from 0.1.0 - 0.1.2
+------------------------------
 - if your PHP version is less that 5.2.0 comment following line of code in setComponent() method in Apphp class
   $this->_components[$id] = $component::init();
 
-Updating from v0.0.1 - v0.0.3
----------------------
+Updating from 0.0.1 - 0.0.3
+------------------------------
 - general update instructions

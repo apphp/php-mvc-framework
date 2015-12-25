@@ -23,8 +23,6 @@
 		
 		if(!$handle = opendir($dir)) return false;
 		
-		$result = '';
-		
 		while(false !== ($file=readdir($handle))){
 			
 			if($file == '.' || $file == '..') continue;
@@ -58,16 +56,25 @@
 	$array = array();
 	$keyword = isset($_GET['keyword']) ? trim($_GET['keyword']) : '';
 	$keyword = str_ireplace(array('\\', ':', '../', '%00'), '', $keyword);
+	$keyword = str_ireplace(array('(', ')', '[', ']'), array('\(', '\)', '\[', '\]'), $keyword);
 	
+	// Remove unexpected characters if length more then 255 symbols
+	$detect_encoding = function_exists("mb_detect_encoding") ? mb_detect_encoding($keyword) : 'ASCII';
+	if($detect_encoding == 'ASCII'){	
+		$keyword = substr($keyword, 0, 255);
+	}else{
+		$keyword = mb_substr($keyword, 0, 255, 'UTF-8');
+	}
 
 	$startTime = wscGetFormattedMicrotime();            
 	listFiles('pages/', $keyword, $array);
 	$finishTime = wscGetFormattedMicrotime();
 
 	$resultnum = count($array);
+	$result = '';		
 
 	if(!empty($array)){
-		$result .= '<br>Found '.$resultnum.' results for: <i>'.htmlentities($keyword).'</i>';
+		$result .= '<br>Found '.$resultnum.' results for: <i>'.htmlentities(str_ireplace(array('\(', '\)', '\[', '\]'), array('(', ')', '[', ']'), $keyword)).'</i>';
 		$result .= '<br>Total running time: '.round((float)$finishTime - (float)$startTime, 5).' sec.';
 		$result .= '<br><br>';
 		
@@ -82,7 +89,7 @@
 		}
 		$result .= '</ul>';		
 	}else{
-		$result .= '<br>No results found for: <i>'.htmlentities($keyword).'</i>';		
+		$result .= '<br>No results found for: <i>'.htmlspecialchars($keyword).'</i>';		
 	}
 	
 ?>

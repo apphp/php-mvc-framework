@@ -5,12 +5,14 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
- * groupByValue
+ * flipByField
+ * uniqueByField
+ * changeKeysCase
  * 
  */	  
 
@@ -18,22 +20,35 @@ class CArray
 {
 
 	/**
-	 * Groups array by sub array value
-	 * [0] => array {
-     *      'value' => $value
-     *   }
+	 * Exchanges all keys with values from defined field in sub-arrays
+	 * 
+	 * Usage:
+	 * $array = array(
+	 *  [0] => array(
+     *      'field1' => ..v1
+     *      'field2' => ..v2
+     *      'field3' => ..v3
+     *   ),
+	 *  [1] => array(
+     *      'field1' => ..v1
+     *      'field2' => ..v2
+     *      'field3' => ..v3
+     *   ));
+     *   
+     *  flipByField($array, 'field3');
+     *   
 	 * @param array $array 
-	 * @param string $value
+	 * @param string $field
 	 * @return array
 	 */
-	public static function groupByValue($array, $value = '')
+	public static function flipByField($array, $field = '')
 	{
         $return = array();
         
         if(is_array($array)){
             foreach($array as $k => $v){
-                if(isset($v[$value])){
-                    $return[$v[$value]][] = $v;    
+                if(isset($v[$field])){
+                    $return[$v[$field]] = $v;
                 }                
             }            
         }
@@ -41,6 +56,42 @@ class CArray
         return $return;        
     }
 
+	/**
+	 * Returns array of uniquie values from specified filed in sib-array
+	 *
+	 * Usage:
+	 * $array = array(
+	 *  [0] => array(
+     *      'field1' => ..v1
+     *      'field2' => ..v2
+     *      'field3' => ..v3
+     *   ),
+	 *  [1] => array(
+     *      'field1' => ..v1
+     *      'field2' => ..v2
+     *      'field3' => ..v3
+     *   ));     
+     *  uniqueByField($array, 'field3'); 
+     *   
+	 * @param array $array 
+	 * @param string $field
+	 * @return array
+	 */
+	public static function uniqueByField($array, $field = '')
+	{
+        $return = array();
+
+        if(is_array($array)){
+            foreach($array as $k => $v){
+				if(isset($v[$field])){
+					$return[] = $v[$field];
+				}
+			}
+		}
+			
+		return $return;   
+	}
+	
     /**
 	 * Changes the case of all keys in a given array
 	 * @param array $array

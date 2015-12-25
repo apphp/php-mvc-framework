@@ -21,7 +21,7 @@
 	<script type="text/javascript" src="js/highlight/highlight.js"></script>
 	<script type="text/javascript" src="js/highlight/helpers.js"></script>
 	<?php
-		if(in_array($page, array('templates', 'modules-structure', 'knowledge-base'))){
+		if(in_array($page, array('templates', 'modules-structure', 'knowledge-base', 'shopping-cart'))){
 			echo '<script type="text/javascript" src="js/highlight/lang-xml.js"></script>';
 		}
 		if(in_array($page, array('modules-creating', 'session-custom-storage', 'knowledge-base'))){

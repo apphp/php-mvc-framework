@@ -1,7 +1,7 @@
 <?php
 
 $act = isset($_POST['act']) ? $_POST['act'] : '';
-$controller_name = isset($_POST['controller_name']) ? str_ireplace('Controller', '', prepare_input($_POST['controller_name'])) : '';
+$controller_name = isset($_POST['controller_name']) ? (string)str_ireplace('Controller', '', prepare_input($_POST['controller_name'])) : '';
 $templateContent = '';
 $focusField = '';
 $msg = '';

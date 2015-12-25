@@ -23,11 +23,11 @@ contains PHP code returning a named array of parameters as shown below:
 <pre name="dlhl" class="php">
 &lt;?php
 return array(
-    // main settings
+    // Main settings
     'param1' => 'value1',
     'param2' => 'value2',
     
-    // additional settings
+    // Additional settings
     'param3' => array(
         'param3_1' => 'value3_1',
         'param3_2' => 'value3_2',
@@ -54,14 +54,14 @@ Example of the <code>main.php</code> file for Login System application:
     
 <pre name="dlhl" class="php">&lt;?php
 return array(
-    // application data
+    // Application data
     'name'=>'Login System',
     'version'=>'0.0.1',
 
-    // installation settings
+    // Installation settings
     'installationKey' => 'YOUR_INSTALLATION_KEY',
 
-    // password keys settings (for database passwords only - don't change it)
+    // Password keys settings (for database passwords only - don't change it)
     // md5, sha1, sha256, whirlpool, etc.
     'password' => array(
         'encryption' => true,
@@ -70,7 +70,7 @@ return array(
         'hashKey' => 'YOUR_HASH_PASSWORD_KEY',    
     ),
     
-    // default email settings 
+    // Default email settings 
     'email' => array(
         'mailer' => 'smtpMailer', /* phpMail | phpMailer | smtpMailer */
         'from' => 'info@email.me',
@@ -86,26 +86,26 @@ return array(
         ),
     ),
     
-    // validation
+    // Validation
     'validation' => array(
         'csrf' => true
         'bruteforce' => array('enable' => true, 'badLogins' => 5, 'redirectDelay' => 3),
     ),
 
-    // session settings
+    // Session settings
     'session' => array(
         'customStorage' => false, 	/* true value means use a custom storage (database), false - standard storage */
         'cacheLimiter' => '',		/* to prevent 'Web Page expired' message for POST request use "private,must-revalidate" */
         'lifetime' => 24,		/* session timeout in minutes, default: 24 min = 1440 sec */
     ),
     
-    // cookies settings
+    // Cookies settings
     'cookies' => array(
         'domain' => '', 
         'path' => '/' 
     ),
 
-    // cache settings 
+    // Cache settings 
     'cache' => array(
         'enable' => false, 
         'lifetime' => 20,  /* in minutes */
@@ -117,7 +117,7 @@ return array(
         'path' => 'feeds/'
     ),
 
-    // datetime settings
+    // Datetime settings
     'defaultTimeZone' => 'UTC',
     
     // application settings
@@ -125,25 +125,30 @@ return array(
     'defaultController' => 'Index',
     'defaultAction' => 'index',
     
-    // application components
+    // Application components
     'components' => array(
         'Bootstrap' => array('enable' => true, 'class' => 'Bootstrap'),
         // other components...
     ),
 
-    // application helpers
+    // Widget settings
+    'widgets' => array(
+        paramKeysSensitive' => false
+    ),
+
+    // Application helpers
     'helpers' => array(
         //'helper' => array('enable' => true, 'class' => 'Helper'),
         // other helpers...
     ),
 
-    // application modules
+    // Application modules
     'modules' => array(
         'setup' => array('enable' => true, 'removable' => false),
         // other modules...
     ),
 
-    // url manager
+    // Url manager
     'urlManager' => array(
         'urlFormat' => 'shortPath',  /* get | path | shortPath */
         'rules' => array(

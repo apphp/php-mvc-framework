@@ -39,9 +39,13 @@ function check_module_mod_rewrite()
         $mod_rewrite = in_array('mod_rewrite', apache_get_modules());
     }else{
         // old - $mod_rewrite = getenv('HTTP_MOD_REWRITE') == 'On' ? true : false ;
-        $file_content = file_get_contents(get_base_url().'tests/test1.txt');
+		$file_content = null;
+		if(file_exists(get_base_url().'tests/test1.txt')){
+			$file_content = file_get_contents(get_base_url().'tests/test1.txt');	
+		}        
         $mod_rewrite = ($file_content == '2') ? true : false;
-    }   
+    }
+	
     return $mod_rewrite;    
 }
 

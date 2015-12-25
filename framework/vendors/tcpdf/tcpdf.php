@@ -2427,7 +2427,9 @@ class TCPDF {
 	public function getCellHeight($fontsize, $padding=TRUE) {
 		$height = ($fontsize * $this->cell_height_ratio);
 		if ($padding) {
-			$height += ($this->cell_padding['T'] + $this->cell_padding['B']);
+			$cell_padding_t = isset($cell_padding['T']) ? $cell_padding['T'] : '';
+			$cell_padding_b = isset($cell_padding['B']) ? $cell_padding['B'] : '';
+			$height += ($cell_padding_t + $cell_padding_b);
 		}
 		return round($height, 6);
 	}
@@ -16467,7 +16469,7 @@ class TCPDF {
 					}
 					// set the number of columns in table tag
 					if (($dom[$key]['value'] == 'tr') AND (!isset($dom[($dom[($dom[$key]['parent'])]['parent'])]['cols']))) {
-						$dom[($dom[($dom[$key]['parent'])]['parent'])]['cols'] = $dom[($dom[$key]['parent'])]['cols'];
+						$dom[($dom[($dom[$key]['parent'])]['parent'])]['cols'] = isset($dom[($dom[$key]['parent'])]['cols']) ? $dom[($dom[$key]['parent'])]['cols'] : '';
 					}
 					if (($dom[$key]['value'] == 'td') OR ($dom[$key]['value'] == 'th')) {
 						$dom[($dom[$key]['parent'])]['content'] = $csstagarray;
@@ -16482,7 +16484,7 @@ class TCPDF {
 						$dom[($dom[$key]['parent'])]['content'] = str_replace('</thead>', '', $dom[($dom[$key]['parent'])]['content']);
 					}
 					// store header rows on a new table
-					if (($dom[$key]['value'] == 'tr') AND ($dom[($dom[$key]['parent'])]['thead'] === true)) {
+					if (($dom[$key]['value'] == 'tr') AND isset($dom[($dom[$key]['parent'])]['thead']) AND ($dom[($dom[$key]['parent'])]['thead'] === true)) {
 						if (TCPDF_STATIC::empty_string($dom[($dom[($dom[$key]['parent'])]['parent'])]['thead'])) {
 							$dom[($dom[($dom[$key]['parent'])]['parent'])]['thead'] = $csstagarray.$a[$dom[($dom[($dom[$key]['parent'])]['parent'])]['elkey']];
 						}
@@ -16913,8 +16915,10 @@ class TCPDF {
 						} else {
 							$dom[$key]['thead'] = false;
 							// store the number of rows on table element
+							if(!isset($dom[($dom[$key]['parent'])]['rows'])) $dom[($dom[$key]['parent'])]['rows'] = 0;
 							++$dom[($dom[$key]['parent'])]['rows'];
 							// store the TR elements IDs on table element
+							if(!isset($dom[($dom[$key]['parent'])]['trids'])) $dom[($dom[$key]['parent'])]['trids'] = array();
 							array_push($dom[($dom[$key]['parent'])]['trids'], $key);
 						}
 					}
@@ -18111,9 +18115,9 @@ Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value:
 						}
 						if (!isset($dom[$trid]['startx'])) {
 							$dom[$trid]['startx'] = $this->x;
-							$this->x += $cellspacingx;
+							$this->x += isset($cellspacingx) ? $cellspacingx : 0;
 						} else {
-							$this->x += ($cellspacingx / 2);
+							$this->x += ((isset($cellspacingx) ? $cellspacingx : 0) / 2);
 						}
 						if (isset($dom[$parentid]['attribute']['rowspan'])) {
 							$rowspan = intval($dom[$parentid]['attribute']['rowspan']);
@@ -18166,7 +18170,7 @@ Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value:
 						}
 						if (isset($dom[$parentid]['width'])) {
 							// user specified width
-							$cellw = $this->getHTMLUnitToUnits($dom[$parentid]['width'], $table_columns_width, 'px');
+							$cellw = $this->getHTMLUnitToUnits($dom[$parentid]['width'], isset($table_columns_width) ? $table_columns_width : 0, 'px');
 							$tmpcw = ($cellw / $colspan);
 							for ($i = 0; $i < $colspan; ++$i) {
 								$table_colwidths[($colid + $i)] = $tmpcw;
@@ -18178,7 +18182,7 @@ Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value:
 								$cellw += (isset($table_colwidths[($colid + $i)]) ? $table_colwidths[($colid + $i)] : 0);
 							}
 						}
-						$cellw += (($colspan - 1) * $cellspacing['H']);
+						$cellw += (($colspan - 1) * (isset($cellspacing['H']) ? $cellspacing['H'] : 1));
 						// increment column indicator
 						$colid += $colspan;
 						// add rowspan information to table element
@@ -18204,7 +18208,7 @@ Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value:
 						} else {
 							$this->colxshift['x'] = $this->x - $this->lMargin;
 						}
-						$this->colxshift['s'] = $cellspacing;
+						$this->colxshift['s'] = isset($cellspacing) ? $cellspacing : array();
 						$this->colxshift['p'] = $current_cell_padding;
 						// ****** write the cell content ******
 						$this->MultiCell($cellw, $cellh, $cell_content, false, $lalign, false, 2, '', '', true, 0, true, true, 0, 'T', false);
@@ -18259,7 +18263,7 @@ Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value:
 								}
 							}
 						}
-						$this->x += ($cellspacingx / 2);
+						$this->x += isset($cellspacingx) ? ($cellspacingx / 2) : 0;
 					} else {
 						// opening tag (or self-closing tag)
 						if (!isset($opentagpos)) {
@@ -18647,7 +18651,7 @@ Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value:
 		$this->listordered = $prev_listordered;
 		$this->listcount = $prev_listcount;
 		$this->lispacer = $prev_lispacer;
-		if ($ln AND (!($cell AND ($dom[$key-1]['value'] == 'table')))) {
+		if ($ln AND (!($cell AND (isset($dom[$key-1]['value']) AND $dom[$key-1]['value'] == 'table')))) {
 			$this->Ln($this->lasth);
 			if ($this->y < $maxbottomliney) {
 				$this->y = $maxbottomliney;
@@ -19475,249 +19479,253 @@ Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value:
 				}
 				$default_border = $border;
 				// fix bottom line alignment of last line before page break
-				foreach ($dom[($dom[$key]['parent'])]['trids'] as $j => $trkey) {
-					// update row-spanned cells
-					if (isset($dom[($dom[$key]['parent'])]['rowspans'])) {
-						foreach ($dom[($dom[$key]['parent'])]['rowspans'] as $k => $trwsp) {
-							if (isset($prevtrkey) AND ($trwsp['trid'] == $prevtrkey) AND ($trwsp['mrowspan'] > 0)) {
-								$dom[($dom[$key]['parent'])]['rowspans'][$k]['trid'] = $trkey;
-							}
-							if ($dom[($dom[$key]['parent'])]['rowspans'][$k]['trid'] == $trkey) {
-								$dom[($dom[$key]['parent'])]['rowspans'][$k]['mrowspan'] -= 1;
-							}
-						}
-					}
-					if (isset($prevtrkey) AND ($dom[$trkey]['startpage'] > $dom[$prevtrkey]['endpage'])) {
-						$pgendy = $this->pagedim[$dom[$prevtrkey]['endpage']]['hk'] - $this->pagedim[$dom[$prevtrkey]['endpage']]['bm'];
-						$dom[$prevtrkey]['endy'] = $pgendy;
+				if(isset($dom[($dom[$key]['parent'])]['trids'])){
+					foreach ($dom[($dom[$key]['parent'])]['trids'] as $j => $trkey) {
 						// update row-spanned cells
 						if (isset($dom[($dom[$key]['parent'])]['rowspans'])) {
 							foreach ($dom[($dom[$key]['parent'])]['rowspans'] as $k => $trwsp) {
-								if (($trwsp['trid'] == $prevtrkey) AND ($trwsp['mrowspan'] >= 0) AND ($trwsp['endpage'] == $dom[$prevtrkey]['endpage'])) {
-									$dom[($dom[$key]['parent'])]['rowspans'][$k]['endy'] = $pgendy;
-									$dom[($dom[$key]['parent'])]['rowspans'][$k]['mrowspan'] = -1;
+								if (isset($prevtrkey) AND ($trwsp['trid'] == $prevtrkey) AND ($trwsp['mrowspan'] > 0)) {
+									$dom[($dom[$key]['parent'])]['rowspans'][$k]['trid'] = $trkey;
+								}
+								if ($dom[($dom[$key]['parent'])]['rowspans'][$k]['trid'] == $trkey) {
+									$dom[($dom[$key]['parent'])]['rowspans'][$k]['mrowspan'] -= 1;
 								}
 							}
 						}
+						if (isset($prevtrkey) AND ($dom[$trkey]['startpage'] > $dom[$prevtrkey]['endpage'])) {
+							$pgendy = $this->pagedim[$dom[$prevtrkey]['endpage']]['hk'] - $this->pagedim[$dom[$prevtrkey]['endpage']]['bm'];
+							$dom[$prevtrkey]['endy'] = $pgendy;
+							// update row-spanned cells
+							if (isset($dom[($dom[$key]['parent'])]['rowspans'])) {
+								foreach ($dom[($dom[$key]['parent'])]['rowspans'] as $k => $trwsp) {
+									if (($trwsp['trid'] == $prevtrkey) AND ($trwsp['mrowspan'] >= 0) AND ($trwsp['endpage'] == $dom[$prevtrkey]['endpage'])) {
+										$dom[($dom[$key]['parent'])]['rowspans'][$k]['endy'] = $pgendy;
+										$dom[($dom[$key]['parent'])]['rowspans'][$k]['mrowspan'] = -1;
+									}
+								}
+							}
+						}
+						$prevtrkey = $trkey;
+						$table_el = $dom[($dom[$key]['parent'])];
 					}
-					$prevtrkey = $trkey;
-					$table_el = $dom[($dom[$key]['parent'])];
 				}
 				// for each row
-				if (count($table_el['trids']) > 0) {
-					unset($xmax);
-				}
-				foreach ($table_el['trids'] as $j => $trkey) {
-					$parent = $dom[$trkey];
-					if (!isset($xmax)) {
-						$xmax = $parent['cellpos'][(count($parent['cellpos']) - 1)]['endx'];
+				if (isset($table_el['trids'])) {
+					if (count($table_el['trids']) > 0) {
+						unset($xmax);
 					}
-					// for each cell on the row
-					foreach ($parent['cellpos'] as $k => $cellpos) {
-						if (isset($cellpos['rowspanid']) AND ($cellpos['rowspanid'] >= 0)) {
-							$cellpos['startx'] = $table_el['rowspans'][($cellpos['rowspanid'])]['startx'];
-							$cellpos['endx'] = $table_el['rowspans'][($cellpos['rowspanid'])]['endx'];
-							$endy = $table_el['rowspans'][($cellpos['rowspanid'])]['endy'];
-							$startpage = $table_el['rowspans'][($cellpos['rowspanid'])]['startpage'];
-							$endpage = $table_el['rowspans'][($cellpos['rowspanid'])]['endpage'];
-							$startcolumn = $table_el['rowspans'][($cellpos['rowspanid'])]['startcolumn'];
-							$endcolumn = $table_el['rowspans'][($cellpos['rowspanid'])]['endcolumn'];
-						} else {
-							$endy = $parent['endy'];
-							$startpage = $parent['startpage'];
-							$endpage = $parent['endpage'];
-							$startcolumn = $parent['startcolumn'];
-							$endcolumn = $parent['endcolumn'];
+					foreach ($table_el['trids'] as $j => $trkey) {
+						$parent = $dom[$trkey];
+						if (!isset($xmax)) {
+							$xmax = $parent['cellpos'][(count($parent['cellpos']) - 1)]['endx'];
 						}
-						if ($this->num_columns == 0) {
-							$this->num_columns = 1;
-						}
-						if (isset($cellpos['border'])) {
-							$border = $cellpos['border'];
-						}
-						if (isset($cellpos['bgcolor']) AND ($cellpos['bgcolor']) !== false) {
-							$this->SetFillColorArray($cellpos['bgcolor']);
-							$fill = true;
-						} else {
-							$fill = false;
-						}
-						$x = $cellpos['startx'];
-						$y = $parent['starty'];
-						$starty = $y;
-						$w = abs($cellpos['endx'] - $cellpos['startx']);
-						// get border modes
-						$border_start = TCPDF_STATIC::getBorderMode($border, $position='start', $this->opencell);
-						$border_end = TCPDF_STATIC::getBorderMode($border, $position='end', $this->opencell);
-						$border_middle = TCPDF_STATIC::getBorderMode($border, $position='middle', $this->opencell);
-						// design borders around HTML cells.
-						for ($page = $startpage; $page <= $endpage; ++$page) { // for each page
-							$ccode = '';
-							$this->setPage($page);
-							if ($this->num_columns < 2) {
-								// single-column mode
-								$this->x = $x;
-								$this->y = $this->tMargin;
+						// for each cell on the row
+						foreach ($parent['cellpos'] as $k => $cellpos) {
+							if (isset($cellpos['rowspanid']) AND ($cellpos['rowspanid'] >= 0)) {
+								$cellpos['startx'] = $table_el['rowspans'][($cellpos['rowspanid'])]['startx'];
+								$cellpos['endx'] = $table_el['rowspans'][($cellpos['rowspanid'])]['endx'];
+								$endy = $table_el['rowspans'][($cellpos['rowspanid'])]['endy'];
+								$startpage = $table_el['rowspans'][($cellpos['rowspanid'])]['startpage'];
+								$endpage = $table_el['rowspans'][($cellpos['rowspanid'])]['endpage'];
+								$startcolumn = $table_el['rowspans'][($cellpos['rowspanid'])]['startcolumn'];
+								$endcolumn = $table_el['rowspans'][($cellpos['rowspanid'])]['endcolumn'];
+							} else {
+								$endy = $parent['endy'];
+								$startpage = $parent['startpage'];
+								$endpage = $parent['endpage'];
+								$startcolumn = $parent['startcolumn'];
+								$endcolumn = $parent['endcolumn'];
 							}
-							// account for margin changes
-							if ($page > $startpage) {
-								if (($this->rtl) AND ($this->pagedim[$page]['orm'] != $this->pagedim[$startpage]['orm'])) {
-									$this->x -= ($this->pagedim[$page]['orm'] - $this->pagedim[$startpage]['orm']);
-								} elseif ((!$this->rtl) AND ($this->pagedim[$page]['olm'] != $this->pagedim[$startpage]['olm'])) {
-									$this->x += ($this->pagedim[$page]['olm'] - $this->pagedim[$startpage]['olm']);
+							if ($this->num_columns == 0) {
+								$this->num_columns = 1;
+							}
+							if (isset($cellpos['border'])) {
+								$border = $cellpos['border'];
+							}
+							if (isset($cellpos['bgcolor']) AND ($cellpos['bgcolor']) !== false) {
+								$this->SetFillColorArray($cellpos['bgcolor']);
+								$fill = true;
+							} else {
+								$fill = false;
+							}
+							$x = $cellpos['startx'];
+							$y = $parent['starty'];
+							$starty = $y;
+							$w = abs($cellpos['endx'] - $cellpos['startx']);
+							// get border modes
+							$border_start = TCPDF_STATIC::getBorderMode($border, $position='start', $this->opencell);
+							$border_end = TCPDF_STATIC::getBorderMode($border, $position='end', $this->opencell);
+							$border_middle = TCPDF_STATIC::getBorderMode($border, $position='middle', $this->opencell);
+							// design borders around HTML cells.
+							for ($page = $startpage; $page <= $endpage; ++$page) { // for each page
+								$ccode = '';
+								$this->setPage($page);
+								if ($this->num_columns < 2) {
+									// single-column mode
+									$this->x = $x;
+									$this->y = $this->tMargin;
 								}
-							}
-							if ($startpage == $endpage) { // single page
-								$deltacol = 0;
-								$deltath = 0;
-								for ($column = $startcolumn; $column <= $endcolumn; ++$column) { // for each column
-									$this->selectColumn($column);
-									if ($startcolumn == $endcolumn) { // single column
-										$cborder = $border;
-										$h = $endy - $parent['starty'];
-										$this->y = $y;
-										$this->x = $x;
-									} elseif ($column == $startcolumn) { // first column
-										$cborder = $border_start;
-										$this->y = $starty;
-										$this->x = $x;
-										$h = $this->h - $this->y - $this->bMargin;
-										if ($this->rtl) {
-											$deltacol = $this->x + $this->rMargin - $this->w;
-										} else {
-											$deltacol = $this->x - $this->lMargin;
+								// account for margin changes
+								if ($page > $startpage) {
+									if (($this->rtl) AND ($this->pagedim[$page]['orm'] != $this->pagedim[$startpage]['orm'])) {
+										$this->x -= ($this->pagedim[$page]['orm'] - $this->pagedim[$startpage]['orm']);
+									} elseif ((!$this->rtl) AND ($this->pagedim[$page]['olm'] != $this->pagedim[$startpage]['olm'])) {
+										$this->x += ($this->pagedim[$page]['olm'] - $this->pagedim[$startpage]['olm']);
+									}
+								}
+								if ($startpage == $endpage) { // single page
+									$deltacol = 0;
+									$deltath = 0;
+									for ($column = $startcolumn; $column <= $endcolumn; ++$column) { // for each column
+										$this->selectColumn($column);
+										if ($startcolumn == $endcolumn) { // single column
+											$cborder = $border;
+											$h = $endy - $parent['starty'];
+											$this->y = $y;
+											$this->x = $x;
+										} elseif ($column == $startcolumn) { // first column
+											$cborder = $border_start;
+											$this->y = $starty;
+											$this->x = $x;
+											$h = $this->h - $this->y - $this->bMargin;
+											if ($this->rtl) {
+												$deltacol = $this->x + $this->rMargin - $this->w;
+											} else {
+												$deltacol = $this->x - $this->lMargin;
+											}
+										} elseif ($column == $endcolumn) { // end column
+											$cborder = $border_end;
+											if (isset($this->columns[$column]['th']['\''.$page.'\''])) {
+												$this->y = $this->columns[$column]['th']['\''.$page.'\''];
+											}
+											$this->x += $deltacol;
+											$h = $endy - $this->y;
+										} else { // middle column
+											$cborder = $border_middle;
+											if (isset($this->columns[$column]['th']['\''.$page.'\''])) {
+												$this->y = $this->columns[$column]['th']['\''.$page.'\''];
+											}
+											$this->x += $deltacol;
+											$h = $this->h - $this->y - $this->bMargin;
 										}
-									} elseif ($column == $endcolumn) { // end column
-										$cborder = $border_end;
-										if (isset($this->columns[$column]['th']['\''.$page.'\''])) {
-											$this->y = $this->columns[$column]['th']['\''.$page.'\''];
+										$ccode .= $this->getCellCode($w, $h, '', $cborder, 1, '', $fill, '', 0, true)."\n";
+									} // end for each column
+								} elseif ($page == $startpage) { // first page
+									$deltacol = 0;
+									$deltath = 0;
+									for ($column = $startcolumn; $column < $this->num_columns; ++$column) { // for each column
+										$this->selectColumn($column);
+										if ($column == $startcolumn) { // first column
+											$cborder = $border_start;
+											$this->y = $starty;
+											$this->x = $x;
+											$h = $this->h - $this->y - $this->bMargin;
+											if ($this->rtl) {
+												$deltacol = $this->x + $this->rMargin - $this->w;
+											} else {
+												$deltacol = $this->x - $this->lMargin;
+											}
+										} else { // middle column
+											$cborder = $border_middle;
+											if (isset($this->columns[$column]['th']['\''.$page.'\''])) {
+												$this->y = $this->columns[$column]['th']['\''.$page.'\''];
+											}
+											$this->x += $deltacol;
+											$h = $this->h - $this->y - $this->bMargin;
 										}
-										$this->x += $deltacol;
-										$h = $endy - $this->y;
-									} else { // middle column
+										$ccode .= $this->getCellCode($w, $h, '', $cborder, 1, '', $fill, '', 0, true)."\n";
+									} // end for each column
+								} elseif ($page == $endpage) { // last page
+									$deltacol = 0;
+									$deltath = 0;
+									for ($column = 0; $column <= $endcolumn; ++$column) { // for each column
+										$this->selectColumn($column);
+										if ($column == $endcolumn) { // end column
+											$cborder = $border_end;
+											if (isset($this->columns[$column]['th']['\''.$page.'\''])) {
+												$this->y = $this->columns[$column]['th']['\''.$page.'\''];
+											}
+											$this->x += $deltacol;
+											$h = $endy - $this->y;
+										} else { // middle column
+											$cborder = $border_middle;
+											if (isset($this->columns[$column]['th']['\''.$page.'\''])) {
+												$this->y = $this->columns[$column]['th']['\''.$page.'\''];
+											}
+											$this->x += $deltacol;
+											$h = $this->h - $this->y - $this->bMargin;
+										}
+										$ccode .= $this->getCellCode($w, $h, '', $cborder, 1, '', $fill, '', 0, true)."\n";
+									} // end for each column
+								} else { // middle page
+									$deltacol = 0;
+									$deltath = 0;
+									for ($column = 0; $column < $this->num_columns; ++$column) { // for each column
+										$this->selectColumn($column);
 										$cborder = $border_middle;
 										if (isset($this->columns[$column]['th']['\''.$page.'\''])) {
 											$this->y = $this->columns[$column]['th']['\''.$page.'\''];
 										}
 										$this->x += $deltacol;
 										$h = $this->h - $this->y - $this->bMargin;
-									}
-									$ccode .= $this->getCellCode($w, $h, '', $cborder, 1, '', $fill, '', 0, true)."\n";
-								} // end for each column
-							} elseif ($page == $startpage) { // first page
-								$deltacol = 0;
-								$deltath = 0;
-								for ($column = $startcolumn; $column < $this->num_columns; ++$column) { // for each column
-									$this->selectColumn($column);
-									if ($column == $startcolumn) { // first column
-										$cborder = $border_start;
-										$this->y = $starty;
-										$this->x = $x;
-										$h = $this->h - $this->y - $this->bMargin;
-										if ($this->rtl) {
-											$deltacol = $this->x + $this->rMargin - $this->w;
-										} else {
-											$deltacol = $this->x - $this->lMargin;
-										}
-									} else { // middle column
-										$cborder = $border_middle;
-										if (isset($this->columns[$column]['th']['\''.$page.'\''])) {
-											$this->y = $this->columns[$column]['th']['\''.$page.'\''];
-										}
-										$this->x += $deltacol;
-										$h = $this->h - $this->y - $this->bMargin;
-									}
-									$ccode .= $this->getCellCode($w, $h, '', $cborder, 1, '', $fill, '', 0, true)."\n";
-								} // end for each column
-							} elseif ($page == $endpage) { // last page
-								$deltacol = 0;
-								$deltath = 0;
-								for ($column = 0; $column <= $endcolumn; ++$column) { // for each column
-									$this->selectColumn($column);
-									if ($column == $endcolumn) { // end column
-										$cborder = $border_end;
-										if (isset($this->columns[$column]['th']['\''.$page.'\''])) {
-											$this->y = $this->columns[$column]['th']['\''.$page.'\''];
-										}
-										$this->x += $deltacol;
-										$h = $endy - $this->y;
-									} else { // middle column
-										$cborder = $border_middle;
-										if (isset($this->columns[$column]['th']['\''.$page.'\''])) {
-											$this->y = $this->columns[$column]['th']['\''.$page.'\''];
-										}
-										$this->x += $deltacol;
-										$h = $this->h - $this->y - $this->bMargin;
-									}
-									$ccode .= $this->getCellCode($w, $h, '', $cborder, 1, '', $fill, '', 0, true)."\n";
-								} // end for each column
-							} else { // middle page
-								$deltacol = 0;
-								$deltath = 0;
-								for ($column = 0; $column < $this->num_columns; ++$column) { // for each column
-									$this->selectColumn($column);
-									$cborder = $border_middle;
-									if (isset($this->columns[$column]['th']['\''.$page.'\''])) {
-										$this->y = $this->columns[$column]['th']['\''.$page.'\''];
-									}
-									$this->x += $deltacol;
-									$h = $this->h - $this->y - $this->bMargin;
-									$ccode .= $this->getCellCode($w, $h, '', $cborder, 1, '', $fill, '', 0, true)."\n";
-								} // end for each column
-							}
-							if (!empty($cborder) OR !empty($fill)) {
-								$offsetlen = strlen($ccode);
-								// draw border and fill
-								if ($this->inxobj) {
-									// we are inside an XObject template
-									if (end($this->xobjects[$this->xobjid]['transfmrk']) !== false) {
-										$pagemarkkey = key($this->xobjects[$this->xobjid]['transfmrk']);
-										$pagemark = $this->xobjects[$this->xobjid]['transfmrk'][$pagemarkkey];
-										$this->xobjects[$this->xobjid]['transfmrk'][$pagemarkkey] += $offsetlen;
-									} else {
-										$pagemark = $this->xobjects[$this->xobjid]['intmrk'];
-										$this->xobjects[$this->xobjid]['intmrk'] += $offsetlen;
-									}
-									$pagebuff = $this->xobjects[$this->xobjid]['outdata'];
-									$pstart = substr($pagebuff, 0, $pagemark);
-									$pend = substr($pagebuff, $pagemark);
-									$this->xobjects[$this->xobjid]['outdata'] = $pstart.$ccode.$pend;
-								} else {
+										$ccode .= $this->getCellCode($w, $h, '', $cborder, 1, '', $fill, '', 0, true)."\n";
+									} // end for each column
+								}
+								if (!empty($cborder) OR !empty($fill)) {
+									$offsetlen = strlen($ccode);
 									// draw border and fill
-									if (end($this->transfmrk[$this->page]) !== false) {
-										$pagemarkkey = key($this->transfmrk[$this->page]);
-										$pagemark = $this->transfmrk[$this->page][$pagemarkkey];
-									} elseif ($this->InFooter) {
-										$pagemark = $this->footerpos[$this->page];
+									if ($this->inxobj) {
+										// we are inside an XObject template
+										if (end($this->xobjects[$this->xobjid]['transfmrk']) !== false) {
+											$pagemarkkey = key($this->xobjects[$this->xobjid]['transfmrk']);
+											$pagemark = $this->xobjects[$this->xobjid]['transfmrk'][$pagemarkkey];
+											$this->xobjects[$this->xobjid]['transfmrk'][$pagemarkkey] += $offsetlen;
+										} else {
+											$pagemark = $this->xobjects[$this->xobjid]['intmrk'];
+											$this->xobjects[$this->xobjid]['intmrk'] += $offsetlen;
+										}
+										$pagebuff = $this->xobjects[$this->xobjid]['outdata'];
+										$pstart = substr($pagebuff, 0, $pagemark);
+										$pend = substr($pagebuff, $pagemark);
+										$this->xobjects[$this->xobjid]['outdata'] = $pstart.$ccode.$pend;
 									} else {
-										$pagemark = $this->intmrk[$this->page];
+										// draw border and fill
+										if (end($this->transfmrk[$this->page]) !== false) {
+											$pagemarkkey = key($this->transfmrk[$this->page]);
+											$pagemark = $this->transfmrk[$this->page][$pagemarkkey];
+										} elseif ($this->InFooter) {
+											$pagemark = $this->footerpos[$this->page];
+										} else {
+											$pagemark = $this->intmrk[$this->page];
+										}
+										$pagebuff = $this->getPageBuffer($this->page);
+										$pstart = substr($pagebuff, 0, $pagemark);
+										$pend = substr($pagebuff, $pagemark);
+										$this->setPageBuffer($this->page, $pstart.$ccode.$pend);
 									}
-									$pagebuff = $this->getPageBuffer($this->page);
-									$pstart = substr($pagebuff, 0, $pagemark);
-									$pend = substr($pagebuff, $pagemark);
-									$this->setPageBuffer($this->page, $pstart.$ccode.$pend);
 								}
-							}
-						} // end for each page
-						// restore default border
-						$border = $default_border;
-					} // end for each cell on the row
-					if (isset($table_el['attribute']['cellspacing'])) {
-						$this->y += $this->getHTMLUnitToUnits($table_el['attribute']['cellspacing'], 1, 'px');
-					} elseif (isset($table_el['border-spacing'])) {
-						$this->y += $table_el['border-spacing']['V'];
-					}
-					$this->Ln(0, $cell);
-					$this->x = $parent['startx'];
-					if ($endpage > $startpage) {
-						if (($this->rtl) AND ($this->pagedim[$endpage]['orm'] != $this->pagedim[$startpage]['orm'])) {
-							$this->x += ($this->pagedim[$endpage]['orm'] - $this->pagedim[$startpage]['orm']);
-						} elseif ((!$this->rtl) AND ($this->pagedim[$endpage]['olm'] != $this->pagedim[$startpage]['olm'])) {
-							$this->x += ($this->pagedim[$endpage]['olm'] - $this->pagedim[$startpage]['olm']);
+							} // end for each page
+							// restore default border
+							$border = $default_border;
+						} // end for each cell on the row
+						if (isset($table_el['attribute']['cellspacing'])) {
+							$this->y += $this->getHTMLUnitToUnits($table_el['attribute']['cellspacing'], 1, 'px');
+						} elseif (isset($table_el['border-spacing'])) {
+							$this->y += $table_el['border-spacing']['V'];
 						}
-					}
+						$this->Ln(0, $cell);
+						$this->x = $parent['startx'];
+						if ($endpage > $startpage) {
+							if (($this->rtl) AND ($this->pagedim[$endpage]['orm'] != $this->pagedim[$startpage]['orm'])) {
+								$this->x += ($this->pagedim[$endpage]['orm'] - $this->pagedim[$startpage]['orm']);
+							} elseif ((!$this->rtl) AND ($this->pagedim[$endpage]['olm'] != $this->pagedim[$startpage]['olm'])) {
+								$this->x += ($this->pagedim[$endpage]['olm'] - $this->pagedim[$startpage]['olm']);
+							}
+						}
+					}				
 				}
 				if (!$in_table_head) { // we are not inside a thead section
-					$this->cell_padding = $table_el['old_cell_padding'];
+					$this->cell_padding = isset($table_el['old_cell_padding']) ? $table_el['old_cell_padding'] : '';
 					// reset row height
 					$this->resetLastH();
 					if (($this->page == ($this->numpages - 1)) AND ($this->pageopen[$this->numpages])) {

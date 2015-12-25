@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
@@ -14,7 +14,7 @@
  * 
  */	  
 
-class CCurrencySelector
+class CCurrencySelector extends CWidgs
 {
 	
     const NL = "\n";
@@ -33,21 +33,24 @@ class CCurrencySelector
      */
     public static function init($params = array())
     {       
-        $output = '';
-        $tagName = 'div';
-        $currencies = isset($params['currencies']) ? $params['currencies'] : array();
-        $display = isset($params['display']) ? $params['display'] : 'names';
-        $currentCurrency = isset($params['currentCurrency']) ? $params['currentCurrency'] : '';
-        $return = isset($params['return']) ? (bool)$params['return'] : true;
-        $totalCurrencies = count($currencies);
+		parent::init($params);
+
+        $output 			= '';
+        $tagName 			= 'div';
+        
+        $display 			= self::params('display', 'names');
+        $currentCurrency 	= self::params('currentCurrency', '');
+        $return 			= (bool)self::params('return', true);
+		$currencies 		= self::params('currencies', array(), 'is_array');
+        $totalCurrencies 	= count($currencies);
         
         if($totalCurrencies == 1){
             return '';        
         }else if($totalCurrencies < 6){
-            // render options as links
+            // Render options as links
             $lastCurr = end($currencies);
             foreach($currencies as $key => $val){
-                $currName = isset($val['name']) ? $val['name'] : '';
+                $currName = self::keyAt('name', $val, '');
                 if($display == 'names'){
                     $displayValue = $currName;
                 }else if($display == 'code'){
@@ -65,10 +68,12 @@ class CCurrencySelector
                 } 
             }            
         }else{
-            // render options as dropdown list
+            // Render options as dropdown list
             $output .= CHtml::openForm('currencies/change/', 'get', array('name'=>'frmCurrencySelector')).self::NL;
             $arrCurrencies = array();
-            foreach($currencies as $key => $val) $arrCurrencies[$key] = $val['name'];            
+            foreach($currencies as $key => $val){
+				$arrCurrencies[$key] = self::keyAt('name', $val, '');
+			}
             $output .= CHtml::dropDownList(
                 'currency', $currentCurrency, $arrCurrencies,
                 array(

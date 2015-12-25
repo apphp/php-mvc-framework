@@ -44,10 +44,10 @@ error_reporting(E_ALL);
  *
  * Added by ApPHP
  * ==============
- * #001 - fixed syntax error
- * #002 - changes CSS
+ * #004 - fixed error for debug of PDO instances and values as array
  * #003 - added new class dBug_".$type."White
- * #004 - fixed error for debug of PDO instances
+ * #002 - changes CSS
+ * #001 - fixed syntax error
  * 
 \*********************************************************************************************************************/
 
@@ -235,11 +235,18 @@ class dBug {
 				$reflectionProperty = $reflectionClass->getProperty('_columns');
 				$reflectionProperty->setAccessible(true);
 				$arrPropFields = $reflectionProperty->getValue($var);				
-				foreach($arrPropFields as $key=>$value) {					
-					$value=(!is_object($value) && trim($value)=="") ? "[empty string]" : $value;
-					$this->makeTDHeader("object",$key);
-					echo htmlentities($value);
-					echo $this->closeTDRow();
+				foreach($arrPropFields as $key=>$value) {
+					if(is_array($value)){
+						$value=empty($value) ? "[empty string]" : array_map('htmlentities', $value);
+						$this->makeTDHeader("object",$key);
+						echo print_r($value, 1);
+						echo $this->closeTDRow();
+					}else{
+						$value=(!is_object($value) && trim($value)=="") ? "[empty string]" : $value;
+						$this->makeTDHeader("object",$key);
+						echo htmlentities($value);
+						echo $this->closeTDRow();
+					}					
 				}
 			}
 			

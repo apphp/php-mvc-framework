@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
@@ -76,13 +76,16 @@ class CImage
                         $case = 'gif';
                         break;                
                     case 'jpeg':            
+                        $iTmp = @imagecreatefromjpeg($imagePathName);
+                        $case = 'jpeg';
+                        break;                
                     case 'jpg':
                         $iTmp = @imagecreatefromjpeg($imagePathName);
                         $case = 'jpg';
                         break;                
                 }
                 $imagePathNameOld = $imagePath.$imageName;        
-				$imageName = str_replace('.'.$currExt, '.jpg', strtolower($imageName));
+				$imageName = str_replace('.'.$currExt, '.'.$case, strtolower($imageName));
 				$imagePathNameNew = $imagePath.$imageName;        
 
 				if($case != ''){
@@ -101,8 +104,14 @@ class CImage
 					}
 					$iOut = @imagecreatetruecolor(intval($newWidth), intval($newHeight));     
 					@imagecopyresampled($iOut,$iTmp,0,0,0,0,intval($newWidth), intval($newHeight), $width, $height);
-					@imagejpeg($iOut,$imagePathNameNew,100);
-					if($currExt != 'jpg' && $case != 'jpg') @unlink($imagePathNameOld);
+					if($case == 'png'){
+						@imagepng($iOut,$imagePathNameNew,0);
+					}else if($case == 'gif'){
+						@imagegif($iOut,$imagePathNameNew); 
+					}else{
+						@imagejpeg($iOut,$imagePathNameNew,100);	
+					}
+					if($currExt == 'jpg' && $case != 'jpg') @unlink($imagePathNameOld);
 				}
             }            
         }

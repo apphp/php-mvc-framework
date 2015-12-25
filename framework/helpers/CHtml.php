@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED (static):			PRIVATE (static):
@@ -34,6 +34,7 @@
  * listOptions
  * textArea
  * checkBox
+ * checkBoxList
  * radioButton
  * radioButtonList
  * submitButton
@@ -161,13 +162,14 @@ class CHtml
 	/**
 	 * Links to required CSS file
 	 * @param string $url 
-	 * @param string $media 
+	 * @param string $media
+	 * @param bool $newLine
 	 * @return string - HTML tag
 	 */
-	public static function cssFile($url, $media = '')
+	public static function cssFile($url, $media = '', $newLine = true)
 	{
 		if($media !== '') $media=' media="'.$media.'"';
-		return '<link rel="stylesheet" type="text/css" href="'.self::encode($url).'"'.$media.' />'."\n";
+		return '<link rel="stylesheet" type="text/css" href="'.self::encode($url).'"'.$media.' />'.(($newLine) ? "\n" : '');
 	}
 
 	/**
@@ -182,13 +184,13 @@ class CHtml
 
 	/**
 	 * Includes a JavaScript file
-	 * @param string $url 
-	 * @return string
+	 * @param string $url
+	 * @param bool $newLine
 	 * @return string - HTML tag
 	 */
-	public static function scriptFile($url)
+	public static function scriptFile($url, $newLine = true)
 	{
-		return '<script type="text/javascript" src="'.self::encode($url).'"></script>'."\n";
+		return '<script type="text/javascript" src="'.self::encode($url).'"></script>'.(($newLine) ? "\n" : '');
 	}
 	
 	/**
@@ -370,7 +372,7 @@ class CHtml
 		}
 
 		if($uncheck !== null){
-			// add a hidden field so that if the checkbox is not selected, it still submits a value
+			// Add a hidden field so that if the checkbox is not selected, it still submits a value
 			if(isset($htmlOptions['id']) && $htmlOptions['id'] !== false){
 				$uncheckOptions = array('id' => self::ID_PREFIX.$htmlOptions['id']);
 			}else{
@@ -381,9 +383,83 @@ class CHtml
 			$hidden = '';
 		}
 
-		// add a hidden field so that if the checkbox  is not selected, it still submits a value
+		// Add a hidden field so that if the checkbox  is not selected, it still submits a value
 		return $hidden.self::_inputField('checkbox', $name, $value, $htmlOptions);
 	}
+	
+	/**
+	 * Generates a check box list
+	 * @param string $name
+	 * @param mixed $select
+	 * @param array $data
+	 * @param array $htmlOptions 
+	 * @see tag
+	 */
+	public static function checkBoxList($name, $select, $data, $htmlOptions = array())
+	{
+		$listWrapperTag = isset($htmlOptions['listWrapperTag']) ? $htmlOptions['listWrapperTag'] : 'span';
+		$listWrapperClass = isset($htmlOptions['listWrapperClass']) ? $htmlOptions['listWrapperClass'] : '';
+		$template = isset($htmlOptions['template']) ? $htmlOptions['template'] : '{input} {label}';
+		$separator = isset($htmlOptions['separator']) ? $htmlOptions['separator'] : "<br/>\n";
+		$multiple = isset($htmlOptions['multiple']) ? (bool)$htmlOptions['multiple'] : true;
+
+		unset($htmlOptions['template'],
+			  $htmlOptions['separator'],
+			  $htmlOptions['listWrapperTag'],
+			  $htmlOptions['listWrapperClass'],
+			  $htmlOptions['multiple']);
+
+		if($multiple && substr($name,-2) !== '[]'){
+			$name .= '[]';
+		}
+
+		// Get Check All option
+		if(isset($htmlOptions['checkAll'])){
+			$checkAllLabel = $htmlOptions['checkAll'];
+			$checkAllLast = isset($htmlOptions['checkAllLast']) && $htmlOptions['checkAllLast'];
+		}		
+		unset($htmlOptions['checkAll'], $htmlOptions['checkAllLast']);
+
+		$labelOptions = isset($htmlOptions['labelOptions']) ? $htmlOptions['labelOptions'] : array();
+		unset($htmlOptions['labelOptions']);
+
+		$items = array();
+		$baseID = self::getIdByName($name);
+		$id = 0;
+		$checkAll = true;
+
+		foreach($data as $value => $label){
+			$checked = !is_array($select) && !strcmp($value, $select) || is_array($select) && in_array($value, $select);
+			$checkAll = $checkAll && $checked;
+			$htmlOptions['value'] = $value;
+			$htmlOptions['id'] = $baseID.'_'.$id++;
+			$option = self::checkBox($name, $checked, $htmlOptions);
+			$label = self::label($label, $htmlOptions['id'], $labelOptions);
+			$items[] = strtr($template, array('{input}' => $option, '{label}' => $label));
+		}
+
+		if(isset($checkAllLabel)){
+			$htmlOptions['value'] = 1;
+			$htmlOptions['id'] = $id = $baseID.'_all';
+			$option=self::checkBox($id, $checkAll, $htmlOptions);
+			$label = self::label($checkAllLabel, $id, $labelOptions);
+			$item = strtr($template,array('{input}'=>$option,'{label}'=>$label));
+			if($checkAllLast){
+				$items[] = $item;
+			}else{
+				array_unshift($items, $item);
+			}
+			$name = strtr($name, array('['=>'\\[',']'=>'\\]'));
+			$js = '$(\'#'.$id.'\').click(function() {$("input[name=\''.$name.'\']").prop(\'checked\', this.checked);});';
+			$js .= '$("input[name=\''.$name.'\']").click(function() {$(\'#'.$id.'\').prop(\'checked\', !$("input[name=\''.$name.'\']:not(:checked)").length);});';
+			$js .= '$(\'#'.$id.'\').prop(\'checked\', !$("input[name=\''.$name.'\']:not(:checked)").length);';
+			
+			$clientScript = A::app()->getClientScript();
+			$clientScript->registerScript('Apphp.CHtml.#'.$id, $js);
+		}
+
+		return self::tag($listWrapperTag, array('id'=>$baseID, 'class'=>$listWrapperClass),implode($separator,$items));
+	}	
 
 	/**
 	 * Generates a radio button
@@ -408,7 +484,7 @@ class CHtml
 		}
 		
 		if($uncheck !== null){
-			// add a hidden field (if radio button is not selected, it still will submit a value)
+			// Add a hidden field (if radio button is not selected, it still will submit a value)
 			if(isset($htmlOptions['id']) && $htmlOptions['id'] !== false){
 				$uncheckOptions = array('id'=>self::ID_PREFIX.$htmlOptions['id']);
 			}else{
@@ -546,7 +622,7 @@ class CHtml
 		foreach($listData as $key => $value){
 			if(is_array($value)){
                 if(isset($value['optionValue'])){
-                    // for single-level arrays where additional options available
+                    // For single-level arrays where additional options available
                     $attributes = array('value'=>(string)$key, 'encode'=>!$raw);
                     if(isset($value['optionDisabled']) && isset($value['optionDisabled'])) $attributes['disabled'] = true;
                     if(!is_array($selection) && !strcmp($key,$selection) || is_array($selection) && in_array($key,$selection)){
@@ -555,7 +631,7 @@ class CHtml
                     if(isset($options[$key])) $attributes = array_merge($attributes, $options[$key]);
                     $content .= self::tag('option', $attributes, $raw ? (string)$value['optionValue'] : self::encode((string)$value['optionValue']))."\n";
                 }else{
-                    // for multi-level arrays
+                    // For multi-level arrays
                     $content .= '<optgroup label="'.($raw ? $key : self::encode($key))."\">\n";
                     $dummy = array('options'=>$options);
                     if(isset($htmlOptions['encode'])) $dummy['encode'] = $htmlOptions['encode'];
@@ -699,7 +775,7 @@ class CHtml
 
 		$csrf = isset($htmlOptions['csrf']) ? (bool)$htmlOptions['csrf'] : false;
 		
-		// add csrf token key if needed 
+		// Add csrf token key if needed 
 		if($request->getCsrfValidation() && $csrf){
 			$handler .= '$(this).closest("form").append(\'<input type="hidden" name="'.$request->getCsrfTokenKey().'" value="'.$request->getCsrfTokenValue().'">\');';
 		}
@@ -708,11 +784,11 @@ class CHtml
 			$handler .= $htmlOptions['submit'];
 		}
 
-		/// check? document.forms["'.$formName.'"].submit();';
+		/// Check? document.forms["'.$formName.'"].submit();';
 		$handler .= '$(this).closest("form").submit();';
 
         $clientScript->registerScript('Apphp.CHtml.#'.$id, "$('body').on('$event','#$id',function(){{$handler}});");
-        /// check? $clientScript->registerScript('Apphp.CHtml.#'.$id, "$('#$id').on('$event', function(){{$handler}});");
+        /// Check? $clientScript->registerScript('Apphp.CHtml.#'.$id, "$('#$id').on('$event', function(){{$handler}});");
         
         unset($htmlOptions['submit']);
     }
@@ -723,7 +799,7 @@ class CHtml
 	 */
 	private static function _renderAttributes($htmlOptions)
 	{
-		// attributes that looks like attribute = "attribute"
+		// Attributes that looks like attribute = "attribute"
 		static $specialAttributes = array(
 			'checked'  => 1,
 			'declare'  => 1,

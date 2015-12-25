@@ -34,8 +34,11 @@ class AccountController extends CController
     {
         ...
         
-        // pass prepared data to the view file
+        // call the view file
         $this->_view->render('accounts/index');
+
+        // or call another view file
+        $this->_view->render('accounts/members/index');
     }
 }    
 </pre>

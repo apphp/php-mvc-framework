@@ -35,7 +35,7 @@ if(!empty($posts)){
    		}else{
    			$categoryLink = '<a href="categories/view/id/'.$post['category_id'].'">'.$post['category_name'].'</a>';
    		}
-   		$dateFormatted = date('M j, Y, g:i a', strtotime($post['post_datetime']));
+   		$dateFormatted = CLocale::date('M j, Y, g:i a', $post['post_datetime']);
    		echo '<article>
    				<header><h2>'.$postHeader.$editLink.'</h2></header>
 			  	<p>'.$postText.'</p>

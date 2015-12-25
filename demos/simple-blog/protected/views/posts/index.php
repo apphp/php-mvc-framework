@@ -24,7 +24,7 @@
             <tr>
                 <td align="left" style="cursor:pointer;" onclick="window.location.href='posts/edit/id/<?php echo $post['id'] ?>'" title="Click to edit"><?php echo $post['header']?></td>
                 <td align="center"><?php echo (!empty($post['category_name'])) ? $post['category_name'] : 'N/A'; ?></td>
-                <td align="center"><?php echo date('M j, Y, g:i a', strtotime($post['post_datetime'])); ?></td>
+                <td align="center"><?php echo CLocale::date('M j, Y, g:i a', $post['post_datetime']); ?></td>
                 <td align="center">
                     <a href="posts/edit/id/<?php echo $post['id'] ?>">Edit</a> |
                     <a href="posts/delete/id/<?php echo $post['id'] ?>" onclick="if(!confirm('Are you sure you want to delete this post?')) return false;">Delete</a>

@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
@@ -75,12 +75,12 @@ class CCache
     public static function setContent($content = '', $cacheDir = '')
     {
         if(!empty(self::$_cacheFile)){
-            // remove oldest file if the limit of cache is reached        
+            // Remove oldest file if the limit of cache is reached        
             if(CFile::getDirectoryFilesNumber($cacheDir) >= self::CACHE_LIMIT){
                 CFile::removeDirectoryOldestDile($cacheDir);
             }
             
-            // save the content to the cache file
+            // Save the content to the cache file
             CFile::writeToFile(self::$_cacheFile, serialize($content));
         }    
     }
@@ -102,9 +102,9 @@ class CCache
         if(!empty(self::$_cacheFile) && !empty(self::$_cacheLifetime)){
             if(file_exists(self::$_cacheFile)){
                 $cacheTime = self::$_cacheLifetime * 60;
-                // serve from the cache if it is younger than $cacheTime
+                // Serve from the cache if it is younger than $cacheTime
                 if((filesize(self::$_cacheFile) > 0) && ((time() - $cacheTime) < filemtime(self::$_cacheFile))){
-                    // output the contents of the cache file
+                    // Output the contents of the cache file
                     ob_start();
                     include self::$_cacheFile;
                     $cacheContent = ob_get_contents();

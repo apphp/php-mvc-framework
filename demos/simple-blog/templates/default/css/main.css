@@ -47,7 +47,7 @@ header nav .header_slogan{ font-size:15px; }
 header nav .header_right{ float:right; margin:5px; margin-top:11px; margin-bottom:11px; }
 header nav .user_menu   { float: right; }
 
-footer                  { position:absolute; bottom:0; width:95%; height:50px; margin:0 20px; color: #000; padding:10px 10px 0 10px; border-top:1px dotted #444; }   
+footer                  { _position:absolute; bottom:0; width:95%; height:50px; margin:0 20px; color: #000; padding:10px 10px 0 10px; border-top:1px dotted #444; }   
 footer a                { color:#aaa; text-decoration:none; }
 footer p.copyright      { float:left; width:330px; }
 footer p.powered        { float:right; }
@@ -66,7 +66,7 @@ aside .about_me			{ min-height:130px; margin-bottom:20px; padding:10px; backgrou
 aside .about_text		{ min-height:90px; }
 aside .categories_list	{ clear:both; padding:10px; background-color:#f1f2f3; border-radius:5px; }
 
-section                 { background: #fff; padding:20px; min-height:499px; }
+section                 { background: #fff; padding:20px; min-height:599px; }
 section .breadcrumbs      { color:#444; }
 section .breadcrumbs span { color:#777; }
 section .breadcrumbs a    { color:#444; text-decoration:none; }

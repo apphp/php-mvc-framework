@@ -65,6 +65,8 @@ echo A::t('core', 'Success message');
 // will replace placeholders {class} and {name} with $className and $eventName print the specified text
 // Ex.: Event "Customers.create" is not defined.
 echo A::t('core', 'Event is not defined.', array('{class}'=>$className, '{name}'=>$eventName)); 
+// will print HTML encodded message "Success &аmp; Lucky"
+echo A::te('core', 'Success & Lucky');
 </pre>
 <br><br>
 

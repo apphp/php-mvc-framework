@@ -5,19 +5,22 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
- * init                                               
+ * init                                               	_validateMaxLength
  * 
  */	  
 
-class CFormValidation
+class CFormValidation extends CWidgs
 {
 	
     const NL = "\n";
+	
+	/** @var string */
+	private static $_errorMessage = '';
 
     /**
      * Performs form validation
@@ -25,11 +28,12 @@ class CFormValidation
      * 
      * Usage: (in Controller class)
      * - possible validation types:
-     *  	alpha, numeric, alphanumeric, variable, mixed, phone, phoneString, username, timeZone
-     *  	password, email, fileName, identity|identityCode, date, integer, positiveInteger,
-     *  	float, any, confirm, url, ip, range ('minValue'=>'' and 'maxValue'=>''), set, text
+     *  	alpha, numeric, alphanumeric, variable, mixed, seoLink, phone, phoneString, username, timeZone,
+     *  	password, email, fileName, identity|identityCode, date, integer|int, positiveInteger|positiveInt, percent, isHtmlSize,
+     *  	float, any, confirm, url, ip, range ('minValue'=>'' and 'maxValue'=>''), set, text, hexColor
      * - attribute 'validation'=>array(..., 'forbiddenChars'=>array('+', '$')) is used to define forbidden characters
      * - attribute 'validation'=>array(..., 'trim'=>true) - removes spaces from field value before validation
+     * - validated field in $_POST may also be an array
      * 
      * $result = CWidget::create('CFormValidation', array(
      *     'fields'=>array(
@@ -59,41 +63,47 @@ class CFormValidation
      */
     public static function init($params = array())
     {
-        $output = array('error'=>false, 'uploadedFiles'=>array());
-        $cRequest = A::app()->getRequest();
+		parent::init($params);
 		
-        $fields = isset($params['fields']) ? $params['fields'] : array();
-        $msgSource = isset($params['messagesSource']) ? $params['messagesSource'] : 'core';
-		$showAllErrors = isset($params['showAllErrors']) ? (bool)$params['showAllErrors'] : false;
+        $output 		= array('error'=>false, 'uploadedFiles'=>array());
+        $cRequest 		= A::app()->getRequest();
+		
+        $fields 		= self::params('fields', array());
+        $msgSource 		= self::params('messagesSource', 'core');
+		$showAllErrors 	= self::params('showAllErrors', false);
 		
         foreach($fields as $field => $fieldInfo){
-            $title          = isset($fieldInfo['title']) ? $fieldInfo['title'] : '';
-            $required       = isset($fieldInfo['validation']['required']) ? $fieldInfo['validation']['required'] : false;
-            $type           = isset($fieldInfo['validation']['type']) ? $fieldInfo['validation']['type'] : 'any';
-            $forbiddenChars = isset($fieldInfo['validation']['forbiddenChars']) ? $fieldInfo['validation']['forbiddenChars'] : array();
-            $minLength      = isset($fieldInfo['validation']['minLength']) ? $fieldInfo['validation']['minLength'] : '';
-            $maxLength      = isset($fieldInfo['validation']['maxLength']) ? (int)$fieldInfo['validation']['maxLength'] : '';			
-            $minValue       = isset($fieldInfo['validation']['minValue']) ? $fieldInfo['validation']['minValue'] : '';
-            $maxValue       = isset($fieldInfo['validation']['maxValue']) ? $fieldInfo['validation']['maxValue'] : '';			
-            $maxSize        = isset($fieldInfo['validation']['maxSize']) ? CHtml::convertFileSize($fieldInfo['validation']['maxSize']) : '';
-            $maxWidth       = isset($fieldInfo['validation']['maxWidth']) ? CHtml::convertImageDimensions($fieldInfo['validation']['maxWidth']) : '';
-            $maxHeight      = isset($fieldInfo['validation']['maxHeight']) ? CHtml::convertImageDimensions($fieldInfo['validation']['maxHeight']) : '';            
-            $targetPath     = isset($fieldInfo['validation']['targetPath']) ? $fieldInfo['validation']['targetPath'] : '';
-            $fileMimeType   = isset($fieldInfo['validation']['mimeType']) ? $fieldInfo['validation']['mimeType'] : '';
+            $title          = self::keyAt('title', $fieldInfo, '');
+            $required       = self::keyAt('validation.required', $fieldInfo, false);
+            $type           = self::keyAt('validation.type', $fieldInfo, 'any');
+            $forbiddenChars = self::keyAt('validation.forbiddenChars', $fieldInfo, array());
+            $minLength      = self::keyAt('validation.minLength', $fieldInfo, '');
+            $maxLength      = self::keyAt('validation.maxLength', $fieldInfo, '');
+            $minValue       = self::keyAt('validation.minValue', $fieldInfo, '');
+            $maxValue       = self::keyAt('validation.maxValue', $fieldInfo, '');
+            $maxSize        = self::keyAt('validation.maxSize', $fieldInfo, '');
+							if(!empty($maxSize)) $maxSize = CHtml::convertFileSize($maxSize);
+            $maxWidth       = self::keyAt('validation.maxWidth', $fieldInfo, '');
+							if(!empty($maxWidth)) $maxWidth = CHtml::convertImageDimensions($maxWidth);
+            $maxHeight      = self::keyAt('validation.maxHeight', $fieldInfo, '');
+							if(!empty($maxHeight)) $maxHeight = CHtml::convertImageDimensions($maxHeight);
+							
+            $targetPath     = self::keyAt('validation.targetPath', $fieldInfo, '');
+            $fileMimeType   = self::keyAt('validation.mimeType', $fieldInfo, '');
             $fileMimeTypes  = (!empty($fileMimeType)) ? explode(',', str_replace(' ', '', $fileMimeType)) : array();
-			$fileDefinedName = isset($fieldInfo['validation']['fileName']) ? $fieldInfo['validation']['fileName'] : '';
-            $trim           = isset($fieldInfo['validation']['trim']) ? (bool)$fieldInfo['validation']['trim'] : false;
-            $format         = isset($fieldInfo['validation']['format']) ? $fieldInfo['validation']['format'] : '';
+			$fileDefinedName = self::keyAt('validation.fileName', $fieldInfo, '');
+            $trim           = (bool)self::keyAt('validation.trim', $fieldInfo, false);
+            $format         = self::keyAt('validation.format', $fieldInfo, '');
             $fieldValue     = ($trim) ? trim($cRequest->getPost($field)) : $cRequest->getPost($field);
             $errorMessage   = '';
 			$valid = true;
 					
 			if($type == 'file' || $type == 'image'){
-                $fileName     = (isset($_FILES[$field]['name'])) ? $_FILES[$field]['name'] : '';
-                $fileSize     = (isset($_FILES[$field]['size'])) ? $_FILES[$field]['size'] : 0;
-                $fileTempName = (isset($_FILES[$field]['tmp_name'])) ? $_FILES[$field]['tmp_name'] : '';
-                $fileError    = (isset($_FILES[$field]['error'])) ? $_FILES[$field]['error'] : '';
-                $fileType     = (isset($_FILES[$field]['type'])) ? $_FILES[$field]['type'] : '';
+                $fileName     = isset($_FILES[$field]['name']) ? $_FILES[$field]['name'] : '';
+                $fileSize     = isset($_FILES[$field]['size']) ? $_FILES[$field]['size'] : 0;
+                $fileTempName = isset($_FILES[$field]['tmp_name']) ? $_FILES[$field]['tmp_name'] : '';
+                $fileError    = isset($_FILES[$field]['error']) ? $_FILES[$field]['error'] : '';
+                $fileType     = isset($_FILES[$field]['type']) ? $_FILES[$field]['type'] : '';
                 $fileWidth    = '';
                 $fileHeight   = '';
                 if($type == 'image'){
@@ -128,8 +138,8 @@ class CFormValidation
                 }else if(!empty($fileSize)){
                     if($maxSize !== '' && $fileSize > $maxSize){
                         $valid = false;
-                        $sFileSize = number_format(($fileSize / 1024), 2, '.', ',').' Kb';
-                        $sMaxAllowed = number_format(($maxSize / 1024), 2, '.', ',').' Kb';
+                        $sFileSize = CConvert::fileSize($fileSize);
+                        $sMaxAllowed = CConvert::fileSize($maxSize);
                         $errorMessage = A::t($msgSource, 'Invalid file size for field {title}: {file_size} (max. allowed: {max_allowed})', array('{title}'=>$title, '{file_size}'=>$sFileSize, '{max_allowed}'=>$sMaxAllowed));
                     }else if(!empty($fileMimeTypes) && !in_array($fileType, $fileMimeTypes)){
 						$valid = false;
@@ -141,24 +151,28 @@ class CFormValidation
 						$valid = false;
                         $errorMessage = A::t($msgSource, 'Invalid image height for field {title}: {image_height}px (max. allowed: {max_allowed}px)', array('{title}'=>$title, '{image_height}'=>$fileHeight, '{max_allowed}'=>$maxHeight));
                     }else{
-						// set predefined file name
-						$targetFileName = (!empty($fileDefinedName)) ? $fileDefinedName.'.'.pathinfo($fileName, PATHINFO_EXTENSION) : basename($fileName);
-                        $targetFullName = $targetPath.$targetFileName;
                         if(APPHP_MODE == 'demo'){
                             $valid = false;
                             $errorMessage = A::t($msgSource, 'This operation is blocked in Demo Mode!');                        
 						}
-						// prevent malicious users and possible file upload attacks
+						// Prevent malicious users and possible file upload attacks
 						else if(@is_uploaded_file($fileTempName)){
+							// Set predefined file name
+							if(!empty($fileDefinedName)){
+								$targetFileName = strtolower($fileDefinedName.'.'.pathinfo($fileName, PATHINFO_EXTENSION));
+							}else{
+								$targetFileName = basename($fileName);
+							}
+							$targetFullName = $targetPath.$targetFileName;							
 							if(@move_uploaded_file($fileTempName, $targetFullName)){
-								// uploaded - ok, save info in return array
+								// Uploaded - ok, save info in return array
 								$output['uploadedFiles'][] = $targetFullName;
 							}else{
 								$valid = false;
 								$errorMessage = A::t($msgSource, 'An error occurred while uploading your file for field {title}. Please try again.', array('{title}'=>$title));
 								if(version_compare(PHP_VERSION, '5.2.0', '>=')){
 									$err = error_get_last();
-									if(isset($err['message']) && $err['message'] != ''){
+									if(!empty($err['message'])){
 										$lastError = $err['message'].' | file: '.$err['file'].' | line: '.$err['line'];
 										CDebug::addMessage('errors', 'fileUploading', $lastError);
 										@trigger_error('');
@@ -192,13 +206,13 @@ class CFormValidation
 						}
                     }                    
                 }
-            }else if($required && trim($fieldValue) == ''){
+            }else if($required && (!is_array($fieldValue) && trim($fieldValue) === '' || is_array($fieldValue) && empty($fieldValue))){
                 $valid = false;
                 $errorMessage = A::t($msgSource, 'The field {title} cannot be empty! Please re-enter.', array('{title}'=>$title));
             }else if($type == 'confirm'){                
-                $confirmField = isset($fieldInfo['validation']['confirmField']) ? $fieldInfo['validation']['confirmField'] : '';
+                $confirmField = self::keyAt('validation.confirmField', $fieldInfo, '');
                 $confirmFieldValue = $cRequest->getPost($confirmField);
-                $confirmFieldName = isset($fields[$confirmField]['title']) ? $fields[$confirmField]['title'] : '';
+                $confirmFieldName = self::keyAt($confirmField.'.title', $fields, '');
                 if($confirmFieldValue != $fieldValue){
                     $valid = false;
                     $errorMessage = A::t($msgSource, 'The {confirm_field} and {title} fields do not match! Please re-enter.', array('{confirm_field}'=>$confirmFieldName, '{title}'=>$title));
@@ -207,9 +221,9 @@ class CFormValidation
                 if(!empty($minLength) && !CValidator::validateMinLength($fieldValue, $minLength)){
                     $valid = false;
                     $errorMessage = A::t($msgSource, 'The {title} field length must be at least {min_length} characters! Please re-enter.', array('{title}'=>$title, '{min_length}'=>$minLength));                
-                }else if(!empty($maxLength) && !CValidator::validateMaxLength($fieldValue, $maxLength)){
+                }else if(!empty($maxLength) && !self::_validateMaxLength($fieldValue, $maxLength, $title, $msgSource)){
                     $valid = false;
-                    $errorMessage = A::t($msgSource, 'The {title} field length may be {max_length} characters maximum! Please re-enter.', array('{title}'=>$title, '{max_length}'=>$maxLength));
+                    $errorMessage = self::$_errorMessage;
 				}else if(is_array($forbiddenChars) && !empty($forbiddenChars)){
 					foreach($forbiddenChars as $char){
 						if(preg_match('/'.$char.'/i', $fieldValue)){
@@ -241,6 +255,10 @@ class CFormValidation
                         case 'mixed':
                             $valid = CValidator::isMixed($fieldValue);
                             $errorMessage = A::t($msgSource, 'The field {title} should include only alpha, space and numeric characters! Please re-enter.', array('{title}'=>$title));
+                            break;                        
+                        case 'seoLink':
+                            $valid = CValidator::isSeoLink($fieldValue);
+                            $errorMessage = A::t($msgSource, 'The field {title} should include only alpha, hyphen, underscore and numeric characters! Please re-enter.', array('{title}'=>$title));
                             break;                        
                         case 'timeZone':
                             $valid = CValidator::isTimeZone($fieldValue);
@@ -288,6 +306,7 @@ class CFormValidation
                             }
                             break;                                                
                         case 'integer':
+						case 'int':
                             $valid = CValidator::isInteger($fieldValue);
                             $errorMessage = A::t($msgSource, 'The field {title} must be a valid integer value! Please re-enter.', array('{title}'=>$title));
                             break;
@@ -295,32 +314,62 @@ class CFormValidation
 						case 'positiveInt':	
                             $valid = CValidator::isPositiveInteger($fieldValue);
                             $errorMessage = A::t($msgSource, 'The field {title} must be a valid positive integer value! Please re-enter.', array('{title}'=>$title));
+                            break;
+						case 'percent':
+							$valid = CValidator::validateRange($fieldValue, 0, 100);
+							$errorMessage = A::t($msgSource, 'The value of field {title} value must be between {min} and {max}! Please re-enter.', array('{title}'=>$title, '{min}'=>'0', '{max}'=>'100'));
+							break;							
+						case 'isHtmlSize':	
+                            $valid = CValidator::isHtmlSize($fieldValue);
+                            $errorMessage = A::t($msgSource, 'The field {title} must be a valid HTML element size value (ex.: 100px, pt, em or %)! Please re-enter.', array('{title}'=>$title));
                             break;						
                         case 'float':
                             $valid = CValidator::isFloat($fieldValue, $format);
-                            $errorMessage = A::t($msgSource, 'The field {title} must be a valid float value! Please re-enter.', array('{title}'=>$title));
+							$format_sample = ($format == 'european') ? '1234,00' : '1234.00';
+                            $errorMessage = A::t($msgSource, 'The field {title} must be a valid float value in format: {format}! Please re-enter.', array('{title}'=>$title, '{format}'=>$format_sample));
                             if($valid && $minValue != ''){
                                 $valid = CValidator::validateMin($fieldValue, $minValue, $format);
                                 $errorMessage = A::t($msgSource, 'The field {title} must be greater than or equal to {min}! Please re-enter.', array('{title}'=>$title, '{min}'=>$minValue));                                
-                            }else if($valid && $maxValue != ''){
+                            }
+							if($valid && $maxValue != ''){
                                 $valid = CValidator::validateMax($fieldValue, $maxValue, $format);
                                 $errorMessage = A::t($msgSource, 'The field {title} must be less than or equal to {max}! Please re-enter.', array('{title}'=>$title, '{max}'=>$maxValue));
                             }
                             break;                                                
                         case 'set':
-							$setArray  = isset($fieldInfo['validation']['source']) ? $fieldInfo['validation']['source'] : array();
-							$valid = CValidator::inArray($fieldValue, $setArray);
-                            $errorMessage = A::t($msgSource, 'The field {title} field has incorrect value! Please re-enter.', array('{title}'=>$title));							
+							$sourceArray = self::keyAt('validation.source', $fieldInfo, array());
+							if(is_array($fieldValue)){
+								foreach($fieldValue as $key => $val){
+									$valid = CValidator::inArray($val, $sourceArray);
+									if($valid == false){
+										break;
+									}
+								}
+								$errorMessage = A::t($msgSource, 'One of {title} fields has incorrect value! Please re-enter.', array('{title}'=>$title));
+							}else{
+								$valid = CValidator::inArray($fieldValue, $sourceArray);
+								$errorMessage = A::t($msgSource, 'The field {title} has incorrect value! Please re-enter.', array('{title}'=>$title));
+							}                            
 							break;
 						case 'range':
 							if($minValue == '') $minValue = '?';
 							if($maxValue == '') $maxValue = '?';
 							$valid = CValidator::validateRange($fieldValue, $minValue, $maxValue);
-							$errorMessage = A::t($msgSource, 'The field {title} must be between {min} and {max}! Please re-enter.', array('{title}'=>$title, '{min}'=>$minValue, '{max}'=>$maxValue));
+							$errorMessage = A::t($msgSource, 'The value of field {title} must be between {min} and {max}! Please re-enter.', array('{title}'=>$title, '{min}'=>$minValue, '{max}'=>$maxValue));
 							break;
                         case 'text':
-                            $valid = CValidator::isText($fieldValue);
-                            $errorMessage = A::t($msgSource, 'The field {title} must be a valid textual value! Please re-enter.', array('{title}'=>$title));
+							if(is_array($fieldValue)){
+								foreach($fieldValue as $key => $val){
+									$valid = CValidator::isText($val);
+									if($valid == false){
+										break;
+									}
+								}
+								$errorMessage = A::t($msgSource, 'One of {title} fields has incorrect value! Please re-enter.', array('{title}'=>$title));
+							}else{
+								$valid = CValidator::isText($fieldValue);
+								$errorMessage = A::t($msgSource, 'The field {title} must be a valid textual value! Please re-enter.', array('{title}'=>$title));
+							}
                             break;
                         case 'url':
                             $valid = CValidator::isUrl($fieldValue);
@@ -329,6 +378,10 @@ class CFormValidation
                         case 'ip':
                             $valid = CValidator::isIpAddress($fieldValue);
                             $errorMessage = A::t($msgSource, 'The field {title} must be a valid IP address! Please re-enter.', array('{title}'=>$title));
+                            break;
+                        case 'hexColor':
+                            $valid = CValidator::isHexColor($fieldValue);
+                            $errorMessage = A::t($msgSource, 'The field {title} must be a valid a hexadecimal color value, ex.: {sample}! Please re-enter.', array('{title}'=>$title, '{sample}'=>'#3369FE'));
                             break;
                         case 'any':
                         default:                        
@@ -340,8 +393,12 @@ class CFormValidation
             if(!$valid){
                 $output['error'] = true;				
 				if($showAllErrors){
-					if($output['errorField'] == '') $output['errorField'] = $field;
-					$output['errorMessage'] .= $errorMessage.'<br />';
+					if(!self::keyAt('errorField', $output)) $output['errorField'] = $field;
+					if(!self::keyAt('errorMessage', $output)){
+						$output['errorMessage'] = $errorMessage.'<br />';
+					}else{
+						$output['errorMessage'] .= $errorMessage.'<br />';
+					}
 				}else{
 					$output['errorField'] = $field;
 					$output['errorMessage'] = $errorMessage;
@@ -351,5 +408,33 @@ class CFormValidation
         } // foreach
         return $output;        
     }
+
+	/**
+	 * Validates max lenght
+	 * @param mixed $fieldValue
+	 * @param int $maxLength
+	 * @param string $title
+	 * @param string $msgSource
+	 */	
+	private static function _validateMaxLength($fieldValue, $maxLength, $title, $msgSource)
+	{
+		$result = true;
+		
+		if(is_array($fieldValue)){
+			foreach($fieldValue as $key => $val){
+				$valid = CValidator::validateMaxLength($val, $maxLength);
+				if($valid == false){
+					self::$_errorMessage = A::t($msgSource, 'One of {title} fields has incorrect value! Please re-enter.', array('{title}'=>$title));
+					$result = false;
+					break;
+				}
+			}
+		}else if(!CValidator::validateMaxLength($fieldValue, $maxLength)){
+			self::$_errorMessage = A::t($msgSource, 'The {title} field length may be {max_length} characters maximum! Please re-enter.', array('{title}'=>$title, '{max_length}'=>$maxLength));
+			$result = false;
+		}
+		
+		return $result;
+	}
     
 }

@@ -23,14 +23,22 @@ Currently there are following framework-level vendors:
             <li class="folder-protected">
                 <b>vendors/</b> <span class="description">directory where placed all vendors</span>
                 <ul>
+                    <li class="folder-protected"><b>ci</b> <span class="description">CI_Security (Security Class from CodeIgniter framework)</span></li>
+                    <li class="folder-protected"><b>dbug</b> <span class="description">PHP version of ColdFusion's cfdump</span></li>
                     <li class="folder-protected"><b>phpmailer</b> <span class="description">php mailer files</span></li>
+                    <li class="folder-protected"><b>tcpdf</b> <span class="description">TCPDF generating PDF documents and barcodes</span></li>
                 </ul>                        
             </li>
         </ul>                    
     </li>
 </ul>
-
 <br>
+	
+	
+An example for using of <code>dbug</code> see <a href="">here</a>.
+<br>
+	
+	
 Below you may see an example that illustrates how <code>CMailer</code> helper uses the <code>phpmailer</code>
 vendor code from the ApPHP framework:
     
@@ -45,6 +53,43 @@ public static function send($to, $subject, $message, $params = '')
         return self::phpMail($to, $subject, $message, $params);
     }		
 }
+</pre>
+<br>
+
+Here an example that demonstrates how <code>CPdf</code> helper uses the <code>TCPDF</code>
+vendor code from the ApPHP framework:
+    
+<pre name="dlhl" class="php">
+/**
+ * Download listing PDF
+ * @param int $id
+ */
+public function downloadPdfAction($id = 0)
+{
+    $content = 'here must be HTML code for the PDF document...';
+    
+    CPdf::config(array(
+        'page_orientation' 	=> 'P', 	// [P=portrait, L=landscape]
+        'unit' 		    	=> 'mm',	// [pt=point, mm=millimeter, cm=centimeter, in=inch]
+        'page_format'		=> 'A4',
+        'unicode'	        => true,
+        'encoding'	        => 'UTF-8',
+        'creator'	        => 'AutoPortal',
+        'author'	        => 'ApPHP',
+        'title'		        => 'Listing #'.$id,
+        'subject'	        => 'Listing #'.$id,
+        'keywords'	    	=> '',
+        //'header_logo'		=> '../../../templates/reports/images/logo.png',
+        'header_logo_width'	=> '45',
+        'header_title'		=> 'Listing #'.$id,
+        'header_enable'		=> false,
+        'text_shadow'		=> false,
+        'margin_top'		=> '5',
+        'margin_left'		=> '5'
+    ));
+	
+    CPdf::createDocument($content, 'Listing #'.$id, 'D'); // 'I' - inline , 'D' - download
+}	
 </pre>
 <br>
     

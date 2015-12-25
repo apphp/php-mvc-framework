@@ -17,8 +17,9 @@
  * powered (static)			_registerAppHelpers
  * getVersion (static)		_registerAppModules
  * t (static)				_hasEvent
- * getComponent             _hasEventHandler
- * getClientScript          _raiseEvent
+ * te (static)				_hasEventHandler	
+ * getComponent             _raiseEvent
+ * getClientScript          
  * clientScript
  * getRequest
  * request
@@ -28,11 +29,13 @@
  * session
  * getCookie
  * cookie
+ * getShoppingCart
+ * shoppingCart
  * getUri
  * uri
- * attachEventHandler       
- * detachEventHandler       
- * mapCoreComponent         
+ * attachEventHandler
+ * detachEventHandler
+ * mapCoreComponent
  * mapAppModule
  * setResponseCode
  * getResponseCode
@@ -40,30 +43,31 @@
  * getLanguage
  * setCurrency
  * getCurrency
+ * isSetup
  * 
  */
 
 class A
 {
-    /**	@var object View */
-    public $view;
-    /**	@var object Router */
-    public $router;
-    /** @var string */
-    public $charset = 'UTF-8';
-    /** @var string */
-    public $sourceLanguage = 'en';    
-    
+	/**	@var object View */
+	public $view;
+	/**	@var object Router */
+	public $router;
 	/** @var string */
-    private static $_phpVersion;	
+	public $charset = 'UTF-8';
+	/** @var string */
+	public $sourceLanguage = 'en';
+	
+	/** @var string */
+	private static $_phpVersion;	
 	/** @var object */
-    private static $_instance;
-    /** @var array */
-    private static $_classMap = array(
-        'Controller'    => 'controllers',
-        'Model'         => 'models',
-        ''              => 'models',
-    );
+	private static $_instance;
+	/** @var array */
+	private static $_classMap = array(
+		'Controller'    => 'controllers',
+		'Model'         => 'models',
+		''              => 'models',
+	);
     /** @var array */
     private static $_coreClasses = array(
         'CConfig'        => 'collections/CConfig.php',
@@ -89,6 +93,7 @@ class A
         'localTime'     => array('class' => 'CLocalTime', 		'path' => 'components/CLocalTime.php'),
         'coreMessages' 	=> array('class' => 'CMessageSource', 	'path' => 'components/CMessageSource.php',	'language' => 'en'),
 		'messages' 		=> array('class' => 'CMessageSource', 	'path' => 'components/CMessageSource.php'),
+		'shoppingCart' 	=> array('class' => 'CShoppingCart', 	'path' => 'components/CShoppingCart.php'),
 		'uri'   		=> array('class' => 'CUri',				'path' => 'components/CUri.php'),
     );
     /** @var array */
@@ -96,12 +101,15 @@ class A
         'CArray'        => 'helpers/CArray.php',        
         'CAuth'         => 'helpers/CAuth.php',
         'CCache'        => 'helpers/CCache.php',
+		'CConvert'      => 'helpers/CConvert.php',
         'CCurrency'     => 'helpers/CCurrency.php',
         'CFile'         => 'helpers/CFile.php',
         'CFilter'       => 'helpers/CFilter.php',
+		'CGeoLocation'	=> 'helpers/CGeoLocation.php',
         'CHash'         => 'helpers/CHash.php',        
         'CHtml'         => 'helpers/CHtml.php',
         'CImage'        => 'helpers/CImage.php',
+		'CLocale'       => 'helpers/CLocale.php',
         'CMailer'       => 'helpers/CMailer.php',
         'CNumber'       => 'helpers/CNumber.php',
 		'CPdf'          => 'helpers/CPdf.php',
@@ -127,23 +135,23 @@ class A
     private static $_appHelpers = array(
 		// empty
 	);
-    /** @var array */
-    private static $_appModules = array(
-        'setup' => array('classes' => array('Setup'))
-    );
-    /** @var array */	
-    private $_components = array(); 
-    /** @var array */	
-    private $_events;
-    /** @var boolean */	
-    private $_setup = false;
-    /** @var string */
-    private $_responseCode = '';
-    /** @var string */    
-    private $_language = '';
-    /** @var string */    
-    private $_currency = '';
-    
+	/** @var array */
+	private static $_appModules = array(
+		'setup' => array('classes' => array('Setup'))
+	);
+	/** @var array */	
+	private $_components = array(); 
+	/** @var array */	
+	private $_events = array();
+	/** @var boolean */	
+	private $_setup = false;
+	/** @var string */
+	private $_responseCode = '';
+	/** @var string */
+	private $_language = null;
+	/** @var string */
+	private $_currency = null;
+
 
     /**
      * Class constructor
@@ -152,7 +160,7 @@ class A
     public function __construct($configDir)
     {
     	spl_autoload_register(array($this, '_autoload'));        
-        // include interfaces
+        // Include interfaces
         require(dirname(__FILE__).DS.'core'.DS.'interfaces.php');    
         
 		self::$_phpVersion = phpversion();
@@ -161,59 +169,63 @@ class A
         $configDb = $configDir.'db.php';
         
         if(is_string($configMain) && is_string($configDb)){
-            // check if main configuration file exists
+            // Check if main configuration file exists
             if(!file_exists($configMain)){
                 $arrConfig = array(
                     'defaultTemplate' => 'setup',
                     'defaultController' => 'Setup',
                     'defaultAction' => 'index',                                   
                 );
-                // block access to regular files when application is not properly installed
+                // Block access to regular files when application is not properly installed
                 $url = isset($_GET['url']) ? $_GET['url'] : '';
                 if(!preg_match('/setup\//i', $url)){
                     $_GET['url'] = 'setup/index';
                 }
                 $this->_setup = true;
 
-                // set default timezone
+                // Set default timezone
                 date_default_timezone_set('UTC');
             }else{
                 $arrConfig = require($configMain);
-                // check if db configuration file exists and marge it with a main config file
+                // Check if db configuration file exists and marge it with a main config file
                 if(file_exists($configDb)){
                     $arrDbConfig = require($configDb);
                     $arrConfig = array_merge($arrConfig, $arrDbConfig);
                     
-                    // check if modules configuration files exist and marge its with a main config file
+                    // Check if modules configuration files exist and marge its with a main config file
                     foreach($arrConfig['modules'] as $module => $moduleInfo){
                         $configFile = APPHP_PATH.'/protected/config/'.$module.'.php';
                         if(file_exists($configFile)){
                             $configFileContent = include($configFile);
-                            // merge rules settings
+                            // Merge rules settings
                             if(isset($configFileContent['urlManager']['rules'])){
                                 $tempConfig = $configFileContent['urlManager']['rules'];
                                 $arrConfig['urlManager']['rules'] = array_merge($arrConfig['urlManager']['rules'], $tempConfig);
                             }
-                            // merge components settings
+                            // Merge components settings
                             if(isset($configFileContent['components'])){
                                 $tempConfig = $configFileContent['components'];
-                                // add module identificator to component
+                                // Add module identificator to component
                                 foreach($tempConfig as $key => $val){                                    
                                     $tempConfig[$key]['module'] = $module;
                                 }
                                 $arrConfig['components'] = array_merge($arrConfig['components'], $tempConfig);
                             }
-                            // override default Controller/Action settings
+                            // Override default Controller/Action settings
                             if(isset($configFileContent['defaultController']) && isset($configFileContent['defaultAction'])){
-								$arrConfig['defaultController'] = $configFileContent['defaultController'];
+								$arrConfig['defaultController'] = ucfirst($configFileContent['defaultController']);
 								$arrConfig['defaultAction'] = $configFileContent['defaultAction'];
 							}
+                            // Override backend default URL setings if such settings doesn't exist in config/main.php
+							if(isset($configFileContent['backendDefaultUrl']) && empty($arrConfig['modules'][$module]['backendDefaultUrl'])){
+								$arrConfig['modules'][$module]['backendDefaultUrl'] = $configFileContent['backendDefaultUrl'];
+							}                            
                         }
                     }
                 }
             }
             
-            // save configuration array in config class
+            // Save configuration array in config class
             CConfig::load($arrConfig);
         }
     }	
@@ -224,7 +236,7 @@ class A
     public function run()
     {
         if(APPHP_MODE != 'hidden'){
-            // specify error settings
+            // Specify error settings
             if(APPHP_MODE == 'debug' || APPHP_MODE == 'test'){
                 error_reporting(E_ALL);
                 ini_set('display_errors', 'On');
@@ -236,35 +248,35 @@ class A
             }
         
             if(CConfig::get('session.cacheLimiter') == 'private,must-revalidate'){
-                // to prevent 'Web Page exired' message on using submission method 'POST'
+                // To prevent 'Web Page exired' message on using submission method 'POST'
                 session_cache_limiter('private, must-revalidate');    
             }
     
-            // initialize Debug class
+            // Initialize Debug class
             CDebug::init(); 
             
-            // load view (must do it before app components registration)
+            // Load view (must do it before app components registration)
             $this->view = new CView(); 
             $this->view->setTemplate(CConfig::get('defaultTemplate'));
         }
         
-        // register framework core components
+        // Register framework core components
         $this->_registerCoreComponents();
 
-        // global test for database
+        // Global test for database
         if(CConfig::get('db.driver') != ''){
             $db = CDatabase::init();
             if(!CAuth::isGuest()) $db->cacheOff();
         }
    
-        // register application components
+        // Register application components
         $this->_registerAppComponents();
-		// register application helpers
+		// Register application helpers
 		$this->_registerAppHelpers();
-        // register application modules
+        // Register application modules
         $this->_registerAppModules();
         
-        // run events
+        // Run events
         if($this->_hasEventHandler('_onBeginRequest')) $this->_onBeginRequest();
 	
         if(APPHP_MODE != 'hidden'){
@@ -301,7 +313,7 @@ class A
      */
     public static function getVersion()
     {
-    	return '0.6.9';
+    	return '0.7.7';
     }
 
     /**
@@ -324,7 +336,7 @@ class A
      */
     public static function t($category = 'app', $message = '', $params = array(), $source = null, $language = null)
     {
-    	if(self::$_instance !== null){
+    	if(self::$_instance !== null && $message !== ''){
             if($source === null) $source = ($category === 'core') ? 'coreMessages' : 'messages';
             if(($source = self::$_instance->getComponent($source)) !== null){
                 $message = $source->translate($category, $message, $language);
@@ -339,6 +351,19 @@ class A
         }
     }
 
+    /**
+     * Translates a message to the specified language with encoded output
+     * @param string $category
+     * @param string $message
+     * @param array $params
+     * @param string $source
+     * @param string $language
+     * @return string 
+     */
+    public static function te($category = 'app', $message = '', $params = array(), $source = null, $language = null)
+    {
+		return CHtml::encode(self::t($category, $message, $params, $source, $language));
+	}
 
     /**
      * Autoloader
@@ -350,7 +375,7 @@ class A
 		// Framework: CORE CLASSES
         if(isset(self::$_coreClasses[$className])){			
 			$classPath = '';
-			// check if we need PHP version compatible class
+			// Check if we need PHP version compatible class
 			if(is_array(self::$_coreClasses[$className])){
 				foreach(self::$_coreClasses[$className] as $key => $val){
 					if(self::$_phpVersion >= $key){
@@ -367,7 +392,7 @@ class A
 		else if(isset(self::$_coreHelpers[$className])){            
 			$coreHelper = dirname(__FILE__).DS.self::$_coreHelpers[$className];
 			$extCoreHelper = APPHP_PATH.DS.'protected'.DS.self::$_coreHelpers[$className];
-			// check if there extension exists in application
+			// Check if there extension exists in application
 			if(is_file($extCoreHelper)){
 				include($extCoreHelper);
 			}else{
@@ -388,7 +413,7 @@ class A
 			include(APPHP_PATH.DS.'protected'.DS.self::$_appHelpers[$className]);
 		}
 		 
-		// check if required class is Controller or Model (in application or modules)
+		// Check if required class is Controller or Model (in application or modules)
 		else{            
             $classNameItems = preg_split('/(?=[A-Z])/', $className);
             $itemsCount = count($classNameItems);
@@ -404,7 +429,7 @@ class A
                 }
             }            
             
-            // use model mapping pattern for classes AaaBbbCcc
+            // Use model mapping pattern for classes AaaBbbCcc
             if(!isset(self::$_classMap[$pureClassType])){
                 $pureClassName = $className;
                 $pureClassType = 'Model';
@@ -443,7 +468,7 @@ class A
     	if($component === null){
             unset($this->_components[$id]);		
     	}else{
-            // for PHP_VERSION >= 5.3.0 you may use
+            // For PHP_VERSION >= 5.3.0 you may use
             // $this->_components[$id] = $component::init();
             if($callback = call_user_func_array($component.'::init', array())){
                 $this->_components[$id] = $callback;    
@@ -562,6 +587,25 @@ class A
     }
 
     /**
+     * Returns the shopping cart component
+     * @return CShoppingCart component
+     */
+    public function getShoppingCart()
+    {
+    	return $this->getComponent('shoppingCart');
+    }
+
+    /**
+     * Alias to getShoppingCart
+     * @SEE getShoppingCart()
+     * @return CShoppingCart component
+     */
+    public function shoppingCart()
+    {
+    	return $this->getShoppingCart();
+    }
+
+    /**
      * Returns the uri component
      * @return CUri component
      */
@@ -648,7 +692,13 @@ class A
         if(isset($this->_events[$name])){
             foreach($this->_events[$name] as $handler){
                 if(is_string($handler[1])){
-                    call_user_func_array(array($handler[0], $handler[1]), array());
+					$object = $handler[0];
+					$method = $handler[1];
+					if(is_string($object)){
+						@call_user_func_array(array($object, $method), array());
+					}else if(method_exists($object, $method)){
+						$object->$method();
+					}
                 }else{
                     CDebug::addMessage('errors', 'events-raising', A::t('core', 'Event "{{class}}.{{name}}" is attached with an invalid handler "{'.$handler[1].'}".', array('{class}'=>$handler[0], '{name}'=>$handler[1])));
                 }
@@ -666,7 +716,7 @@ class A
 		foreach(self::$_coreComponents as $id => $component){
 			if(isset($component['class']) && $component['class'] === $class){				
 				if(isset($component['path'])){
-					// check if we need PHP version compatible class
+					// Check if we need PHP version compatible class
 					if(is_array($component['path'])){						
 						foreach($component['path'] as $key => $val){
 							if(self::$_phpVersion >= $key){
@@ -782,6 +832,15 @@ class A
         }
     }
 
+	/**
+	 * Returns current status (if setup or not)
+	 * @return bool
+	 */
+	public function isSetup()
+	{
+		return $this->_setup;
+	} 	
+
     /**
      * Registers the framework core components
      * @see _setComponent
@@ -820,14 +879,15 @@ class A
             self::$_appComponents[$id] = array('enable' => $enable, 'class' => $class);
             if($enable && $class){
                 self::$_appClasses[$class] = (!empty($module) ? 'modules/'.$module.'/' : '').'components/'.$class.'.php';
-                $this->_setComponent($id, $class);
+				if(!preg_match('/Component/i', $class)){
+					$this->_setComponent($id, $class);	
+				}
             }
         }
     }
 	
     /**
      * Registers application helpers
-     * @see _setComponent
      */
 	protected function _registerAppHelpers()
 	{

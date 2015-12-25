@@ -36,6 +36,7 @@
         "A",
         "__construct",
         "CModel",
+		"YourModel",
         "Accounts",
         "PagesModel",
         "CActiveRecord",
@@ -92,6 +93,9 @@
         "Pages",
         "title",
         "content",
+		"destroy",
+		"getItem",
+		"totalItems",
         "records",
         "send",
         "email",
@@ -101,6 +105,8 @@
         "strcasecmp",
         "getSession",
 		"endSession",
+		"CFilter",
+		"sanitize",
         "app",
         "set",
         "handleLogin",
@@ -121,6 +127,9 @@
         "TheSampleClass",
         "AbstractClass",
         "ClassInterface",
+		"downloadPdfAction",
+		"createDocument",
+		"CPdf",
         "myFunctionName",
         "CWidget",
         "message",
@@ -144,6 +153,7 @@
 		"create",
 		"text",
 		"t",
+		"te",
 		"exists",
 		"count",
         "max",
@@ -207,7 +217,16 @@
         "refresh",
 		"getFlash",
 		"hasFlash",
-		"setFlash"
+		"setFlash",
+		"lastQuery",
+		"getShoppingCart",
+		"CNumber",
+		"format",
+		"productOptions",
+		"total",
+		"hasOptions",
+		"textField",
+		"contents",
 	];
 
 	var BUILTINS = {};
@@ -247,7 +266,8 @@
 		"as",
         "20",
 		"isset",
-		
+		"endforeach",
+		"endif",
 	];
 
 	var KEYWORDS = {};

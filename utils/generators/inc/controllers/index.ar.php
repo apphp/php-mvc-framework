@@ -1,8 +1,8 @@
 <?php
 
 $act = isset($_POST['act']) ? $_POST['act'] : '';
-$controller_name = isset($_POST['controller_name']) ? str_ireplace('Controller', '', prepare_input($_POST['controller_name'])) : '';
-$model_name = isset($_POST['model_name']) ? str_ireplace('Model', '', prepare_input($_POST['model_name'])) : '';
+$controller_name = isset($_POST['controller_name']) ? (string)str_ireplace('Controller', '', prepare_input($_POST['controller_name'])) : '';
+$model_name = isset($_POST['model_name']) ? (string)str_ireplace('Model', '', prepare_input($_POST['model_name'])) : '';
 $templateContent = '';
 $focusField = '';
 $msg = '';

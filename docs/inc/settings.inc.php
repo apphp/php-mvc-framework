@@ -89,6 +89,7 @@ $menus = array(
 			'cron-jobs'					=> 'Cron Jobs',
 			'database-request-caching'	=> 'Data Caching',
 			'session-custom-storage'	=> 'Session Custom Storage',
+			'shopping-cart'				=> 'Shopping Cart',
 		),
 	),
 

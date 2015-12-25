@@ -26,7 +26,7 @@
             <tr>
                 <td align="left" style="cursor:pointer;" onclick="window.location.href='pages/edit/id/<?php echo $page['id'] ?>'" title="Click to edit"><?php echo $page['link_text']?></td>
                 <td align="center"><?php echo (!empty($page['menu_name'])) ? $page['menu_name'] : 'N/A'; ?></td>
-                <td align="center"><?php echo @date('M j, Y, g:i a', @strtotime($page['created_at'])); ?></td>
+                <td align="center"><?php echo CLocale::date('M j, Y, g:i a', $page['created_at']); ?></td>
 				<td align="center"><?php echo ($page['is_homepage'] == '1') ? '<span style="color:#009900;">Yes</span>' : 'No'; ?></td>
                 <td align="center"><?php echo $page['id'] ?></td>					
 				<td align="center">

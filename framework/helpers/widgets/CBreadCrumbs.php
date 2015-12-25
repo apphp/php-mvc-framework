@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
@@ -14,7 +14,7 @@
  * 
  */	  
 
-class CBreadCrumbs
+class CBreadCrumbs extends CWidgs
 {
 	
     const NL = "\n";
@@ -26,39 +26,48 @@ class CBreadCrumbs
      * Usage:
      *  CWidget::create('CBreadCrumbs', array(
      *      'links' => array(
-     *          array('label'=>'Label A'), 'url'=>'url1/'),
-     *          array('label'=>'Label B'), 'url'=>'url2/'),
+     *          array('label'=>'Label A', 'url'=>'url1/'),
+     *          array('label'=>'Label B', 'url'=>'url2/'),
      *      ),
-     *      'class' => '',
+     *      'wrapperClass' => '',
+     *      'wrapperTag' => '',
+     *      'linkWrapperTag' => '',
      *      'separator' => '&nbsp;/&nbsp;',
      *      'return' => true
      *  ));
      */
     public static function init($params = array())
     {
-        $output = '';
-        $tagName = 'div';
-        $class = (isset($params['class']) && !empty($params['class'])) ? $params['class'] : 'breadcrumbs';        
-        $links = isset($params['links']) ? $params['links'] : '';        
-        $separator = isset($params['separator']) ? $params['separator'] : '&raquo;';        
-        $return = isset($params['return']) ? $params['return'] : true;
-        $htmlOptions = array('class'=>$class);
+		parent::init($params);
+		
+        $output 		= '';
+		$wrapperTag 	= self::params('wrapperTag', 'div');		
+        $links 			= self::params('links', '');
+		$linkWrapperTag = self::params('linkWrapperTag', '');
+        $separator 		= self::params('separator', '&raquo;');
+        $return 		= (bool)self::params('return', true);
+		$wrapperClass 	= self::params('wrapperClass', 'breadcrumbs');
+        $htmlOptions 	= array('class'=>$wrapperClass);
         
-        if(is_array($links)){            
-            $output .= CHtml::openTag($tagName, $htmlOptions).self::NL;
+        if(is_array($links)){
+			if(!empty($wrapperTag)) $output .= CHtml::openTag($wrapperTag, $htmlOptions).self::NL;
             $counter = 0;
             foreach($params['links'] as $item => $val){
-                $url = isset($val['url']) ? $val['url'] : '';
-                $label = isset($val['label']) ? $val['label'] : '';                
+                $url = self::keyAt('url', $val, '');
+                $label = self::keyAt('label', $val, '');
 
+				if(!empty($linkWrapperTag)) $output .= CHtml::openTag($linkWrapperTag, array()).self::NL;
+				
                 if($counter) $output .= ' '.$separator.' ';
                 if(!empty($url)) $output .= CHtml::link($label, $url);
                 else $output .= CHtml::tag('span', array(), $label).self::NL;
+				
+				if(!empty($linkWrapperTag)) $output .= CHtml::closeTag($linkWrapperTag).self::NL;
                 
                 $counter++;
             }
             
-            $output .= CHtml::closeTag($tagName).self::NL;
+            if(!empty($wrapperTag)) $output .= CHtml::closeTag($wrapperTag).self::NL;
         }
         
         if($return) return $output;

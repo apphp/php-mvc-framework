@@ -6,7 +6,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  * @version PHP 5.3.0 or higher
  *
@@ -14,15 +14,19 @@
  * ---------------         	---------------            	---------------
  * __construct              _relations                  _parentModel (static)
  * __set                    _customFields               _createObjectFromTable
- * __get                    _beforeSave                 _getRelations
- * __unset                  _afterSave                  _getCustomFields
+ * __get                    _beforeSave					_getRelations
+ * __unset                  _afterSave 					_getCustomFields
  * __callStatic				_beforeDelete               _addCustomFields
  *                          _afterDelete				_removeCustomFields     
- * init (static)
- * set                      
- * get                                                  
+ * init (static)			
+ * set                      							
+ * get
+ * isColumnExists
+ * setSpecialField
+ * getSpecialField
  * getError                                             
  * getErrorMessage
+ * lastQuery
  * primaryKey
  * getPrimaryKey
  * getTableName 
@@ -39,6 +43,7 @@
  *
  * save
  * clearPkValue
+ * reset
  *
  * updateByPk
  * updateAll
@@ -79,6 +84,8 @@ abstract class CActiveRecord extends CModel
     protected $_tableTranslation = '';
 	/**	@var */ 
 	protected $_columns = array();
+	/**	@var used to store fields from $_POST or another tables */ 
+	protected $_specialFields = array();
     
 	/**	@var */ 
     private $_columnTypes = array();
@@ -193,8 +200,8 @@ abstract class CActiveRecord extends CModel
 
 	/**	
 	 * Setter
-	 * @param $index
-	 * @param $value
+	 * @param string $index
+	 * @param mixed $value
 	 */
 	public function set($index, $value)
 	{
@@ -203,8 +210,7 @@ abstract class CActiveRecord extends CModel
 
 	/**	
 	 * Getter
-	 * @param $index
-	 * @param $value
+	 * @param string $index
 	 */
 	public function get($index)
 	{
@@ -214,6 +220,35 @@ abstract class CActiveRecord extends CModel
             CDebug::AddMessage('errors', 'wrong_column'.$index, A::t('core', 'Wrong column name: {index} in table {table}', array('{index}'=>$index, '{table}'=>$this->_table)));
             return '';  
         } 
+	}
+	
+	/**	
+	 * Checks if a given column exists 
+	 * @param string $index
+	 * @return bool
+	 */
+	public function isColumnExists($index)
+	{
+		return isset($this->_columns[$index]) ? true : false;
+	}	
+
+	/**	
+	 * Setter for special fields
+	 * @param string $index
+	 * @param mixed $value
+	 */
+	public function setSpecialField($index, $value)
+	{
+        $this->_specialFields[$index] = $value;
+	}
+
+	/**	
+	 * Getter
+	 * @param string $index
+	 */
+	public function getSpecialField($index)
+	{
+        return isset($this->_specialFields[$index]) ? $this->_specialFields[$index] : '';
 	}
 
 	/**	
@@ -234,6 +269,15 @@ abstract class CActiveRecord extends CModel
 		return $this->_errorMessage;
 	}
     
+    /**
+     * Returns last query
+	 * @return string
+	 */
+	public function lastQuery()
+	{
+		return $this->_db->lastQuery();
+	} 
+	
 	/**
 	 * Returns the primary key of the associated database table
 	 * @return string
@@ -375,14 +419,15 @@ abstract class CActiveRecord extends CModel
         if(!is_array($cols)) return false;
 
         foreach($cols as $array){
-            // insert default value $array[4]
+            // Insert default value $array[4]
             $this->_columns[$array[0]] = ($array[4] != '') ? $array[4] : '';
             $arrayParts = explode('(', $array[1]);
             $this->_columnTypes[$array[0]] = array_shift($arrayParts);
             if($array[3] == 'PRI'){
                 $this->_primaryKey = $array[0];
             }
-        }       
+        }
+		
         $this->_addCustomFields();        
         if($this->_primaryKey == '') $this->_primaryKey = 'id';
         
@@ -391,8 +436,8 @@ abstract class CActiveRecord extends CModel
 
     /**
      * This method queries your database to find first related object
-     * Ex.: find('postID = :postID AND isActive = :isActive', array(':postID'=>10, 'isActive'=>1));
-     * Ex.: find(array('condition'=>'postID = :postID AND isActive = :isActive', 'order|orderBy'=>'id DESC'), 'params'=>array(':postID'=>10, 'isActive'=>1)));
+     * Ex.: find('postID = :postID AND isActive = :isActive', array(':postID'=>10, ':isActive'=>1));
+     * Ex.: find(array('condition'=>'postID = :postID AND isActive = :isActive', 'order|orderBy'=>'id DESC'), 'params'=>array(':postID'=>10, ':isActive'=>1)));
      * @param mixed $conditions
      * @param array $params
      */
@@ -409,6 +454,7 @@ abstract class CActiveRecord extends CModel
             $where = $conditions;
             $order = '';
         }
+
         $whereClause = !empty($where) ? ' WHERE '.$where : '';
         $orderBy = !empty($order) ? ' ORDER BY '.$order : '';
         $relations = $this->_getRelations();
@@ -417,6 +463,7 @@ abstract class CActiveRecord extends CModel
         $sql = 'SELECT
                     `'.CConfig::get('db.prefix').$this->_table.'`.*
                     '.$relations['fields'].'
+					'.$customFields.'
                 FROM `'.CConfig::get('db.prefix').$this->_table.'`
                     '.$relations['tables'].'
                 '.$whereClause.'
@@ -436,8 +483,8 @@ abstract class CActiveRecord extends CModel
 
     /**
      * This method queries your database to find related objects by PK
-     * Ex.: findByPk($pk, 'postID = :postID AND isActive = :isActive', array(':postID'=>10, 'isActive'=>1));
-     * Ex.: findByPk($pk, array('condition'=>'postID = :postID AND isActive = :isActive', 'order|orderBy'=>'id DESC'), 'params'=>array(':postID'=>10, 'isActive'=>1)));
+     * Ex.: findByPk($pk, 'postID = :postID AND isActive = :isActive', array(':postID'=>10, ':isActive'=>1));
+     * Ex.: findByPk($pk, array('condition'=>'postID = :postID AND isActive = :isActive', 'order|orderBy'=>'id DESC'), 'params'=>array(':postID'=>10, ':isActive'=>1)));
      * @param string $pk
      * @param mixed $conditions
      * @param array $params 
@@ -456,15 +503,16 @@ abstract class CActiveRecord extends CModel
             $where = $conditions;
             $order = '';
         }
+
         $whereClause = !empty($where) ? ' AND '.$where : '';
         $orderBy = !empty($order) ? ' ORDER BY '.$order : '';
         $relations = $this->_getRelations();
         $customFields = $this->_getCustomFields();
     
         $sql = 'SELECT
-                    `'.CConfig::get('db.prefix').$this->_table.'`.*
-                    '.$customFields.'
+                    `'.CConfig::get('db.prefix').$this->_table.'`.*                    
                     '.$relations['fields'].'
+					'.$customFields.'
                 FROM `'.CConfig::get('db.prefix').$this->_table.'`
                     '.$relations['tables'].'
                 WHERE `'.CConfig::get('db.prefix').$this->_table.'`.'.$this->_primaryKey.' = '.(int)$pk.'
@@ -485,8 +533,8 @@ abstract class CActiveRecord extends CModel
     
     /**
      * This method queries your database to find related objects by attributes
-     * Ex.: findByAttributes($attributes, 'postID = :postID AND isActive = :isActive', array(':postID'=>10, 'isActive'=>1));
-     * Ex.: findByAttributes($attributes, array('condition'=>'postID = :postID AND isActive = :isActive', 'order|orderBy'=>'id DESC', 'limit'=>'0, 10'), 'params'=>array(':postID'=>10, 'isActive'=>1)));
+     * Ex.: findByAttributes($attributes, 'postID = :postID AND isActive = :isActive', array(':postID'=>10, ':isActive'=>1));
+     * Ex.: findByAttributes($attributes, array('condition'=>'postID = :postID AND isActive = :isActive', 'order|orderBy'=>'id DESC', 'limit'=>'0, 10'), 'params'=>array(':postID'=>10, ':isActive'=>1)));
      * Ex.: $attributes = array('first_name'=>$firstName, 'last_name'=>$lastName);
      * @param array $attributes
      * @param mixed $conditions
@@ -507,6 +555,7 @@ abstract class CActiveRecord extends CModel
             $order = '';
             $limit = '';
         }
+
         $whereClause = !empty($where) ? ' AND '.$where : '';
         $orderBy = !empty($order) ? ' ORDER BY '.$order : '';
         $limitClause = !empty($limit) ? ' LIMIT '.$limit : '';
@@ -522,6 +571,7 @@ abstract class CActiveRecord extends CModel
         $sql = 'SELECT
                     `'.CConfig::get('db.prefix').$this->_table.'`.*
                     '.$relations['fields'].'
+					'.$customFields.'
                 FROM `'.CConfig::get('db.prefix').$this->_table.'`
                     '.$relations['tables'].'
                 WHERE 1 = 1
@@ -575,9 +625,9 @@ abstract class CActiveRecord extends CModel
         $customFields = $this->_getCustomFields();
         
         $sql = 'SELECT
-                    `'.CConfig::get('db.prefix').$this->_table.'`.*
-                    '.$customFields.'
+                    `'.CConfig::get('db.prefix').$this->_table.'`.*                    
                     '.$relations['fields'].'
+					'.$customFields.'
                 FROM `'.CConfig::get('db.prefix').$this->_table.'`
                     '.$relations['tables'].'
                 '.$whereClause.'
@@ -590,7 +640,7 @@ abstract class CActiveRecord extends CModel
 
     /**
      * This method queries your database to find first related record primary key
-     * Ex.: findPk('postID = :postID AND isActive = :isActive', array(':postID'=>10, 'isActive'=>1));
+     * Ex.: findPk('postID = :postID AND isActive = :isActive', array(':postID'=>10, ':isActive'=>1));
      * @param mixed $conditions
      * @param array $params
      * @return int
@@ -631,7 +681,7 @@ abstract class CActiveRecord extends CModel
             }else{
                 $result = $this->_db->insert($this->_table, $data);
                 $this->_isNewRecord = true;
-                // save last inset ID
+                // Save last inset ID
                 $this->_pkValue = (int)$result;
             }
             
@@ -655,8 +705,25 @@ abstract class CActiveRecord extends CModel
         $this->_pkValue = 0;
         
         return true;
-    }        
-    
+    }
+	
+    /**
+     * Reset the object with fields
+     * @return boolean
+     */
+    public function reset()
+    {
+        $this->_columns = array();
+		$this->_specialFields = array();
+        
+		if(!empty($this->_table)){
+			$this->_createObjectFromTable();
+			$this->_pkValue = 0;
+		}
+
+        return true;
+    }
+	    
     /**
      * Updates records with the specified primary key
 	 * See {@link find()} for detailed explanation about $conditions
@@ -688,6 +755,7 @@ abstract class CActiveRecord extends CModel
     /**
      * Updates the rows matching the specified condition
      * Ex.: updateAll(array('name'=>$value), 'postID = 10 AND isActive = 1');
+     * Ex.: updateAll(array('name'=>$value), 'postID = 10 AND isActive = :isActive', array(':isActiv'=>1));
      * @param array $data
      * @param mixed $conditions
      * @param array $params 
@@ -727,7 +795,7 @@ abstract class CActiveRecord extends CModel
 
     /**
      * Remove the rows matching the specified condition and primary key(s)
-     * Ex.: deleteByPk(10, 'postID = :postID AND isActive = :isActive', array(':postID'=>10, 'isActive'=>1));
+     * Ex.: deleteByPk(10, 'postID = :postID AND isActive = :isActive', array(':postID'=>10, ':isActive'=>1));
      * @param string $pk
      * @param mixed $conditions
      * @param array $params 
@@ -758,7 +826,8 @@ abstract class CActiveRecord extends CModel
     
     /**
      * Remove the rows matching the specified condition
-     * Ex.: deleteAll('postID = :postID AND isActive = :isActive', array(':postID'=>10, 'isActive'=>1));
+     * Ex.: deleteAll('postID = :postID AND isActive = :isActive', array(':postID'=>10, ':isActive'=>1));
+     * Ex.: deleteAll(array('condition'=>'postID = :postID AND isActive = :isActive'), array(':postID'=>10, ':isActive'=>1));
      * @param mixed $conditions
      * @param array $params 
      * @return boolean
@@ -806,7 +875,7 @@ abstract class CActiveRecord extends CModel
     
     /**
      * This method check if there is at least one row satisfying the specified condition
-     * Ex.: exists('postID = :postID AND isActive = :isActive', array(':postID'=>10, 'isActive'=>1));
+     * Ex.: exists('postID = :postID AND isActive = :isActive', array(':postID'=>10, ':isActive'=>1));
      * @param mixed $conditions
      * @param array $params 
      * @return bolean
@@ -828,8 +897,8 @@ abstract class CActiveRecord extends CModel
 
 	/**
 	 * Finds the number of rows satisfying the specified query condition
-     * Ex.: count('postID = :postID AND isActive = :isActive', array(':postID'=>10, 'isActive'=>1));
-     * Ex.: count(array('condition'=>'post_id = :postID AND is_active = :isActive', 'select'=>'', 'count'=>'*', 'group'=>'', 'allRows'=>false), array(':postID'=>10, ':isActive'=>1));
+     * Ex.: count('postID = :postID AND isActive = :isActive', array(':postID'=>10, ':isActive'=>1));
+     * Ex.: count(array('condition'=>'post_id = :postID AND is_active = :isActive', 'select'=>'', 'count'=>'*', 'group|groupBy'=>'', 'allRows'=>false), array(':postID'=>10, ':isActive'=>1));
 	 * @param mixed $conditions
 	 * @param array $params 
 	 * @return integer 
@@ -838,7 +907,11 @@ abstract class CActiveRecord extends CModel
 	{
         if(is_array($conditions)){
             $where = isset($conditions['condition']) ? $conditions['condition'] : '';
-            $group = isset($conditions['group']) ? $conditions['group'] : '';
+			if(isset($conditions['group'])){
+				$group = isset($conditions['group']) ? $conditions['group'] : '';
+			}else if(isset($conditions['groupBy'])){
+				$group = isset($conditions['groupBy']) ? $conditions['groupBy'] : '';
+			}
             $count = isset($conditions['count']) ? $conditions['count'] : '*';
             $select = isset($conditions['select']) ? $conditions['select'] : '';
             $allRows = isset($conditions['allRows']) ? (bool)$conditions['allRows'] : false;
@@ -849,9 +922,11 @@ abstract class CActiveRecord extends CModel
             $select = '';
             $allRows = false;
         }        
+
         $whereClause = !empty($where) ? ' WHERE '.$where : '';
         $groupBy = !empty($group) ? ' GROUP BY '.$group : '';
         $limitClause = $allRows ? '' : ' LIMIT 1';
+
         $relations = $this->_getRelations();
 
         $sql = 'SELECT 
@@ -873,7 +948,7 @@ abstract class CActiveRecord extends CModel
 
 	/**
 	 * Finds a maximum value of the specified column
-     * Ex.: max('id', 'postID = :postID AND isActive = :isActive', array(':postID'=>10, 'isActive'=>1));
+     * Ex.: max('id', 'postID = :postID AND isActive = :isActive', array(':postID'=>10, ':isActive'=>1));
 	 * @param string $column
 	 * @param mixed $conditions
 	 * @param array $params 
@@ -903,7 +978,7 @@ abstract class CActiveRecord extends CModel
 
 	/**
 	 * Finds a sum value of the specified column
-     * Ex.: sum('id', 'postID = :postID AND isActive = :isActive', array(':postID'=>10, 'isActive'=>1));
+     * Ex.: sum('id', 'postID = :postID AND isActive = :isActive', array(':postID'=>10, ':isActive'=>1));
 	 * @param string $column
 	 * @param mixed $conditions
 	 * @param array $params 
@@ -1084,9 +1159,9 @@ abstract class CActiveRecord extends CModel
                 $result['tables'] .= $joinType.' `'.CConfig::get('db.prefix').$relatedTable.'` ON `'.CConfig::get('db.prefix').$this->_table.'`.'.$key.' = `'.CConfig::get('db.prefix').$relatedTable.'`.'.$relatedTableKey;
                 $result['tables'] .= (($condition != '') ? ' AND '.$condition : '').$nl;
             }
-        }            
+        }
         
         return $result;
     }
-  
+	
 }

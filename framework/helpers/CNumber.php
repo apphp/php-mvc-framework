@@ -5,13 +5,14 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
  * americanFormat
  * europeanFormat
+ * format
  * 
  */	  
 
@@ -25,10 +26,12 @@ class CNumber
      */
     public static function americanFormat($number, $params = array())
     {
-        $thousandSeparator = isset($params['thousandSeparator']) ? (bool)$params['thousandSeparator'] : true;
-        $number = str_replace(',', '#', $number);
-        $number = str_replace('.', (($thousandSeparator) ? ',' : ''), $number);
-        $number = str_replace('#', '.', $number);
+        if(!empty($number)){
+			$thousandSeparator = isset($params['thousandSeparator']) ? (bool)$params['thousandSeparator'] : true;
+			$number = str_replace(',', '#', $number);
+			$number = str_replace('.', (($thousandSeparator) ? ',' : ''), $number);
+			$number = str_replace('#', '.', $number);
+		}
         return $number;
     }
 
@@ -39,9 +42,31 @@ class CNumber
      */
     public static function europeanFormat($number, $params = array())
     {
-        $number = str_replace('.', '#', $number);
-        $number = str_replace(',', '.', $number);
-        $number = str_replace('#', ',', $number);
+		if(!empty($number)){
+			$number = str_replace('.', '#', $number);
+			$number = str_replace(',', '.', $number);
+			$number = str_replace('#', ',', $number);			
+		}
         return $number;
     }
+
+    /**
+     * Formats a number with grouped thousands
+     * @param mixed $number
+     * @param array $params
+     * @return string
+     */
+    public static function format($number, $format = 'american', $params = array())
+    {
+		$decimalPoints = isset($params['decimalPoints']) ? $params['decimalPoints'] : 0;
+		
+		if($format === 'european'){
+			$number = number_format((float)$number, $decimalPoints, ',', '.');
+		}else{
+			$number = number_format((float)$number, $decimalPoints, '.', ',');
+		}
+		
+		return $number;
+	}
+
 }

@@ -82,14 +82,14 @@ class PagesController extends CController
     		$this->_view->mainText = '';
     		if($viewOnePage){
 		    	// meta tags specific for the page
-		    	if(!empty($result->metatag_title)){
-		    		$this->_view->setMetaTags('title', $result->header_text.' | '.$result->metatag_title);
+		    	if(!empty($result[0]['metatag_title'])){
+		    		$this->_view->setMetaTags('title', $result[0]['header_text'].' | '.$result[0]['metatag_title']);
 		    	}		
-		    	if(!empty($result->metatag_keywords)){
-		    		$this->_view->setMetaTags('keywords', $result->metatag_keywords);
+		    	if(!empty($result[0]['metatag_keywords'])){
+		    		$this->_view->setMetaTags('keywords', $result[0]['metatag_keywords']);
 		    	}
-		    	if(!empty($result->metatag_description)){
-		    		$this->_view->setMetaTags('description', $result->metatag_description);    			
+		    	if(!empty($result[0]['metatag_description'])){
+		    		$this->_view->setMetaTags('description', $result[0]['metatag_description']);    			
 		    	}
             }
 			$this->_view->pages = $result;

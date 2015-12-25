@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
@@ -85,12 +85,13 @@ class CMessageSource extends CComponent
 			$this->_messages[$key] = $this->_loadMessages($category, $language);
 		}
 
-        if(isset($this->_messages[$key][$message]) && $this->_messages[$key][$message] !== ''){
+        if(isset($this->_messages[$key][$message])){
 			return $this->_messages[$key][$message];
         }else if($pos = strpos($message, '.') !== false){
-            // check sub-arrays (upto 2 levels)
+            // Check sub-arrays (upto 2 levels)
             $messageParts = explode('.', $message);
             $parts = count($messageParts);
+
             if($parts == 2){
                 $arrMessages = isset($this->_messages[$key][$messageParts[0]]) ? $this->_messages[$key][$messageParts[0]] : '';
                 if(is_array($arrMessages) && isset($arrMessages[$messageParts[1]])){
@@ -102,10 +103,10 @@ class CMessageSource extends CComponent
                     return $arrSubMessages[$messageParts[2]];
                 }                
             }
-            return $message;
-		}else{
-            return $message;
-		}  
+		}
+
+		// No message found, return it "as is"		
+		return (APPHP_MODE == 'debug') ? '@@@'.$message : $message;
 	}
     
 }

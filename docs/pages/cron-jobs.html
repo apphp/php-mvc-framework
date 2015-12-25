@@ -55,12 +55,12 @@ Then you have to set up a cron job in your Hosting Control Panel.
 
 <a name="setup_site5"></a>
 <h3>Setting up a cron job in Site5.com Control Panel <a class="hashlink" href="#setup_site5">¶</a></h3>
-<img src="images/cron_common_example.png" alt="" class="illustration" />
+<img src="images/cron_common_example.png" alt="ApPHP MVC Framework - cron example" class="illustration" />
 <br><br>
 
 <a name="setup_cpanel"></a>
 <h3>Setting up a cron job in cPanel <a class="hashlink" href="#setup_cpanel">¶</a></h3>
-<img src="images/cron_cpanel_example.png.png" alt="" class="illustration" />
+<img src="images/cron_cpanel_example.png.png" alt="ApPHP MVC Framework - cron CPanel" class="illustration" />
 <br><br>
 
 <a name="two_options"></a>
@@ -70,5 +70,8 @@ The recommended way to run cron code is to set up a cronjob if you run a Unix/Li
 If for any reason you can't run a cronjob on your server, you can choose the non-batch option
 to have cron code is running by the script itself: in this case cron code will be run each time
 someone access your home page. Such option is called "pesudo" oir "non-batch".
-<br>
+<br><br>
+Cron code may be released in <code>protected/models/Cron.php</code> class or in each module in
+<code>protected/module-name/models/ModuleName.php</code> class with method <code>cron()</code>.
+
 <br><br>

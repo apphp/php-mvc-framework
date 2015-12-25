@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
@@ -14,11 +14,15 @@
  * 
  */	  
 
-class CPagination
+class CPagination extends CWidgs
 {
 	
-    const NL = "\n";
+	/**
+	 * @const string new line
+	 */
+    const NL = "\n";    
 
+	
     /**
      * Draws pagination
      * @param array $params
@@ -39,48 +43,51 @@ class CPagination
      */
     public static function init($params = array())
     {        
-        // how many adjacent pages should be shown on each side?
-        $adjacents = 3;
-        $actionPath = (isset($params['actionPath'])) ? $params['actionPath'] : '';
-		$paramsSign = preg_match('/\?/', $actionPath) ? '&' : '?';
-        $page = (isset($params['currentPage'])) ? (int)$params['currentPage'] : 1;
-        $pageSize = (isset($params['pageSize'])) ? (int)$params['pageSize'] : 1;
-        $totalRecords = (isset($params['totalRecords'])) ? (int)$params['totalRecords'] : 0;  
-        // link type: 0 - standard, 1 - SEO
-        $linkType = (isset($params['linkType'])) ? (int)$params['linkType'] : 1;
+		parent::init($params);
+
+        // How many adjacent pages should be shown on each side?
+        $adjacents 			= 4;
+        $actionPath 		= self::params('actionPath', '');
+		$paramsSign 		= preg_match('/\?/', $actionPath) ? '&' : '?';
+        $page 				= (int)self::params('currentPage', 1);
+        $pageSize 			= (int)self::params('pageSize', 1);		
+        $totalRecords 		= (int)self::params('totalRecords', 0);
+        // Link type: 0 - standard, 1 - SEO
+        $linkType 			= (int)self::params('linkType', 1);
         // justNumbers - 1 2 3 
         // fullNumbers - « previous 1 2 3 next »
         // olderNewer - « newer older »
         // prevNext -  « previous next »
-        $paginationType = (isset($params['paginationType']) && in_array(strtolower($params['paginationType']), array('prevnext', 'oldernewer', 'fullnumbers', 'justnumbers'))) ? strtolower($params['paginationType']) : 'fullnumbers';
-        $showEmptyLinks = (isset($params['showEmptyLinks'])) ? (bool)$params['showEmptyLinks'] : true;
-		$showResultsOfTotal = (isset($params['showResultsOfTotal'])) ? (bool)$params['showResultsOfTotal'] : true;
-        
-        $return = isset($params['return']) ? (bool)$params['return'] : true;
+		$paginationType 	= self::params('paginationType');
+        $paginationType 	= (in_array(strtolower($paginationType), array('prevnext', 'oldernewer', 'fullnumbers', 'justnumbers'))) ? strtolower($paginationType) : 'fullnumbers';
+		$showEmptyLinks 	= (bool)self::params('showEmptyLinks', true);
+		$showResultsOfTotal = (bool)self::params('showResultsOfTotal', true);
+		$linkNames			= self::params('linkNames', array());
+        $return 			= (bool)self::params('return', true);
                 
         if($page){
-            $start = ($page - 1) * $pageSize;  /* first item to display on this page */
+            $start = ($page - 1) * $pageSize;  			/* first item to display on this page */
         }else{
-            $start = 0;					       /* if no page var is given, set start to 0 */
+            $start = 0;					       			/* if no page var is given, set start to 0 */
         }
 		
-        // setup page vars for display
-        if($page == 0) $page = 1;	     /* if no page var is given, default to 1. */
-        $prev = $page - 1;				 /* previous page is page - 1 */
-        $next = $page + 1;				 /* next page is page + 1 */
+        // Setup page vars for display
+        if($page == 0) $page = 1;	     				/* if no page var is given, default to 1. */
+        $prev = $page - 1;				 				/* previous page is page - 1 */
+        $next = $page + 1;				 				/* next page is page + 1 */
         $lastpage = ceil($totalRecords / $pageSize); 	/* lastpage is = total pages / items per page, rounded up.  */
-        $lpm1 = $lastpage - 1;			 /* last page minus 1 */
+        $lpm1 = $lastpage - 1;			 				/* last page minus 1 */
         $output = '';
         $middlePart = '';
         $counter = 0;
         
         $wPrevious = ($paginationType == 'oldernewer') ? A::t('core', 'newer') : A::t('core', 'previous');
         $wNext = ($paginationType == 'oldernewer') ? A::t('core', 'older') : A::t('core', 'next');
-        if(isset($params['linkNames']['previous'])){
-            $wPrevious = $params['linkNames']['previous'];
+        if(isset($linkNames['previous'])){
+            $wPrevious = $linkNames['previous'];
         }
-        if(isset($params['linkNames']['next'])){
-            $wNext = $params['linkNames']['next'];
+        if(isset($linkNames['next'])){
+            $wNext = $linkNames['next'];
         }
         
         if($lastpage > 0){
@@ -96,7 +103,7 @@ class CPagination
 
             if($lastpage > 1){			
                 $output .= CHtml::openTag('div', array('class'=>'links-part'));
-                // draw previous button
+                // Draw previous button
                 if(in_array($paginationType, array('fullnumbers', 'prevnext', 'oldernewer'))){
                     if($page > 1){
                         $output .= CHtml::link('&laquo; '.$wPrevious, $actionPath.(($linkType) ? '/page/'.$prev : $paramsSign.'page='.$prev), array('class'=>'first-link'));
@@ -105,9 +112,9 @@ class CPagination
                     }
                 }
                 
-                // pages	
+                // Pages	
                 if($lastpage < 7 + ($adjacents * 2)){	
-                    // not enough pages to bother breaking it up            
+                    // Not enough pages to bother breaking it up            
                     for($counter = 1; $counter <= $lastpage; $counter++){
                         if($counter == $page){
                             $middlePart .= CHtml::tag('span', array('class'=>'current'), $counter);
@@ -115,9 +122,9 @@ class CPagination
                             $middlePart .= CHtml::link($counter, $actionPath.(($linkType) ? '/page/'.$counter : $paramsSign.'page='.$counter));
                         }
                     }
-                // enough pages to hide some    
+                // Enough pages to hide some    
                 }else if($lastpage > 5 + ($adjacents * 2)){                
-                    // close to beginning, only hide later pages
+                    // Close to beginning, only hide later pages
                     if($page < 1 + ($adjacents * 2)){
                         for($counter = 1; $counter < 4 + ($adjacents * 2); $counter++){
                             if($counter == $page){
@@ -130,7 +137,7 @@ class CPagination
                         $middlePart .= CHtml::link($lpm1, $actionPath.(($linkType) ? '/page/'.$lpm1 : $paramsSign.'page='.$lpm1));
                         $middlePart .= CHtml::link($lastpage, $actionPath.(($linkType) ? '/page/'.$lastpage : $paramsSign.'page='.$lastpage));
                     }
-                    // in middle, hide some front and some back
+                    // In middle, hide some front and some back
                     else if($lastpage - ($adjacents * 2) > $page && $page > ($adjacents * 2)){
                         $middlePart .= CHtml::link('1', $actionPath.(($linkType) ? '/page/1' : $paramsSign.'page=1'));
                         $middlePart .= CHtml::link('2', $actionPath.(($linkType) ? '/page/2' : $paramsSign.'page=2'));
@@ -146,7 +153,7 @@ class CPagination
                         $middlePart .= CHtml::link($lpm1, $actionPath.(($linkType) ? '/page/'.$lpm1 : $paramsSign.'page='.$lpm1));
                         $middlePart .= CHtml::link($lastpage, $actionPath.(($linkType) ? '/page/'.$lastpage : $paramsSign.'page='.$lastpage));
                     }
-                    // close to end, just hide early pages
+                    // Close to end, just hide early pages
                     else{
                         $middlePart .= CHtml::link('1', $actionPath.(($linkType) ? '/page/1' : $paramsSign.'page=1'));
                         $middlePart .= CHtml::link('2', $actionPath.(($linkType) ? '/page/2' : $paramsSign.'page=2'));
@@ -161,12 +168,12 @@ class CPagination
                     }
                 }            
     
-                // draw middle part
+                // Draw middle part
                 if($paginationType == 'fullnumbers' || $paginationType == 'justnumbers'){
                     $output .= $middlePart;    
                 } 
                 
-                // draw next button
+                // Draw next button
                 if(in_array($paginationType, array('fullnumbers', 'prevnext', 'oldernewer'))){    
                     if($page < $counter - 1){
                         $output .= CHtml::link($wNext.' &raquo;', $actionPath.(($linkType) ? '/page/'.$next : $paramsSign.'page='.$next), array('class'=>'last-link'));

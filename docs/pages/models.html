@@ -176,7 +176,7 @@ class Accounts extends CActiveRecord
      */
     protected function _relations()
     {
-        // way #1 - standard way
+        // way #1 - standard way, self::LEFT_OUTER_JOIN is a default JOIN type
         return array(
             'country_id' => array(self::BELONGS_TO, 'countries', 'id', 'joinType'=>self::LEFT_OUTER_JOIN),
             'profile_id' => array(self::HAS_ONE, 'profiles', 'id', 'condition'=>'', 'fields'=>array('name'=>'')),
@@ -188,10 +188,16 @@ class Accounts extends CActiveRecord
                 'parent_key'=>'country_id'),
             '1' => array(self::HAS_ONE, 'profiles', 'id',
                 'condition'=>CConfig::get('db.prefix').'.is_active = 1',
+                'joinType'=>self::INNER_JOIN,
                 'fields'=>array(),
                 'parent_key'=>'profile_id'),
             '2' => array(self::HAS_ONE, 'profiles_addresses', 'id',
                 'condition'=>'',
+                'fields'=>array('name'=>''),
+                'parent_key'=>'profile_id'),
+            '3' => array(self::MANY_MANY, 'profiles_projects', 'id',
+                'condition'=>'',
+                'joinType'=>self::INNER_JOIN,
                 'fields'=>array('name'=>''),
                 'parent_key'=>'profile_id'),
         ); */        

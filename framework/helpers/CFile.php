@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
@@ -48,6 +48,10 @@ class CFile
 	 */
 	public static function getMimeType($file, $checkExtension = true)
 	{
+		if(empty($file)){
+			return null;	
+		}
+		
 		if(function_exists('finfo_open')){
 			$options = defined('FILEINFO_MIME_TYPE') ? FILEINFO_MIME_TYPE : FILEINFO_MIME;
 			$info = finfo_open($options);
@@ -84,7 +88,7 @@ class CFile
             'swf' => 'application/x-shockwave-flash',
             'flv' => 'video/x-flv',
 
-            // images
+            // Images
             'png' => 'image/png',
             'jpe' => 'image/jpeg',
             'jpeg' => 'image/jpeg',
@@ -97,32 +101,32 @@ class CFile
             'svg' => 'image/svg+xml',
             'svgz' => 'image/svg+xml',
 
-            // archives
+            // Archives
             'zip' => 'application/zip',
             'rar' => 'application/x-rar-compressed',
             'exe' => 'application/x-msdownload',
             'msi' => 'application/x-msdownload',
             'cab' => 'application/vnd.ms-cab-compressed',
 
-            // audio/video
+            // Audio/video
             'mp3' => 'audio/mpeg',
             'qt' => 'video/quicktime',
             'mov' => 'video/quicktime',
 
-            // adobe
+            // Adobe
             'pdf' => 'application/pdf',
             'psd' => 'image/vnd.adobe.photoshop',
             'ai' => 'application/postscript',
             'eps' => 'application/postscript',
             'ps' => 'application/postscript',
 
-            // ms office
+            // MS Office
             'doc' => 'application/msword',
             'rtf' => 'application/rtf',
             'xls' => 'application/vnd.ms-excel',
             'ppt' => 'application/vnd.ms-powerpoint',
 
-            // open office
+            // Open Office
             'odt' => 'application/vnd.oasis.opendocument.text',
             'ods' => 'application/vnd.oasis.opendocument.spreadsheet'
 		);

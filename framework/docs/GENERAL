@@ -2,7 +2,7 @@
             -= YOU MAY NOT REMOVE OR CHANGE THIS NOTICE =-                 
  --------------------------------------------------------------------------- 
  ApPHP Web Development Framework                                            
- Version :      0.6.9
+ Version :      0.7.7
  Developed by:  ApPHP <info@apphp.com>                                      
  License:       GNU LGPL v.3                                                
  Site:          http://www.apphp.com/php-framework/                         
@@ -17,4 +17,4 @@
  - DlHighlight (JavaScript-based syntax highlighting engine)				http://mihai.bazon.net/blog (Mihai Bazon)
  - dBug (PHP version of ColdFusion’s cfdump) 					v1.1 		http://dbug.ospinto.com
  - CI_Security (Security Class from CodeIgniter framework) 		v1.0.0 		http://www.codeigniter.com
- - TCPDF (FLOSS PHP class for generating PDF documents) 		v6.2.8 		http://www.tcpdf.org
+ - TCPDF (PHP class for generating PDF documents and barcodes) 	v6.2.8 		http://www.tcpdf.org

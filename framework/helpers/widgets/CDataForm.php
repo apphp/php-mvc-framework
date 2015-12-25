@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE (static):		
@@ -15,7 +15,7 @@
  *                                                      
  */	  
 
-class CDataForm
+class CDataForm extends CWidgs
 {
 	
     const NL = "\n";
@@ -38,33 +38,38 @@ class CDataForm
      *   - to disable any field or button use: 'disabled'=>true
      *   - to use <button> tag for buttons use 'buttonTag'=>'button'
      *   - to show buttons at the top use 'buttonsPosition'=>'top' (bottom, top or both)
-     *   - attribute 'validation'=>array('unique'=>true) is used for Add/Edit modes for standard fields (not for translation fields)
+     *   - attribute 'validation'=>array('unique'=>true, 'uniqueCondition'=>'') is used for Add/Edit modes for standard fields (not for translation fields)
      * 	 - validation types: 
-     *  	alpha, numeric, alphanumeric, variable, mixed, phone, phoneString, username, timeZone
-     *  	password, email, fileName, identity|identityCode, date, integer, positiveInteger,
-     *  	float, any, text, confirm, url, ip, range ('minValue'=>'' and 'maxValue'=>'')
+     *  	alpha, numeric, alphanumeric, variable, mixed, seoLink, phone, phoneString, username, timeZone,
+     *  	password, email, fileName, identity|identityCode, date, integer, positiveInteger, percent, isHtmlSize,
+     *  	float, any, text, confirm, url, ip, range ('minValue'=>'' and 'maxValue'=>''), set, text, hexColor
      *   - attribute 'validation'=>array(..., 'forbiddenChars'=>array('+', '$')) is used to define forbidden characters
      *   - attribute 'validation'=>array(..., 'trim'=>true) - removes spaces from field value before validation
-     *   - 'successCallback' methods must be public methods of controller
+     *   - 'successCallback' - callbacl methods of controller (must be public methods)
+     *   - separatorName must starts from word 'separator'
+     *   - select classes: 'class'=>'chosen-select-filter' or 'class'=>'chosen-select'
      *   
      * Usage: (in view file)
      *  echo CWidget::create('CDataForm', array(
-     *       'model'=>'tableName',
-     *       'primaryKey'=>1,
-     *       'operationType'=>'add | edit',
-     *       'action'=>'locations/add | locations/edit/id/1',     
-     *       'successUrl'=>'locations/manage/msg/1 | locations/manage/id/{id}',
-     *       'successCallback'=>array('add'=>'', 'edit'=>''),
-     *       'cancelUrl'=>'locations/manage',
-     *       'passParameters'=>false,
-     *       'method'=>'post',
-     *       'htmlOptions'=>array(
-     *           'name'=>'form-contact',
-     *           'enctype'=>'multipart/form-data',
-     *           'autoGenerateId'=>true
+     *       'model'			=> 'tableName',
+     *		 'resetBeforeStart' => false,
+     *       'primaryKey'		=> 1,
+     *       'operationType'	=> 'add | edit',
+     *       'action'			=> 'locations/add | locations/edit/id/1',     
+     *       'successUrl'		=> 'locations/manage/msg/1 | locations/manage/id/{id} | locations/manage (when alertType = flash)',
+     *       'successCallback'	=> array('add'=>'', 'edit'=>''),
+     *       'cancelUrl'		=> 'locations/manage',
+     *       'passParameters'	=> false,
+     *		 'linkType' 		=> 0,
+     *       'method'			=> 'post',
+     *       'htmlOptions'		=> array(
+     *       	 'id'				=> 'form-contact',
+     *           'name'				=> 'form-contact',
+     *           'enctype'			=> 'multipart/form-data',
+     *           'autoGenerateId'	=> true
      *       ),
      *       'requiredFieldsAlert'=>true,
-     *       'fieldSetType'=>'frameset|tabs',
+     *       'fieldSets'		=> array('type'=>'frameset|tabs|tabsList', 'firstTabActive'=>true),
      *       'fields'=>array(
 	 *         	 'separatorName' =>array(
 	 *               'separatorInfo'=>array('legend'=>A::t('app', 'Headers & Footers')),
@@ -79,42 +84,44 @@ class CDataForm
      *           'field_6'=>array('type'=>'textbox',        'title'=>'Mixed',      'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'mixed'), 'htmlOptions'=>array()),
      *           'field_7'=>array('type'=>'textbox',        'title'=>'Field',      'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>false, 'type'=>'any', 'maxLength'=>255), 'htmlOptions'=>array()),
      *           'field_8'=>array('type'=>'textbox',        'title'=>'Format',     'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'set', 'source'=>array(1, 2, 3, 4, 5)), 'htmlOptions'=>array()),
-     *           'field_9'=>array('type'=>'textarea',       'title'=>'Text',       'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'any', 'maxLength'=>255), 'htmlOptions'=>array('maxLength'=>'255')),
-     *          'field_10'=>array('type'=>'checkbox',       'title'=>'Checkbox',   'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>false, 'type'=>'set', 'source'=>array(0,1)), 'htmlOptions'=>array()),
-     *          'field_11'=>array('type'=>'select',         'title'=>'Select',     'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'set', 'source'=>array_keys(array())), 'data'=>array(), 'htmlOptions'=>array()),
-     *          'field_12'=>array('type'=>'radioButton',    'title'=>'Radio',      'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>''), 'htmlOptions'=>array()),
-     *          'field_13'=>array('type'=>'radioButtonList','title'=>'RadioList',  'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>''), 'data'=>array(), 'htmlOptions'=>array()),
-     *          'field_14'=>array(
-     *              'type'=>'imageUpload',
-     *              'title'=>'Image Uploader',
-     *              'tooltip'=>'',
-     *              'default'=>'',
-     *              'validation'=>array('required'=>true, 'type'=>'image', 'targetPath'=>'templates/backend/images/accounts/', 'maxSize'=>'100k', 'maxWidth'=>'120px', 'maxHeight'=>'90px', 'mimeType'=>'image/jpeg, image/png', 'fileName'=>CHash::getRandomString(10), 'htmlOptions'=>array()),
-	 *          	'imageOptions'=>array('showImage'=>true, 'showImageName'=>true, 'showImageSize'=>true, 'imageClass'=>'avatar'),
-	 *          	'thumbnailOptions'=>array('create'=>true, 'field'=>'', 'width'=>'', 'height'=>''),
-	 *          	'deleteOptions'=>array('showLink'=>true, 'linkUrl'=>'admins/edit/avatar/delete', 'linkText'=>'Delete'),
-	 *          	'fileOptions'=>array('showAlways'=>false, 'class'=>'file', 'size'=>'25', 'filePath'=>'templates/backend/files/accounts/')
-     *          ),
+     *           'field_9'=>array('type'=>'textbox',        'title'=>'Field Autocomplete',  'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>false, 'type'=>'any', 'maxLength'=>255), 'autocomplete'=>array('enable'=>true, 'ajaxHandler'=>'', 'minLength'=>3), 'htmlOptions'=>array()), 
+     *          'field_10'=>array('type'=>'textarea',       'title'=>'Text',       'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'any', 'maxLength'=>255), 'htmlOptions'=>array('maxLength'=>'255')),
+     *          'field_11'=>array('type'=>'checkbox',       'title'=>'Checkbox',   'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>false, 'type'=>'set', 'source'=>array(0,1)), 'htmlOptions'=>array()),
+     *          'field_12'=>array('type'=>'select',    		'title'=>'Select',     'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'set', 'source'=>array_keys(array(...))), 'data'=>array(), 'emptyOption'=>true, 'viewType'=>'dropdownlist|checkboxes', 'multiple'=>false, 'storeType'=>'serialized|separatedValues', 'separator'=>';', 'htmlOptions'=>array('class'=>'chosen-select-filter')),
+     *          'field_13'=>array('type'=>'radioButton',    'title'=>'Radio',      'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>''), 'htmlOptions'=>array()),
+     *          'field_14'=>array('type'=>'radioButtonList','title'=>'RadioList',  'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>''), 'data'=>array(), 'htmlOptions'=>array()),
      *          'field_15'=>array(
-     *              'type'=>'fileUpload',
-     *              'title'=>'File Uploader',
-     *              'tooltip'=>'',
-     *              'default'=>'',
-     *              'validation'=>array('required'=>true, 'type'=>'file', 'targetPath'=>'templates/backend/files/accounts/', 'maxSize'=>'100k', 'mimeType'=>'application/zip, application/xml', 'fileName'=>CHash::getRandomString(10), 'htmlOptions'=>array()),
-	 *          	'iconOptions'=>array('showType'=>true, 'showFileName'=>true, 'showFileSize'=>true),
-	 *          	'deleteOptions'=>array('showLink'=>true, 'linkUrl'=>'templates/backend/files/accounts/', 'linkText'=>'Delete'),
-	 *          	'fileOptions'=>array('showAlways'=>false, 'class'=>'file', 'size'=>'25', 'filePath'=>'templates/backend/files/accounts/')
+     *              'type'			 	=> 'imageUpload',
+     *              'title'			 	=> 'Image Uploader',
+     *              'tooltip'		 	=> '',
+     *              'default'		 	=> '',
+     *              'validation'	 	=> array('required'=>true, 'type'=>'image', 'targetPath'=>'templates/backend/images/accounts/', 'maxSize'=>'100k', 'maxWidth'=>'120px', 'maxHeight'=>'90px', 'mimeType'=>'image/jpeg, image/png', 'fileName'=>CHash::getRandomString(10), 'filePrefix'=>'', 'filePostfix'=>'', 'htmlOptions'=>array()),
+	 *          	'imageOptions'	 	=> array('showImage'=>true, 'showImageName'=>true, 'showImageSize'=>true, 'imageClass'=>'avatar'),
+	 *          	'thumbnailOptions'	=> array('create'=>true, 'directory'=>'', 'field'=>'', 'postfix'=>'_thumb', 'width'=>'', 'height'=>''),
+	 *          	'deleteOptions'	 	=> array('showLink'=>true, 'linkUrl'=>'admins/edit/avatar/delete', 'linkText'=>'Delete'),
+	 *          	'fileOptions'	 	=> array('showAlways'=>false, 'class'=>'file', 'size'=>'25', 'filePath'=>'templates/backend/files/accounts/')
      *          ),
-     *          'field_16'=>array('type'=>'label',  'title'=>'Label 16', 'default'=>'', 'tooltip'=>'', 'definedValues'=>array(), 'htmlOptions'=>array(), 'format'=>'', 'stripTags'=>false),
-     *          'field_17'=>array('type'=>'link',   'title'=>'Label 17', 'tooltip'=>'', 'linkUrl'=>'path/to/param', 'linkText'=>'', 'htmlOptions'=>array()),
-     *          'field_18'=>array('type'=>'datetime', 'title'=>'Field 18', 'default'=>'', 'tooltip'=>'', 'definedValues'=>array(), 'htmlOptions'=>array(), 'format'=>'', 'minDate'=>'', 'maxDate'=>''),
-     *          'field_19=>array('type'=>'hidden', 'default'=>'', 'htmlOptions'=>array()),
-     *          'field_20'=>array('type'=>'data', 'default'=>''),
+     *          'field_16'=>array(
+     *              'type'			 	=> 'fileUpload',
+     *              'title'			 	=> 'File Uploader',
+     *              'tooltip'		 	=> '',
+     *              'default'		 	=> '',
+     *              'validation'	 	=> array('required'=>true, 'type'=>'file', 'targetPath'=>'templates/backend/files/accounts/', 'maxSize'=>'100k', 'mimeType'=>'application/zip, application/xml', 'fileName'=>CHash::getRandomString(10), 'filePrefix'=>'', 'filePostfix'=>'', htmlOptions'=>array()),
+	 *          	'iconOptions'	 	=> array('showType'=>true, 'showFileName'=>true, 'showFileSize'=>true),
+	 *          	'deleteOptions'	 	=> array('showLink'=>true, 'linkUrl'=>'admins/edit/avatar/delete', 'linkText'=>'Delete'),
+	 *          	'fileOptions'	 	=> array('showAlways'=>false, 'class'=>'file', 'size'=>'25', 'filePath'=>'templates/backend/files/accounts/')
+     *          ),
+     *          'field_17'=>array('type'=>'label',  	'title'=>'Label 16', 'default'=>'', 'tooltip'=>'', 'definedValues'=>array(), 'htmlOptions'=>array(), 'format'=>'', 'stripTags'=>false),
+     *          'field_18'=>array('type'=>'link',   	'title'=>'Label 17', 'tooltip'=>'', 'linkUrl'=>'path/to/param', 'linkText'=>'', 'htmlOptions'=>array()),
+     *          'field_19'=>array('type'=>'videoLink',   'title'=>'Label 18', 'tooltip'=>'', 'default'=>'', 'preview'=>false, 'validation'=>array('required'=>false, 'type'=>'url'), 'htmlOptions'=>array()),
+     *          'field_20'=>array('type'=>'datetime', 	'title'=>'Field 19', 'default'=>'', 'tooltip'=>'', 'validation'=>array('required'=>true, 'type'=>'date'), 'htmlOptions'=>array(), 'definedValues'=>array(), 'format'=>'', 'minDate'=>'', 'maxDate'=>''),
+     *          'field_21'=>array('type'=>'hidden', 	'default'=>'', 'htmlOptions'=>array()),
+     *          'field_22'=>array('type'=>'data', 		'default'=>''),
      *       ),
      *       'translationInfo'=>array('relation'=>array('field_from', 'field_to'), 'languages'=>Languages::model()->findAll('is_active = 1')),
      *       'translationFields'=>array(
      *           'fields_1_1'=>array('type'=>'textbox', 'title'=>'Field 1-1', 'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'any'), 'htmlOptions'=>array()),
-     *           'fields_1_2'=>array('type'=>'textarea', 'title'=>'Field 1-2'), 'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'any', 'maxLength'=>5000), 'htmlOptions'=>array('maxLength'=>'5000')),
+     *           'fields_1_2'=>array('type'=>'textarea', 'title'=>'Field 1-2', 'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'any', 'maxLength'=>5000), 'htmlOptions'=>array('maxLength'=>'5000')),
      *       ),
      *       'buttons'=>array(
      *          'submit'=>array('type'=>'submit', 'value'=>'Send', 'htmlOptions'=>array('name'=>'')),
@@ -127,56 +134,70 @@ class CDataForm
      *       'buttonsPosition'=>'bottom',
      *       'messagesSource'=>'core',
      *       'showAllErrors'=>false,
+     *		 'alerts'=>array('type'=>standard|flash, 'itemName'=>A::t('app', 'Field Name').' #'.$id),
      *       'return'=>true,
      *  ));
      */
     public static function init($params = array())
     {
-        $output = '';
-		$baseUrl = A::app()->getRequest()->getBaseUrl();
-		$cRequest = A::app()->getRequest();
-
-        $model = isset($params['model']) ? $params['model'] : '';
-        $primaryKey = isset($params['primaryKey']) ? (int)$params['primaryKey'] : '';
-		$operationType = (isset($params['operationType']) && $params['operationType'] == 'edit') ? 'edit' : 'add';
-		$action = isset($params['action']) ? $params['action'] : '';
-		$successUrl = isset($params['successUrl']) ? $params['successUrl'] : '';
-		$successCallbackAdd = isset($params['successCallback']['add']) ? $params['successCallback']['add'] : '';
-		$successCallbackEdit = isset($params['successCallback']['edit']) ? $params['successCallback']['edit'] : '';
-		$cancelUrl = isset($params['cancelUrl']) ? $params['cancelUrl'] : '';
-		$method = isset($params['method']) ? $params['method'] : 'post';
-        $htmlOptions = (isset($params['htmlOptions']) && is_array($params['htmlOptions'])) ? $params['htmlOptions'] : array();
-		$requiredFieldsAlert = isset($params['requiredFieldsAlert']) ? $params['requiredFieldsAlert'] : false;
-		$fieldSetType = (isset($params['fieldSetType']) && $params['fieldSetType'] == 'tabs') ? 'tabs' : 'frameset';                
-		//$autoGenerateId = isset($htmlOptions['autoGenerateId']) ? (bool)$htmlOptions['autoGenerateId'] : false;
-        $formName = isset($htmlOptions['name']) ? $htmlOptions['name'] : '';
-        $return = isset($params['return']) ? (bool)$params['return'] : true;
+		parent::init($params);
 		
-		$fields = isset($params['fields']) ? $params['fields'] : array();
-		$translationInfo = isset($params['translationInfo']) ? $params['translationInfo'] : array();
-		$languages = isset($translationInfo['languages']) ? $translationInfo['languages'] : array();
-		$keyFrom = isset($translationInfo['relation'][0]) ? $translationInfo['relation'][0] : '';
-		$keyTo = isset($translationInfo['relation'][1]) ? $translationInfo['relation'][1] : '';
-		
-		$translationFields = isset($params['translationFields']) ? $params['translationFields'] : array();
-		$msgSource = isset($params['messagesSource']) ? $params['messagesSource'] : 'core';
-		$showAllErrors = isset($params['showAllErrors']) ? (bool)$params['showAllErrors'] : false;
-        $buttonsPosition = isset($params['buttonsPosition']) ? $params['buttonsPosition'] : 'bottom';
-        $buttons = isset($params['buttons']) ? $params['buttons'] : array();
-		if(isset($buttons['cancel']) && !empty($cancelUrl)) $buttons['cancel']['htmlOptions']['onclick'] = '$(location).attr(\'href\',\''.$baseUrl.$cancelUrl.'\');';
+		$baseUrl 				= A::app()->getRequest()->getBaseUrl();
+		$cRequest 				= A::app()->getRequest();
+        $output 				= '';
 
-		$objModel = call_user_func_array($model.'::model', array());
-		$tableName = CConfig::get('db.prefix').$objModel->getTableName();
-		$records = ($operationType == 'edit') ? $objModel->findByPk($primaryKey) : call_user_func_array($model.'::model', array()); 
-		$recordsAssoc = !empty($records) ? $records->getFieldsAsArray() : array();
-				
-		$passParameters = isset($params['passParameters']) ? (bool)$params['passParameters'] : false;
-		// add additional parameters if allowed
+        $model 					= self::params('model', '');
+		$resetBeforeStart		= (bool)self::params('resetBeforeStart', false);
+        $primaryKey 			= (int)self::params('primaryKey', '');
+		$operationType 			= self::params('operationType', 'add', 'in_array', array('edit', 'add'));
+		$action 				= self::params('action', '');
+		$successUrl 			= self::params('successUrl', '');
+		$successCallbackAdd 	= self::params('successCallback.add', '');
+		$successCallbackEdit 	= self::params('successCallback.edit', '');
+		$cancelUrl 				= self::params('cancelUrl', '');
+		$method 				= self::params('method', 'post');
+        $htmlOptions 			= self::params('htmlOptions', array(), 'is_array');
+		$requiredFieldsAlert 	= self::params('requiredFieldsAlert', false);
+		$fieldSets				= self::params('fieldSets', array(), 'is_array');
+		$linkType 				= (int)self::params('linkType', 0); /* Link type: 0 - standard, 1 - SEO */
+        $formName 				= self::params('name', '');
+        $return 				= (bool)self::params('return', true);
+		
+		$fields 				= self::params('fields', array(), 'is_array');
+		$translationInfo 		= self::params('translationInfo', array());
+		$languages 				= self::keyAt('languages', $translationInfo, array());
+		
+		$relation				= self::keyAt('relation', $translationInfo, array());
+		$keyFrom 				= isset($relation[0]) ? $relation[0] : '';
+		$keyTo 					= isset($relation[1]) ? $relation[1] : '';
+		
+		$translationFields 		= self::params('translationFields', array());
+		$msgSource 				= self::params('messagesSource', 'core');
+		$showAllErrors 			= (bool)self::params('showAllErrors', false);
+		$alertType 				= self::params('alerts.type', 'standard');
+		$alertItemName 			= self::params('alerts.itemName', '');
+        $buttonsPosition 		= self::params('buttonsPosition', 'bottom');
+        $buttons 				= self::params('buttons', array());
+								if(self::issetKey('cancel', $buttons) && !empty($cancelUrl)){
+									$buttons['cancel']['htmlOptions']['onclick'] = '$(location).attr(\'href\',\''.$baseUrl.$cancelUrl.'\');';
+								}
+
+		$objModel 				= call_user_func_array($model.'::model', array());
+								if($resetBeforeStart) $objModel->reset();
+		$tableName 				= CConfig::get('db.prefix').$objModel->getTableName();
+		$records 				= ($operationType == 'edit') ? $objModel->findByPk($primaryKey) : call_user_func_array($model.'::model', array()); 
+		$recordsAssoc 			= !empty($records) ? $records->getFieldsAsArray() : array();
+		
+		$passParameters 		= (bool)self::params('passParameters', false);
+		// Add additional parameters if allowed
 		if($passParameters){
-			$additionalParams = self::_additionalParams(true);
-			$successUrl .= $additionalParams;
-			$action .= $additionalParams;
-			if(isset($buttons['cancel']) && !empty($cancelUrl)) $buttons['cancel']['htmlOptions']['onclick'] = '$(location).attr(\'href\',\''.$baseUrl.$cancelUrl.$additionalParams.'\');';
+			$separateSymbol = preg_match('/\?/', $successUrl) ? '&' : '?';
+			$successUrl .= self::_additionalParams(true, $linkType, $separateSymbol);
+			$separateSymbol = preg_match('/\?/', $action) ? '&' : '?';
+			$action .= self::_additionalParams(true, $linkType, $separateSymbol);			
+			$separateSymbol = preg_match('/\?/', $cancelUrl) ? '&' : '?';
+			$cancelUrl .= self::_additionalParams(true, $linkType, $separateSymbol);			
+			if(self::issetKey('cancel', $buttons) && !empty($cancelUrl)) $buttons['cancel']['htmlOptions']['onclick'] = '$(location).attr(\'href\',\''.$baseUrl.$cancelUrl.'\');';
 		} 		
 
 		$errorField = '';			
@@ -188,20 +209,27 @@ class CDataForm
 		// -----------------------------------------------------------
 		if($cRequest->getPost('APPHP_FORM_ACT') == 'send'){
 		
-			// prepare fields without framesets
+			// Prepare fields without framesets
+			// Remove disabled fields and framesets
 			$fieldsMainTable = array();
 			foreach($fields as $field => $fieldInfo){
 				if(preg_match('/separator/i', $field) && is_array($fieldInfo)){
-					if(isset($fieldInfo['separatorInfo'])){
+					if(self::issetKey('separatorInfo', $fieldInfo)){
 						unset($fieldInfo['separatorInfo']);
 					}
-					foreach($fieldInfo as $iField => $iFieldInfo) $fieldsMainTable[$iField] = $iFieldInfo;
-				}else{
-					$fieldsMainTable[$field] = $fieldInfo;
+					foreach($fieldInfo as $iField => $iFieldInfo){
+						if(!isset($fieldInfo['disabled']) || $fieldInfo['disabled'] !== true){
+							$fieldsMainTable[$iField] = $iFieldInfo;	
+						}
+					}
+				}else{					
+					if(!isset($fieldInfo['disabled']) || $fieldInfo['disabled'] !== true){
+						$fieldsMainTable[$field] = $fieldInfo;	
+					}
 				}
 			}
 
-			// merge fields from main table with translation fields for validation			
+			// Merge fields from main table with translation fields for validation			
 			$transFieldsByLangs = array();
 			foreach($translationFields as $transFieldKey => $transFieldVal){
 				foreach($languages as $lang){
@@ -213,21 +241,23 @@ class CDataForm
 			}
 			$mergedFieldsForValidation = array_merge($fieldsMainTable, $transFieldsByLangs);
 			
-			// validate the form with all fields
+			// Validate the form with all fields
 			$result = CWidget::create('CFormValidation', array('fields'=>$mergedFieldsForValidation, 'messagesSource'=>$msgSource, 'showAllErrors'=>$showAllErrors));
 			if($result['error']){
 				$msg = $result['errorMessage'];
 				$msgType = 'validation';
 				$errorField = $result['errorField'];
 			}else{				
-				// check fields for unique values
+				// Check fields for unique values
 				foreach($fieldsMainTable as $field => $fieldInfo){
-                    if(!isset($recordsAssoc[$field])) continue;
-                    $vfUnique = isset($fieldInfo['validation']['unique']) ? $fieldInfo['validation']['unique'] : false;
+                    if(!self::issetKey($field, $recordsAssoc)) continue;
+                    $vfUnique = (bool)self::keyAt('validation.unique', $fieldInfo, false);
+					$vfUniqueCondition = self::keyAt('validation.uniqueCondition', $fieldInfo, '');
                     $vfValue = ($operationType == 'edit') ? $cRequest->getPost($field) : $cRequest->getPost($field);
 					if($vfUnique && $vfValue !== ''){
-						$fieldTitle = isset($fieldInfo['title']) ? $fieldInfo['title'] : '';
+						$fieldTitle = self::keyAt('title', $fieldInfo, '');
 						$sqlCount = $tableName.'.'.$field.' = :code'.(($operationType == 'edit') ? ' AND '.$tableName.'.id != :id' : '');
+						$sqlCount .= !empty($vfUniqueCondition) ? ' AND '.$vfUniqueCondition : '';
 						$sqlParams = ($operationType == 'edit') ? array(':code'=>$vfValue, ':id'=>$primaryKey) : array(':code'=>$vfValue);
 						if($objModel->count($sqlCount, $sqlParams) > 0){
 							$errorField = $field;
@@ -239,51 +269,62 @@ class CDataForm
 				}
 
 				if(!$msgType){
-					// update/change fields values (according to definition in CDataForm)
+					// Update/change fields values (according to definition in CDataForm)
 					foreach($fieldsMainTable as $field => $fieldInfo){
-                        $fieldType = isset($fieldInfo['type']) ? strtolower($fieldInfo['type']) : '';
-                        $validationType = isset($fieldInfo['validation']['type']) ? $fieldInfo['validation']['type'] : '';
-                        $validationFormat = isset($fieldInfo['validation']['format']) ? $fieldInfo['validation']['format'] : '';                       
-                        if($fieldType != 'label'){                        						
+                        $fieldType = strtolower(self::keyAt('type', $fieldInfo, ''));
+						$viewType = self::keyAt('viewType', $fieldInfo, '');
+                        $validationType = self::keyAt('validation.type', $fieldInfo, '');
+                        $validationFormat = self::keyAt('validation.format', $fieldInfo, '');
+                        
+						if($fieldType != 'label'){                        						
                             $fieldValue = $cRequest->getPost($field);
-							if(isset($fieldInfo['htmlOptions']['disabled']) || (isset($fieldInfo['disabled']) && $fieldInfo['disabled'] === true)){	
+							if(self::issetKey('htmlOptions.disabled', $fieldInfo) || (self::issetKey('disabled', $fieldInfo) && $fieldInfo['disabled'] === true)){
                                 unset($recordsAssoc[$field]);
                             }else if($validationType == 'float' && $validationFormat == 'european'){
                                 $fieldValue = CNumber::americanFormat($fieldValue, array('thousandSeparator'=>false));
                             }else if($fieldType == 'checkbox' && $fieldValue == ''){
-                                // set default value to specific fields: checkbox (if it's empty), encrypted fields and image
+                                // Set default value to specific fields: checkbox (if it's empty), encrypted fields and image
                                 $fieldValue = 0;
                             }else if($fieldType == 'image'){
                                 unset($recordsAssoc[$field]);
                             }else if($fieldType == 'data'){
-                                $fieldValue = isset($fieldInfo['default']) ? $fieldInfo['default'] : '';
+                                $fieldValue = self::keyAt('default', $fieldInfo, '');
                             }else if($fieldType == 'imageupload'){
                                 if(!empty($_FILES[$field]['name'])){
-                                    $targetPath = isset($fieldInfo['validation']['targetPath']) ? $fieldInfo['validation']['targetPath'] : '';
-                                    $fileName = isset($fieldInfo['validation']['fileName']) ? $fieldInfo['validation']['fileName'] : '';
-                                    if(!empty($fileName)){
-                                        $fieldValue = $fileName.'.'.pathinfo($_FILES[$field]['name'], PATHINFO_EXTENSION);
-                                    }else{
-                                        $fieldValue = $_FILES[$field]['name'];
-                                    }
+                                    $targetPath = self::keyAt('validation.targetPath', $fieldInfo, '');
+                                    $fileName = self::keyAt('validation.fileName', $fieldInfo, '');
+									$filePrefix = self::keyAt('validation.filePrefix', $fieldInfo, '');
+									$filePostfix = self::keyAt('validation.filePostfix', $fieldInfo, '');
                                     
-                                    $thumbnailCreate = isset($fieldInfo['thumbnailOptions']['create']) ? (bool)$fieldInfo['thumbnailOptions']['create'] : false;
-                                    $thumbnailField = isset($fieldInfo['thumbnailOptions']['field']) ? $fieldInfo['thumbnailOptions']['field'] : false;
-                                    $thumbnailWidth = isset($fieldInfo['thumbnailOptions']['width']) ? $fieldInfo['thumbnailOptions']['width'] : false;
-                                    $thumbnailHeight = isset($fieldInfo['thumbnailOptions']['height']) ? $fieldInfo['thumbnailOptions']['height'] : false;
+									$fileExtension = pathinfo($_FILES[$field]['name'], PATHINFO_EXTENSION);
+									if(!empty($fileName)){
+										$fileName = strtolower($fileName);
+										$fileExtension = strtolower($fileExtension);
+                                    }else{
+                                        $fileName = pathinfo($_FILES[$field]['name'], PATHINFO_FILENAME);										
+									}
+									
+									$fieldValue = $filePrefix.$fileName.$filePostfix.'.'.$fileExtension;
+									
+                                    $thumbnailCreate = (bool)self::keyAt('thumbnailOptions.create', $fieldInfo, false);
+									$thumbnailDirectory = self::issetKey('thumbnailOptions.directory', $fieldInfo) ? trim(self::keyAt('thumbnailOptions.directory', $fieldInfo), '/').'/' : '';
+                                    $thumbnailField = self::keyAt('thumbnailOptions.field', $fieldInfo, '');
+									$thumbnailFieldPostfix = self::keyAt('thumbnailOptions.postfix', $fieldInfo, '_thumb');
+                                    $thumbnailWidth = self::keyAt('thumbnailOptions.width', $fieldInfo, 0);
+                                    $thumbnailHeight = self::keyAt('thumbnailOptions.height', $fieldInfo, 0);
                                     if($thumbnailCreate){
-                                        // create thumbnail
+                                        // Create thumbnail
                                         $path = APPHP_PATH.DS.$targetPath;
                                         $thumbFileExt = substr(strrchr($fieldValue, '.'), 1);
                                         $thumbFileName = str_replace('.'.$thumbFileExt, '', $fieldValue);
-                                        $thumbFileFullName = $thumbFileName.'_thumb.'.$thumbFileExt;
-                                        CFile::copyFile($path.$fieldValue, $path.$thumbFileFullName);
-                                        $thumbFileRealName = CImage::resizeImage($path, $thumbFileFullName, $thumbnailWidth, $thumbnailHeight);
-                                        // delete file if we make thumbnail on the same file
+                                        $thumbFileFullName = $thumbFileName.$thumbnailFieldPostfix.'.'.$thumbFileExt;
+                                        CFile::copyFile($path.$fieldValue, $path.$thumbnailDirectory.$thumbFileFullName);
+                                        $thumbFileRealName = CImage::resizeImage($path.$thumbnailDirectory, $thumbFileFullName, $thumbnailWidth, $thumbnailHeight);
+                                        // Delete file if we make thumbnail on the same file
                                         if($thumbnailField == $field){
-                                            CFile::deleteFile($path.$fieldValue);
+                                            CFile::deleteFile($path.$thumbnailDirectory.$fieldValue);
                                         }else if($thumbnailField != ''){
-                                            // thumbnail created update database table
+                                            // Thumbnail created update database table
                                             $records->set($thumbnailField, $thumbFileRealName);
                                         }                                        
                                     }
@@ -293,54 +334,79 @@ class CDataForm
                                 }
                             }else if($fieldType == 'fileupload'){
                                 if(!empty($_FILES[$field]['name'])){
-                                    $targetPath = isset($fieldInfo['validation']['targetPath']) ? $fieldInfo['validation']['targetPath'] : '';
-                                    $fileName = isset($fieldInfo['validation']['fileName']) ? $fieldInfo['validation']['fileName'] : '';
-                                    if(!empty($fileName)){
-                                        $fieldValue = $fileName.'.'.pathinfo($_FILES[$field]['name'], PATHINFO_EXTENSION);
+                                    $targetPath = self::keyAt('validation.targetPath', $fieldInfo, '');
+                                    $fileName = self::keyAt('validation.fileName', $fieldInfo, '');
+									$filePrefix = self::keyAt('validation.filePrefix', $fieldInfo, '');
+									$filePostfix = self::keyAt('validation.filePostfix', $fieldInfo, '');
+
+									$fileExtension = pathinfo($_FILES[$field]['name'], PATHINFO_EXTENSION);
+									if(!empty($fileName)){
+										$fileName = strtolower($fileName);
+										$fileExtension = strtolower($fileExtension);
                                     }else{
-                                        $fieldValue = $_FILES[$field]['name'];
-                                    }
+                                        $fileName = pathinfo($_FILES[$field]['name'], PATHINFO_FILENAME);										
+									}
+
+									$fieldValue = $filePrefix.$fileName.$filePostfix.'.'.$fileExtension;
                                 }else{
                                     $fieldValue = '';
                                     unset($recordsAssoc[$field]);
                                 }
                             }else if($fieldType == 'password'){
-                                $fieldEncryption = isset($fieldInfo['encryption']['enabled']) ? (bool)$fieldInfo['encryption']['enabled'] : false;
+                                $fieldEncryption = (bool)self::keyAt('encryption.enabled', $fieldInfo, false);
                                 if($fieldEncryption){
-                                    $encryptAlgorithm = isset($fieldInfo['encryption']['encryptAlgorithm']) ? $fieldInfo['encryption']['encryptAlgorithm'] : '';
-                                    $encryptSalt = isset($fieldInfo['encryption']['encryptSalt']) ? $fieldInfo['encryption']['encryptSalt'] : '';
+                                    $encryptAlgorithm = self::keyAt('encryption.encryptAlgorithm', $fieldInfo, '');
+                                    $encryptSalt = self::keyAt('encryption.encryptSalt', $fieldInfo, '');
                                     if(empty($fieldValue)){
                                         unset($recordsAssoc[$field]);
                                     }else{
                                         $fieldValue = CHash::create($encryptAlgorithm, $fieldValue, $encryptSalt);
                                     }							
                                 }
-                            }else if($fieldValue == ''){
+							}else if($fieldType == 'select' && $viewType == 'checkboxes'){
+								$multiple = (bool)self::keyAt('multiple', $fieldInfo, false);
+								if($multiple){
+									$storeType = self::keyAt('storeType', $fieldInfo, 'separatedValues');
+									$separator = self::keyAt('separator', $fieldInfo, ';');
+									if(is_array($fieldValue)){
+										if($storeType == 'serialized'){									
+											$fieldValue = serialize($fieldValue);
+										}else if(is_array($fieldValue)){
+											$fieldValue = implode($separator, $fieldValue);
+										}
+									}
+								}
+                            }else if($fieldValue === ''){
                                 if($operationType == 'add'){
-                                    if(isset($fieldInfo['default'])) $fieldValue = $fieldInfo['default'];
-                                    else if(isset($fieldInfo['defaultAddMode'])) $fieldValue = $fieldInfo['defaultAddMode'];
+                                    if(self::issetKey('default', $fieldInfo)) $fieldValue = $fieldInfo['default'];
+                                    else if(self::issetKey('defaultAddMode', $fieldInfo)) $fieldValue = $fieldInfo['defaultAddMode'];
                                 }else if($operationType == 'edit'){
-                                    if(isset($fieldInfo['defaultEditMode'])) $fieldValue = $fieldInfo['defaultEditMode'];
+									if(self::issetKey('default', $fieldInfo)) $fieldValue = $fieldInfo['default'];
+                                    else if(self::issetKey('defaultEditMode', $fieldInfo)) $fieldValue = $fieldInfo['defaultEditMode'];
                                 }    
                             }
                             
-                            // update fields values (according to defined in database table)
-                            if(isset($recordsAssoc[$field])){
+                            if(self::issetKey($field, $recordsAssoc)){
+								// Update field values (onlt fields that defined in database table)
                                 $records->set($field, $fieldValue);
-                            }
+                            }else{
+								// Store field values that not defined in database table in a special array
+								$records->setSpecialField($field, $fieldValue);
+							}
                         }
 					}
 					
-					// save main table
+					// Save main table
 					if($operationType == 'add') $objModel->clearPkValue();
 					if($records->save()){
-						// save data into translation table					
+						// Save data into translation table					
 						if(count($translationFields) > 0){
 							$translationParams = array();
 							foreach($translationFields as $transFieldKey => $transFieldVal){
 								foreach($languages as $lang){
                                     $transFieldValue = $cRequest->getPost($transFieldKey.'_'.$lang['code']);
-									$translationParams[$lang['code']][$transFieldKey] = (isset($transFieldVal['validation']['trim']) && $transFieldVal['validation']['trim'] == true) ? trim($transFieldValue) : $transFieldValue;
+									
+									$translationParams[$lang['code']][$transFieldKey] = (self::keyAt('validation.trim', $transFieldVal, false) == true) ? trim($transFieldValue) : $transFieldValue;
 								}
 							}
 							if($cRequest->getPost('APPHP_FORM_ACT') == 'send'){
@@ -354,29 +420,45 @@ class CDataForm
 						$msgType = 'success';
 						$msg = A::t($msgSource, ($operationType == 'add') ? 'The adding operation has been successfully completed!' : 'The updating operation has been successfully completed!');						
 						
-						// get last inserted ID
+						// Get last inserted ID
 						if($operationType == 'add') $primaryKey = $objModel->getPrimaryKey();
 						
-						// perform success Callbacks
+						// Perform success Callbacks
 						if($operationType == 'add'){
-							// for Add Mode
+							// Add Mode
 							if(!empty($successCallbackAdd)){
 								call_user_func_array(array($model.'Controller', $successCallbackAdd), array($primaryKey));
 							}
 						}else{
 							// Edit Mode
 							if(!empty($successCallbackEdit)){
-								call_user_func_array(array($model.'Controller', $successCallbackAdd), array($primaryKey));
+								call_user_func_array(array($model.'Controller', $successCallbackEdit), array($primaryKey));
 							}
 						}
 						
-						// redirect to success URL
+						// Redirect to success URL
 						if(!empty($successUrl)){
-                            if($cRequest->isPostExists('btnUpdateClose')){                            
+							
+							// Create flash alert
+							if($alertType == 'flash'){
+								if(!empty($alertItemName)){
+									$message = ($operationType == 'add') ?
+										A::t($msgSource, 'New {item_type} has been successfully added!', array('{item_type}'=>$alertItemName)) :
+										A::t($msgSource, 'The {item_type} has been successfully updated!', array('{item_type}'=>$alertItemName));
+								}else{
+									$message = ($operationType == 'add') ?
+										A::t($msgSource, 'The adding operation has been successfully completed!') :
+										A::t($msgSource, 'The updating operation has been successfully completed!');
+								}
+								A::app()->getSession()->setFlash('alert', $message);
+								A::app()->getSession()->setFlash('alertType', 'success');
+							}							
+							
+                            if($cRequest->isPostExists('btnUpdateClose')){
                                 header('location: '.$baseUrl.$successUrl);
                                 exit;
                             }else if($cRequest->isPostExists('btnUpdate')){
-                                // do nothing
+                                // Do nothing
                             }else{
                                 if($operationType == 'add') $successUrl = str_replace('{id}', $primaryKey, $successUrl);
                                 header('location: '.$baseUrl.$successUrl);
@@ -384,7 +466,7 @@ class CDataForm
                             }
 						}
 						
-						// refresh data
+						// Refresh data
 						$records = $objModel->findByPk($primaryKey);
 						if($records) $recordsAssoc = $records->getFieldsAsArray();
 					}else{
@@ -399,11 +481,11 @@ class CDataForm
                             $msg = A::t($msgSource, ($operationType == 'add') ? 'The error occurred while adding new record! To get more information please turn on debug mode.' : 'The error occurred while updating this record! To get more information please turn on debug mode.');
                             $msgType = 'error';					
                         }
-					}					
+					}
 				}				
 			}
 			
-			// remove uploaded images if error is detected
+			// Remove uploaded images if error is detected
 			if($msgType == 'error' || $msgType == 'validation'){
 				$uploadedFiles = (array)$result['uploadedFiles'];
 				foreach($uploadedFiles as $file){
@@ -427,23 +509,23 @@ class CDataForm
 			$formViewParams['method'] = $method;
 			$formViewParams['htmlOptions'] = $htmlOptions;
 			$formViewParams['requiredFieldsAlert'] = $requiredFieldsAlert;
-			$formViewParams['fieldSetType'] = $fieldSetType;			
+			$formViewParams['fieldSets'] = $fieldSets;			
 			
 			$formViewParams['fields'] = array();
 			$formViewParams['fields']['APPHP_FORM_ACT'] = array('type'=>'hidden', 'value'=>'send');
 	
-			// remove disabled fields
+			// Remove disabled fields
 			foreach($fields as $field => $fieldInfo){
 				if(preg_match('/separator/i', $field) && is_array($fieldInfo)){
 					foreach($fieldInfo as $iField => $iFieldInfo){
-						if(isset($iFieldInfo['disabled']) && $iFieldInfo['disabled'] === true) unset($fields[$field][$iField]);
+						if(self::keyAt('disabled', $iFieldInfo, false) === true) unset($fields[$field][$iField]);
 					}
 				}else{
-					if(isset($fieldInfo['disabled']) && $fieldInfo['disabled'] === true) unset($fields[$field]);
+					if(self::keyAt('disabled', $fieldInfo, false) === true) unset($fields[$field]);
 				}				
 			}
 
-			// draw fields
+			// Draw fields
 			foreach($fields as $field => $fieldInfo){
 				if(preg_match('/separator/i', $field) && is_array($fieldInfo)){
 					// [27.03.2015] - removed - because doesn't draw LEGEND tag
@@ -458,13 +540,13 @@ class CDataForm
 				}
 			}
 			
-			// draw translation fields			
+			// Draw translation fields			
 			if(count($translationFields) > 0){
 				$translationFieldsArray = array();
 				foreach($translationFields as $transFieldKey => $transFieldVal){
 					$translationFieldsArray[] = $transFieldKey;
 				}
-				$translationsArray = $objModel->getTranslations(array('key'=>$keyTo, 'value'=>(isset($recordsAssoc[$keyFrom]) ? $recordsAssoc[$keyFrom] : ''), 'fields'=>$translationFieldsArray));
+				$translationsArray = $objModel->getTranslations(array('key'=>$keyTo, 'value'=>self::keyAt($keyFrom, $recordsAssoc, ''), 'fields'=>$translationFieldsArray));
 				
 				foreach($languages as $lang){
                     $flagIcon = ($lang['icon'] != '') ? $lang['icon'] : 'no_image.png';
@@ -472,28 +554,28 @@ class CDataForm
                         'separatorInfo' => array('legend'=>'<img width="16px" src="images/flags/'.$flagIcon.'" alt="'.$lang['code'].'"> &nbsp;'.$lang['name_native']),
 					);			
 					foreach($translationFields as $transFieldKey => $transFieldVal){
-						$tfTitle = isset($transFieldVal['title']) ? $transFieldVal['title'] : '';
-						$tfType = isset($transFieldVal['type']) ? $transFieldVal['type'] : '';
-						$tfTooltip = isset($transFieldVal['tooltip']) ? $transFieldVal['tooltip'] : '';
-						$tfRequired = isset($transFieldVal['validation']['required']) ? $transFieldVal['validation']['required'] : false;
-						$tfHtmlOptions = (isset($transFieldVal['htmlOptions']) && is_array($transFieldVal['htmlOptions'])) ? $transFieldVal['htmlOptions'] : array();
-						// retrive translation field value from POST or from database
+						$tfTitle = self::keyAt('title', $transFieldVal, '');
+						$tfType = self::keyAt('type', $transFieldVal, '');
+						$tfTooltip = self::keyAt('tooltip', $transFieldVal, '');
+						$tfRequired = (bool)self::keyAt('validation.required', $transFieldVal, false);
+						$tfHtmlOptions = self::keyAt('htmlOptions', $transFieldVal, array(), 'is_array');
+						// Retrive translation field value from POST or from database
 						if(in_array($cRequest->getPost('APPHP_FORM_ACT'), self::$_allowedActs) && $cRequest->isPostExists($transFieldKey.'_'.$lang['code'])){
 							$tfValue = $cRequest->getPost($transFieldKey.'_'.$lang['code']);
 						}else{
 							if($operationType == 'add'){
-								$tfValue = isset($transFieldVal['default']) ? $transFieldVal['default'] : '';
+								$tfValue = self::keyAt('default', $transFieldVal, '');
 							}else{
 								$tfValue = $translationsArray[$lang['code']][$transFieldKey];
 							}							
 						}
 						$formViewParams['fields']['separator_'.$lang['code']][$transFieldKey.'_'.$lang['code']] = array(
-							'type'=>$tfType,
-							'tooltip'=>$tfTooltip,
-							'value'=>$tfValue,
-							'title'=>$tfTitle,
-							'mandatoryStar'=>$tfRequired,
-							'htmlOptions'=>$tfHtmlOptions
+							'type'			=> $tfType,
+							'tooltip'		=> $tfTooltip,
+							'value'			=> $tfValue,
+							'title'			=> $tfTitle,
+							'mandatoryStar'	=> $tfRequired,
+							'htmlOptions'	=> $tfHtmlOptions
 						);
 					}
 				}			
@@ -520,49 +602,55 @@ class CDataForm
 	private static function _prepareFieldInfo($cRequest, $operationType, &$formViewParams, &$fieldInfo, &$recordsAssoc, $field, $iField = '')
 	{
 		$fieldInd = (!empty($iField)) ? $iField : $field;
-		$mandatoryStar = isset($fieldInfo['validation']['required']) ? (bool)$fieldInfo['validation']['required'] : false;
-        $validationType = isset($fieldInfo['validation']['type']) ? $fieldInfo['validation']['type'] : '';
-        $validationFormat = isset($fieldInfo['validation']['format']) ? $fieldInfo['validation']['format'] : '';
-		$fieldType = isset($fieldInfo['type']) ? strtolower($fieldInfo['type']) : '';
-		if(isset($fieldInfo['validation'])) unset($fieldInfo['validation']);
+		$mandatoryStar = (bool)self::keyAt('validation.required', $fieldInfo, false);
+        $validationType = self::keyAt('validation.type', $fieldInfo, '');
+        $validationFormat = self::keyAt('validation.format', $fieldInfo, '');
+		$fieldType = strtolower(self::keyAt('type', $fieldInfo, ''));
+		self::unsetKey('validation', $fieldInfo);
 		
-		// retrieve field value from POST or from database
+		// Retrieve field value from POST or from database
 		if(in_array($cRequest->getPost('APPHP_FORM_ACT'), self::$_allowedActs)){						
 			if(preg_match('/imageupload|fileupload|label/i', $fieldType)){
-				$fieldInfo['value'] = isset($recordsAssoc[$fieldInd]) ? $recordsAssoc[$fieldInd] : '';
-			}else if(isset($fieldInfo['htmlOptions']['disabled'])){
-				$fieldInfo['value'] = isset($recordsAssoc[$fieldInd]) ? $recordsAssoc[$fieldInd] : '';
+				$fieldInfo['value'] = self::keyAt($fieldInd, $recordsAssoc, '');
+			}else if(self::issetKey('htmlOptions.disabled', $fieldInfo)){
+				$fieldInfo['value'] = self::keyAt($fieldInd, $recordsAssoc, '');
 			}else if($fieldType == 'hidden'){
-				$fieldInfo['value'] = isset($fieldInfo['default']) ? $fieldInfo['default'] : '';
+				$fieldInfo['value'] = self::keyAt('default', $fieldInfo, '');
 			}else{
 				$fieldInfo['value'] = $cRequest->getPost($fieldInd);
 			}
 			
-			// clear password field value after form submission
+			// Clear password field value after form submission
 			if($fieldType == 'password'){
 				$fieldInfo['value'] = '';
 			}
 		}else{
             if($operationType == 'add'){
-				$fieldInfo['value'] = isset($fieldInfo['default']) ? $fieldInfo['default'] : '';
+				$fieldInfo['value'] = self::keyAt('default', $fieldInfo, '');
 			}else{
-				// edit
-				$fieldValue = isset($recordsAssoc[$fieldInd]) ? $recordsAssoc[$fieldInd] : '';
+				// Edit
+				$fieldValue = self::keyAt($fieldInd, $recordsAssoc, '');
                 if($fieldType == 'password'){
 					$fieldInfo['value'] = '';
                 }else if($validationType == 'float' && $validationFormat == 'european'){
-                    $fieldInfo['value'] = isset($recordsAssoc[$fieldInd]) ? CNumber::europeanFormat($recordsAssoc[$fieldInd]) : '';		
-				}else if(empty($fieldValue) && isset($fieldInfo['defaultEditMode'])){
-                    $fieldInfo['value'] = $fieldInfo['defaultEditMode'];
+                    $fieldInfo['value'] = CNumber::europeanFormat(self::keyAt($fieldInd, $recordsAssoc), '');		
+				}else if(empty($fieldValue) && self::issetKey('defaultEditMode', $fieldInfo)){
+                    $fieldInfo['value'] = self::keyAt('defaultEditMode', $fieldInfo, '');
 				}else{
 					$fieldInfo['value'] = $fieldValue;
 				}								
 			}
 		}
+		
+		if($fieldType == 'videolink'){
+			$formViewParams['preview'] = self::keyAt('preview', $fieldInfo, '');
+		}
+
 		$fieldInfo['mandatoryStar'] = $mandatoryStar;				
 		if(in_array($fieldType, array('checkbox', 'radio', 'radiobutton'))){
 			$fieldInfo['checked'] = ($fieldInfo['value']) ? true : false;
 		}
+		
 		if(!empty($iField)) $formViewParams['fields'][$field][$iField] = $fieldInfo;
 		else $formViewParams['fields'][$field] = $fieldInfo;
 	} 
@@ -570,18 +658,30 @@ class CDataForm
     /**
 	 * Prepare additional parameters that will be passed
 	 * @param bool $allow
+	 * @param int $linkType
+	 * @param char $symbol
+	 * @return string
      */
-	private static function _additionalParams($allow = false)
+	private static function _additionalParams($allow = false, $linkType = 0, $separateSymbol = '&')
     {
 		$output = '';
+		
 		if($allow){
 			$page = A::app()->getRequest()->getQuery('page', 'integer', 1);
 			$sortBy = A::app()->getRequest()->getQuery('sort_by', 'string');
 			$sortDir = A::app()->getRequest()->getQuery('sort_dir', 'string');				
-			$output .= ($sortBy) ? '/sort_by/'.$sortBy : '';
-			$output .= ($sortDir) ? '/sort_dir/'.$sortDir : '';
-			$output .= ($page) ? '/page/'.$page : '';
+			
+			if($sortBy){
+				$output .= ($linkType) ? '/sort_by/'.$sortBy : (!empty($output) ? '&' : $separateSymbol).'sort_by='.$sortBy;	
+			}
+			if($sortDir){
+				$output .= ($linkType) ? '/sort_dir/'.$sortDir : (!empty($output) ? '&' : $separateSymbol).'sort_dir='.$sortDir;	
+			}
+			if($page){
+				$output .= ($linkType) ? '/page/'.$page : (!empty($output) ? '&' : $separateSymbol).'page='.$page;	
+			}
 		}
+		
 		return $output;
 	}
 }

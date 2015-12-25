@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
@@ -56,14 +56,21 @@ class CAuth
     }
     
     /**
-     * Checks if user is logged in as an admin
+     * Checks if user is logged in as admin
+     * @param $roles
      * @return bool
      */
-    public static function isLoggedInAsAdmin()
+    public static function isLoggedInAsAdmin($roles = array())
     {
 		if(!self::isLoggedIn()) return false;	
-		$loggedRole = self::getLoggedRole();
-		$adminRoles = array('owner', 'mainadmin', 'admin');
+		
+		if(!empty($roles) && is_array($roles)){
+			$adminRoles = $roles;
+		}else{
+			$adminRoles = array('owner', 'mainadmin', 'admin');
+		}
+		
+		$loggedRole = self::getLoggedRole();		
 		if(in_array($loggedRole, $adminRoles)){
 			return true;
 		}

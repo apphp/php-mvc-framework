@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
  * @license http://www.apphpframework.com/license/ 
  *
  * USAGE:
@@ -79,7 +79,7 @@ class CRouter
 		$request = isset($_GET['url']) ? $_GET['url'] : '';
 		$standardCheck = true;
 		
-		// check if there are special URL rules 
+		// Check if there are special URL rules 
 		if($urlFormat == 'shortPath' && is_array($rules)){
 			foreach($rules as $rule => $val){
 				$matches = '';
@@ -88,9 +88,9 @@ class CRouter
 				//	break;
 				//}else
 				if(preg_match_all('{'.$rule.'}i', $request, $matches)){
-					// remove first match (the full string)
+					// Remove first match (the full string)
 					array_shift($matches);
-					// template rule compare
+					// Template rule compare
 					if(is_array($matches)){
 						foreach($matches as $mkey => $mval){
 							if(isset($mval[0])){
@@ -103,7 +103,7 @@ class CRouter
 				}
 			}
 			
-			// if not found - use a standard way
+			// If not found - use a standard way
 			$urlFormat = '';
 		}		
 	
@@ -132,12 +132,12 @@ class CRouter
 
 		$defaultController = CConfig::get('defaultController');
 		$defaultAction = CConfig::get('defaultAction');
-		// there is no controller - use default controller/action setings
+		// There is no controller - use default controller/action setings
 		if(!$this->_controller){
 			$this->_controller = !empty($defaultController) ? CFilter::sanitize('alphanumeric', $defaultController) : $this->_defaultController;
 			$this->_action = !empty($defaultAction) ? CFilter::sanitize('alphanumeric', $defaultAction) : $this->_defaultAction; 
 		}
-		// there is a controller, but no action - use default action setings
+		// There is a controller, but no action - use default action setings
 		else if($this->_controller && !$this->_action){
 			if($this->_controller == $defaultController){
 				$this->_action = !empty($defaultAction) ? CFilter::sanitize('alphanumeric', $defaultAction) : $this->_defaultAction; 	
@@ -173,7 +173,7 @@ class CRouter
 		if(is_callable(array($controller, $this->_action.'Action'))){
 			$action = $this->_action.'Action';
 		}else if($class != 'ErrorController'){
-			// for non-logged users and classes where errorAction was not redeclared - force using standard 404 error controller
+			// For non-logged users and classes where errorAction was not redeclared - force using standard 404 error controller
 			$reflector = new ReflectionMethod($class, 'errorAction');
 			if(!CAuth::isLoggedIn() && $reflector->getDeclaringClass()->getName() == 'CController'){
 				$controller = new ErrorController();
@@ -188,7 +188,7 @@ class CRouter
 		
 		A::app()->view->setAction($this->_action);
         
-		// call controller::action + pass parameters
+		// Call controller::action + pass parameters
 		call_user_func_array(array($controller, $action), self::getParams());		 
 
 		CDebug::addMessage('params', 'run_controller', $class);

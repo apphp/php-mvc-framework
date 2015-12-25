@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
@@ -14,11 +14,15 @@
  * 
  */	  
 
-class CMenu
+class CMenu extends CWidgs
 {
 	
-    const NL = "\n";
+	/**
+	 * @const string new line
+	 */
+    const NL = "\n";    
 
+	
     /**
      * Draws menu
      * @param array $param
@@ -34,6 +38,7 @@ class CMenu
      *          	'label'=>'Public Page Level #1',
      *          	'url'=>'page/public/pid/1',
      *          	'id'=>''
+     *          	'class'=>'',
      *				'items'=>array(
      *              	array('label'=>'Level #2-1', 'url'=>'page/public/pid/1', 'target'=>'', 'id'=>''),
      *              	array('label'=>'Level #2-2', 'url'=>'page/public/pid/2', 'target'=>'', 'id'=>''),
@@ -63,7 +68,7 @@ class CMenu
      *
      *  Example:
      *  <ul class="class" id="top-menu">
-     *      <li class=" active"><a href="#">Item #1</a></li>
+     *      <li class="active"><a href="#">Item #1</a></li>
      *      <li><a href="#">Item #2</a></li>
      *      <li class="dropdownItemClass">
      *          <a class="dropdown-toggle" data-toggle="dropdown" href="#">Item #3</a>
@@ -77,21 +82,23 @@ class CMenu
      */
     public static function init($params = array())
     {
+		parent::init($params);
+
+        $return 			= self::params('return', true);
+        $items 				= self::params('items', '');        
+        $class 				= self::params('class', 'menu');
+        $subMenuClass 		= self::params('subMenuClass', '');
+        $dropdownItemClass 	= self::params('dropdownItemClass', '');
+        $activeItemClass 	= self::params('activeItemClass', 'active');
+		$type 				= self::params('type', 'horizontal');
+		$separator 			= self::params('separator', '');
+		$id 				= self::params('id', '');
+        $selected 			= self::params('selected', '');        
+		$itemsCount 		= 0;
+        
         $output = '';
         $tagName = 'ul';
         $htmlOptions = array();
-        
-        $return = isset($params['return']) ? $params['return'] : true;
-        $items = isset($params['items']) ? $params['items'] : '';        
-        $class = isset($params['class']) ? $params['class'] : 'menu';
-        $subMenuClass = isset($params['subMenuClass']) ? $params['subMenuClass'] : '';
-        $dropdownItemClass = isset($params['dropdownItemClass']) ? $params['dropdownItemClass'] : '';
-        $activeItemClass = isset($params['activeItemClass']) ? $params['activeItemClass'] : 'active';
-		$type = isset($params['type']) ? $params['type'] : 'horizontal';
-		$separator = isset($params['separator']) ? $params['separator'] : '';
-		$itemsCount = 0;
-		$id = isset($params['id']) ? $params['id'] : '';
-        $selected = isset($params['selected']) ? $params['selected'] : '';        
         
         if(is_array($items) && count($items) > 0){
             $htmlOptions['class'] = $class;
@@ -103,21 +110,22 @@ class CMenu
                 $url = isset($val['url']) ? $val['url'] : '';
                 $label = isset($val['label']) ? $val['label'] : '';
                 $id = isset($val['id']) ? $val['id'] : '';
-                $readonly = isset($val['readonly']) ? $val['readonly'] : false;            
-				$itemClass = (!strcasecmp($selected, $url)) ? $activeItemClass : '';
+                $readonly = isset($val['readonly']) ? $val['readonly'] : false;
+				$itemClass = isset($val['class']) ? $val['class'] : '';
+				$itemClass .= (!strcasecmp($selected, $url)) ? ($itemClass ? ' ' : '').$activeItemClass : '';
                 $innerItems = isset($val['items']) ? $val['items'] : '';
 				$linkHtmlOptions = (isset($val['target']) && $val['target'] != '') ? array('target'=>$val['target']) : array();
                 if(is_array($innerItems) && count($innerItems) > 0){
                     $linkHtmlOptions['class'] = "dropdown-toggle";
                     $linkHtmlOptions['data-toggle'] = "dropdown";
-                    $itemClass .= is_array($innerItems) ? $dropdownItemClass : '';
+                    $itemClass .= is_array($innerItems) ? ($itemClass ? ' ' : '').$dropdownItemClass : '';
                     $label .= ' '.CHtml::tag('b', array('class'=>'caret'), '', true);
                 }
                 $output .= CHtml::openTag('li', array('class'=>($itemClass ? $itemClass : false), 'id'=>($id ? $id : false))).self::NL;
 				$output .= ($separator && $itemsCount > 0) ? $separator : '';
                 $output .= ((!$readonly) ? CHtml::link($label, $url, $linkHtmlOptions) : CHtml::label($label)).self::NL;
 
-                // draw inner items for 2nd level (if exist)
+                // Draw inner items for 2nd level (if exist)
                 if(is_array($innerItems)){
                     $output .= CHtml::openTag('ul', array('class'=>$subMenuClass)).self::NL;
                     foreach($innerItems as $iItem => $iVal){
@@ -132,7 +140,7 @@ class CMenu
                         $output .= CHtml::openTag('li', array('class'=>($iActive ? $activeItemClass : false), 'id'=>($iId ? $iId : false)));
                         $output .= CHtml::link($iLabel, $iUrl, $iLinkHtmlOptions);
 						
-						// draw inner items for 3nd level (if exist)
+						// Draw inner items for 3nd level (if exist)
 						if(is_array($iInnerItems)){
 							$output .= CHtml::openTag('ul', array()).self::NL;
 							foreach($iInnerItems as $iiItem => $iiVal){
@@ -144,7 +152,7 @@ class CMenu
 								$output .= CHtml::link($iiLabel, $iiUrl);
 								$output .= CHtml::closeTag('li').self::NL;
 								$itemsCount++;
-							} // foreach
+							} // Foreach
 							$output .= CHtml::closeTag('ul').self::NL;
 						}						
 						
@@ -155,7 +163,7 @@ class CMenu
 
                 $output .= CHtml::closeTag('li').self::NL;
 				$itemsCount++;
-            } // foreach
+            } // Foreach
             $output .= CHtml::closeTag($tagName).self::NL;
         }
         

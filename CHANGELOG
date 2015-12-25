@@ -1,4 +1,32 @@
 
+Version 0.7.7 - 05 Dec, 2015
+----------------------------
+- New: added possibility to create view files in sub-directories upto 3rd level
+- New: added new helpers: CGeoLocation, CConvert
+- New: added new component: CShoppingCart
+- New: added new translate method te() that allows to encode output
+- Enh: added new helper CLocale that allows to display data in local settings format and language
+- Enh: minor changes in CValidator, CLanguageSelector, CBreadCrumbs, CFile, CDataForm, CGridView, CValidator helpers
+- Enh: added new functionality agregate functions to CGridView helper
+- Enh: added decimalPoints attribute for decimal fields in CGridView helper
+- Enh: added new validation type isHtmlSize to CDataForm and CFormValidator
+- Enh: allowed to use CCaptcha for few forms on the same page
+- Enh: allowed to return content in CView::render()
+- Enh: added possibility to sort by numeric value for CGridView
+- Enh: improved security in getting server port in CHttpRequest
+- Enh: in CDebug panel added possibility to see all included files, executing time and more...
+- Enh: if language constant doesn't exist in Debug Mode it gets a prefix '@@@'
+- Enh: added possibility to disable filter fields in CGridView by 'disabled'=>true
+- Enh: in CHttpSession startSession() redone into public method
+- Bug: wrong showing two or more datetime fields in CFormView
+- Bug: in registration JS scripts before </body> in CClientScript
+- Bug: in moving focus on error fields for CFormView
+- Bug: in drawing datePicker script in CGridView and CFormView
+- Bug: in CGridView when link text does not accept linkText as {field_name}
+- Bug: missing "." in CGridView on "decimal" fields in european format
+- Bug: fixed drawing wrong text in CMessageSource when language constant value is empty
+
+
 Version 0.6.9 - 16 May, 2015
 ----------------------------
 - New: added new vendor dBug component

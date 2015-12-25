@@ -5,13 +5,13 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2013 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ----------               ----------                  ---------- 
- * __construct                                          _startSession
- * init (static)										_setCookieMode 
+ * __construct                                          _setCookieMode 
+ * init (static)										
  * set                                                  
  * get
  * remove
@@ -26,7 +26,7 @@
  * setSessionPrefix
  * endSession
  * getCookieMode
- * 
+ * startSession
  * closeSession
  *
  */	  
@@ -72,7 +72,7 @@ class CHttpSession extends CComponent
 			$this->setSessionPrefix('apphp_'.CConfig::get('installationKey'));		
 		}
 
-		if($this->_autoStart) $this->_startSession();
+		if($this->_autoStart) $this->startSession();
 	}
 
     /**
@@ -250,7 +250,7 @@ class CHttpSession extends CComponent
 	/**
 	 * Starts the session if it has not started yet
 	 */
-	private function _startSession()
+	public function startSession()
 	{
 		// Set lifetime value from configuration file (in minutes)
 		$maxLifetime = CConfig::get('session.lifetime');		

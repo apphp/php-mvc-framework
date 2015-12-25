@@ -15,7 +15,8 @@ include('inc/functions.inc.php');
 $requirements = array(
 	array('Web Server',           false, get_server_info(), true, 'ApPHP Framework', ''),
 	array('PHP version',          true,  PHP_VERSION, version_compare(PHP_VERSION, '5.2.3', '>='), 'ApPHP Framework', 'PHP 5.2.3 or higher is required.'),
-	array('PHP error_get_last() function',  false, (function_exists('error_get_last')) ? 'exists' : '', function_exists('error_get_last'), 'ApPHP Framework', 'PHP >= 5.2.0'),
+	array('PHP error_get_last() function',  false, (function_exists('error_get_last')) ? 'exists' : '', function_exists('error_get_last'), 'ApPHP Framework', 'PHP 5 >= 5.2.0'),
+	array('PHP "mcrypt_" functions',  false, (function_exists('mcrypt_decrypt') && function_exists('mcrypt_encrypt')) ? 'exists' : 'not found', (function_exists('mcrypt_decrypt') && function_exists('mcrypt_encrypt')), 'ApPHP Framework', 'PHP 4 >= 4.0.2, PHP 5'),
 	array('$_POST variable',      true,  (($message = check_post_vars()) === '') ? 'exists' : '', ($message === ''), 'ApPHP Framework', $message),
 	array('$_SERVER variable',    true,  (($message = check_server_vars(realpath(__FILE__))) === '') ? 'exists' : '', ($message === ''), 'ApPHP Framework', $message),
 	array('$_SESSION variable',   true,  (($message = check_session_vars()) === '') ? 'exists' : '', ($message === ''), 'ApPHP Framework', $message),
