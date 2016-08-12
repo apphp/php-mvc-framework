@@ -13,8 +13,9 @@ is turned off).
 <pre name="dlhl" class="php">
 // cache settings 
 'cache' => array(
-    'enable' => true, 
-    'lifetime' => 20,  /* in minutes */
+    'enable' => true,
+    'type' => 'auto', 			/* 'auto' or 'manual' */
+    'lifetime' => 20,  			/* in minutes */
     'path' => 'protected/tmp/cache/'
 ),
 </pre>
@@ -34,7 +35,7 @@ can not be cached by the system because they don't generate any result.
 
 Each SELECT request gets from the system a unique identifier, but sometimes it's impossible for
 some reasons (for example when you use a dinamic parameters in each request). For such cases
-you may define a special identifier manuly (see <code>cacheId</code> parameter in example below). 
+you may define a special identifier manually (see <code>cacheId</code> parameter in example below). 
 
 <pre name="dlhl" class="php">
 $news = News::model()->findAll(
@@ -70,4 +71,8 @@ $this->_db->cacheOn();
 $result = $this->_db->select('SELECT * FROM another_table');
 </pre>
 <br>
+
+To run caching autonatically use <code>'type' => 'auto'</code> settings, run cache manually fo
+specific queries only use <code>'type' => 'manual'</code>
+<br><br>
 

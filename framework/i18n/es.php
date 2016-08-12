@@ -76,6 +76,8 @@ return array (
             7 => 'S',
         ),
     ),
+	'amName' => 'a.m.',
+	'pmName' => 'p.m.',
     'orientation' => 'ltr',  
     'languages' => array (
         'aa' => 'afar',

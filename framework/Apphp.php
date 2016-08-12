@@ -37,6 +37,7 @@
  * detachEventHandler
  * mapCoreComponent
  * mapAppModule
+ * mapAppModuleClass
  * setResponseCode
  * getResponseCode
  * setLanguage
@@ -59,7 +60,7 @@ class A
 	public $sourceLanguage = 'en';
 	
 	/** @var string */
-	private static $_phpVersion;	
+	private static $_phpVersion;
 	/** @var object */
 	private static $_instance;
 	/** @var array */
@@ -109,11 +110,14 @@ class A
         'CHash'         => 'helpers/CHash.php',        
         'CHtml'         => 'helpers/CHtml.php',
         'CImage'        => 'helpers/CImage.php',
+		'CLoader'       => 'helpers/CLoader.php',
 		'CLocale'       => 'helpers/CLocale.php',
         'CMailer'       => 'helpers/CMailer.php',
         'CNumber'       => 'helpers/CNumber.php',
+		'COauth'        => 'helpers/COauth.php',
 		'CPdf'          => 'helpers/CPdf.php',
 		'CRss'          => 'helpers/CRss.php',
+		'CSoap'         => 'helpers/CSoap.php',
         'CString'       => 'helpers/CString.php',
         'CTime'         => 'helpers/CTime.php',
         'CValidator'    => 'helpers/CValidator.php',
@@ -269,21 +273,31 @@ class A
             if(!CAuth::isGuest()) $db->cacheOff();
         }
    
-        // Register application components
-        $this->_registerAppComponents();
-		// Register application helpers
-		$this->_registerAppHelpers();
-        // Register application modules
-        $this->_registerAppModules();
-        
-        // Run events
-        if($this->_hasEventHandler('_onBeginRequest')) $this->_onBeginRequest();
-	
-        if(APPHP_MODE != 'hidden'){
-            $this->router = new CRouter(); 
-            $this->router->route();        
-            CDebug::displayInfo();
-        }
+		// Global debug backtrace
+		try{
+			
+			// Register application components
+			$this->_registerAppComponents();
+			// Register application helpers
+			$this->_registerAppHelpers();
+			// Register application modules
+			$this->_registerAppModules();	
+			
+			// Run events
+			if($this->_hasEventHandler('_onBeginRequest')) $this->_onBeginRequest();
+			
+			if(APPHP_MODE != 'hidden'){
+				$this->router = new CRouter();
+				$this->router->route();
+				CDebug::displayInfo();
+			}
+		
+		}catch(Exception $e){
+			echo 'Exception caught: ',  $e->getMessage(), "\n";
+			echo 'Backtrace:';
+			echo CDebug::backtrace($e->getTrace());
+			exit;
+		}
     }
 
     /**
@@ -313,7 +327,7 @@ class A
      */
     public static function getVersion()
     {
-    	return '0.7.7';
+    	return '0.8.3';
     }
 
     /**
@@ -414,7 +428,7 @@ class A
 		}
 		 
 		// Check if required class is Controller or Model (in application or modules)
-		else{            
+		else{
             $classNameItems = preg_split('/(?=[A-Z])/', $className);
             $itemsCount = count($classNameItems);
             // $classNameItems[0] - 
@@ -438,22 +452,34 @@ class A
             if(isset(self::$_classMap[$pureClassType])){                
                 $classCoreDir = APPHP_PATH.DS.'protected'.DS.self::$_classMap[$pureClassType];    
                 $classFile = $classCoreDir.DS.$className.'.php';
-                if(is_file($classFile)){
+                
+				if(is_file($classFile)){
                     include($classFile);
                 }else{
-                    $classModuleDir = APPHP_PATH.DS.'protected'.DS.$this->mapAppModule($pureClassName).self::$_classMap[$pureClassType];
-                    $classFile = $classModuleDir.DS.$className.'.php';
-                    if(is_file($classFile)){
-                        include($classFile);
-                    }else{
-                        CDebug::addMessage('errors', 'missing-model', A::t('core', 'Unable to find class "{class}".', array('{class}'=>$className)), 'session');
+					// Look for class if namespacing is used (from v0.8.0)
+					$namespace = explode('\\', $className);
+					if(count($namespace) > 1){
+                        $fileName = array_pop($namespace);
+						$classFile = APPHP_PATH.DS.'protected'.DS.implode('/', array_map('strtolower', $namespace)).'/'.$fileName.'.php';
+					}else{
+						$classModuleDir = APPHP_PATH.DS.'protected'.DS.$this->mapAppModule($pureClassName).self::$_classMap[$pureClassType];
+						$classFile = $classModuleDir.DS.$className.'.php';
+					}
+					
+					if(is_file($classFile)){
+						include($classFile);
+					}else{
+						CDebug::addMessage('errors', 'missing-model', A::t('core', 'Unable to find class "{class}".', array('{class}'=>$className)), 'session');
 						// [04.04.2015] This is not a core class - don't redirect to Error controller, just show error in debug panel
 						//A::app()->getSession()->setFlash('error500', A::t('core', 'Unable to find class "{class}".', array('{class}'=>$className)));
-                        //header('location: '.$this->getRequest()->getBaseUrl().'error/index/code/500');
-                        //exit;
-                    }
-                }     
-                CDebug::addMessage('general', 'classes', $className);
+						//header('location: '.$this->getRequest()->getBaseUrl().'error/index/code/500');
+						//exit;
+					}
+                }
+				
+				if(!empty($className)){
+					CDebug::addMessage('general', 'classes', $className);	
+				}
             }
         }        
     }    
@@ -730,6 +756,7 @@ class A
 				break;
 			}
 		}
+		
 		return $path;
 	}
 
@@ -742,13 +769,45 @@ class A
     {
 		$path  = '';
         foreach(self::$_appModules as $module => $moduleInfo){
+			// No classes found - continue
             if(!isset($moduleInfo['classes']) || !is_array($moduleInfo['classes'])) continue;
-            if(in_array(strtolower($class), array_map('strtolower', $moduleInfo['classes']))){
-                $path = 'modules/'.$module.'/';
-				break;
-            }
+			// Find class whether it has namesape or not 
+			foreach($moduleInfo['classes'] as $key => $moduleClass){
+				$namespace = explode('\\', $moduleClass);
+				$compareClass = (count($namespace) > 1) ? array_pop($namespace) : $moduleClass;
+				if(strtolower($class) == strtolower($compareClass)){
+					$path = 'modules/'.$module.'/';
+					break 2;
+				}
+			}
         }
-        return $path ;
+        
+		return $path;
+    }
+
+    /**
+     * Maps application modules classes
+     * @param string $class
+     * @return string
+     */
+    public function mapAppModuleClass($class)
+    {
+		$classFullPath = '';
+        foreach(self::$_appModules as $module => $moduleInfo){
+			// No classes found - continue
+            if(!isset($moduleInfo['classes']) || !is_array($moduleInfo['classes'])) continue;
+			// Find class whether it has namesape or not 
+			foreach($moduleInfo['classes'] as $key => $moduleClass){
+				$namespace = explode('\\', $moduleClass);
+				$compareClass = (count($namespace) > 1) ? array_pop($namespace) : $moduleClass;
+				if(strtolower($class) == strtolower($compareClass)){
+					$classFullPath = $moduleClass;
+					break 2;
+				}
+			}
+        }
+        
+		return $classFullPath;
     }
 
     /**

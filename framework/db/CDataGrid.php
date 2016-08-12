@@ -236,10 +236,10 @@ abstract class CDataGrid extends CModel
 //
 //            if($this->debug) $finish_time = $this->_getFormattedMicrotime();
 //			if($this->debug){
-//				if(!mysql_error()){ 
+//				if(!mysqli_error()){ 
 //                    $this->arrSQLs['total_records_sql'] = '<i>Total Records</i> | T: '.round((float)$finish_time - (float)$start_time, 4).' sec. <br>'.$sql;
 //				}else{
-//					$this->arrErrors['total_records_sql'] = $sql.'<br>'.mysql_error();		
+//					$this->arrErrors['total_records_sql'] = $sql.'<br>'.mysqli_error();		
 //				}
 //			}
 //			if($this->pageSize == 0) $this->pageSize = '10';

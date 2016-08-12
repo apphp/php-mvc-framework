@@ -69,39 +69,46 @@ class CController
 	 * Redirects to another controller
 	 * Parameter may consist from 2 parts: controller/action or just controller name
 	 * @param string $path
+	 * @param bool $isDirectUrl
 	 */
-    public function redirect($path)
+    public function redirect($path, $isDirectUrl = false)
 	{
 		if(APPHP_MODE == 'test') return true;
         
-		$paramsParts = explode('/', $path);
-		$calledController = str_replace('controller', '', strtolower($this->_getCalledClass()));
-		$params = '';
-		$baseUrl = A::app()->getRequest()->getBaseUrl();
-		
-		// Set controller and action according to given parameters
-		if(!empty($path)){
-			$parts = count($paramsParts);
-			if($parts == 1){
-				$controller = $calledController;
-				$action = isset($paramsParts[0]) ? $paramsParts[0] : '';
-			}else if($parts == 2){
-				$controller = isset($paramsParts[0]) ? $paramsParts[0] : $calledController;
-				$action = isset($paramsParts[1]) ? $paramsParts[1] : '';
-			}else if($parts > 2){
-				$controller = isset($paramsParts[0]) ? $paramsParts[0] : $calledController;
-				$action = isset($paramsParts[1]) ? $paramsParts[1] : '';
-				for($i=2; $i<$parts; $i++){
-					$params .= (isset($paramsParts[$i]) ? '/'.$paramsParts[$i] : '');
+		if(!$isDirectUrl){
+			$paramsParts = explode('/', $path);
+			$calledController = str_replace('controller', '', strtolower($this->_getCalledClass()));
+			$params = '';
+			$baseUrl = A::app()->getRequest()->getBaseUrl();
+			
+			// Set controller and action according to given parameters
+			if(!empty($path)){
+				$parts = count($paramsParts);
+				if($parts == 1){
+					$controller = $calledController;
+					$action = isset($paramsParts[0]) ? $paramsParts[0] : '';
+				}else if($parts == 2){
+					$controller = isset($paramsParts[0]) ? $paramsParts[0] : $calledController;
+					$action = isset($paramsParts[1]) ? $paramsParts[1] : '';
+				}else if($parts > 2){
+					$controller = isset($paramsParts[0]) ? $paramsParts[0] : $calledController;
+					$action = isset($paramsParts[1]) ? $paramsParts[1] : '';
+					for($i=2; $i<$parts; $i++){
+						$params .= (isset($paramsParts[$i]) ? '/'.$paramsParts[$i] : '');
+					}
 				}
 			}
+			
+			$newLocation = $baseUrl.$controller.'/'.$action.$params;
+		}else{
+			$newLocation = $path;
 		}
                 
         // Close the session with user data
         A::app()->getSession()->closeSession();
 
         // Perform redirection
-        header('location: '.$baseUrl.$controller.'/'.$action.$params);
+        header('location: '.$newLocation);
         exit;
     }
  

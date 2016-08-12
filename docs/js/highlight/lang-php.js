@@ -40,6 +40,7 @@
         "Accounts",
         "PagesModel",
         "CActiveRecord",
+		"CLocale",
         "indexAction",
         "viewAction",
         "deleteAction",

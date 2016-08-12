@@ -6,6 +6,7 @@
 	<li><a href="#extend-framework-helper-classes">How to (override) ApPHP framework helper classes?</a></li>
 	<li><a href="#define-start-page">How to define default controller and action (start page) for application?</a></li>
 	<li><a href="#define-default-action">How to define my own default action for all project controllers?</a></li>
+	<li><a href="#date-time-localization">How to display time and date formats in my local language?</a></li>
 </ul>
 
 <h4>Modules:</h4>
@@ -172,6 +173,20 @@ private $_defaultAction = 'index';
 
 and re-declare action value according to yuor needs.
 Remeber: these changes will affect all controllers in the project.
+<br><br>
+<br><br>
+
+
+<a name="date-time-localization"></a>
+<p><b>Q: How to display time and date formats in my local language?</b></p>
+<p><b>A:</b> To display date or datetime string in your local language you have to use <code>CLocale</code> helper:
+<pre name="dlhl" class="php">
+&lt;?php
+// use string format
+echo CLocale::date('F j Y, g:ia', $dateTime);
+// use Unix format
+echo CLocale::date('F j Y, g:ia', strtotime($dateTime), true);
+</pre>
 <br><br>
 
 

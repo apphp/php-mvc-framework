@@ -50,6 +50,8 @@
  * 
  */	  
 
+///namespace Framework\Core; 
+ 
 class CRouter
 {
 	/**	@var string */
@@ -158,8 +160,14 @@ class CRouter
 		if(is_file($appDir.$file)){
 			$class = $this->_controller.'Controller';
         }else{
-            $comDir = APPHP_PATH.DS.'protected'.DS.A::app()->mapAppModule($this->_controller).'controllers'.DS;
-            if(is_file($comDir.$file)){
+			$modulePath = A::app()->mapAppModule($this->_controller);
+			$moduleClassPath = A::app()->mapAppModuleClass($this->_controller);
+            $comDir = APPHP_PATH.DS.'protected'.DS.$modulePath.'controllers'.DS;
+            if(!empty($moduleClassPath)){
+				// Module Controller with non-empty path (new syntax from framework v0.8.0)
+				$class = A::app()->mapAppModuleClass($this->_controller).'Controller';
+			}else if(is_file($comDir.$file)){
+				// Framework Controller
                 $class = $this->_controller.'Controller';
             }else{
             	$class = 'ErrorController';
@@ -167,7 +175,7 @@ class CRouter
             	CDebug::addMessage('errors', 'controller', A::t('core', 'Router: unable to resolve the request "{controller}".', array('{controller}' => $this->_controller)));
             }
         } 
-		A::app()->view->setController($this->_controller);    
+		A::app()->view->setController($this->_controller);
 		$controller = new $class();
 
 		if(is_callable(array($controller, $this->_action.'Action'))){

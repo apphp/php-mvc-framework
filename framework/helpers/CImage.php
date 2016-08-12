@@ -33,7 +33,7 @@ class CImage
             $return['height'] = $img[1];
             $return['type']   = $img[2];
             $return['attr']   = $img[3];
-            $return['bits']   = $img['bits'];
+            $return['bits']   = isset($img['bits']) ? $img['bits']: '';
             $return['mime']   = $img['mime'];            
         }
         return ($req != '' && isset($return[$req])) ? $return[$req] : $return;        

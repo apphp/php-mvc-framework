@@ -75,7 +75,7 @@ class CPagination extends CWidgs
         if($page == 0) $page = 1;	     				/* if no page var is given, default to 1. */
         $prev = $page - 1;				 				/* previous page is page - 1 */
         $next = $page + 1;				 				/* next page is page + 1 */
-        $lastpage = ceil($totalRecords / $pageSize); 	/* lastpage is = total pages / items per page, rounded up.  */
+        $lastpage = !empty($pageSize) ? ceil($totalRecords / $pageSize) : 1; /* lastpage is = total pages / items per page, rounded up.  */
         $lpm1 = $lastpage - 1;			 				/* last page minus 1 */
         $output = '';
         $middlePart = '';

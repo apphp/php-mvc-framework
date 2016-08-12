@@ -14,6 +14,7 @@
  * quote
  * length
  * seoString
+ * humanize
  * isSerialized
  * 
  */	  
@@ -106,6 +107,24 @@ class CString
         
         return $seoUrl;
     }
+
+    /**
+     * Humanize a given string
+     * @param mixed $string
+     * @return string
+     */
+	public static function humanize($string)
+	{
+		$string = trim(strtolower($string));
+		$string = preg_replace('/[^a-z0-9\-\_\s+]/', '', $string);
+		$string = preg_replace('/\_/', ' ', $string);
+		$string = preg_replace('/\-/', ' ', $string);
+		$string = preg_replace('/\s+/', ' ', $string);
+		$string = explode(' ', $string);	 
+		$string = array_map('ucwords', $string);
+	 
+		return implode(' ', $string);
+	}
 
     /**
      * Checks is a given string is serialized 

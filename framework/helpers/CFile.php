@@ -124,6 +124,7 @@ class CFile
             'doc' => 'application/msword',
             'rtf' => 'application/rtf',
             'xls' => 'application/vnd.ms-excel',
+			'csv' => 'text/csv',
             'ppt' => 'application/vnd.ms-powerpoint',
 
             // Open Office

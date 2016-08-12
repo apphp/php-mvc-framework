@@ -88,7 +88,7 @@ function get_base_url($absolute = true)
     if($absolute){
         $protocol = 'http://';
         $port = '';
-        $httpHost = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
+        $httpHost = isset($_SERVER['HTTP_HOST']) ? htmlentities($_SERVER['HTTP_HOST']) : '';
         if((isset($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) != 'off')) ||
             strtolower(substr($_SERVER['SERVER_PROTOCOL'], 0, 5)) == 'https'){
             $protocol = 'https://';

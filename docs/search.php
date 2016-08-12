@@ -103,7 +103,7 @@
     
     <link rel="stylesheet" type="text/css" href="css/default.css" />
 	<link rel="stylesheet" type="text/css" href="js/highlight/style.css" media="all" />
-	<?php echo (isset($_SERVER['REQUEST_URI']) && !preg_match('/search.php/i', $_SERVER['REQUEST_URI'])) ? '<link rel="canonical" href="http://'.(isset($_SERVER["HTTP_HOST"]) ? $_SERVER["HTTP_HOST"] : '').'/docs/search.php" />' : ''; ?>	
+	<?php echo (isset($_SERVER['REQUEST_URI']) && !preg_match('/search.php/i', $_SERVER['REQUEST_URI'])) ? '<link rel="canonical" href="http://'.(isset($_SERVER['HTTP_HOST']) ? htmlentities($_SERVER['HTTP_HOST']) : '').'/docs/search.php" />' : ''; ?>	
 	
 	<script type="text/javascript" src="js/jquery.min.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
@@ -113,7 +113,7 @@
     <header>
         <nav>
             <ul class="menu">
-				<li class="active"><a href="index.php">ApPHP Framework Guide 0.6</a></li>
+				<li class="active"><a href="index.php">ApPHP Framework Guide 0.7</a></li>
 				<li><a href="../utils/requirements/index.php">Requirements</a></li>				
 				<li><a href="../utils/tests/index.php">Tests</a></li>
                 <li><a href="../utils/generators/index.php">Code Generators</a></li>

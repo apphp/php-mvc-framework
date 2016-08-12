@@ -57,6 +57,7 @@
  * exists
  * count
  * max
+ * min
  * sum
  * 
  *
@@ -961,6 +962,7 @@ abstract class CActiveRecord extends CModel
         }else{
             $where = $conditions;
         }
+
         $whereClause = !empty($where) ? ' WHERE '.$where : '';
         $column = !empty($column) ? CConfig::get('db.prefix').$this->_table.'.'.$column : $this->_primaryKey;
         $relations = $this->_getRelations();
@@ -974,6 +976,37 @@ abstract class CActiveRecord extends CModel
         $result = $this->_db->select($sql, $params);
         
         return (isset($result[0]['column_max'])) ? $result[0]['column_max'] : 0;
+    }
+
+    /**
+     * Finds a minimum value of the specified column
+     * Ex.: min('id', 'postID = :postID AND isActive = :isActive', array(':postID'=>10, 'isActive'=>1));
+     * @param string $column
+     * @param mixed $conditions
+     * @param array $params
+     * @return integer
+     */
+    public function min($column = '', $conditions = '', $params = array())
+    {
+        if(is_array($conditions)){
+            $where = isset($conditions['condition']) ? $conditions['condition'] : '';
+        }else{
+            $where = $conditions;
+        }
+
+        $whereClause = !empty($where) ? ' WHERE '.$where : '';
+        $column = !empty($column) ? CConfig::get('db.prefix').$this->_table.'.'.$column : $this->_primaryKey;
+        $relations = $this->_getRelations();
+
+        $sql = 'SELECT 
+                    MIN('.$column.') as column_min
+                FROM `'.CConfig::get('db.prefix').$this->_table.'`
+                    '.$relations['tables'].'
+                '.$whereClause.'
+                LIMIT 1';
+        $result = $this->_db->select($sql, $params);
+
+        return (isset($result[0]['column_min'])) ? $result[0]['column_min'] : 0;
     }
 
 	/**

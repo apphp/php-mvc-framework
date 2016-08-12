@@ -339,7 +339,7 @@ class CUri extends CComponent
 	
 		if($where == 'trailing'){
 			$leading    = '';
-		}elseif ($where == 'leading'){
+		}else if ($where == 'leading'){
 			$trailing    = '';
 		}
 		

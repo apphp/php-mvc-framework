@@ -104,7 +104,7 @@ $this->_db->customExec("INSERT INTO ".$this->_table."(id, name) VALUES (NULL, 'J
     <li>:id is a named placeholder</li>
     <li>i:id is a key in the array of values, where i denotes the Integer data type
     (it means that the value retrieved from an array will be converted to an Integer type)</li>
-    <li>array('i:id'=>10) is the array of value</li>
+    <li>array('i:id'=>10) is array of values</li>
 </ul>
 
 <strong>Available data types for placeholders</strong>:
@@ -116,9 +116,12 @@ $this->_db->customExec("INSERT INTO ".$this->_table."(id, name) VALUES (NULL, 'J
     <li>'n': SQL NULL data type</li>
 </ul>
 
-If no data type has been specified for a placeholder (e.g., if you use only :id in an SQL query, then
+If no data type has been specified for a placeholder (e.g., if you use only :id in an SQL query), then
 the String type is used by default. Using of placeholders makes the creating of SQL queries easier and,
-what is more important, eliminates the possibility of writing code prone to SQL injection vulnerabilities.    
+what is more important, eliminates the possibility of writing code prone to SQL injection vulnerabilities.
+<br>
+If you use <code>$conditionParams['i:min_mileage'] = $minMileage;</code> - it's not enough. You have to
+pass integer or to make a cast: <code>$conditionParams['i:min_mileage'] = (int)$minMileage;</code>
 <br /><br />
 
 <strong>Direct usage of CDatabase</strong>:

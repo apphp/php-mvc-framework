@@ -15,14 +15,14 @@
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ---------------         	---------------            	---------------
- * __construct                                          _errorLog
- * init (static)                                        _fatalErrorPageContent (static)
- * getError (static)									_interpolateQuery 
- * getErrorMessage (static)								_prepareParams
- * cacheOn                                              _enableCache
- * cacheOff                                             _formattedMicrotime
- * select                                               
- * insert                                               
+ * __construct                                          _init
+ * init (static)                                        _errorLog
+ * getError (static)									_fatalErrorPageContent (static)
+ * getErrorMessage (static)								_interpolateQuery 
+ * cacheOn                                              _prepareParams
+ * cacheOff                                             _setCaching
+ * select                                               _isCacheAllowed
+ * insert                                               _formattedMicrotime
  * update                                               
  * delete
  * lastId
@@ -51,6 +51,8 @@ class CDatabase extends PDO
     private $_dbName;
     /** @var bool */ 
     private $_cache;
+    /** @var string */ 
+    private $_cacheType;
     /** @var int */ 
     private $_cacheLifetime;
     /** @var string */ 
@@ -78,9 +80,8 @@ class CDatabase extends PDO
             $dbCharset = isset($params['dbCharset']) ? $params['dbCharset'] : 'utf8';
         
             try{
-                @parent::__construct($dbDriver.':host='.$dbHost.';dbname='.$dbName, $dbUser, $dbPassword, array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \''.$dbCharset.'\''));
-                $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            }catch(Exception $e){
+				$this->_init($dbDriver, $dbHost, $dbName, $dbUser, $dbPassword, $dbCharset);
+			}catch(Exception $e){
                 self::$_error = true;
                 self::$_errorMessage = $e->getMessage();
             }
@@ -90,13 +91,8 @@ class CDatabase extends PDO
         }else{
 			if(!A::app()->isSetup()){
 				try{
-					if(CConfig::get('db') != ''){
-						@parent::__construct(CConfig::get('db.driver').':host='.CConfig::get('db.host').';dbname='.CConfig::get('db.database'),
-							CConfig::get('db.username'),
-							CConfig::get('db.password'),
-							array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \''.CConfig::get('db.charset', 'utf8').'\'')
-						);
-						$this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); 				
+					if(CConfig::get('db') != ''){						
+						$this->_init(CConfig::get('db.driver'), CConfig::get('db.host'), CConfig::get('db.database'), CConfig::get('db.username'), CConfig::get('db.password'), CConfig::get('db.charset', 'utf8'));
 					}else{
 						throw new Exception('Missing database configuration file');
 					}
@@ -125,9 +121,10 @@ class CDatabase extends PDO
 				$this->_dbPrefix = CConfig::get('db.prefix');
 				
 				$this->_cache = (CConfig::get('cache.enable')) ? true : false;
+				$this->_cacheType = in_array(CConfig::get('cache.type'), array('auto', 'manual')) ? CConfig::get('cache.type') : 'auto';
 				$this->_cacheLifetime = CConfig::get('cache.lifetime', 0); /* in minutes */
 				$this->_cacheDir = CConfig::get('cache.path'); /* protected/tmp/cache/ */
-				if($this->_cache) CDebug::addMessage('general', 'cache', 'enabled');
+				if($this->_cache) CDebug::addMessage('general', 'cache', 'enabled ('.$this->_cacheType.') ');
 			}
         }        
     }    
@@ -147,7 +144,7 @@ class CDatabase extends PDO
 	 */
     public function cacheOn()
     {
-        $this->_enableCache(true);
+        $this->_setCaching(true);
     }
     
 	/**
@@ -155,7 +152,7 @@ class CDatabase extends PDO
 	 */
     public function cacheOff()
     {
-        $this->_enableCache(false);
+        $this->_setCaching(false);
     }
     
     /**
@@ -167,16 +164,16 @@ class CDatabase extends PDO
      * @return mixed - an array containing all of the result set rows
      * Ex.: Array([0] => Array([id] => 11, [name] => John), ...)
      */
-    public function select($sql, $params = array(), $fetchMode = PDO::FETCH_ASSOC, $cacheId = '')
+    public function select($sql, $params = array(), $fetchMode = PDO::FETCH_ASSOC, $cacheId = '', $cacheResult = false)
     {
 		$startTime = $this->_formattedMicrotime();
 		
         $sth = $this->prepare($sql);
-        $cacheContent = '';
+        $cacheContent = null;
         $error = false;
 
 		try{
-            if($this->_cache){
+            if($this->_isCacheAllowed($cacheResult)){
                 $param = !empty($cacheId) ? $cacheId : (is_array($params) ? implode('|',$params) : '');
                 $cacheContent = CCache::getContent(
                     $this->_cacheDir.md5($sql.$param).'.cch',
@@ -187,6 +184,7 @@ class CDatabase extends PDO
             if(!$cacheContent){                
                 if(is_array($params)){
                     foreach($params as $key => $value){
+						if(is_array($value)) continue;
                         list($key, $param) = $this->_prepareParams($key);
                         $sth->bindValue($key, $value, $param);
                     }
@@ -194,7 +192,7 @@ class CDatabase extends PDO
                 $sth->execute();
                 $result = $sth->fetchAll($fetchMode);
                 
-                if($this->_cache) CCache::setContent($result, $this->_cacheDir);
+                if($this->_isCacheAllowed($cacheResult)) CCache::setContent($result, $this->_cacheDir);
             }else{
                 $result = $cacheContent;
             }            
@@ -578,7 +576,7 @@ class CDatabase extends PDO
         }
 
 		try{
-            if($this->_cache){
+            if($this->_isCacheAllowed(true)){
                 $cacheContent = CCache::getContent(
                     $this->_cacheDir.md5($sql).'.cch',
                     $this->_cacheLifetime
@@ -589,7 +587,7 @@ class CDatabase extends PDO
                 $sth = $this->query($sql);
                 $result = $sth->fetchAll();
                 
-                if($this->_cache) CCache::setContent($result, $this->_cacheDir);
+                if($this->_isCacheAllowed(true)) CCache::setContent($result, $this->_cacheDir);
             }else{
                 $result = $cacheContent;
             }            
@@ -640,6 +638,36 @@ class CDatabase extends PDO
 		return self::$_errorMessage;
 	} 
 	
+    /**
+     * Initialize connection
+     * @param string $dbDriver
+     * @param string $dbHost
+     * @param string $dbName
+     * @param string $dbUser
+     * @param string $dbPassword
+     * @param string $dbCharset
+     * @return void
+     */
+    private function _init($dbDriver = '', $dbHost = '', $dbName = '', $dbUser = '', $dbPassword = '', $dbCharset = '')
+    {
+		$dsn = $dbDriver.':host='.$dbHost.';dbname='.$dbName;
+		$options = array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION);
+		
+		if(version_compare(PHP_VERSION, '5.3.6', '<')){
+			if(defined('PDO::MYSQL_ATTR_INIT_COMMAND')){
+				$options[PDO::MYSQL_ATTR_INIT_COMMAND] = "SET NAMES '".$dbCharset."'";
+			}
+		}else{
+			$dsn .= ';charset='.$dbCharset;
+		}						
+		
+		@parent::__construct($dsn, $dbUser, $dbPassword, $options);
+		
+		if(version_compare(PHP_VERSION, '5.3.6', '<') && !defined('PDO::MYSQL_ATTR_INIT_COMMAND')){
+			$this->exec("SET NAMES '".$dbCharset."'");
+		}
+	}  
+
     /**
      * Writes error log
      * @param string $debugMessage
@@ -698,13 +726,25 @@ class CDatabase extends PDO
      */
     private function _interpolateQuery($sql, $params = array())
     {
-        $keys = array();        
+        $keys = array();
+		$count = 0;
         if(!is_array($params)) return $sql;
     
         // Build regular expression for each parameter
         foreach($params as $key => $value){
-            if (is_string($key)){
-				$keys[] = (strpos($key, ':') !== false) ? '/'.$key.'/' : '/:'.$key.'/';
+            if(is_string($key)){
+				$ind = strpos($key, ':');
+				if($ind == 1){
+					// used param with prefix, like: i:param, f:param etc.
+					$newKey = substr($key, 2, strlen($key));
+					$keys[] = '/:'.$newKey.'/';
+					$params[$newKey] = $params[$key];
+					unset($params[$key]);
+				}else if($ind !== false){
+					$keys[] = '/'.$key.'/';
+				}else{
+					$keys[] = '/:'.$key.'/';
+				}
             }else{
                 $keys[] = '/[?]/';
             }
@@ -754,11 +794,20 @@ class CDatabase extends PDO
 	 * Sets cache state 
 	 * @param bool $enabled
 	 */
-    private function _enableCache($enabled)
+    private function _setCaching($enabled)
     {
-        $this->_cache = ($enabled) ? true : false;
-        if(!$this->_cache) CDebug::addMessage('general', 'cache', 'disabled');
+        $this->_cache = $this->_isCacheAllowed($enabled);
+        ///if(!$this->_cache) CDebug::addMessage('general', 'cache', 'disabled');
     }
+	
+	/**
+	 * Check cache state 
+	 * @param bool
+	 */
+    private function _isCacheAllowed($cacheResult = false)
+    {
+		return ($this->_cache && ($this->_cacheType == 'auto' || ($this->_cacheType == 'manual' && $cacheResult == true)));
+    }	
 	
 	/**
 	 * Get formatted microtime
@@ -769,5 +818,5 @@ class CDatabase extends PDO
         list($usec, $sec) = explode(' ', microtime());
         return ((float)$usec + (float)$sec);
     }
-  
+	
 }

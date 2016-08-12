@@ -44,6 +44,7 @@ error_reporting(E_ALL);
  *
  * Added by ApPHP
  * ==============
+ * #005 - fixed syntax error in constructor declaration and PHP5 style
  * #004 - fixed error for debug of PDO instances and values as array
  * #003 - added new class dBug_".$type."White
  * #002 - changes CSS
@@ -53,19 +54,22 @@ error_reporting(E_ALL);
 
 class dBug {
 	
-	var $xmlDepth=array();
-	var $xmlCData;
-	var $xmlSData;
-	var $xmlDData;
-	var $xmlCount=0;
-	var $xmlAttrib;
-	var $xmlName;
-	var $arrType=array("array","object","resource","boolean");
-	var $bInitialized = false;
-	var $arrHistory = array();
+	public $xmlDepth=array();
+	public $xmlCData;
+	public $xmlSData;
+	public $xmlDData;
+	public $xmlCount=0;
+	public $xmlAttrib;
+	public $xmlName;
+	public $arrType=array("array","object","resource","boolean");
+	public $bInitialized = false;
+	public $arrHistory = array();
 	
-	//constructor
-	function dBug($var,$forceType="") {
+    /**
+     * Class constructor
+     */
+    public function __construct($var,$forceType="")
+    {
 		//include js and css scripts
 		if(!defined('BDBUGINIT')) {
 			define("BDBUGINIT", TRUE);

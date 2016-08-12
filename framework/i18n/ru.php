@@ -76,6 +76,8 @@ return array (
             6 => 'С',
         ),
     ),
+	'amName' => 'до полудня',
+	'pmName' => 'после полудня',
     'orientation' => 'ltr',	
     'languages' => array (
         'aa' => 'афар',

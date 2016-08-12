@@ -2,7 +2,7 @@
             -= YOU MAY NOT REMOVE OR CHANGE THIS NOTICE =-                 
  --------------------------------------------------------------------------- 
  ApPHP Web Development Framework                                            
- Version :      0.7.7
+ Version :      0.8.3
  Developed by:  ApPHP <info@apphp.com>                                      
  License:       GNU LGPL v.3                                                
  Site:          http://www.apphp.com/php-framework/                         
@@ -18,3 +18,5 @@
  - dBug (PHP version of ColdFusion’s cfdump) 					v1.1 		http://dbug.ospinto.com
  - CI_Security (Security Class from CodeIgniter framework) 		v1.0.0 		http://www.codeigniter.com
  - TCPDF (PHP class for generating PDF documents and barcodes) 	v6.2.8 		http://www.tcpdf.org
+ - NuSOAP - Web Services Toolkit for PHP						v1.123 		http://dietrich.ganx4.com/nusoap
+ - Opauth - Multi-provider authentication framework for PHP					http://opauth.org

@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE (static):		
@@ -40,14 +40,15 @@ class CDataForm extends CWidgs
      *   - to show buttons at the top use 'buttonsPosition'=>'top' (bottom, top or both)
      *   - attribute 'validation'=>array('unique'=>true, 'uniqueCondition'=>'') is used for Add/Edit modes for standard fields (not for translation fields)
      * 	 - validation types: 
-     *  	alpha, numeric, alphanumeric, variable, mixed, seoLink, phone, phoneString, username, timeZone,
+     *  	alpha, numeric, alphanumeric, variable, mixed, seoLink, phone, phoneString, username, timeZone, zipCode,
      *  	password, email, fileName, identity|identityCode, date, integer, positiveInteger, percent, isHtmlSize,
-     *  	float, any, text, confirm, url, ip, range ('minValue'=>'' and 'maxValue'=>''), set, text, hexColor
+     *  	float, any, text, confirm, url, ip, range ('minValue'=>'' and 'maxValue'=>''), set, hexColor
      *   - attribute 'validation'=>array(..., 'forbiddenChars'=>array('+', '$')) is used to define forbidden characters
      *   - attribute 'validation'=>array(..., 'trim'=>true) - removes spaces from field value before validation
      *   - 'successCallback' - callbacl methods of controller (must be public methods)
      *   - separatorName must starts from word 'separator'
      *   - select classes: 'class'=>'chosen-select-filter' or 'class'=>'chosen-select'
+     *   - attribute 'autocomplete'=>array(..., 'varN'=>array('function'=>'$("#id").val()')) passed as a parameter jQuery or javascript the function instead of use the variable
      *   
      * Usage: (in view file)
      *  echo CWidget::create('CDataForm', array(
@@ -84,10 +85,10 @@ class CDataForm extends CWidgs
      *           'field_6'=>array('type'=>'textbox',        'title'=>'Mixed',      'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'mixed'), 'htmlOptions'=>array()),
      *           'field_7'=>array('type'=>'textbox',        'title'=>'Field',      'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>false, 'type'=>'any', 'maxLength'=>255), 'htmlOptions'=>array()),
      *           'field_8'=>array('type'=>'textbox',        'title'=>'Format',     'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'set', 'source'=>array(1, 2, 3, 4, 5)), 'htmlOptions'=>array()),
-     *           'field_9'=>array('type'=>'textbox',        'title'=>'Field Autocomplete',  'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>false, 'type'=>'any', 'maxLength'=>255), 'autocomplete'=>array('enable'=>true, 'ajaxHandler'=>'', 'minLength'=>3), 'htmlOptions'=>array()), 
+     *           'field_9'=>array('type'=>'textbox',        'title'=>'Autocomplete', 'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>false, 'type'=>'any', 'maxLength'=>255), 'autocomplete'=>array('enable'=>true, 'ajaxHandler'=>'part/to/handler/file', 'minLength'=>3, 'default'=>'', 'returnId'=>true, 'params'=>array()), 'htmlOptions'=>array()), 
      *          'field_10'=>array('type'=>'textarea',       'title'=>'Text',       'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'any', 'maxLength'=>255), 'htmlOptions'=>array('maxLength'=>'255')),
      *          'field_11'=>array('type'=>'checkbox',       'title'=>'Checkbox',   'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>false, 'type'=>'set', 'source'=>array(0,1)), 'htmlOptions'=>array()),
-     *          'field_12'=>array('type'=>'select',    		'title'=>'Select',     'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'set', 'source'=>array_keys(array(...))), 'data'=>array(), 'emptyOption'=>true, 'viewType'=>'dropdownlist|checkboxes', 'multiple'=>false, 'storeType'=>'serialized|separatedValues', 'separator'=>';', 'htmlOptions'=>array('class'=>'chosen-select-filter')),
+     *          'field_12'=>array('type'=>'select',    		'title'=>'Select',     'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'set', 'source'=>array_keys(array(...))), 'data'=>array(), 'emptyOption'=>true, 'emptyValue'=>'', 'viewType'=>'dropdownlist|checkboxes', 'multiple'=>false, 'storeType'=>'serialized|separatedValues', 'separator'=>';', 'htmlOptions'=>array('class'=>'chosen-select-filter')),
      *          'field_13'=>array('type'=>'radioButton',    'title'=>'Radio',      'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>''), 'htmlOptions'=>array()),
      *          'field_14'=>array('type'=>'radioButtonList','title'=>'RadioList',  'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>''), 'data'=>array(), 'htmlOptions'=>array()),
      *          'field_15'=>array(
@@ -99,6 +100,7 @@ class CDataForm extends CWidgs
 	 *          	'imageOptions'	 	=> array('showImage'=>true, 'showImageName'=>true, 'showImageSize'=>true, 'imageClass'=>'avatar'),
 	 *          	'thumbnailOptions'	=> array('create'=>true, 'directory'=>'', 'field'=>'', 'postfix'=>'_thumb', 'width'=>'', 'height'=>''),
 	 *          	'deleteOptions'	 	=> array('showLink'=>true, 'linkUrl'=>'admins/edit/avatar/delete', 'linkText'=>'Delete'),
+	 *          	'rotateOptions'		=> array('showLinks'=>true, 'linkRotateLeft'=>'admins/edit/rotate/left', 'linkRotateRigth'=>'admin/edit/rotate/right', 'iconRotateLeft'=>'templates/backend/images/rotateLeft.png', 'iconRotateRight'=>'templates/backend/images/rotateRight.png'),
 	 *          	'fileOptions'	 	=> array('showAlways'=>false, 'class'=>'file', 'size'=>'25', 'filePath'=>'templates/backend/files/accounts/')
      *          ),
      *          'field_16'=>array(
@@ -106,6 +108,7 @@ class CDataForm extends CWidgs
      *              'title'			 	=> 'File Uploader',
      *              'tooltip'		 	=> '',
      *              'default'		 	=> '',
+     *              'download'          => false,
      *              'validation'	 	=> array('required'=>true, 'type'=>'file', 'targetPath'=>'templates/backend/files/accounts/', 'maxSize'=>'100k', 'mimeType'=>'application/zip, application/xml', 'fileName'=>CHash::getRandomString(10), 'filePrefix'=>'', 'filePostfix'=>'', htmlOptions'=>array()),
 	 *          	'iconOptions'	 	=> array('showType'=>true, 'showFileName'=>true, 'showFileSize'=>true),
 	 *          	'deleteOptions'	 	=> array('showLink'=>true, 'linkUrl'=>'admins/edit/avatar/delete', 'linkText'=>'Delete'),
@@ -114,7 +117,7 @@ class CDataForm extends CWidgs
      *          'field_17'=>array('type'=>'label',  	'title'=>'Label 16', 'default'=>'', 'tooltip'=>'', 'definedValues'=>array(), 'htmlOptions'=>array(), 'format'=>'', 'stripTags'=>false),
      *          'field_18'=>array('type'=>'link',   	'title'=>'Label 17', 'tooltip'=>'', 'linkUrl'=>'path/to/param', 'linkText'=>'', 'htmlOptions'=>array()),
      *          'field_19'=>array('type'=>'videoLink',   'title'=>'Label 18', 'tooltip'=>'', 'default'=>'', 'preview'=>false, 'validation'=>array('required'=>false, 'type'=>'url'), 'htmlOptions'=>array()),
-     *          'field_20'=>array('type'=>'datetime', 	'title'=>'Field 19', 'default'=>'', 'tooltip'=>'', 'validation'=>array('required'=>true, 'type'=>'date'), 'htmlOptions'=>array(), 'definedValues'=>array(), 'format'=>'', 'minDate'=>'', 'maxDate'=>''),
+     *          'field_20'=>array('type'=>'datetime', 	'title'=>'Field 19', 'default'=>'', 'tooltip'=>'', 'validation'=>array('required'=>true, 'type'=>'date'), 'htmlOptions'=>array(), 'definedValues'=>array(), 'format'=>'', 'buttonTrigger'=>true, 'minDate'=>'', 'maxDate'=>''),
      *          'field_21'=>array('type'=>'hidden', 	'default'=>'', 'htmlOptions'=>array()),
      *          'field_22'=>array('type'=>'data', 		'default'=>''),
      *       ),
@@ -129,7 +132,7 @@ class CDataForm extends CWidgs
      *          'submitUpdateClose'=>array('type'=>'submit', 'value'=>'Update & Close', 'htmlOptions'=>array('name'=>'btnUpdateClose')),
 	 *          'reset'=>array('type'=>'reset', 'value'=>'Reset', 'htmlOptions'=>array()),
      *          'cancel'=>array('type'=>'button', 'value'=>'Cancel', 'htmlOptions'=>array('name'=>'', 'class'=>'button white')),
-	 *          'custom'=>array('type'=>'button', 'value'=>'Custom', 'htmlOptions'=>array('onclick'=>"$(location).attr('href','categories/index');")),
+	 *          'custom'=>array('type'=>'button', 'value'=>'Custom', 'htmlOptions'=>array('onclick'=>"jQuery(location).attr('href','categories/index');")),
      *       ),
      *       'buttonsPosition'=>'bottom',
      *       'messagesSource'=>'core',
@@ -179,7 +182,7 @@ class CDataForm extends CWidgs
         $buttonsPosition 		= self::params('buttonsPosition', 'bottom');
         $buttons 				= self::params('buttons', array());
 								if(self::issetKey('cancel', $buttons) && !empty($cancelUrl)){
-									$buttons['cancel']['htmlOptions']['onclick'] = '$(location).attr(\'href\',\''.$baseUrl.$cancelUrl.'\');';
+									$buttons['cancel']['htmlOptions']['onclick'] = 'jQuery(location).attr(\'href\',\''.$baseUrl.$cancelUrl.'\');';
 								}
 
 		$objModel 				= call_user_func_array($model.'::model', array());
@@ -197,7 +200,7 @@ class CDataForm extends CWidgs
 			$action .= self::_additionalParams(true, $linkType, $separateSymbol);			
 			$separateSymbol = preg_match('/\?/', $cancelUrl) ? '&' : '?';
 			$cancelUrl .= self::_additionalParams(true, $linkType, $separateSymbol);			
-			if(self::issetKey('cancel', $buttons) && !empty($cancelUrl)) $buttons['cancel']['htmlOptions']['onclick'] = '$(location).attr(\'href\',\''.$baseUrl.$cancelUrl.'\');';
+			if(self::issetKey('cancel', $buttons) && !empty($cancelUrl)) $buttons['cancel']['htmlOptions']['onclick'] = 'jQuery(location).attr(\'href\',\''.$baseUrl.$cancelUrl.'\');';
 		} 		
 
 		$errorField = '';			
@@ -605,6 +608,7 @@ class CDataForm extends CWidgs
 		$mandatoryStar = (bool)self::keyAt('validation.required', $fieldInfo, false);
         $validationType = self::keyAt('validation.type', $fieldInfo, '');
         $validationFormat = self::keyAt('validation.format', $fieldInfo, '');
+		$maxSize = self::keyAt('validation.maxSize', $fieldInfo, '');
 		$fieldType = strtolower(self::keyAt('type', $fieldInfo, ''));
 		self::unsetKey('validation', $fieldInfo);
 		
@@ -644,6 +648,9 @@ class CDataForm extends CWidgs
 		
 		if($fieldType == 'videolink'){
 			$formViewParams['preview'] = self::keyAt('preview', $fieldInfo, '');
+		}else if(preg_match('/imageupload|fileupload/i', $fieldType)){
+			// Save to show on CFormView field label
+			$fieldInfo['maxSize'] = $maxSize;
 		}
 
 		$fieldInfo['mandatoryStar'] = $mandatoryStar;				

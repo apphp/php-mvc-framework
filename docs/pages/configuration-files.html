@@ -92,6 +92,12 @@ return array(
         'bruteforce' => array('enable' => true, 'badLogins' => 5, 'redirectDelay' => 3),
     ),
 
+    // Output compression
+    'compression' => array(
+        'enable' => true, 
+        'method' => 'gzip'
+    ),
+
     // Session settings
     'session' => array(
         'customStorage' => false, 	/* true value means use a custom storage (database), false - standard storage */

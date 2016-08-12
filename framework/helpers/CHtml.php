@@ -110,6 +110,9 @@ class CHtml
             $htmlOptions['href'] = self::_escapeHex($htmlOptions['href']);
             unset($htmlOptions['escape']);
         }
+		if(isset($htmlOptions['target']) && strtolower($htmlOptions['target']) === '_blank' && empty($htmlOptions['rel'])){
+			$htmlOptions['rel'] = 'nofollow noopener';
+		}
 		return self::tag('a', $htmlOptions, $text);
 	}
 
@@ -186,11 +189,25 @@ class CHtml
 	 * Includes a JavaScript file
 	 * @param string $url
 	 * @param bool $newLine
+	 * @param bool $preventDouble
 	 * @return string - HTML tag
 	 */
-	public static function scriptFile($url, $newLine = true)
+	public static function scriptFile($url, $newLine = true, $preventDouble = false)
 	{
-		return '<script type="text/javascript" src="'.self::encode($url).'"></script>'.(($newLine) ? "\n" : '');
+		$include = false;
+		if($preventDouble){
+			$hash_name = md5($url);
+			if(!defined($hash_name)){
+				define(md5($url), true);
+				$include = true;
+			}
+		}else{
+			$include = true;
+		}
+		
+		if($include){
+			return '<script type="text/javascript" src="'.self::encode($url).'"></script>'.(($newLine) ? "\n" : '');	
+		}
 	}
 	
 	/**
@@ -725,7 +742,7 @@ class CHtml
     public static function convertFileSize($fileSize)
 	{
 		$return = $fileSize;
-		if(!is_numeric($fileSize)){ 
+		if(!is_numeric($fileSize)){
 			if(stripos($fileSize, 'm') !== false){ 
 				$return = intval($fileSize) * 1024 * 1024; 
 			}else if(stripos($fileSize, 'k') !== false){ 

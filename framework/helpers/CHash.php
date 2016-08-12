@@ -8,14 +8,16 @@
  * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
- * PUBLIC (static):			PROTECTED:					PRIVATE:		
+ * PUBLIC (static):			PROTECTED:					PRIVATE (static):
  * ----------               ----------                  ----------
- * create
+ * create                                               _padKey
  * salt
  * equals
  * getRandomString
+ * getSequentialString
  * encrypt
  * decrypt
+ * getRandomOrIterationString
  * 
  */	  
 
@@ -73,6 +75,7 @@ class CHash
      * @param array $params
      * type: 'numeric', 'positiveNumeric', 'alphanumeric', 'alpha'
      * case: 'upper', 'lower' (default)
+     * @return string
      */
     public static function getRandomString($length = 10, $params = array())
     {
@@ -104,6 +107,35 @@ class CHash
         return $output;       
     }
     
+    /**
+     * Creates random string
+     * @param integer $length
+     * @param boolean $isRandom
+     * @param integer $id
+     * @return string
+     */
+    public static function getRandomOrIterationString($length = 10, $isRandom = true, $id = 0)
+    {
+        if($isRandom){
+            $result = self::getRandomString($length);
+        }else{
+            $result = sprintf('%0'.(int)$length.'d',$id);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Creates sequential string
+     * @param int $numeric
+     * @param int $length
+     * @return string
+     */
+    public static function getSequentialString($number = '', $length = 10)
+    {
+		str_pad($number, $length, '0', STR_PAD_LEFT);
+	}
+
 	/**
 	 * Encrypt given value
 	 * @param $value
@@ -111,6 +143,8 @@ class CHash
 	 */
 	public static function encrypt($value, $secretKey)
     {
+        $secretKey = self::_padKey($secretKey);
+
 		return trim(strtr(base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $secretKey, $value, MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB), MCRYPT_RAND))), '+/=', '-_,'));
     }
 	
@@ -121,8 +155,32 @@ class CHash
 	 */
 	public static function decrypt($value, $secretKey)
 	{
-		return trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $secretKey, base64_decode(strtr($value, '-_,', '+/=')), MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB), MCRYPT_RAND)));
+        $secretKey = self::_padKey($secretKey);
+
+        return trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $secretKey, base64_decode(strtr($value, '-_,', '+/=')), MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB), MCRYPT_RAND)));
 	}
     
-   
+	/**
+	 * Pad key
+	 * @param string $key
+	 * @return string
+	 */
+    private static function _padKey($key)
+    {
+        // Key is too large
+        if(strlen($key) > 32) return false;
+
+        // Set sizes
+        $sizes = array(16,24,32);
+
+        // Loop through sizes and pad key
+        foreach($sizes as $s){
+            if($s > strlen($key)){
+                $key = str_pad($key, $s, "\0");
+                break;
+            }
+        }
+
+        return $key;
+    }
 }

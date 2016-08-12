@@ -16,6 +16,7 @@
  * isNumeric
  * isAlphaNumeric
  * isVariable
+ * isZipCode
  * isMixed
  * isSeoLink
  * isText
@@ -118,6 +119,41 @@ class CValidator
     public static function isVariable($value)
 	{
         return preg_match('/^[a-zA-Z]+[0-9a-zA-Z_]*$/', $value);
+    }
+
+	/**
+	 * Checks if a given parameter is a zip code
+     * @param mixed $value
+     * @param string $country
+	 * @return boolean
+	 */
+    public static function isZipCode($value, $countryCode = '')
+    {
+        $zipReg=array(
+            'us'=>"/^\d{5}([\-]?\d{4})?$/",
+            'uk'=>"/^(GIR|[A-Z]\d[A-Z\d]??|[A-Z]{2}\d[A-Z\d]??)[ ]??(\d[A-Z]{2})$/",
+            'de'=>"/\b((?:0[1-46-9]\d{3})|(?:[1-357-9]\d{4})|(?:[4][0-24-9]\d{3})|(?:[6][013-9]\d{3}))\b/",
+            'ca'=>"/^([ABCEGHJKLMNPRSTVXY]\d[ABCEGHJKLMNPRSTVWXYZ])\ {0,1}(\d[ABCEGHJKLMNPRSTVWXYZ]\d)$/",
+            'fr'=>"/^(F-)?((2[A|B])|[0-9]{2})[0-9]{3}$/",
+            'it'=>"/^(V-|I-)?[0-9]{5}$/",
+            'au'=>"/^(0[289][0-9]{2})|([1345689][0-9]{3})|(2[0-8][0-9]{2})|(290[0-9])|(291[0-4])|(7[0-4][0-9]{2})|(7[8-9][0-9]{2})$/",
+            'nl'=>"/^[1-9][0-9]{3}\s?([a-zA-Z]{2})?$/",
+            'es'=>"/^([1-9]{2}|[0-9][1-9]|[1-9][0-9])[0-9]{3}$/",
+            'dk'=>"/^([D-d][K-k])?( |-)?[1-9]{1}[0-9]{3}$/",
+            'se'=>"/^(s-|S-){0,1}[0-9]{3}\s?[0-9]{2}$/",
+            'be'=>"/^[1-9]{1}[0-9]{3}$/"
+        );
+		
+		$countryCode = strtolower($countryCode);
+
+        if(!empty($countryCode) && isset($zipReg[$countryCode])){
+            $regExp = $zipReg[$countryCode];
+            $result = preg_match($regExp, $value);
+        }else{
+            $result = preg_match('/^[0-9a-zA-Z\-\s]*$/', $value);
+        }
+		
+        return $result;
     }
 
 	/**
@@ -278,7 +314,6 @@ class CValidator
             $date = strtotime($value);        
             return (!empty($date) && self::isInteger($date));            
         }
-        $date = strtotime($value);        
     }
 
 	/**

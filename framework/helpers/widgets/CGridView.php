@@ -39,7 +39,7 @@ class CGridView extends CWidgs
      *   - 'maxLength'=>'X' - attribute for type 'label', specifies to show maximum X characters of the string
      *   - 'aggregate'=>array('function'=>'sum|avg') - allow to run aggregate function on specific column
      *   - 'sourceField'=>'' - used to show data from another field
-     *   - 'callback'=>array('function'=>'functionName', 'params'=>$functionParams)
+     *   - 'callback'=>array('class'=>'className', 'function'=>'functionName', 'params'=>$functionParams)
      *      callback of closure function that is called when item created (available for labels only), $record - all current record
      *      <  5.3.0 function functionName($record, $params){ return record['field_name']; }
      *      >= 5.3.0 $functionName = function($record, $params){ return record['field_name']; }
@@ -74,8 +74,8 @@ class CGridView extends CWidgs
 	 *    ),
      *    'filters'	=> array(
      *    	 'field_1' 	=> array('title'=>'Field 1', 'type'=>'textbox', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'', 'maxLength'=>'', 'htmlOptions'=>array()),
-     *    	 'field_2' 	=> array('title'=>'Field 2', 'type'=>'textbox', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'', 'maxLength'=>'', 'autocomplete'=>array('enable'=>true, 'ajaxHandler'=>'', 'minLength'=>3), 'htmlOptions'=>array()),
-     *    	 'field_3' 	=> array('title'=>'Field 3', 'type'=>'enum', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'', 'source'=>array('0'=>'No', '1'=>'Yes'), 'emptyOption'=>true, 'htmlOptions'=>array('class'=>'chosen-select-filter')),
+     *    	 'field_2' 	=> array('title'=>'Field 2', 'type'=>'textbox', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'', 'maxLength'=>'', 'autocomplete'=>array('enable'=>true, 'ajaxHandler'=>'path/to/handler/file', 'minLength'=>3, 'returnId'=>true), 'htmlOptions'=>array()),
+     *    	 'field_3' 	=> array('title'=>'Field 3', 'type'=>'enum', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'', 'source'=>array('0'=>'No', '1'=>'Yes'), 'emptyOption'=>true, 'emptyValue'=>'', 'htmlOptions'=>array('class'=>'chosen-select-filter')),
      *    	 'field_4' 	=> array('title'=>'Field 4', 'type'=>'datetime', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'80px', 'maxLength'=>'', 'format'=>'', 'htmlOptions'=>array()),
      *    ),
 	 *    'fields'	=> array(
@@ -115,6 +115,7 @@ class CGridView extends CWidgs
 		$actions 	   		= self::params('actions', array());
 		$sortingEnabled 	= (bool)self::params('sorting', false);
 		$filterDiv			= self::params('options.filterDiv', array());
+		$filterItemDiv		= self::params('options.filterItemDiv', array());
 		$gridWrapper		= self::params('options.gridWrapper', array());
 		$gridTable			= self::params('options.gridTable', array());        
         $linkType 			= (int)self::params('linkType', 0);	/* Link type: 0 - standard, 1 - SEO */
@@ -189,16 +190,20 @@ class CGridView extends CWidgs
                     $fieldValue = $fieldDefaultValue;
                 }
 				
-				$output .= $title.': ';
+				if(!empty($filterItemDiv)){
+					$output .= CHtml::openTag('div', array('class'=>(!empty($filterItemDiv['class']) ? $filterItemDiv['class'] : ''))).self::NL;
+				}
+				$output .= !empty($title) ? $title.': ' : '';
 				switch($type){
 
 					case 'enum':
 						$source = isset($fValue['source']) ? $fValue['source'] : array();
 						$emptyOption = isset($fValue['emptyOption']) ? (bool)$fValue['emptyOption'] : false;
+						$emptyValue = isset($fValue['emptyValue']) ? $fValue['emptyValue'] : '';
 						$sourceCount = count($source);
 						if($sourceCount >= 1 || !empty($emptyOption)){
 							if($emptyOption){
-								$source = array(''=>'') + $source;
+								$source = array(''=>$emptyValue) + $source;
 							}
 							$htmlOptions['style'] = $width;
 							$output .= (count($source)) ? CHtml::dropDownList($fKey, $fieldValue, $source, $htmlOptions) : 'no';	
@@ -210,7 +215,9 @@ class CGridView extends CWidgs
 
 					case 'datetime':
 						$format = isset($fieldInfo['format']) ? $fieldInfo['format'] : 'yy-mm-dd';
-						$output .= CHtml::textField($fKey, $fieldValue, array('maxlength'=>$maxLength, 'style'=>$width));
+						$htmlOptions['maxlength'] = $maxLength;
+						$htmlOptions['style'] = $width;
+						$output .= CHtml::textField($fKey, $fieldValue, $htmlOptions);
 						A::app()->getClientScript()->registerCssFile('js/vendors/jquery/jquery-ui.min.css');
 						// UI:
 						//		dateFormat: dd/mm/yy | d M, y | mm/dd/yy  | yy-mm-dd 
@@ -219,7 +226,7 @@ class CGridView extends CWidgs
 						//		autoclose: true,
 						A::app()->getClientScript()->registerScript(
 							'datepicker_'.self::$_pickerCount++,
-							'$("#'.$fKey.'").datepicker({
+							'jQuery("#'.$fKey.'").datepicker({
 								showOn: "button",
 								buttonImage: "js/vendors/jquery/images/calendar.png",
 								buttonImageOnly: true,
@@ -240,37 +247,47 @@ class CGridView extends CWidgs
 						$autocompleteEnabled = self::keyAt('enable', $autocomplete);
 						$autocompleteAjaxHandler = self::keyAt('ajaxHandler', $autocomplete, '');
 						$autocompleteMinLength = self::keyAt('minLength', $autocomplete, 1);
+						$autocompleteReturnId = self::keyAt('returnId', $autocomplete, true);
 
 						if($autocompleteEnabled){
+							$cRequest = A::app()->getRequest();
+							
 							A::app()->getClientScript()->registerCssFile('js/vendors/jquery/jquery-ui.min.css');
 							// Already included in backend default.php
-							//A::app()->getClientScript()->registerScriptFile('js/vendors/jquery/jquery-ui.min.js',2);
+							if(A::app()->view->getTemplate() != 'backend'){
+								A::app()->getClientScript()->registerScriptFile('js/vendors/jquery/jquery-ui.min.js', 2);	
+							}							
 							
-							$fKeySearch = $fKey.'_result';
+							$fKeySearch = $autocompleteReturnId ? $fKey.'_result' : $fKey;
 							A::app()->getClientScript()->registerScript(
 								'autocomplete_'.self::$_autocompleteCount++,
-								'$("#'.$fKeySearch.'").autocomplete({
+								'jQuery("#'.$fKeySearch.'").autocomplete({
 									source: function(request, response){
 										$.ajax({
 											url: "'.CHtml::encode($autocompleteAjaxHandler).'",
 											global: false,
 											type: "POST",
 											data: ({
-												APPHP_CSRF_TOKEN: "'.A::app()->getRequest()->getCsrfTokenValue().'",
+												'.$cRequest->getCsrfTokenKey().': "'.$cRequest->getCsrfTokenValue().'",
 												act: "send",
-												search : $("#'.$fKeySearch.'").val()
+												search : jQuery("#'.$fKeySearch.'").val()
 											}),
 											dataType: "json",
 											async: true,
 											error: function(html){
-												'.((APPHP_MODE == 'debug') ? 'alert("AJAX: cannot connect to the server or server response error! Please try again later.")' : '').'
+												'.((APPHP_MODE == 'debug') ? 'alert("AJAX: cannot connect to the server or server response error! Please try again later.");' : '').'
 											},
 											success: function(data){
 												if(data.length == 0){
-													response({ label: "'.A::te('core', 'No matches found').'" });
+													response({label: "'.A::te('core', 'No matches found').'"});
 												}else{
 													response($.map(data, function(item){
-														return{ id: item.id, label: item.label }
+														if(item.label !== undefined){
+															return {id: '.($autocompleteReturnId ? 'item.id' : 'item.label').', label: item.label}	
+														}else{
+															// Empty search value if nothing found
+															jQuery("#'.$fKey.'").val("");
+														}
 													}));
 												}
 											}
@@ -278,9 +295,9 @@ class CGridView extends CWidgs
 									},
 									minLength: '.(int)$autocompleteMinLength.',
 									select: function(event, ui) {
-										$("#'.$fKey.'").val(ui.item.id);
+										jQuery("#'.$fKey.'").val(ui.item.id);
 										if(typeof(ui.item.id) == "undefined"){
-											$("#'.$fKeySearch.'").val("");
+											jQuery("#'.$fKeySearch.'").val("");
 											return false;
 										}
 									}
@@ -288,12 +305,14 @@ class CGridView extends CWidgs
 								4
 							);
 
-							// Draw hidden field for real field							
-							$output .= CHtml::hiddenField($fKey, CHtml::encode($fieldValue), $htmlOptions).self::NL;
+							if($autocompleteReturnId){
+								// Draw hidden field for real field
+								$output .= CHtml::hiddenField($fKey, CHtml::encode($fieldValue), $htmlOptions).self::NL;								
+							}
 							// Draw textbox
 							$htmlOptions['style'] = $width;
 							$htmlOptions['maxlength'] = $maxLength;
-							$fieldValueSearch = A::app()->getRequest()->getQuery($fKeySearch);
+							$fieldValueSearch = $cRequest->getQuery($fKeySearch);
 							$output .= CHtml::textField($fKeySearch, CHtml::encode($fieldValueSearch), $htmlOptions).self::NL;
 						}else{
 							// Draw textbox
@@ -303,9 +322,19 @@ class CGridView extends CWidgs
 						}						
 						break;
 				}
+				if(!empty($filterItemDiv)){
+					$output .= CHtml::closeTag('div').self::NL;
+				}
 				
 				if($fieldValue !== ''){
                     $filterUrl .= (!empty($filterUrl) ? '&' : '').$fKey.'='.$fieldValue;
+
+					// Check if there is an autocomplete key that must be added to filter string
+					$autocompleteValue = A::app()->getRequest()->getQuery($fKey.'_result');
+					if($autocompleteValue != ''){
+						$filterUrl .= (!empty($filterUrl) ? '&' : '').$fKey.'_result='.$autocompleteValue;
+					}
+
 					$escapedFieldValue = strip_tags(CString::quote($fieldValue));
 					$quote = ($compareType == 'numeric' || $compareType == 'binary') ? '' : "'";
 					$binary = ($compareType == 'binary') ? 'BINARY ' : '';
@@ -359,7 +388,7 @@ class CGridView extends CWidgs
 			$output .= CHtml::openTag('div', array('class'=>'buttons-wrapper')).self::NL;
 			if(A::app()->getRequest()->getQuery('but_filter')){
 				$filterUrl .= (!empty($filterUrl) ? '&' : '').'but_filter=true';
-				$output .= CHtml::button(A::t('core', 'Cancel'), array('name'=>'', 'class'=>'button white', 'onclick'=>'$(location).attr(\'href\',\''.$baseUrl.$actionPath.'\');')).self::NL;
+				$output .= CHtml::button(A::t('core', 'Cancel'), array('name'=>'', 'class'=>'button white', 'onclick'=>'jQuery(location).attr(\'href\',\''.$baseUrl.$actionPath.'\');')).self::NL;
 			}
 			
 			$output .= CHtml::submitButton(A::t('core', 'Filter'), array('name'=>'but_filter')).self::NL;
@@ -663,10 +692,24 @@ class CGridView extends CWidgs
 						case 'label':
 						default:
 							// Call of closure function on item creating event
+							$callbackClass = self::keyAt('callback.class', $val);
 							$callbackFunction = self::keyAt('callback.function', $val);
 							$callbackParams = self::keyAt('callback.params', $val, array());
-							if(!empty($callbackFunction) && is_callable($callbackFunction)){
-								$fieldValue = $callbackFunction($records[$i], $callbackParams);
+                            if(!empty($callbackFunction)){
+                                if(!empty($callbackClass) && class_exists($callbackClass)){
+                                    // Calling a method class
+                                    $callbackObject = new $callbackClass();
+                                    if(method_exists($callbackObject, $callbackFunction) && is_callable(array($callbackObject, $callbackFunction))){
+                                        // For PHP_VERSION >= 5.3.0 you may use
+                                        // $fieldValue = $callbackObject::$callbackFunction($records[$i], $callbackParams);
+                                        $fieldValue = call_user_func(array($callbackObject, $callbackFunction), $records[$i], $callbackParams);
+                                    }
+                                }else if(is_callable($callbackFunction)){
+                                    // Calling a function
+                                    // For PHP_VERSION >= 5.3.0 you may use
+                                    // $fieldValue = $callbackFunction($records[$i], $callbackParams);
+                                    $fieldValue = call_user_func($callbackFunction, $records[$i], $callbackParams);
+                                }
 							}
 
 							$dataValue = self::keyAt('data', $val, '');
@@ -732,13 +775,13 @@ class CGridView extends CWidgs
 				if($activeActions > 0){
 					$output .= CHtml::openTag('td', array('class'=>'actions')).self::NL;
 					foreach($actions as $aKey => $aVal){
-						$htmlOptions = array('class'=>'tooltip-link gridview-delete-link');
+						$htmlOptions = (array)self::keyAt('htmlOptions', $aVal);						
+						$htmlOptions['class'] = (isset($htmlOptions['class']) ? $htmlOptions['class'].' ' : '').'tooltip-link gridview-delete-link';						
 						$htmlOptions['data-id'] = $id;
 						if(isset($aVal['title'])){
 							$htmlOptions['title'] = $aVal['title'];
 						}
 						if((bool)self::keyAt('onDeleteAlert', $aVal) === true){
-							$htmlOptions['data-id'] = $id;
 							$htmlOptions['onclick'] = 'return onDeleteRecord(this);';
 						}
 						$imagePath = self::keyAt('imagePath', $aVal);
@@ -817,7 +860,7 @@ class CGridView extends CWidgs
 			if($onDeleteRecord){
 				A::app()->getClientScript()->registerScript(
 					'delete-record',
-					'function onDeleteRecord(el){return confirm("ID: " + $(el).data("id") + "\n'.A::t('core', 'Are you sure you want to delete this record?').'");}',
+					'function onDeleteRecord(el){return confirm("ID: " + jQuery(el).data("id") + "\n'.A::t('core', 'Are you sure you want to delete this record?').'");}',
 					2
 				);				
 			}

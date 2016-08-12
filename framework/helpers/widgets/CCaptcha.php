@@ -27,6 +27,7 @@ class CCaptcha extends CWidgs
      *     	'type' 	=> 'standard|math',		// Type
      *      'required' 	=> true,			// Whether required or not
      *     	'name'		=> '',				// Unique name for captcha, used to prevent names overlapping
+	 *     	'id'        => '',              // Element ID
      *      'return'	=> true
      *  ));
      */
@@ -37,7 +38,8 @@ class CCaptcha extends CWidgs
         $output 		= '';
 		$type 			= self::params('type', 'math');
 		$required 		= (bool)self::params('required', true);
-		$name 			= self::params('name', 'captchaResult');
+        $name 			= self::params('name', 'captchaResult');
+        $id             = self::params('id', 'captcha_validation');
         $return 		= (bool)self::params('return', true);
 
         $firstDigit 	= CHash::getRandomString(1, array('type'=>'positiveNumeric'));
@@ -56,7 +58,7 @@ class CCaptcha extends CWidgs
             
         $output .= CHtml::openTag('div', array('class'=>'captcha'));
         $output .= CHtml::tag('label', array(), $requiredMark.A::t('core', 'How much it will be').'<br><span class="captcha-match">'.$firstDigit.' '.$operator.' '.$secondDigit.' = ?</span>').self::NL;
-        $output .= CHtml::textField('captcha_validation', '', array('class'=>'captcha-result', 'autocomplete'=>'off', 'data-required'=>($required ? 'true' : 'false'), 'maxlength'=>'20')).self::NL;
+        $output .= CHtml::textField($id, '', array('class'=>'captcha-result', 'autocomplete'=>'off', 'data-required'=>($required ? 'true' : 'false'), 'maxlength'=>'20')).self::NL;
         $output .= CHtml::closeTag('div').self::NL;
 		
         if($return) return $output;

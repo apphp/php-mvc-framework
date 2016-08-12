@@ -57,7 +57,7 @@ class CArray
     }
 
 	/**
-	 * Returns array of uniquie values from specified filed in sib-array
+	 * Returns array of uniquie values from specified filed in sub-array
 	 *
 	 * Usage:
 	 * $array = array(

@@ -47,6 +47,8 @@ return array (
             12 => 'D',
         ),
     ),
+	'amName' => 'AM',
+	'pmName' => 'PM',
     'weekDayNames' => array (
         'wide' => array (
             1 => 'Sunday',

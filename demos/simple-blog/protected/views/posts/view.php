@@ -8,6 +8,18 @@ if(!empty($posts)){
 		echo '<div class="alert alert-info">Click <a href="login/index"><b>here</b></a> to log into the system as Blog Author.</div>';
 	}
 
+	if(is_object($posts)){
+		$posts_new = array();
+		$posts_new[0]['id'] = $posts->id;
+		$posts_new[0]['header'] = $posts->header;
+		$posts_new[0]['post_text'] = $posts->post_text;
+		$posts_new[0]['category_id'] = $posts->category_id;
+		$posts_new[0]['category_name'] = $post->category_name;
+		$posts_new[0]['login'] = $posts->login;
+		$posts_new[0]['post_datetime'] = $posts->post_datetime;
+		$posts = $posts_new;
+	}
+
     foreach($posts as $post){
    	
    		if($viewOnePost){

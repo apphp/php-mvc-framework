@@ -16,6 +16,7 @@
  * console
  * c
  * write
+ * backtrace
  * addSqlTime
  * addMessage
  * getMessage
@@ -137,7 +138,44 @@ class CDebug
         if($key == '') $key = 'console-write-'.CHash::getRandomString(4);
         self::addMessage('general', $key, $val, $storeType);
     }
-    
+	
+    /**
+     * Debug backtrace
+     * @param array $traceData
+     * @param bool $formatted
+     * @return HTML
+     */
+    public static function backtrace($traceData = '', $formatted = true)
+    {
+		$stack = '';
+		$i = 0;		
+		
+		// Prepare trace data
+		if(empty($traceData)){
+			$trace = debug_backtrace();
+			// Remove call to this function from stack trace
+			unset($trace[0]);
+		}else{
+			$trace = $traceData;	
+		}
+		
+		foreach($trace as $node){
+			$file = isset($node['file']) ? $node['file'] : '';
+			$line = isset($node['line']) ? '('.$node['line'].') ' : '';
+			$stack .= '#'.(++$i).' '.$file.$line.': '; 
+			if(isset($node['class'])){
+				$stack .= $node['class'].'->'; 
+			}
+			$stack .= $node['function'].'()'.PHP_EOL;
+		}
+		
+		if($formatted){
+			return '<pre>'.$stack.'</pre>';	
+		}else{
+			return $stack;	
+		}		
+    }
+	    
     /**
      * Add message to the stack
      * @param float $time
@@ -310,7 +348,9 @@ class CDebug
 			echo A::t('core', 'Total running time').': '.$totalRunningTime.' sec.<br>';
 			echo A::t('core', 'Script running time').': '.$totalRunningTimeSql.' sec.<br>';
 			echo A::t('core', 'SQL running time').': '.$totalRunningTimeScript.' sec.<br>';
-			echo A::t('core', 'Total memory usage').': '.$totalMemoryUsage.'<br><br>';
+			echo A::t('core', 'Total memory usage').': '.$totalMemoryUsage.'<br>';
+			if(!empty(self::$_arrGeneral['cache'])) echo A::t('core', 'Database Query Cache').': '.implode('', self::$_arrGeneral['cache']).'<br>';
+			echo A::t('core', 'Output compression').': '.(CConfig::get('compression.enable') ? CConfig::get('compression.method') : A::t('core', 'no')).'<br><br>';
 			
 			if(count(self::$_arrGeneral) > 0){
 				echo '<strong>LOADED CLASSES</strong>:';
@@ -356,6 +396,18 @@ class CDebug
                 }
             }
             print_r($arrPost);
+			echo '</pre>';
+			echo '<br>';
+
+			echo '<strong>$_FILES</strong>:';
+			echo '<pre style="white-space:pre-wrap;">';
+            $arrFiles = array();
+			if(isset($_FILES)){
+                foreach($_FILES as $key => $val){
+                    $arrFiles[$key] = is_array($val) ? $val : strip_tags($val);
+                }
+            }
+            print_r($arrFiles);
 			echo '</pre>';
 			echo '<br>';
 
