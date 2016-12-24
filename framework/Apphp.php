@@ -5,16 +5,17 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC:					PROTECTED:					    PRIVATE:		
  * ----------               ----------                      ----------
  * __construct              _onBeginRequest                 _autoload
- * run                      _registerCoreComponents
- * init (static)			_setComponent
- * app (static)				_registerAppComponents 
- * powered (static)			_registerAppHelpers
+ * run                      _onEndRequest
+ * init (static)			_registerCoreComponents
+ * app (static)				_setComponent
+ * powered (static)			_registerAppComponents
+ * version (static)			_registerAppHelpers
  * getVersion (static)		_registerAppModules
  * t (static)				_hasEvent
  * te (static)				_hasEventHandler	
@@ -23,6 +24,8 @@
  * clientScript
  * getRequest
  * request
+ * getLogger
+ * logger
  * getLocalTime
  * localTime
  * getSession
@@ -31,6 +34,8 @@
  * cookie
  * getShoppingCart
  * shoppingCart
+ * getMobileDetect
+ * mobileDetect
  * getUri
  * uri
  * attachEventHandler
@@ -59,6 +64,9 @@ class A
 	/** @var string */
 	public $sourceLanguage = 'en';
 	
+
+	/** @var string */
+	private static $_frameworkVersion = '0.9.0';	
 	/** @var string */
 	private static $_phpVersion;
 	/** @var object */
@@ -71,7 +79,7 @@ class A
 	);
     /** @var array */
     private static $_coreClasses = array(
-        'CConfig'        => 'collections/CConfig.php',
+        'CConfig'		=> 'collections/CConfig.php',
         
         'CController'   => 'core/CController.php',
         'CDebug'        => 'core/CDebug.php',
@@ -90,10 +98,12 @@ class A
         'dbSession' 	=> array('class' => 'CDbHttpSession', 	'path' => 'components/CDbHttpSession.php'),
         'request'   	=> array('class' => 'CHttpRequest', 	'path' => 'components/CHttpRequest.php'),
         'session'   	=> array('class' => 'CHttpSession', 	'path' => 'components/CHttpSession.php'),
-        'cookie'    	=> array('class' => 'CHttpCookie', 		'path' => 'components/CHttpCookie.php'),
-        'localTime'     => array('class' => 'CLocalTime', 		'path' => 'components/CLocalTime.php'),
+        'cookie'		=> array('class' => 'CHttpCookie', 		'path' => 'components/CHttpCookie.php'),
+        'localTime'		=> array('class' => 'CLocalTime', 		'path' => 'components/CLocalTime.php'),
+		'logger'     	=> array('class' => 'CLogger', 			'path' => 'components/CLogger.php'),
         'coreMessages' 	=> array('class' => 'CMessageSource', 	'path' => 'components/CMessageSource.php',	'language' => 'en'),
 		'messages' 		=> array('class' => 'CMessageSource', 	'path' => 'components/CMessageSource.php'),
+		'mobileDetect' 	=> array('class' => 'CMobileDetect', 	'path' => 'components/CMobileDetect.php'),
 		'shoppingCart' 	=> array('class' => 'CShoppingCart', 	'path' => 'components/CShoppingCart.php'),
 		'uri'   		=> array('class' => 'CUri',				'path' => 'components/CUri.php'),
     );
@@ -112,6 +122,7 @@ class A
         'CImage'        => 'helpers/CImage.php',
 		'CLoader'       => 'helpers/CLoader.php',
 		'CLocale'       => 'helpers/CLocale.php',
+		'CLog'       	=> 'helpers/CLog.php',
         'CMailer'       => 'helpers/CMailer.php',
         'CNumber'       => 'helpers/CNumber.php',
 		'COauth'        => 'helpers/COauth.php',
@@ -176,7 +187,7 @@ class A
             // Check if main configuration file exists
             if(!file_exists($configMain)){
                 $arrConfig = array(
-                    'defaultTemplate' => 'setup',
+                    'template' => array('default' => 'setup'),
                     'defaultController' => 'Setup',
                     'defaultAction' => 'index',                                   
                 );
@@ -220,6 +231,10 @@ class A
 								$arrConfig['defaultController'] = ucfirst($configFileContent['defaultController']);
 								$arrConfig['defaultAction'] = $configFileContent['defaultAction'];
 							}
+                            // Override default payment complete page settings
+                            if(isset($configFileContent['paymentCompletePage'])){
+								$arrConfig['paymentCompletePage'] = $configFileContent['paymentCompletePage'];
+							}
                             // Override backend default URL setings if such settings doesn't exist in config/main.php
 							if(isset($configFileContent['backendDefaultUrl']) && empty($arrConfig['modules'][$module]['backendDefaultUrl'])){
 								$arrConfig['modules'][$module]['backendDefaultUrl'] = $configFileContent['backendDefaultUrl'];
@@ -261,7 +276,7 @@ class A
             
             // Load view (must do it before app components registration)
             $this->view = new CView(); 
-            $this->view->setTemplate(CConfig::get('defaultTemplate'));
+			$this->view->setTemplate(CConfig::get('template.default'));
         }
         
         // Register framework core components
@@ -283,15 +298,18 @@ class A
 			// Register application modules
 			$this->_registerAppModules();	
 			
-			// Run events
+			// Run begin events
 			if($this->_hasEventHandler('_onBeginRequest')) $this->_onBeginRequest();
 			
 			if(APPHP_MODE != 'hidden'){
 				$this->router = new CRouter();
 				$this->router->route();
+				// Run finish events
+				if($this->_hasEventHandler('_onEndRequest')) $this->_onEndRequest();
+				// Show debug bar
 				CDebug::displayInfo();
 			}
-		
+
 		}catch(Exception $e){
 			echo 'Exception caught: ',  $e->getMessage(), "\n";
 			echo 'Backtrace:';
@@ -322,12 +340,23 @@ class A
     }
  
     /**
+     * Alias to getVersion
+     * @SEE getVersion()
+     * Returns the version of ApPHP framework
+     * @return string 
+     */
+    public static function version()
+    {
+    	return self::getVersion();
+    }
+
+    /**
      * Returns the version of ApPHP framework
      * @return string 
      */
     public static function getVersion()
     {
-    	return '0.8.3';
+    	return self::$_frameworkVersion;
     }
 
     /**
@@ -552,6 +581,25 @@ class A
     }
 
     /**
+     * Returns the logger component
+     * @return CLogger component
+     */
+    public function getLogger()
+    {
+    	return $this->getComponent('logger');
+    }
+
+    /**
+     * Alias to getLogger
+     * @SEE getLogger()
+     * @return CLogger component
+     */
+    public function logger()
+    {
+    	return $this->getLogger();
+    }
+
+    /**
      * Returns the localTime component
      * @return CLocalTime component
      */
@@ -629,6 +677,29 @@ class A
     public function shoppingCart()
     {
     	return $this->getShoppingCart();
+    }
+
+    /**
+     * Alias to getMobileDetect
+     * @SEE getMobileDetect()
+     * @USAGE
+	 * 	mobileDetect()->isMobile()
+	 * 	mobileDetect()->isTablet()
+     * 
+     * @return CMobileDetect component
+     */
+    public function mobileDetect()
+    {
+    	return $this->getMobileDetect();
+    }
+
+    /**
+     * Returns the mobile detect component
+     * @return CMobileDetect component
+     */
+    public function getMobileDetect()
+    {
+    	return $this->getComponent('mobileDetect');
     }
 
     /**
@@ -841,6 +912,9 @@ class A
             if(!setlocale(LC_ALL, $params['locale'])) CDebug::addMessage('warnings', 'missing-locale', A::t('core', 'Unable to find locale "{locale}" on your server.', array('{locale}'=>$params['locale'])), 'session');
         }
         if(isset($params['direction'])) $this->getSession()->set('language_direction', $params['direction']);
+		if(isset($params['icon'])) $this->getSession()->set('language_icon', $params['icon']);
+		if(isset($params['name'])) $this->getSession()->set('language_name', $params['name']);
+		if(isset($params['name_native'])) $this->getSession()->set('language_name_native', $params['name_native']);
     }
 
     /**
@@ -851,13 +925,15 @@ class A
      */
     public function getLanguage($param = '', $useDefault = true)
     {
-        $language = $this->getSession()->get(($param != '') ? 'language_'.$param : 'language');
-        if(!empty($language)){
+        $language = $this->getSession()->get('language');
+        if(!empty($param)){
+			return $this->getSession()->get('language_'.$param);
+		}else if(!empty($language)){
             return $language;
         }else if($this->_language === null && $useDefault){ 
             return $this->sourceLanguage;
         }else{
-            return $this->_language;      
+            return $this->_language;
         }
     }
     
@@ -924,6 +1000,14 @@ class A
     	$this->_raiseEvent('_onBeginRequest');
     }
     
+    /**
+     * Raised after the application processes the request
+     */
+    protected function _onEndRequest()
+    {
+    	$this->_raiseEvent('_onEndRequest');
+    }
+
     /**
      * Registers application components
      * @see _setComponent

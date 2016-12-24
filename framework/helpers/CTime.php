@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
@@ -41,7 +41,7 @@ class CTime
 	 * @param integer $second
 	 * @return boolean 
 	 */
-	public static function isValidTime($hour, $minute, $static)
+	public static function isValidTime($hour, $minute, $second)
 	{
 		if($hour < 0 || $hour > 23) return false;
 		if($minute  > 59 || $minute < 0) return false;

@@ -10,18 +10,19 @@
     <meta charset="UTF-8" />
 	<meta name="keywords" content="apphp framework, apphp mvc framework, documentation, apphp" />
 	<meta name="description" content="ApPHP MVC Framework - documentation for Getting Started" />
-    <title><?php echo (($validPage) ? ucwords(str_replace('-', ' ', $page)).' | ' : ''); ?>ApPHP MVC Framework Documentation</title>
+    <title><?= (($validPage) ? ucwords(str_replace('-', ' ', $page)).' | ' : ''); ?>ApPHP MVC Framework Documentation</title>
     
-    <link rel="stylesheet" type="text/css" href="css/default.css" />
+    <link rel="SHORTCUT ICON" href="apphp.ico" />
+	<link rel="stylesheet" type="text/css" href="css/default.css" />
 	<link rel="stylesheet" type="text/css" href="js/highlight/style.css" media="all" />
-	<?php echo (isset($_SERVER['REQUEST_URI']) && !preg_match('/index.php/i', $_SERVER['REQUEST_URI'])) ? '<link rel="canonical" href="http://'.(isset($_SERVER['HTTP_HOST']) ? htmlentities($_SERVER['HTTP_HOST']) : '').'/docs/index.php" />' : ''; ?>	
+	<?= (isset($_SERVER['REQUEST_URI']) && !preg_match('/index.php/i', $_SERVER['REQUEST_URI'])) ? '<link rel="canonical" href="http://'.(isset($_SERVER['HTTP_HOST']) ? htmlentities($_SERVER['HTTP_HOST']) : '').'/docs/index.php" />' : ''; ?>	
 	
 	<script type="text/javascript" src="js/jquery.min.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
 	<script type="text/javascript" src="js/highlight/highlight.js"></script>
 	<script type="text/javascript" src="js/highlight/helpers.js"></script>
 	<?php
-		if(in_array($page, array('templates', 'modules-structure', 'knowledge-base', 'shopping-cart'))){
+		if(in_array($page, array('templates', 'layouts', 'modules-structure', 'knowledge-base', 'shopping-cart'))){
 			echo '<script type="text/javascript" src="js/highlight/lang-xml.js"></script>';
 		}
 		if(in_array($page, array('modules-creating', 'session-custom-storage', 'knowledge-base'))){
@@ -35,7 +36,7 @@
     <header>
         <nav>
             <ul class="menu">
-				<li class="active"><a href="index.php">ApPHP Framework Guide 0.7</a></li>
+				<li class="active"><a href="index.php">ApPHP Framework Guide 0.9</a></li>
 				<li><a href="../utils/requirements/index.php">Requirements</a></li>				
 				<li><a href="../utils/tests/index.php">Tests</a></li>
                 <li><a href="../utils/generators/index.php">Code Generators</a></li>
@@ -72,14 +73,14 @@
     <a class="scrollup" href="#" style="display:none;"></a>
     
 	<script type="text/javascript">
-		// save blocks status
+		// Save blocks status
 		for(i=0; i<docs_menu.length; i++){
 			if(getCookie(docs_menu[i]) == 'closed'){
 				document.getElementById(docs_menu[i]).style.display = 'none';
 			}			
 		}
 
-		// highlight code
+		// Highlight code
 		var args = {
 			showWhitespace : false,
 			lineNumbers    : true

@@ -6,7 +6,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  * @version PHP 5.3.0 or higher
  *
@@ -438,7 +438,7 @@ abstract class CActiveRecord extends CModel
     /**
      * This method queries your database to find first related object
      * Ex.: find('postID = :postID AND isActive = :isActive', array(':postID'=>10, ':isActive'=>1));
-     * Ex.: find(array('condition'=>'postID = :postID AND isActive = :isActive', 'order|orderBy'=>'id DESC'), 'params'=>array(':postID'=>10, ':isActive'=>1)));
+     * Ex.: find(array('condition'=>'postID = :postID AND isActive = :isActive', 'order|orderBy'=>'id DESC'), 'params'=>array(':postID'=>10, ':isActive'=>1));
      * @param mixed $conditions
      * @param array $params
      */
@@ -485,7 +485,7 @@ abstract class CActiveRecord extends CModel
     /**
      * This method queries your database to find related objects by PK
      * Ex.: findByPk($pk, 'postID = :postID AND isActive = :isActive', array(':postID'=>10, ':isActive'=>1));
-     * Ex.: findByPk($pk, array('condition'=>'postID = :postID AND isActive = :isActive', 'order|orderBy'=>'id DESC'), 'params'=>array(':postID'=>10, ':isActive'=>1)));
+     * Ex.: findByPk($pk, array('condition'=>'postID = :postID AND isActive = :isActive', 'order|orderBy'=>'id DESC'), 'params'=>array(':postID'=>10, ':isActive'=>1));
      * @param string $pk
      * @param mixed $conditions
      * @param array $params 
@@ -505,7 +505,7 @@ abstract class CActiveRecord extends CModel
             $order = '';
         }
 
-        $whereClause = !empty($where) ? ' AND '.$where : '';
+        $whereClause = !empty($where) ? ' AND ('.$where.')' : '';
         $orderBy = !empty($order) ? ' ORDER BY '.$order : '';
         $relations = $this->_getRelations();
         $customFields = $this->_getCustomFields();
@@ -535,7 +535,7 @@ abstract class CActiveRecord extends CModel
     /**
      * This method queries your database to find related objects by attributes
      * Ex.: findByAttributes($attributes, 'postID = :postID AND isActive = :isActive', array(':postID'=>10, ':isActive'=>1));
-     * Ex.: findByAttributes($attributes, array('condition'=>'postID = :postID AND isActive = :isActive', 'order|orderBy'=>'id DESC', 'limit'=>'0, 10'), 'params'=>array(':postID'=>10, ':isActive'=>1)));
+     * Ex.: findByAttributes($attributes, array('condition'=>'postID = :postID AND isActive = :isActive', 'order|orderBy'=>'id DESC', 'limit'=>'0, 10'), 'params'=>array(':postID'=>10, ':isActive'=>1));
      * Ex.: $attributes = array('first_name'=>$firstName, 'last_name'=>$lastName);
      * @param array $attributes
      * @param mixed $conditions
@@ -899,7 +899,7 @@ abstract class CActiveRecord extends CModel
 	/**
 	 * Finds the number of rows satisfying the specified query condition
      * Ex.: count('postID = :postID AND isActive = :isActive', array(':postID'=>10, ':isActive'=>1));
-     * Ex.: count(array('condition'=>'post_id = :postID AND is_active = :isActive', 'select'=>'', 'count'=>'*', 'group|groupBy'=>'', 'allRows'=>false), array(':postID'=>10, ':isActive'=>1));
+     * Ex.: count(array('condition'=>'post_id = :postID AND is_active = :isActive', 'select'=>'', 'count'=>'*', 'group|groupBy'=>'', 'order|orderBy'=>'', 'allRows'=>false), array(':postID'=>10, ':isActive'=>1));
 	 * @param mixed $conditions
 	 * @param array $params 
 	 * @return integer 
@@ -913,21 +913,30 @@ abstract class CActiveRecord extends CModel
 			}else if(isset($conditions['groupBy'])){
 				$group = isset($conditions['groupBy']) ? $conditions['groupBy'] : '';
 			}
+            if(!empty($group)){
+                if(isset($conditions['order'])){
+                    $order = isset($conditions['order']) ? $conditions['order'] : '';
+                }else if(isset($conditions['orderBy'])){
+                    $order = isset($conditions['orderBy']) ? $conditions['orderBy'] : '';
+                }
+            }
             $count = isset($conditions['count']) ? $conditions['count'] : '*';
             $select = isset($conditions['select']) ? $conditions['select'] : '';
             $allRows = isset($conditions['allRows']) ? (bool)$conditions['allRows'] : false;
         }else{
             $where = $conditions;
             $group = '';
+            $order = '';
             $count = '*';
             $select = '';
             $allRows = false;
         }        
-
+ 
         $whereClause = !empty($where) ? ' WHERE '.$where : '';
         $groupBy = !empty($group) ? ' GROUP BY '.$group : '';
+        $orderBy = !empty($order) ? ' ORDER BY '.$order : '';
         $limitClause = $allRows ? '' : ' LIMIT 1';
-
+ 
         $relations = $this->_getRelations();
 
         $sql = 'SELECT 
@@ -937,6 +946,7 @@ abstract class CActiveRecord extends CModel
                     '.$relations['tables'].'
                 '.$whereClause.'
                 '.$groupBy.'
+                '.$orderBy.'
                 '.$limitClause;
         $result = $this->_db->select($sql, $params);
 

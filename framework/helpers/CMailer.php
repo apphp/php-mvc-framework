@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
  * @license http://www.apphpframework.com/license/ 
  *
  * USAGE:
@@ -66,12 +66,33 @@ class CMailer
     public static function send($to, $subject, $message, $params = '', $attachments = array())
     {
 		if(!strcasecmp(self::$_mailer, 'smtpMailer')){
-			return self::smtpMailer($to, $subject, $message, $params, $attachments);
+			$result = self::smtpMailer($to, $subject, $message, $params, $attachments);
 		}else if(!strcasecmp(self::$_mailer, 'phpMailer')){
-			return self::phpMailer($to, $subject, $message, $params, $attachments);
+			$result = self::phpMailer($to, $subject, $message, $params, $attachments);
 		}else{
-			return self::phpMail($to, $subject, $message, $params);
-		}		
+			$result = self::phpMail($to, $subject, $message, $params);
+		}
+		
+		// Write to error log
+		if(!$result){
+			if(CConfig::get('log.enable')){
+				CLog::addMessage('error', self::getError());
+			}
+		}
+		
+		if(class_exists('MailingLog')){
+			$mailingLog = new MailingLog();
+			$mailingLog->email_from = isset($params['from']) ? $params['from'] : '';
+			$mailingLog->email_to = $to;
+			$mailingLog->email_subject = $subject;
+			$mailingLog->email_content = $message;
+			$mailingLog->sent_at = date('Y-m-d H:i:s');
+			$mailingLog->status = (int)$result;
+			$mailingLog->status_description = !$result ? self::getError() : '';
+			$mailingLog->save();
+		}
+		
+		return $result;
 	}
 
 	/**

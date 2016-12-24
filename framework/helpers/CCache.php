@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
@@ -77,7 +77,7 @@ class CCache
         if(!empty(self::$_cacheFile)){
             // Remove oldest file if the limit of cache is reached        
             if(CFile::getDirectoryFilesNumber($cacheDir) >= self::CACHE_LIMIT){
-                CFile::removeDirectoryOldestDile($cacheDir);
+                CFile::removeDirectoryOldestFile($cacheDir);
             }
             
             // Save the content to the cache file

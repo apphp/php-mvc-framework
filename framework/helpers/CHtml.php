@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED (static):			PRIVATE (static):
@@ -28,6 +28,7 @@
  * textField
  * passwordField
  * fileField
+ * colorField
  * getIdByName
  * dropDownList
  * listBox
@@ -137,7 +138,12 @@ class CHtml
 	 */
 	public static function encode($text)
 	{
-		return htmlspecialchars($text, ENT_QUOTES, A::app()->charset);
+		if(version_compare(phpversion(), '5.5', '<')){
+			// Generates error if text is  ASCII and A::app()->charset is UTF-8
+			return @htmlspecialchars($text, ENT_QUOTES, A::app()->charset);
+		}else{
+			return htmlspecialchars($text, ENT_QUOTES, A::app()->charset);
+		}
 	}
 
 	/**
@@ -320,6 +326,19 @@ class CHtml
 	}    
 
 	/**
+	 * Generates a color input
+	 * @param string $name 
+	 * @param string $value 
+	 * @param array $htmlOptions 
+	 * @return string 
+	 * @see inputField
+	 */
+	public static function colorField($name, $value = '', $htmlOptions = array())
+	{
+		return self::_inputField('color', $name, $value, $htmlOptions);
+	}
+
+	/**
 	 * Generates a valid HTML ID based on name
 	 * @param string $name 
 	 * @return string 
@@ -426,7 +445,7 @@ class CHtml
 			  $htmlOptions['listWrapperClass'],
 			  $htmlOptions['multiple']);
 
-		if($multiple && substr($name,-2) !== '[]'){
+		if($multiple && substr($name, -2) !== '[]'){
 			$name .= '[]';
 		}
 
@@ -590,7 +609,7 @@ class CHtml
 	{
 		if(!isset($htmlOptions['size'])) $htmlOptions['size'] = 4;
 		if(isset($htmlOptions['multiple'])){
-			if(substr($name,-2) !== '[]') $name .= '[]';
+			if(substr($name, -2) !== '[]') $name .= '[]';
 		}
 		return self::dropDownList($name, $select, $data, $htmlOptions);
 	}
@@ -703,8 +722,13 @@ class CHtml
 		if(!isset($htmlOptions['name'])){
 			if(!array_key_exists('name', $htmlOptions)) $htmlOptions['name'] = self::ID_PREFIX.self::$_count++;
 		}
+
 		if(!isset($htmlOptions['type'])) $htmlOptions['type'] = 'button';
-        $buttonTag = (isset($htmlOptions['buttonTag'])) ? $htmlOptions['buttonTag'] : 'input';
+		$buttonTag = 'input';
+		if(isset($htmlOptions['buttonTag'])){
+			$buttonTag = $htmlOptions['buttonTag'];
+			unset($htmlOptions['buttonTag']);
+		}
 	
         if($buttonTag == 'button'){
             if(isset($htmlOptions['value'])){

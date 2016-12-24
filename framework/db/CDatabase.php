@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * IMPORTANT:
@@ -615,9 +615,17 @@ class CDatabase extends PDO
      */
 	public function getVersion()
 	{
-		$version = $this->getAttribute(PDO::ATTR_SERVER_VERSION);
-		// Clean version number from alphabetic characters
-		return preg_replace('/[^0-9,.]/', '', $version);
+		$version = A::t('core', 'Unknown');
+		if(self::$_instance != null && !empty($this->_dbName)){
+			$version = @self::getAttribute(PDO::ATTR_SERVER_VERSION);
+			if(empty($version)){
+				$version = $this->query('select version()')->fetchColumn();
+			}
+			// Clean version number from alphabetic characters
+			$version = preg_replace('/[^0-9,.]/', '', $version);
+		}
+		
+		return $version;
 	}
 	
 	/**	

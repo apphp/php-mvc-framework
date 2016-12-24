@@ -217,7 +217,7 @@ class [MODULE_NAME]Component extends CComponent{
     public static function drawShortcode($params = array())
     {
         $output = '';
-        // ... your code here
+        // Your code is here ...
         
         return $output;
     }
@@ -244,12 +244,12 @@ Lets see the examples of such files, here the <code>main.php</code>:
 &lt;?php
 
 return array(
-    // module classes
+    // Module classes
     'classes' => array(
         '[MODULE_NAME]Component',
         '[MODEL_NAME]',
     ),
-    // management links
+    // Management links
     'managementLinks' => array(
         A::t('[MODULE_CODE]', '[MODULE_NAME]') => '[MODEL_NAME]/manage'
     ),    
@@ -262,7 +262,7 @@ and here the <code>[MODULE_CODE].php</code>:
 &lt;?php
 
 return array(
-    // module components
+    // Module components
     'components' => array(
         '[MODULE_NAME]Component' => array('enable' => true, 'class' => '[MODULE_NAME]Component'),
     ),
@@ -340,7 +340,7 @@ class [CONTROLLER_NAME]Controller extends CController
     {
         parent::__construct();
         
-        // block access if the module is not installed
+        // Block access if the module is not installed
         if(!Modules::model()->exists("code = '[MODULE_CODE]' AND is_installed = 1")){
             if(CAuth::isLoggedInAsAdmin()){
                 $this->redirect('modules/index');
@@ -349,7 +349,7 @@ class [CONTROLLER_NAME]Controller extends CController
             }
         }
 
-        // set meta tags according to active language
+        // Set meta tags according to active language
         Website::setMetaTags(array('title'=>A::t('[MODULE_CODE]', '[CONTROLLER_NAME] Management')));
     }
 

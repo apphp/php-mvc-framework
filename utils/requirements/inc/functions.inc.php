@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Checks $_SERVER variables
+ * @return string
+ */
 function check_server_vars($realpath = '')
 {
 	$vars = array('HTTP_HOST', 'SERVER_NAME', 'SERVER_PORT', 'SCRIPT_NAME', 'SCRIPT_FILENAME', 'PHP_SELF', 'HTTP_ACCEPT', 'HTTP_USER_AGENT');
@@ -21,17 +25,29 @@ function check_server_vars($realpath = '')
 	return '';
 }
 
+/**
+ * Checks $_SESSION variables
+ * @return string
+ */
 function check_session_vars()
 {
     @session_start();
    	return (!isset($_SESSION)) ? 'Session support disabled. Please make sure your server provide support for sessions.' : '';
 }
 
+/**
+ * Checks $_POST variables
+ * @return string
+ */
 function check_post_vars()
 {
    	return (!isset($_POST)) ? 'POST support disabled. Please make sure your server provide support for POST.' : '';
 }
 
+/**
+ * Checks mod_rewrite
+ * @return bool
+ */
 function check_module_mod_rewrite()
 {
     if(function_exists('apache_get_modules')){
@@ -49,6 +65,10 @@ function check_module_mod_rewrite()
     return $mod_rewrite;    
 }
 
+/**
+ * Returns framework version
+ * @return string
+ */
 function get_apphp_version()
 {
     $version = '';
@@ -61,11 +81,19 @@ function get_apphp_version()
 	return $version;
 }
 
+/**
+ * Returns server info
+ * @return mixed
+ */
 function get_server_info()
 {
 	return isset($_SERVER['SERVER_SOFTWARE']) ? $_SERVER['SERVER_SOFTWARE'] : '';
 }
 
+/**
+ * Returns footer info
+ * @return string
+ */
 function get_footer_info()
 {
 	$info[] = '<a href="http://www.apphp.com/php-framework/">ApPHP Framework</a>';
@@ -74,6 +102,10 @@ function get_footer_info()
 	return implode(' : ',$info);
 }
 
+/**
+ * Render file
+ * @return void
+ */
 function render_file($_params_ = array())
 {
     $_file_ = dirname(__FILE__).'/../views/index.php';
@@ -81,6 +113,10 @@ function render_file($_params_ = array())
 	include($_file_);
 }
 
+/**
+ * Returns base URL
+ * @return string
+ */
 function get_base_url($absolute = true)
 {
     $absolutePart = '';
@@ -119,4 +155,46 @@ function get_base_url($absolute = true)
     $folder = rtrim(dirname($scriptUrl),'\\/').'/';
     
     return $absolutePart.$folder;
+}
+
+/**
+ * Returns array with full PHP info
+ * @return array
+ */
+function get_php_info()
+{
+	ob_start();        
+	if(function_exists('phpinfo')) @phpinfo(-1);
+	$phpInfo = array('phpinfo' => array());
+	if(preg_match_all('#(?:<h2>(?:<a name=".*?">)?(.*?)(?:</a>)?</h2>)|(?:<tr(?: class=".*?")?><t[hd](?: class=".*?")?>(.*?)\s*</t[hd]>(?:<t[hd](?: class=".*?")?>(.*?)\s*</t[hd]>(?:<t[hd](?: class=".*?")?>(.*?)\s*</t[hd]>)?)?</tr>)#s', ob_get_clean(), $matches, PREG_SET_ORDER))
+	foreach($matches as $match){
+		$arrayKeys = array_keys($phpInfo);
+		$endArrayKeys = end($arrayKeys);
+		if(strlen($match[1])){
+			$phpInfo[$match[1]] = array();
+		}else if(isset($match[3])){
+			$phpInfo[$endArrayKeys][$match[2]] = isset($match[4]) ? array($match[3], $match[4]) : $match[3];
+		}else{				
+			$phpInfo[$endArrayKeys][] = $match[2];
+		}
+	}
+	
+	return $phpInfo;
+}
+
+/**
+ * Checks if short PHP tags are allowed
+ * @return mixed
+ */
+function check_short_open_tag()
+{
+	$phpInfo = get_php_info();
+	$phpCoreIndex = version_compare(phpversion(), '5.3.0', '<') ? 'PHP Core' : 'Core';
+	// For PHP v5.6 or later
+	if(!isset($phpInfo[$phpCoreIndex]) && version_compare(phpversion(), '5.6.0', '>=') ){
+		$phpCoreIndex = 'HTTP Headers Information';
+	}
+	
+	$shortOpenTag = isset($phpInfo[$phpCoreIndex]['short_open_tag'][0]) ? strtolower($phpInfo[$phpCoreIndex]['short_open_tag'][0]) : false;
+	return $shortOpenTag;
 }

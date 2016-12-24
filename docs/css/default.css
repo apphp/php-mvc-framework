@@ -28,7 +28,7 @@ footer a                { color:#aaa; text-decoration:none; }
 footer p.copyright      { float:left; width:300px; }
 footer p.powered        { float:right; }
 
-aside                   { width:210px; float:left; background-color: #f1f2f3; margin-right:10px; margin-bottom:20px; border-radius: 10px; padding-bottom:10px; }
+aside                   { position:fixed; width:210px; float:left; background-color: #f1f2f3; margin-right:10px; margin-bottom:20px; border-radius: 10px; padding-bottom:10px; }
 aside ul                { padding-left:25px; }
 aside ul li.inner       { list-style: none; margin-top:5px; margin-left:-15px;  }
 aside ul li.inner span.group { cursor:pointer; }      

@@ -1,3 +1,19 @@
+Version 0.9.0 - 10 Dec, 2016
+----------------------------
+- New: added new components: CLogger, CMobileDetect
+- New: added new helper: CLog
+- New: added support for layouts
+- New: added new field type in CDataForm and CFormView - "color"
+- Enh: changes in A::app()->getLanguage()
+- Enh: added _onEndRequest events in class A
+- Enh: added isWritable() method for CFile system helper
+- Enh: changes in helper Currencies
+- Enh: added in COauth strategy for LinkedIn 
+- Enh: added validation for Short Open tags in utils/requirements
+- Enh: PHPMailer upgraded to 5.2.16
+- Enh: automatically adding $htmlOptions['enctype'] = 'multipart/form-data'; if it's missing in form options
+
+
 Version 0.8.3 - 01 Jul, 2016 
 ----------------------------
 - New: added A::app()->load() method that allows to load library files

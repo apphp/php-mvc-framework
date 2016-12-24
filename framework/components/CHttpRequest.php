@@ -6,19 +6,22 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
  * __construct              _cleanRequest               _getParam
- * __call												_getAll
+ * __call					_getProtocolAndHost			_getAll
  * init (static)										
  * stripSlashes											
  * getBasePath
  * getBaseUrl
  * getRequestUri
+ * getServerName
  * getUserHostAddress
+ * getHostInfo
+ * getHostName
  * getUserAgent
  * setBaseUrl
  * getQuery
@@ -44,7 +47,8 @@
  * setGzipHandler
  * downloadFile
  * getBrowser
- * getUrlReferrer
+ * setHttpReferer
+ * getUrlReferer
  * getPort
  * getSecurePort
  * getUrlContent
@@ -56,6 +60,10 @@ class CHttpRequest extends CComponent
 
 	/** @var string */
 	private $_baseUrl;
+	/** @var string */
+	private $_hostInfo;	
+	/** @var string */
+	private $_hostName;
 	/** @var string */
 	private $_basePath = '/';
 	/** @var boolean to enable cookies validation to be sure they are not tampered (defaults - false) */
@@ -78,6 +86,8 @@ class CHttpRequest extends CComponent
 	private $_port = null;
 	/** @var int secure port number */
 	private $_securePort = null;
+	/** @var boolean whether to enable referrer storage in session */
+	private $_referrerInSession = false;
 		
 	
 	/**
@@ -179,6 +189,15 @@ class CHttpRequest extends CComponent
 	}    
 
 	/**
+	 * Gets Server Name
+	 * @return string
+	 */
+	public function getServerName()
+	{
+		return isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : '';
+	}
+
+	/**
 	 * Gets IP address of visitor
 	 * @return string 
 	 */
@@ -186,6 +205,48 @@ class CHttpRequest extends CComponent
 	{
 		return isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1';
 	}
+
+    /**
+     * Returns the schema and host part of the current request URL
+     * The returned URL does not have an ending slash
+     * By default this is determined based on the user request information.
+     * You may explicitly specify it by setting the setHostInfo()[hostInfo]] property.
+     * @return string|null 
+     */
+    public function getHostInfo()
+    {
+        if($this->_hostInfo === null){
+            $secure = $this->isSecureConnection();
+            $http = $secure ? 'https' : 'http';
+            if(isset($_SERVER['HTTP_HOST'])){
+                $this->_hostInfo = $http.'://'.$_SERVER['HTTP_HOST'];
+            }else if (isset($_SERVER['SERVER_NAME'])){
+                $this->_hostInfo = $http.'://'.$_SERVER['SERVER_NAME'];
+                $port = $secure ? $this->getSecurePort() : $this->getPort();
+                if (($port !== 80 && !$secure) || ($port !== 443 && $secure)) {
+                    $this->_hostInfo .= ':' . $port;
+                }
+            }
+        }
+		
+        return $this->_hostInfo;
+    }
+
+    /**
+     * Returns the host part of the current request URL (ex.: apphp.com)
+     * Value is calculated from current getHostInfo()[hostInfo] property
+     * @return string|null 
+     * @see getHostInfo()
+     * @since 0.9.0
+     */
+    public function getHostName()
+    {
+        if($this->_hostName === null){
+            $this->_hostName = parse_url($this->getHostInfo(), PHP_URL_HOST);
+        }
+		
+        return $this->_hostName;
+    }
 
 	/**
 	 * Gets a string denoting the user agent being which is accessing the page.
@@ -208,29 +269,12 @@ class CHttpRequest extends CComponent
 	
 	/**
 	 * Sets base URL
-	 * @param boolean $absolutePath
+	 * @param boolean $useAbsolutePath
+	 * @return string
 	 */
-	public function setBaseUrl($absolutePath = true)
+	public function setBaseUrl($useAbsolutePath = true)
 	{
-		$absolutePart = '';
-		
-		if($absolutePath){
-			$protocol = 'http://';
-			$port = '';
-			$httpHost = isset($_SERVER['HTTP_HOST']) ? htmlentities($_SERVER['HTTP_HOST']) : '';
-			
-			if((isset($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) != 'off')) ||
-				strtolower(substr($_SERVER['SERVER_PROTOCOL'], 0, 5)) == 'https'){
-				$protocol = 'https://';
-			}			
-			
-			$portNumber = $this->getPort();			
-			if($portNumber != '80' && !strpos($httpHost, ':')){
-				$port = ':'.$portNumber;
-			}
-			
-			$absolutePart = $protocol.$httpHost.$port;
-		}
+		$absolutePart = ($useAbsolutePath) ? $this->_getProtocolAndHost() : '';
 
 		$scriptName = basename($_SERVER['SCRIPT_FILENAME']);
 		if(basename($_SERVER['SCRIPT_NAME']) === $scriptName){
@@ -406,11 +450,13 @@ class CHttpRequest extends CComponent
 
 	/**
 	 * Return if the request is sent via secure channel (https)
-	 * @return boll
+	 * @return boolean
 	 */
 	public function isSecureConnection()
 	{
-		return isset($_SERVER['HTTPS']) && !strcasecmp($_SERVER['HTTPS'], 'on');
+        return (isset($_SERVER['HTTPS']) && (strcasecmp($_SERVER['HTTPS'], 'on') === 0 || $_SERVER['HTTPS'] == 1))
+				||
+			   (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strcasecmp($_SERVER['HTTP_X_FORWARDED_PROTO'], 'https') === 0);
 	}
 
 	/**
@@ -499,7 +545,7 @@ class CHttpRequest extends CComponent
 	}
 
 	/**
-	 * Cleans the request data.
+	 * Cleans the request data
 	 * This method removes slashes from request data if get_magic_quotes_gpc() is turned on
 	 * Also performs CSRF validation if {@link _csrfValidation} is true
 	 */
@@ -515,7 +561,35 @@ class CHttpRequest extends CComponent
         
 		if($this->getCsrfValidation()) A::app()->attachEventHandler('_onBeginRequest', array($this, 'validateCsrfToken'));
 		if($this->_compression) A::app()->attachEventHandler('_onBeginRequest', array($this, 'setGzipHandler'));
+		if($this->_referrerInSession) A::app()->attachEventHandler('_onBeginRequest', array($this, 'setHttpReferer'));
 	}
+	
+	/**
+	 * Returns protocol and host
+	 * @param bool $usePort
+	 * @return string
+	 */
+	protected function _getProtocolAndHost($usePort = true)
+	{
+		$protocol = 'http://';
+		$port = '';
+		$httpHost = isset($_SERVER['HTTP_HOST']) ? htmlentities($_SERVER['HTTP_HOST']) : '';
+		
+		if((isset($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) != 'off')) ||
+			strtolower(substr($_SERVER['SERVER_PROTOCOL'], 0, 5)) == 'https'){
+			$protocol = 'https://';
+		}			
+		
+		if($usePort){
+			$portNumber = $this->getPort();			
+			if($portNumber != '80' && !strpos($httpHost, ':')){
+				$port = ':'.$portNumber;
+			}
+		}
+		
+		return $protocol.$httpHost.$port;		
+	}
+	
 
     /**
      *	Returns parameter from global arrays $_GET or $_POST according to type of request
@@ -628,13 +702,29 @@ class CHttpRequest extends CComponent
 		
 		return $browser;
 	}
- 
+	
 	/**
-	 * Returns the URL referrer, null if not present
+	 * Sets HTTP Refferer
 	 */	
-	public function getUrlReferrer()
+	public function setHttpReferer()
 	{
-		return isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
+		// Save current data as previous referer
+		A::app()->getSession()->set('http_referer_previous', A::app()->getSession()->get('http_referer_current'));
+		// Save current link as referer 
+		$httpRefererCurrent = $this->_getProtocolAndHost().$this->getRequestUri();	
+		A::app()->getSession()->set('http_referer_current', $httpRefererCurrent);
+	}
+	 
+	/**
+	 * Returns the URL referer, null if not present
+	 */	
+	public function getUrlReferer()
+	{
+		if($this->_referrerInSession){
+			return A::app()->getSession()->get('http_referer_previous');
+		}else{
+			return isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
+		}		
 	}
 
  	/**

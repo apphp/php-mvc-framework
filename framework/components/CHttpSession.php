@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
@@ -15,6 +15,7 @@
  * set                                                  
  * get
  * remove
+ * removeAll
  * isExists
  * setFlash
  * getFlash
@@ -114,9 +115,24 @@ class CHttpSession extends CComponent
             unset($_SESSION[$this->_prefix.$name]);
             return true;
         }
+		
         return false;
 	}
     
+	/**
+	 * Removes all session variable 
+	 * @return void
+	 */
+	public function removeAll()
+	{
+		@session_unset();
+		if(is_array($_SESSION)){
+			foreach($_SESSION as $key => $val){
+				unset($_SESSION[$key]);
+			}
+		}
+	}
+
 	/**
 	 * Checks if session variable exists
 	 * @param string $name

@@ -113,9 +113,21 @@ return array(
 
     // Cache settings 
     'cache' => array(
-        'enable' => false, 
-        'lifetime' => 20,  /* in minutes */
+        'enable' => false,
+        'type' => 'auto', /* 'auto' or 'manual' */
+        'lifetime' => 20, /* in minutes */
         'path' => 'protected/tmp/cache/'
+    ),
+
+    // Logger settings 
+    'log' => array(
+        'enable' => true, 
+        'path' => 'protected/tmp/logs/',
+        'fileExtension' => 'php', 	
+        'dateFormat' => 'Y-m-d H:i:s',
+        'threshold' => 1,
+        'filePermissions' => 0644,
+        'lifetime' => 30			/* in days */
     ),
 
     // RSS Feed settings 
@@ -126,32 +138,35 @@ return array(
     // Datetime settings
     'defaultTimeZone' => 'UTC',
     
-    // application settings
+    // Application default settings  
     'defaultTemplate' => 'default',
-    'defaultController' => 'Index',
-    'defaultAction' => 'index',
+    'defaultController' => 'Index',		/* may be overridden by module settings */
+    'defaultAction' => 'index',			/* may be overridden by module settings */
     
+    // Application payment complete page (may be overridden by module settings)
+    'defaultAction' => '',
+
     // Application components
     'components' => array(
         'Bootstrap' => array('enable' => true, 'class' => 'Bootstrap'),
-        // other components...
+        // Other components...
     ),
 
     // Widget settings
     'widgets' => array(
-        paramKeysSensitive' => false
+        'paramKeysSensitive' => false
     ),
 
     // Application helpers
     'helpers' => array(
         //'helper' => array('enable' => true, 'class' => 'Helper'),
-        // other helpers...
+        // Other helpers...
     ),
 
     // Application modules
     'modules' => array(
         'setup' => array('enable' => true, 'removable' => false),
-        // other modules...
+        // Other modules...
     ),
 
     // Url manager
@@ -207,7 +222,7 @@ Example of the <code>db.php</code> file for Login System application:
     
 <pre name="dlhl" class="php">&lt;?php
 return array(
-    // database settings
+    // Database settings
     'db' => array(
         'driver' => 'mysql',
         'host' => 'localhost',

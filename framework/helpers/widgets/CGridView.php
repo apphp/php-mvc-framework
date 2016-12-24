@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE (static):		
@@ -35,7 +35,7 @@ class CGridView extends CWidgs
      *   - to disable any field, including filtering or button use: 'disabled'=>true
      *   - insert code (for all fields): 'prependCode=>'', 'appendCode'=>''
      *   - 'data'=>'' - attribute for type 'label', allows to show data from PHP variables
-     *   - 'case'=>'normal' - attribute for type 'label', allows to convert value to 'upper', 'lower' or 'camel' cases
+     *   - 'case'=>'normal' - attribute for type 'label', allows to convert value to 'upper', 'lower', 'camel' or 'humanize' cases
      *   - 'maxLength'=>'X' - attribute for type 'label', specifies to show maximum X characters of the string
      *   - 'aggregate'=>array('function'=>'sum|avg') - allow to run aggregate function on specific column
      *   - 'sourceField'=>'' - used to show data from another field
@@ -54,6 +54,8 @@ class CGridView extends CWidgs
      *   - to perform search by few fields define them comma separated: 'field1,field2' => array(...)
      *   - for filters attribute 'table' is empty by default. Remember: to add CConfig::get('db.prefix') in 'table'=>CConfig::get('db.prefix').'table'
      *   - 'compareType'=>'string|numeric|binary' - attribute for filtering fields
+     *   - 'visible'=>true|false - attribute for visibility of filtering fileds
+     *   - 'sourceFilter'=>'' - used to filter from another field
      *   
      * Usage:
      *  echo CWidget::create('CGridView', array(
@@ -61,6 +63,7 @@ class CGridView extends CWidgs
      *    'actionPath'			=> 'controller/action',
      *    'condition'			=> CConfig::get('db.prefix').'countries.id <= 30',
      *    'groupBy'				=> '',
+     *    'limit'				=> '',
      *    'defaultOrder'		=> array('field_1'=>'DESC', 'field_2'=>'ASC' [,...]),
      *    'passParameters'		=> false,
      *    [DEPRECATED from v0.7.1] 'customParameters'	=> array('param_1'=>'integer', 'param_1'=>'string' [,...]), 
@@ -69,6 +72,7 @@ class CGridView extends CWidgs
 	 *    'linkType' 			=> 0,
 	 *    'options'	=> array(
 	 *    	 'filterDiv' 	=> array('class'=>''),
+	 *    	 'filterType' 	=> 'default|megamenu',
 	 *    	 'gridWrapper'	=> array('tag'=>'div', 'class'=>''),
 	 *    	 'gridTable' 	=> array('class'=>''),
 	 *    ),
@@ -106,6 +110,7 @@ class CGridView extends CWidgs
 		$actionPath    		= self::params('actionPath', '');
 		$condition 	   		= self::params('condition', '');
 		$groupBy			= self::params('groupBy', '');
+		$limit				= self::params('limit', '');
 		$defaultOrder  		= self::params('defaultOrder', '');
 		$passParameters 	= (bool)self::params('passParameters', false);
 		$customParameters 	= self::params('customParameters', false);
@@ -116,6 +121,7 @@ class CGridView extends CWidgs
 		$sortingEnabled 	= (bool)self::params('sorting', false);
 		$filterDiv			= self::params('options.filterDiv', array());
 		$filterItemDiv		= self::params('options.filterItemDiv', array());
+		$filterType			= self::params('options.filterType', 'default');
 		$gridWrapper		= self::params('options.gridWrapper', array());
 		$gridTable			= self::params('options.gridTable', array());        
         $linkType 			= (int)self::params('linkType', 0);	/* Link type: 0 - standard, 1 - SEO */
@@ -165,174 +171,277 @@ class CGridView extends CWidgs
 		$whereClause = (!empty($condition)) ? $condition : '';
 		$filterUrl = '';		
 		if(is_array($filters) && !empty($filters)){
+            // Boodstrap menu
+            $filterMegaMenu = strtolower($filterType) == 'megamenu' ? true : false;
+            if($filterMegaMenu){
+                $filterCount = 0;
+            }
+
 			// Remove disabled fields
 			foreach($filters as $key => $val){
-				if((bool)self::keyAt('disabled', $val) === true) unset($filters[$key]);
+                if((bool)self::keyAt('disabled', $val) === true) unset($filters[$key]);
+                if($filterMegaMenu){
+                    if(self::keyAt('visible', $val, true) == true){
+                        $filterCount++;
+                    }
+                }
 			}
 
-			$output .= CHtml::openTag('div', array('class'=>(!empty($filterDiv['class']) ? $filterDiv['class'] : 'filtering-wrapper'))).self::NL;
-			$output .= CHtml::openForm($actionPath, 'get', array('id'=>'frmFilter'.$model)).self::NL;
+            if($filterMegaMenu){
+                $filterIterator = 0;
+                $filterOddHalf = false;
+
+                $filterHalf = ceil($filterCount / 4) * 2;
+                // If the left half of the filter 3 element larger than the right half of the filter, move 1 element in the right half of filter
+                if($filterHalf * 2 - $filterCount == 3){
+                    $filterHalf--;
+                    $filterOddHalf = true;
+                }
+                $output .= CHtml::openTag('a', array('href'=>'javascript:void(0);', 'class'=>'search-trigger filtering-button'));
+                $output .= CHtml::tag('i', array('class'=>'fa fa-search'), '');
+                $output .= CHtml::closeTag('a');
+                $output .= CHtml::openTag('div', array('class'=>(!empty($filterDiv['class']) ? $filterDiv['class'] : 'filtering-wrapper'), 'style'=>'display:none;')).self::NL;
+                $output .= CHtml::openTag('div', array('class'=>'filtering-wrapper-inner')).self::NL;
+                $output .= CHtml::openForm($actionPath, 'get', array('id'=>'frmFilter'.$model)).self::NL;
+                $output .= CHtml::openTag('div', array('class'=>'row')).self::NL;
+            }else{
+                $output .= CHtml::openTag('div', array('class'=>(!empty($filterDiv['class']) ? $filterDiv['class'] : 'filtering-wrapper'))).self::NL;
+                $output .= CHtml::openForm($actionPath, 'get', array('id'=>'frmFilter'.$model)).self::NL;
+            }
+
+            // An array of iterations for the source filter
+            $fArrSourceIter = array();
 			foreach($filters as $fKey => $fValue){
-				$title 			= isset($fValue['title']) ? $fValue['title'] : '';				
-				$type 			= isset($fValue['type']) ? $fValue['type'] : '';
-                $table 			= isset($fValue['table']) ? $fValue['table'] : '';
-				$width 			= (isset($fValue['width']) && CValidator::isHtmlSize($fValue['width'])) ? 'width:'.$fValue['width'].';' : '';
-				$maxLength 		= isset($fValue['maxLength']) && !empty($fValue['maxLength']) ? (int)$fValue['maxLength'] : '255';
-				$fieldOperator 	= isset($fValue['operator']) ? $fValue['operator'] : '';
-                $fieldDefaultValue = isset($fValue['default']) ? $fValue['default'] : '';
-				$compareType 	= isset($fValue['compareType']) ? $fValue['compareType'] : '';
-				$autocomplete 	= isset($fValue['autocomplete']) ? $fValue['autocomplete'] : array();
-				$htmlOptions 	= isset($fValue['htmlOptions']) ? $fValue['htmlOptions'] : array();
+				$visible           = isset($fValue['visible']) ? $fValue['visible'] : true;
+				$title             = isset($fValue['title']) ? $fValue['title'] : '';
+				$type              = isset($fValue['type']) ? $fValue['type'] : '';
+				$table             = isset($fValue['table']) ? $fValue['table'] : '';
+				$width             = (isset($fValue['width']) && CValidator::isHtmlSize($fValue['width'])) ? 'width:'.$fValue['width'].';' : '';
+				$maxLength         = isset($fValue['maxLength']) && !empty($fValue['maxLength']) ? (int)$fValue['maxLength'] : '255';
+				$fieldOperator     = isset($fValue['operator']) ? $fValue['operator'] : '';
+				$fieldDefaultValue = isset($fValue['default']) ? $fValue['default'] : '';
+				$compareType       = isset($fValue['compareType']) ? $fValue['compareType'] : '';
+				$autocomplete      = isset($fValue['autocomplete']) ? $fValue['autocomplete'] : array();
+				$htmlOptions       = isset($fValue['htmlOptions']) ? $fValue['htmlOptions'] : array();
+				$fId               = !empty($htmlOptions['id']) ? $htmlOptions['id'] : $fKey;
+				$htmlOptions['id'] = $fId;
 				
+                // Check if we want to use another filter as a "source filter"
+                $sourceFilter = self::keyAt('sourceFilter', $fValue, '');
+                if(!empty($sourceFilter)){
+                    $fIsArray  = true;
+                    $fName     = $sourceFilter.'[]';
+                    $fNameAbbr = $sourceFilter;
+                }else{
+                    $fIsArray = false;
+                    $fName = $fKey;
+                    $fNameAbbr = $fKey;
+                }
+
                 if(A::app()->getRequest()->getQuery('but_filter')){                    
-                    $fieldValue = CHtml::decode(A::app()->getRequest()->getQuery($fKey));
+                    if($fIsArray){
+                        $fieldValue = '';
+                        $arrFieldValue = A::app()->getRequest()->getQuery($fNameAbbr);
+                        $fIter = isset($fArrSourceIter[$sourceFilter]) ? $fArrSourceIter[$sourceFilter] : 0;
+                        if(!empty($arrFieldValue) && is_array($arrFieldValue)){
+                            $fieldValue = isset($arrFieldValue[$fIter]) ? CHtml::decode($arrFieldValue[$fIter]) : '';
+                        }
+                        $fArrSourceIter[$sourceFilter] = ++$fIter;
+                    }else{
+                        $fieldValue = CHtml::decode(A::app()->getRequest()->getQuery($fNameAbbr));
+                    }
                 }else{
                     $fieldValue = $fieldDefaultValue;
                 }
 				
-				if(!empty($filterItemDiv)){
-					$output .= CHtml::openTag('div', array('class'=>(!empty($filterItemDiv['class']) ? $filterItemDiv['class'] : ''))).self::NL;
-				}
-				$output .= !empty($title) ? $title.': ' : '';
-				switch($type){
+                if($visible){
+                    if($filterMegaMenu){
+                        $filterNewRow = $filterIterator > $filterHalf && $filterOddHalf
+                            ? $filterIterator % 2 == 1
+                            : $filterIterator % 2 == 0;
+                        if($filterIterator == 0 || $filterIterator == $filterHalf){
+                            $output .= CHtml::openTag('div', array('class'=>'col-md-6 col-sm-6'));
+                            $output .= CHtml::openTag('div', array('class'=>'row'));
+                        }else if($filterNewRow){
+                            $output .= CHtml::openTag('div', array('class'=>'row'));
+                        }
 
-					case 'enum':
-						$source = isset($fValue['source']) ? $fValue['source'] : array();
-						$emptyOption = isset($fValue['emptyOption']) ? (bool)$fValue['emptyOption'] : false;
-						$emptyValue = isset($fValue['emptyValue']) ? $fValue['emptyValue'] : '';
-						$sourceCount = count($source);
-						if($sourceCount >= 1 || !empty($emptyOption)){
-							if($emptyOption){
-								$source = array(''=>$emptyValue) + $source;
+                        $output .= CHtml::openTag('div', array('class'=>'col-md-6'));
+                    }
+
+					if(!empty($filterItemDiv)){
+						$output .= CHtml::openTag('div', array('class'=>(!empty($filterItemDiv['class']) ? $filterItemDiv['class'] : ''))).self::NL;
+					}
+                    if($filterMegaMenu && !empty($title)){
+                        $output .= CHtml::tag('label', array(), $title);
+                    }
+					
+					$output .= !empty($title) ? $title.': ' : '';
+					switch($type){
+	
+						case 'enum':
+							$source = isset($fValue['source']) ? $fValue['source'] : array();
+							$emptyOption = isset($fValue['emptyOption']) ? (bool)$fValue['emptyOption'] : false;
+							$emptyValue = isset($fValue['emptyValue']) ? $fValue['emptyValue'] : '';
+							$sourceCount = count($source);
+							if($sourceCount >= 1 || !empty($emptyOption)){
+								if($emptyOption){
+									$source = array(''=>$emptyValue) + $source;
+								}
+								$htmlOptions['style'] = $width;
+                                if($filterMegaMenu && !empty($title)){
+                                    $htmlOptions['class'] = !empty($htmlOptions['class']) ? $htmlOptions['class'] : 'form-control selectpicker';
+                                }
+								$output .= (count($source)) ? CHtml::dropDownList($fName, $fieldValue, $source, $htmlOptions) : 'no';	
+							}else{
+								$output .= A::t('core', 'none');
 							}
+							$output .= '&nbsp;'.self::NL;
+							break;
+	
+						case 'datetime':
+							$format = isset($fieldInfo['format']) ? $fieldInfo['format'] : 'yy-mm-dd';
+							$htmlOptions['maxlength'] = $maxLength;
 							$htmlOptions['style'] = $width;
-							$output .= (count($source)) ? CHtml::dropDownList($fKey, $fieldValue, $source, $htmlOptions) : 'no';	
-						}else{
-							$output .= A::t('core', 'none');
-						}
-						$output .= '&nbsp;'.self::NL;
-						break;
-
-					case 'datetime':
-						$format = isset($fieldInfo['format']) ? $fieldInfo['format'] : 'yy-mm-dd';
-						$htmlOptions['maxlength'] = $maxLength;
-						$htmlOptions['style'] = $width;
-						$output .= CHtml::textField($fKey, $fieldValue, $htmlOptions);
-						A::app()->getClientScript()->registerCssFile('js/vendors/jquery/jquery-ui.min.css');
-						// UI:
-						//		dateFormat: dd/mm/yy | d M, y | mm/dd/yy  | yy-mm-dd 
-						// Bootstrap:
-						// 		dateFormat: dd/mm/yyyy | d M, y | mm/dd/yyyy  | yyyy-mm-dd
-						//		autoclose: true,
-						A::app()->getClientScript()->registerScript(
-							'datepicker_'.self::$_pickerCount++,
-							'jQuery("#'.$fKey.'").datepicker({
-								showOn: "button",
-								buttonImage: "js/vendors/jquery/images/calendar.png",
-								buttonImageOnly: true,
-								showWeek: false,
-								firstDay: 1,
-								autoclose: true,
-								format: "'.($format == 'yy-mm-dd' ? 'yyyy-mm-dd' : $format).'",
-								dateFormat: "'.$format.'",
-								changeMonth: true,
-								changeYear: true,
-								appendText : ""
-							});'
-						);
-						break;
-
-					case 'textbox':
-					default:						
-						$autocompleteEnabled = self::keyAt('enable', $autocomplete);
-						$autocompleteAjaxHandler = self::keyAt('ajaxHandler', $autocomplete, '');
-						$autocompleteMinLength = self::keyAt('minLength', $autocomplete, 1);
-						$autocompleteReturnId = self::keyAt('returnId', $autocomplete, true);
-
-						if($autocompleteEnabled){
-							$cRequest = A::app()->getRequest();
-							
+                            if($filterMegaMenu && !empty($title)){
+                                $htmlOptions['class'] = !empty($htmlOptions['class']) ? $htmlOptions['class'] : 'form-control';
+                            }
+							$output .= CHtml::textField($fName, $fieldValue, $htmlOptions);
 							A::app()->getClientScript()->registerCssFile('js/vendors/jquery/jquery-ui.min.css');
-							// Already included in backend default.php
-							if(A::app()->view->getTemplate() != 'backend'){
-								A::app()->getClientScript()->registerScriptFile('js/vendors/jquery/jquery-ui.min.js', 2);	
-							}							
-							
-							$fKeySearch = $autocompleteReturnId ? $fKey.'_result' : $fKey;
+							// UI:
+							//		dateFormat: dd/mm/yy | d M, y | mm/dd/yy  | yy-mm-dd 
+							// Bootstrap:
+							// 		dateFormat: dd/mm/yyyy | d M, y | mm/dd/yyyy  | yyyy-mm-dd
+							//		autoclose: true,
 							A::app()->getClientScript()->registerScript(
-								'autocomplete_'.self::$_autocompleteCount++,
-								'jQuery("#'.$fKeySearch.'").autocomplete({
-									source: function(request, response){
-										$.ajax({
-											url: "'.CHtml::encode($autocompleteAjaxHandler).'",
-											global: false,
-											type: "POST",
-											data: ({
-												'.$cRequest->getCsrfTokenKey().': "'.$cRequest->getCsrfTokenValue().'",
-												act: "send",
-												search : jQuery("#'.$fKeySearch.'").val()
-											}),
-											dataType: "json",
-											async: true,
-											error: function(html){
-												'.((APPHP_MODE == 'debug') ? 'alert("AJAX: cannot connect to the server or server response error! Please try again later.");' : '').'
-											},
-											success: function(data){
-												if(data.length == 0){
-													response({label: "'.A::te('core', 'No matches found').'"});
-												}else{
-													response($.map(data, function(item){
-														if(item.label !== undefined){
-															return {id: '.($autocompleteReturnId ? 'item.id' : 'item.label').', label: item.label}	
-														}else{
-															// Empty search value if nothing found
-															jQuery("#'.$fKey.'").val("");
-														}
-													}));
-												}
-											}
-										});
-									},
-									minLength: '.(int)$autocompleteMinLength.',
-									select: function(event, ui) {
-										jQuery("#'.$fKey.'").val(ui.item.id);
-										if(typeof(ui.item.id) == "undefined"){
-											jQuery("#'.$fKeySearch.'").val("");
-											return false;
-										}
-									}
-								});',
-								4
+								'datepicker_'.self::$_pickerCount++,
+								'jQuery("#'.$fId.'").datepicker({
+									showOn: "button",
+									buttonImage: "js/vendors/jquery/images/calendar.png",
+									buttonImageOnly: true,
+									showWeek: false,
+									firstDay: 1,
+									autoclose: true,
+									format: "'.($format == 'yy-mm-dd' ? 'yyyy-mm-dd' : $format).'",
+									dateFormat: "'.$format.'",
+									changeMonth: true,
+									changeYear: true,
+									appendText : ""
+								});'
 							);
-
-							if($autocompleteReturnId){
-								// Draw hidden field for real field
-								$output .= CHtml::hiddenField($fKey, CHtml::encode($fieldValue), $htmlOptions).self::NL;								
-							}
-							// Draw textbox
-							$htmlOptions['style'] = $width;
-							$htmlOptions['maxlength'] = $maxLength;
-							$fieldValueSearch = $cRequest->getQuery($fKeySearch);
-							$output .= CHtml::textField($fKeySearch, CHtml::encode($fieldValueSearch), $htmlOptions).self::NL;
-						}else{
-							// Draw textbox
-							$htmlOptions['style'] = $width;
-							$htmlOptions['maxlength'] = $maxLength;
-							$output .= CHtml::textField($fKey, CHtml::encode($fieldValue), $htmlOptions).self::NL;
-						}						
-						break;
-				}
-				if(!empty($filterItemDiv)){
-					$output .= CHtml::closeTag('div').self::NL;
-				}
+							break;
+	
+						case 'textbox':
+						default:						
+							$autocompleteEnabled = self::keyAt('enable', $autocomplete);
+							$autocompleteAjaxHandler = self::keyAt('ajaxHandler', $autocomplete, '');
+							$autocompleteMinLength = self::keyAt('minLength', $autocomplete, 1);
+							$autocompleteReturnId = self::keyAt('returnId', $autocomplete, true);
+	
+							if($autocompleteEnabled){
+								$cRequest = A::app()->getRequest();
+								
+								A::app()->getClientScript()->registerCssFile('js/vendors/jquery/jquery-ui.min.css');
+								// Already included in backend default.php
+								if(A::app()->view->getTemplate() != 'backend'){
+									A::app()->getClientScript()->registerScriptFile('js/vendors/jquery/jquery-ui.min.js', 2);	
+								}							
+								
+								$fKeySearch = $autocompleteReturnId ? $fId.'_result' : $fId;
+								A::app()->getClientScript()->registerScript(
+									'autocomplete_'.self::$_autocompleteCount++,
+									'jQuery("#'.$fKeySearch.'").autocomplete({
+										source: function(request, response){
+											$.ajax({
+												url: "'.CHtml::encode($autocompleteAjaxHandler).'",
+												global: false,
+												type: "POST",
+												data: ({
+													'.$cRequest->getCsrfTokenKey().': "'.$cRequest->getCsrfTokenValue().'",
+													act: "send",
+													search : jQuery("#'.$fKeySearch.'").val()
+												}),
+												dataType: "json",
+												async: true,
+												error: function(html){
+													'.((APPHP_MODE == 'debug') ? 'alert("AJAX: cannot connect to the server or server response error! Please try again later.");' : '').'
+												},
+												success: function(data){
+													if(data.length == 0){
+														response({label: "'.A::te('core', 'No matches found').'"});
+													}else{
+														response($.map(data, function(item){
+															if(item.label !== undefined){
+																return {id: '.($autocompleteReturnId ? 'item.id' : 'item.label').', label: item.label}	
+															}else{
+																// Empty search value if nothing found
+																jQuery("#'.$fId.'").val("");
+															}
+														}));
+													}
+												}
+											});
+										},
+										minLength: '.(int)$autocompleteMinLength.',
+										select: function(event, ui) {
+											jQuery("#'.$fId.'").val(ui.item.id);
+											if(typeof(ui.item.id) == "undefined"){
+												jQuery("#'.$fKeySearch.'").val("");
+												return false;
+											}
+										}
+									});',
+									4
+								);
+	
+								if($autocompleteReturnId){
+									// Draw hidden field for real field
+									$output .= CHtml::hiddenField($fName, CHtml::encode($fieldValue), $htmlOptions).self::NL;								
+								}
+								// Draw textbox
+								$htmlOptions['style'] = $width;
+								$htmlOptions['maxlength'] = $maxLength;
+                                if($filterMegaMenu && !empty($title)){
+                                    $htmlOptions['class'] = !empty($htmlOptions['class']) ? $htmlOptions['class'] : 'form-control';
+                                }
+								$fieldValueSearch = $cRequest->getQuery($fKeySearch);
+								$output .= CHtml::textField($fKeySearch, CHtml::encode($fieldValueSearch), $htmlOptions).self::NL;
+							}else{
+								// Draw textbox
+								$htmlOptions['style'] = $width;
+								$htmlOptions['maxlength'] = $maxLength;
+                                if($filterMegaMenu && !empty($title)){
+                                    $htmlOptions['class'] = !empty($htmlOptions['class']) ? $htmlOptions['class'] : 'form-control';
+                                }
+								$output .= CHtml::textField($fName, CHtml::encode($fieldValue), $htmlOptions).self::NL;
+							}						
+							break;
+					}
+					if(!empty($filterItemDiv)){
+						$output .= CHtml::closeTag('div').self::NL;
+					}
+                    if($filterMegaMenu){
+                        $filterEndRow = $filterIterator >= $filterHalf && $filterOddHalf
+                            ? $filterIterator % 2 == 0
+                            : $filterIterator % 2 == 1;
+                        $output .= CHtml::closeTag('div');
+                        if($filterIterator == ($filterHalf - 1) || $filterIterator == ($filterCount - 1)){
+                            $output .= CHtml::closeTag('div');
+                            $output .= CHtml::closeTag('div');
+                        }else if($filterEndRow){
+                            $output .= CHtml::closeTag('div');
+                        }
+                        $filterIterator++;
+                    }
+                }
 				
 				if($fieldValue !== ''){
-                    $filterUrl .= (!empty($filterUrl) ? '&' : '').$fKey.'='.$fieldValue;
+                    $filterUrl .= (!empty($filterUrl) ? '&' : '').$fName.'='.$fieldValue;
 
 					// Check if there is an autocomplete key that must be added to filter string
-					$autocompleteValue = A::app()->getRequest()->getQuery($fKey.'_result');
+					$autocompleteValue = A::app()->getRequest()->getQuery($fId.'_result');
 					if($autocompleteValue != ''){
-						$filterUrl .= (!empty($filterUrl) ? '&' : '').$fKey.'_result='.$autocompleteValue;
+						$filterUrl .= (!empty($filterUrl) ? '&' : '').$fId.'_result='.$autocompleteValue;
 					}
 
 					$escapedFieldValue = strip_tags(CString::quote($fieldValue));
@@ -340,7 +449,7 @@ class CGridView extends CWidgs
 					$binary = ($compareType == 'binary') ? 'BINARY ' : '';
 					$whereClauseMiddle = '';
                     
-                    $fKeyParts = explode(',', $fKey);
+                    $fKeyParts = explode(',', $fNameAbbr);
 					$fKeyPartsCount = count($fKeyParts);
                     foreach($fKeyParts as $key => $val){
 						if(!empty($table)) $val = $table.'.'.$val;
@@ -385,15 +494,28 @@ class CGridView extends CWidgs
 				} 
 			}
 			
-			$output .= CHtml::openTag('div', array('class'=>'buttons-wrapper')).self::NL;
-			if(A::app()->getRequest()->getQuery('but_filter')){
-				$filterUrl .= (!empty($filterUrl) ? '&' : '').'but_filter=true';
-				$output .= CHtml::button(A::t('core', 'Cancel'), array('name'=>'', 'class'=>'button white', 'onclick'=>'jQuery(location).attr(\'href\',\''.$baseUrl.$actionPath.'\');')).self::NL;
-			}
-			
-			$output .= CHtml::submitButton(A::t('core', 'Filter'), array('name'=>'but_filter')).self::NL;
+            if($filterMegaMenu){
+                $output .= CHtml::tag('div', array('class'=>'spacer-20'), '');
+                $output .= CHtml::openTag('div', array('class'=>'col-md-12')).self::NL;
+                if(A::app()->getRequest()->getQuery('but_filter')){
+                    $filterUrl .= (!empty($filterUrl) ? '&' : '').'but_filter=true';
+                    $output .= CHtml::button(A::t('core', 'Cancel'), array('name'=>'', 'class'=>'btn btn-default btn-lg', 'onclick'=>'jQuery(location).attr(\'href\',\''.$baseUrl.$actionPath.'\');')).self::NL;
+                }
+                $output .= CHtml::submitButton(A::t('core', 'Filter'), array('name'=>'but_filter', 'class'=>'btn btn-info btn-lg pull-right')).self::NL;
+                $output .= CHtml::closeTag('div');
+            }else{
+                $output .= CHtml::openTag('div', array('class'=>'buttons-wrapper')).self::NL;
+                if(A::app()->getRequest()->getQuery('but_filter')){
+                    $filterUrl .= (!empty($filterUrl) ? '&' : '').'but_filter=true';
+                    $output .= CHtml::button(A::t('core', 'Cancel'), array('name'=>'', 'class'=>'button white', 'onclick'=>'jQuery(location).attr(\'href\',\''.$baseUrl.$actionPath.'\');')).self::NL;
+                }
+                $output .= CHtml::submitButton(A::t('core', 'Filter'), array('name'=>'but_filter')).self::NL;
+            }
+
+			if($filterMegaMenu) $output .= CHtml::closeTag('div').self::NL;			
 			$output .= CHtml::closeTag('div').self::NL;
 			$output .= CHtml::closeForm().self::NL;
+			if($filterMegaMenu) $output .= CHtml::closeTag('div').self::NL;
 			$output .= CHtml::closeTag('div').self::NL;
 			$filterUrl = CHtml::encode($filterUrl);
 		}
@@ -433,7 +555,8 @@ class CGridView extends CWidgs
 			$records = $objModel->findAll(array(
 				'condition'=>$whereClause,
 				'order'=>$orderClause,
-				'group'=>$groupBy
+				'group'=>$groupBy,
+				'limit'=>$limit,
 			));
 			$totalPageRecords = is_array($records) ? count($records) : 0;
 			if(!$totalPageRecords){
@@ -730,6 +853,8 @@ class CGridView extends CWidgs
 									$fieldValue = strtolower($fieldValue);
 								}else if($case == 'camel'){
 									$fieldValue = ucwords($fieldValue);
+								}else if($case == 'humanize'){
+									$fieldValue = CString::humanize($fieldValue);
 								}
 								
 								$maxLength = (int)self::keyAt('maxLength', $val, '');
@@ -860,7 +985,7 @@ class CGridView extends CWidgs
 			if($onDeleteRecord){
 				A::app()->getClientScript()->registerScript(
 					'delete-record',
-					'function onDeleteRecord(el){return confirm("ID: " + jQuery(el).data("id") + "\n'.A::t('core', 'Are you sure you want to delete this record?').'");}',
+					'function onDeleteRecord(el){return confirm("ID: " + jQuery(el).data("id") + "\n'.A::te('core', 'Are you sure you want to delete this record?').'");}',
 					2
 				);				
 			}

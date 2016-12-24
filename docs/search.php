@@ -82,7 +82,7 @@
 		foreach($array as $value){
 		   list($filedir, $title, $result_text) = explode('##', $value, '3');
 		   
-		   // highlight text 
+		   // Highlight text 
 		   $result_text = preg_replace('@('.$keyword.')@si', '<strong style="background-color:yellow">$1</strong>', $result_text);
 
 		   $result .= '<li style="margin-bottom:20px"><a href=index.php?page='.$filedir.' target=_new>'.$title.'</a><br>'.$result_text.'...</li>'."\n";
@@ -103,7 +103,7 @@
     
     <link rel="stylesheet" type="text/css" href="css/default.css" />
 	<link rel="stylesheet" type="text/css" href="js/highlight/style.css" media="all" />
-	<?php echo (isset($_SERVER['REQUEST_URI']) && !preg_match('/search.php/i', $_SERVER['REQUEST_URI'])) ? '<link rel="canonical" href="http://'.(isset($_SERVER['HTTP_HOST']) ? htmlentities($_SERVER['HTTP_HOST']) : '').'/docs/search.php" />' : ''; ?>	
+	<?= (isset($_SERVER['REQUEST_URI']) && !preg_match('/search.php/i', $_SERVER['REQUEST_URI'])) ? '<link rel="canonical" href="http://'.(isset($_SERVER['HTTP_HOST']) ? htmlentities($_SERVER['HTTP_HOST']) : '').'/docs/search.php" />' : ''; ?>	
 	
 	<script type="text/javascript" src="js/jquery.min.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
@@ -136,14 +136,14 @@
 		</aside>
 		
 		<article class="central">
-			<?php echo $result;	?>
+			<?= $result;	?>
 		</article>		
 	</section>
     
     <a class="scrollup" href="#" style="display:none;"></a>
     
 	<script type="text/javascript">
-		// save blocks status
+		// Save blocks status
 		for(i=0; i<docs_menu.length; i++){
 			if(getCookie(docs_menu[i]) == 'closed'){
 				document.getElementById(docs_menu[i]).style.display = 'none';

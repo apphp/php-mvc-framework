@@ -14,6 +14,14 @@ General update intructions
 - Check if everything is OK, if not - revert from backup and post issues to ApPHP issue tracker.
 
 
+Updating from 0.8.3 to 0.9.0
+------------------------------
+- CConfig::get('defaultTemplate') redo with CConfig::get('default.template')
+
+Updating from 0.7.7 to 0.8.3
+------------------------------
+- general update instructions
+
 Updating from 0.6.9 to 0.7.7
 ------------------------------
 - general update instructions

@@ -26,7 +26,7 @@ update or delete session data without any special initial operations.
 You can find the following Session related preferences in your <code>protected/config/main.php</code> file:
 <br>
 <pre name="dlhl" class="php">
-// session settings
+// Session settings
 'session' => array(
     'customStorage' => false, 	/* true value means use a custom storage (database), false - standard storage */
     'cacheLimiter' => '', 	/* to prevent 'Web Page expired' message for POST request use "private,must-revalidate" */
@@ -89,7 +89,7 @@ For example, to fetch the <code>user_id</code> you will do this:
 <br />
 <pre name="dlhl" class="php">
 $userId = A::app()->getSession()->get('user_id');
-// alternative way
+// Alternative way
 $cSession = A::app()->getSession();
 $userId = $cSession->get('user_id');
 </pre>
@@ -121,7 +121,7 @@ You may also check if flashdata exists:
 <br />
 <pre name="dlhl" class="php">
 if(A::app()->getSession()->hasFlash('delete_message')){
-    // do something
+    // Do something
 }
 </pre>
 <p><br></p>

@@ -184,12 +184,12 @@ Initial release
 <pre name="dlhl" class="php">
 &lt;?php
 return array(
-    // module classes
+    // Module classes
     'classes' => array(
         'NewsComponent',
         'News',
     ),
-    // management links
+    // Management links
     'managementLinks' => array(
         A::t('news', 'News') => 'news/manage'
     ),    
@@ -201,12 +201,12 @@ return array(
 <pre name="dlhl" class="php">
 &lt;?php
 return array(
-    // module components (optional)
+    // Module components (optional)
     'components' => array(
         'NewsComponent' => array('enable' => true, 'class' => 'NewsComponent'),               
     ),
 
-    // url manager (optional)
+    // URL manager (optional)
     'urlManager' => array(
         'rules' => array(
             'news/view/id/([0-9]+)' => 'news/view/id/{$0}',
@@ -218,7 +218,7 @@ return array(
         ),
     ),    
 
-    // default settings (optional, if defined - will be used as application default settings)
+    // Default settings (optional, if defined - will be used as application default settings)
     'defaultController' => 'pages',
     'defaultAction' => 'view',
 );    
@@ -244,8 +244,8 @@ class NewsComponent extends CComponent
         $headerLength = ModulesSettings::model()->param('news', 'news_header_length');
         $newsCount = ModulesSettings::model()->param('news', 'news_count');
         
-        // fetch datetime format from settings table
-        // or $settings = Bootstrap::init()->getSettings();
+        // Fetch datetime format from settings table
+        // Or $settings = Bootstrap::init()->getSettings();
         $settings = Settings::model()->findByPk(1);
         $dateTimeFormat = $settings->date_format;
         

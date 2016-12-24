@@ -180,7 +180,7 @@
 			}
 		},
 
-		// catch some common errors
+		// Catch some common errors
 		ERRORS : {
 			regexp	: /^[,+*=-]\s*[\)\}\]]/g,
 			content	: 0,

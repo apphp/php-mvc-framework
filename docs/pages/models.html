@@ -59,7 +59,7 @@ class Accounts extends CModel
         return self::$_instance;
     }
 
-    // returns some data
+    // Returns some data
     public function getInfo()
     {
         $result = $this->_db->select('
@@ -322,17 +322,17 @@ We can delete a row of data if an AR instance has been populated with this row. 
 the AR instance remains unchanged, but the corresponding row in the database table is removed.
 For example:
 <pre name="dlhl" class="php">
-// assuming there is a post whose ID is 12
+// Assuming there is a post whose ID is 12
 $page = Pages::model()->findByPk(12);
-// delete this row from the database table
+// Deletes this row from the database table
 $page->delete();
 </pre>
     
 Also, there are some other methods that allow to delete rows without the need of loading them first:
 <pre name="dlhl" class="php">
-// delete the rows matching specified condition
+// Deletes the rows matching specified condition
 Pages::model()->deleteAll($condition, $params);
-// delete the rows matching specified condition and primary key
+// Deletes the rows matching specified condition and primary key
 Pages::model()->deleteByPk($pk, $condition, $params);
 </pre>
 <br>
@@ -343,15 +343,15 @@ Pages::model()->deleteByPk($pk, $condition, $params);
 To read data from a database table, we can use one of the find methods as follows.
 
 <pre name="dlhl" class="php">
-// find the first row satisfying the specified conditions
+// Finds the first row satisfying the specified conditions
 $page = Pages::model()->find($conditions, $params);
-// find the row with the specified primary key
+// Finds the row with the specified primary key
 $page = Pages::model()->findByPk($pk, $conditions, $params);
-// find the row with the specified attribute values
+// Finds the row with the specified attribute values
 $page = Pages::model()->findByAttributes($attributes, $conditions, $params);
-// find all rows satisfying the specified conditions
+// Finds all rows satisfying the specified conditions
 $page = Pages::model()->findAll($conditions, $params);
-// find all rows satisfying the specified conditions with %LIKE%
+// Finds all rows satisfying the specified conditions with %LIKE%
 $news = News:model()->findAll(CConfig::get('db.prefix').$this->_tableTranslation.'.news_text LIKE :keywords', array(':keywords'=>'%'.$keywords.'%'));
 </pre>
 <br>
@@ -362,17 +362,17 @@ $news = News:model()->findAll(CConfig::get('db.prefix').$this->_tableTranslation
 There are some additional methods which helps you to work with AR.
 
 <pre name="dlhl" class="php">
-// returns recordset with distinct values of the given field
+// Returns recordset with distinct values of the given field
 $page = Pages::model()->distinct($field);
-// check if there is at least one row satisfying the specified condition
+// Checks if there is at least one row satisfying the specified condition
 $page = Pages::model()->exists($conditions, $params);
-// finds the number of rows satisfying the specified query condition
+// Finds the number of rows satisfying the specified query condition
 $page = Pages::model()->count($conditions, $params);
-// finds a maximum value of the specified column
+// Finds a maximum value of the specified column
 $page = Pages::model()->max($columnName, $conditions, $params);
-// finds a sum value of the specified column
+// Finds a sum value of the specified column
 $page = Pages::model()->sum($columnName, $conditions, $params);
-// reloads model data according to current primary key
+// Reloads model data according to current primary key
 $page = Pages::model()->findByPk(1);
 $page = $page->refresh();
 </pre>

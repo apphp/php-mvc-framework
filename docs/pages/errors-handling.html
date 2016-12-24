@@ -33,7 +33,7 @@ Or to show it immediately on the screen:
 <pre name="dlhl" class="php">&lt;?php
 CDebug::dump($test);
 CDebug::dump($var, 1);
-// another option: d() is alias of dump()
+// Another option: d() is alias of dump()
 CDebug::d($test); 
 </pre>
 Another possible solution is to log variables, arrays or objexts into debug console (available when <a href="index.php?page=application-modes">APPHP_MODE = debug</a>):
@@ -44,7 +44,7 @@ $myArray = array('a'=>'Apple', 'b'=>'Banan', 'c'=>array('1'='111', '2'=>'222'));
 CDebug::console($myText);
 CDebug::console($myArray);
 CDebug::console($myText, 'Test variable');
-// another option: c() is alias of console()
+// Another option: c() is alias of console()
 CDebug::c($myText); 
 </pre>
 Also, it's possible to print the last query. You may do it in the following way:

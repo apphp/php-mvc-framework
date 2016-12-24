@@ -60,7 +60,7 @@
 		INBLOCK_STUFF : function(txt){
 			if(this.cssBlock){
 
-				// declaration
+				// Declaration
 				var m = /^([a-z0-9_-]+)(\s*:)/i.exec(txt);
 				if(m) return {
 					content	: m[1],
@@ -69,7 +69,7 @@
 					index   : m[0].length
 				};
 
-				// color
+				// Color
 				m = /^#(([a-f0-9][a-f0-9][a-f0-9]){1,2})/i.exec(txt);
 				if(m) return {
 					content : m[1],
@@ -78,7 +78,7 @@
 					index   : m[0].length
 				};
 
-				// length
+				// Length
 				m = /^(-?[0-9]?\.?[0-9]+)(px|pt|em|ex|%)/i.exec(txt);
 				if(m) return {
 					content : m[1],
@@ -118,7 +118,7 @@
 	var H = DlHighlight;
 	var lang = H.registerLang(
 		"css", [ H.BASE.COMMENT_C,
-			 H.BASE.COMMENT_CPP, // not sure c++-style comments are allowed in CSS, but whatever
+			 H.BASE.COMMENT_CPP, // Not sure c++-style comments are allowed in CSS, but whatever
 			 H.BASE.STRING,
 			 T.AT_RULE,
 			 T.OUTBLOCK_STUFF,

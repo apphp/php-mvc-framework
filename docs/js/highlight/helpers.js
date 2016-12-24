@@ -63,7 +63,7 @@
 					var hl = new DlHighlight(args);
 					code = hl.doItNow(code);
 					if(DlHighlight.is_ie) {
-						// kills whitespace
+						// Kills whitespace
 						var div = document.createElement("div");
 						div.innerHTML = "<pre>" + code + "</pre>";
 						while (div.firstChild)

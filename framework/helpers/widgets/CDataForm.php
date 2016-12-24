@@ -45,7 +45,12 @@ class CDataForm extends CWidgs
      *  	float, any, text, confirm, url, ip, range ('minValue'=>'' and 'maxValue'=>''), set, hexColor
      *   - attribute 'validation'=>array(..., 'forbiddenChars'=>array('+', '$')) is used to define forbidden characters
      *   - attribute 'validation'=>array(..., 'trim'=>true) - removes spaces from field value before validation
-     *   - 'successCallback' - callbacl methods of controller (must be public methods)
+     *   - 'successCallback' - callback methods of controller (must be public methods)
+     *   - 'callback'=>array('function'=>'functionName', 'params'=>$functionParams)
+     *      callback of closure function that is called when item created (available for "labels" and "html" only), $record - current record
+     *      <  5.3.0 function functionName($record, $params){ return record['field_name']; }
+     *      >= 5.3.0 $functionName = function($record, $params){ return record['field_name']; }
+     *      Ex.: function callbackFunction($record, $params){...}
      *   - separatorName must starts from word 'separator'
      *   - select classes: 'class'=>'chosen-select-filter' or 'class'=>'chosen-select'
      *   - attribute 'autocomplete'=>array(..., 'varN'=>array('function'=>'$("#id").val()')) passed as a parameter jQuery or javascript the function instead of use the variable
@@ -66,11 +71,12 @@ class CDataForm extends CWidgs
      *       'htmlOptions'		=> array(
      *       	 'id'				=> 'form-contact',
      *           'name'				=> 'form-contact',
-     *           'enctype'			=> 'multipart/form-data',
+     *           'enctype'			=> 'multipart/form-data', // multipart/form-data, application/x-www-form-urlencoded, text/plain or ''
      *           'autoGenerateId'	=> true
      *       ),
      *       'requiredFieldsAlert'=>true,
      *       'fieldSets'		=> array('type'=>'frameset|tabs|tabsList', 'firstTabActive'=>true),
+     *       'fieldWrapper'=>array('tag'=>'div', 'class'=>'row'),
      *       'fields'=>array(
 	 *         	 'separatorName' =>array(
 	 *               'separatorInfo'=>array('legend'=>A::t('app', 'Headers & Footers')),
@@ -78,7 +84,7 @@ class CDataForm extends CWidgs
 	 *               ...
 	 *           ),
      *           'field_1'=>array('type'=>'textbox',        'title'=>'Username',   'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'username'), 'htmlOptions'=>array()),
-     *           'field_2'=>array('type'=>'password',       'title'=>'Password',   'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'password', 'minLength'=>6), 'encryption'=>array('enabled'=>CConfig::get('password.encryption'), 'encryptAlgorithm'=>CConfig::get('password.encryptAlgorithm'), 'encryptSalt'=>CConfig::get('password.encryptSalt')), 'htmlOptions'=>array()),
+     *           'field_2'=>array('type'=>'password',       'title'=>'Password',   'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'password', 'minLength'=>6, 'maxLength'=>20, 'simplePassword'=>false), 'encryption'=>array('enabled'=>CConfig::get('password.encryption'), 'encryptAlgorithm'=>CConfig::get('password.encryptAlgorithm'), 'encryptSalt'=>CConfig::get('password.encryptSalt')), 'htmlOptions'=>array()),
      *           'field_3'=>array('type'=>'textbox',        'title'=>'Confirm P',  'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'confirm', 'confirmField'=>'field_2'), 'htmlOptions'=>array()),
      *           'field_4'=>array('type'=>'textbox',        'title'=>'Email',      'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'email'), 'htmlOptions'=>array()),
      *           'field_5'=>array('type'=>'textbox',        'title'=>'Confirm E',  'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'confirm', 'confirmField'=>'field_4'), 'htmlOptions'=>array()),
@@ -89,9 +95,10 @@ class CDataForm extends CWidgs
      *          'field_10'=>array('type'=>'textarea',       'title'=>'Text',       'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'any', 'maxLength'=>255), 'htmlOptions'=>array('maxLength'=>'255')),
      *          'field_11'=>array('type'=>'checkbox',       'title'=>'Checkbox',   'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>false, 'type'=>'set', 'source'=>array(0,1)), 'htmlOptions'=>array()),
      *          'field_12'=>array('type'=>'select',    		'title'=>'Select',     'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'set', 'source'=>array_keys(array(...))), 'data'=>array(), 'emptyOption'=>true, 'emptyValue'=>'', 'viewType'=>'dropdownlist|checkboxes', 'multiple'=>false, 'storeType'=>'serialized|separatedValues', 'separator'=>';', 'htmlOptions'=>array('class'=>'chosen-select-filter')),
-     *          'field_13'=>array('type'=>'radioButton',    'title'=>'Radio',      'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>''), 'htmlOptions'=>array()),
-     *          'field_14'=>array('type'=>'radioButtonList','title'=>'RadioList',  'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>''), 'data'=>array(), 'htmlOptions'=>array()),
-     *          'field_15'=>array(
+     *          'field_13'=>array('type'=>'color',          'title'=>'Color',      'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>false, 'type'=>'hexColor'), 'htmlOptions'=>array()),
+     *          'field_14'=>array('type'=>'radioButton',    'title'=>'Radio',      'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>''), 'htmlOptions'=>array()),
+     *          'field_15'=>array('type'=>'radioButtonList','title'=>'RadioList',  'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>''), 'data'=>array(), 'htmlOptions'=>array()),
+     *          'field_16'=>array(
      *              'type'			 	=> 'imageUpload',
      *              'title'			 	=> 'Image Uploader',
      *              'tooltip'		 	=> '',
@@ -103,7 +110,7 @@ class CDataForm extends CWidgs
 	 *          	'rotateOptions'		=> array('showLinks'=>true, 'linkRotateLeft'=>'admins/edit/rotate/left', 'linkRotateRigth'=>'admin/edit/rotate/right', 'iconRotateLeft'=>'templates/backend/images/rotateLeft.png', 'iconRotateRight'=>'templates/backend/images/rotateRight.png'),
 	 *          	'fileOptions'	 	=> array('showAlways'=>false, 'class'=>'file', 'size'=>'25', 'filePath'=>'templates/backend/files/accounts/')
      *          ),
-     *          'field_16'=>array(
+     *          'field_17'=>array(
      *              'type'			 	=> 'fileUpload',
      *              'title'			 	=> 'File Uploader',
      *              'tooltip'		 	=> '',
@@ -114,14 +121,15 @@ class CDataForm extends CWidgs
 	 *          	'deleteOptions'	 	=> array('showLink'=>true, 'linkUrl'=>'admins/edit/avatar/delete', 'linkText'=>'Delete'),
 	 *          	'fileOptions'	 	=> array('showAlways'=>false, 'class'=>'file', 'size'=>'25', 'filePath'=>'templates/backend/files/accounts/')
      *          ),
-     *          'field_17'=>array('type'=>'label',  	'title'=>'Label 16', 'default'=>'', 'tooltip'=>'', 'definedValues'=>array(), 'htmlOptions'=>array(), 'format'=>'', 'stripTags'=>false),
-     *          'field_18'=>array('type'=>'link',   	'title'=>'Label 17', 'tooltip'=>'', 'linkUrl'=>'path/to/param', 'linkText'=>'', 'htmlOptions'=>array()),
-     *          'field_19'=>array('type'=>'videoLink',   'title'=>'Label 18', 'tooltip'=>'', 'default'=>'', 'preview'=>false, 'validation'=>array('required'=>false, 'type'=>'url'), 'htmlOptions'=>array()),
-     *          'field_20'=>array('type'=>'datetime', 	'title'=>'Field 19', 'default'=>'', 'tooltip'=>'', 'validation'=>array('required'=>true, 'type'=>'date'), 'htmlOptions'=>array(), 'definedValues'=>array(), 'format'=>'', 'buttonTrigger'=>true, 'minDate'=>'', 'maxDate'=>''),
-     *          'field_21'=>array('type'=>'hidden', 	'default'=>'', 'htmlOptions'=>array()),
-     *          'field_22'=>array('type'=>'data', 		'default'=>''),
+     *          'field_18'=>array('type'=>'label',  	'title'=>'Label 17', 'default'=>'', 'tooltip'=>'', 'definedValues'=>array(), 'htmlOptions'=>array(), 'format'=>'', 'stripTags'=>false, 'callback'=>array('function'=>$functionName, 'params'=>$functionParams)),
+     *          'field_19'=>array('type'=>'html',  		'title'=>'Label 18', 'default'=>'', 'tooltip'=>'', 'definedValues'=>array(), 'htmlOptions'=>array(), 'format'=>'', 'stripTags'=>false, 'callback'=>array('function'=>$functionName, 'params'=>$functionParams)),
+     *          'field_20'=>array('type'=>'link',   	'title'=>'Label 19', 'tooltip'=>'', 'linkUrl'=>'path/to/param', 'linkText'=>'', 'htmlOptions'=>array()),
+     *          'field_21'=>array('type'=>'videoLink',  'title'=>'Label 20', 'tooltip'=>'', 'default'=>'', 'preview'=>false, 'validation'=>array('required'=>false, 'type'=>'url'), 'htmlOptions'=>array()),
+     *          'field_22'=>array('type'=>'datetime', 	'title'=>'Field 21', 'default'=>'', 'tooltip'=>'', 'validation'=>array('required'=>true, 'type'=>'date'), 'htmlOptions'=>array(), 'definedValues'=>array(), 'format'=>'', 'buttonTrigger'=>true, 'minDate'=>'', 'maxDate'=>''),
+     *          'field_23'=>array('type'=>'hidden', 	'default'=>'', 'htmlOptions'=>array()),
+     *          'field_24'=>array('type'=>'data', 		'default'=>''),
      *       ),
-     *       'translationInfo'=>array('relation'=>array('field_from', 'field_to'), 'languages'=>Languages::model()->findAll('is_active = 1')),
+     *       'translationInfo'=>array('relation'=>array('field_from', 'field_to'), 'languages'=>Languages::model()->findAll(array('condition'=>'is_active = 1', 'orderBy'=>'sort_order ASC')),
      *       'translationFields'=>array(
      *           'fields_1_1'=>array('type'=>'textbox', 'title'=>'Field 1-1', 'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'any'), 'htmlOptions'=>array()),
      *           'fields_1_2'=>array('type'=>'textarea', 'title'=>'Field 1-2', 'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'any', 'maxLength'=>5000), 'htmlOptions'=>array('maxLength'=>'5000')),
@@ -162,6 +170,8 @@ class CDataForm extends CWidgs
         $htmlOptions 			= self::params('htmlOptions', array(), 'is_array');
 		$requiredFieldsAlert 	= self::params('requiredFieldsAlert', false);
 		$fieldSets				= self::params('fieldSets', array(), 'is_array');
+		$fieldWrapperTag		= self::params('fieldWrapper.tag', 'div');
+		$fieldWrapperClass		= self::params('fieldWrapper.class', 'row');
 		$linkType 				= (int)self::params('linkType', 0); /* Link type: 0 - standard, 1 - SEO */
         $formName 				= self::params('name', '');
         $return 				= (bool)self::params('return', true);
@@ -279,7 +289,7 @@ class CDataForm extends CWidgs
                         $validationType = self::keyAt('validation.type', $fieldInfo, '');
                         $validationFormat = self::keyAt('validation.format', $fieldInfo, '');
                         
-						if($fieldType != 'label'){                        						
+						if(!in_array($fieldType, array('label', 'html'))){
                             $fieldValue = $cRequest->getPost($field);
 							if(self::issetKey('htmlOptions.disabled', $fieldInfo) || (self::issetKey('disabled', $fieldInfo) && $fieldInfo['disabled'] === true)){
                                 unset($recordsAssoc[$field]);
@@ -513,6 +523,7 @@ class CDataForm extends CWidgs
 			$formViewParams['htmlOptions'] = $htmlOptions;
 			$formViewParams['requiredFieldsAlert'] = $requiredFieldsAlert;
 			$formViewParams['fieldSets'] = $fieldSets;			
+			$formViewParams['fieldWrapper'] = array('tag'=>$fieldWrapperTag, 'class'=>$fieldWrapperClass);
 			
 			$formViewParams['fields'] = array();
 			$formViewParams['fields']['APPHP_FORM_ACT'] = array('type'=>'hidden', 'value'=>'send');
@@ -569,7 +580,7 @@ class CDataForm extends CWidgs
 							if($operationType == 'add'){
 								$tfValue = self::keyAt('default', $transFieldVal, '');
 							}else{
-								$tfValue = $translationsArray[$lang['code']][$transFieldKey];
+								$tfValue = isset($translationsArray[$lang['code']][$transFieldKey]) ? $translationsArray[$lang['code']][$transFieldKey] : '';
 							}							
 						}
 						$formViewParams['fields']['separator_'.$lang['code']][$transFieldKey.'_'.$lang['code']] = array(
@@ -639,7 +650,21 @@ class CDataForm extends CWidgs
                 }else if($validationType == 'float' && $validationFormat == 'european'){
                     $fieldInfo['value'] = CNumber::europeanFormat(self::keyAt($fieldInd, $recordsAssoc), '');		
 				}else if(empty($fieldValue) && self::issetKey('defaultEditMode', $fieldInfo)){
-                    $fieldInfo['value'] = self::keyAt('defaultEditMode', $fieldInfo, '');
+                    $fieldInfo['value'] = self::keyAt('defaultEditMode', $fieldInfo, '');                
+				}else if(in_array($fieldType, array('label', 'html'))){
+					// Call of closure function on item creating event
+					$callbackFunction = self::keyAt('callback.function', $fieldInfo);
+					$callbackParams = self::keyAt('callback.params', $fieldInfo, array());
+					if(!empty($callbackFunction)){
+						if(is_callable($callbackFunction)){
+							// Calling a function
+							// For PHP_VERSION >= 5.3.0 you may use
+							// $fieldValue = $callbackFunction($fieldValue, $callbackParams);
+							$fieldInfo['value'] = call_user_func($callbackFunction, $fieldValue, $callbackParams);
+						}
+					}else{
+						$fieldInfo['value'] = $fieldValue;
+					}
 				}else{
 					$fieldInfo['value'] = $fieldValue;
 				}								

@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
@@ -32,6 +32,7 @@ class CLanguageSelector extends CWidgs
      *      'languages' => array('en'=>array('name'=>'English', 'icon'=>''), 'es'=>array('name'=>'Espanol', 'icon'=>''), 'fr'=>array('name'=>'Francias', 'icon'=>'')),
      *      'display' => 'names|keys|icons|dropdown|list',
      *      'imagesPath' => 'images/langs/',
+     *      'forceDrawing' => false,
      *      'currentLanguage' => A::app()->getLanguage(),
      *      'return' => true
      *  ));
@@ -54,8 +55,9 @@ class CLanguageSelector extends CWidgs
         if($totalLangs == 1 && !$forceDrawing){
             return '';
         }else if($totalLangs < 6 && in_array($display, array('names', 'keys', 'icons'))){
-            // Render options as links
-            $lastLang = end($languages);
+            // Render options
+            $totalLanguages = count($languages);
+			$count = 0;
             foreach($languages as $key => $lang){
                 $langName = isset($lang['name']) ? $lang['name'] : '';
                 $langIcon = (isset($lang['icon']) && !empty($lang['icon']) && file_exists($imagesPath.$lang['icon'])) ? $lang['icon'] : 'no_image.png';
@@ -75,11 +77,11 @@ class CLanguageSelector extends CWidgs
                 }else{
                     $output .= CHtml::link($displayValue, 'languages/change/lang/'.$key, array('title'=>$langName)).self::NL;
                 }
-                if($langName != $lastLang){
+                if(++$count < $totalLanguages){
                     $output .= ($display == 'icons') ? ' ' : ' | '; 
                 } 
             }
-            
+			
             $output = trim($output, ' | ');
         }else if ($display == 'list'){
 			$output .= CHtml::openTag('ul', array('class'=>$class)).self::NL;       
@@ -110,9 +112,9 @@ class CLanguageSelector extends CWidgs
             $output .= CHtml::closeForm().self::NL;
         }
         
-        $final_output = CHtml::openTag($tagName, array('id'=>'language-selector'));
-        $final_output .= $output;
-        $final_output .= CHtml::closeTag($tagName).self::NL;       
+        //$final_output = CHtml::openTag($tagName, array('id'=>'language-selector'));
+        //$final_output .= $output;
+        //$final_output .= CHtml::closeTag($tagName).self::NL;       
         
         if($return) return $output;
         else echo $output;

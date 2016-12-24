@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
@@ -59,8 +59,11 @@ class CMenu extends CWidgs
      *      'class'=>'',
      *      'subMenuClass'=>'',
      *      'dropdownItemClass'=>'',
+     *      'dropdownItemLinkClass'=>'',
+     *      'dropdownItemLinkDataToggle'=>'',
      *      'activeItemClass'=>'',
      *      'separator'=>'',
+     *      'itemInnerTag'=>'span'
      *      'id'=>'',
      *      'selected'=>$this->_activeMenu,
 	 *      'return'=>true
@@ -68,13 +71,13 @@ class CMenu extends CWidgs
      *
      *  Example:
      *  <ul class="class" id="top-menu">
-     *      <li class="active"><a href="#">Item #1</a></li>
-     *      <li><a href="#">Item #2</a></li>
+     *      <li class="active"><a href="#"><span>Item #1</span></a></li>
+     *      <li><a href="#"><span>Item #2</span></a></li>
      *      <li class="dropdownItemClass">
-     *          <a class="dropdown-toggle" data-toggle="dropdown" href="#">Item #3</a>
+     *          <a href="#" class="dropdownItemLinkClass" data-toggle="dropdownItemLinkDataToggle"><span>Item #3</span></a>
      *          <ul class="subMenuClass">
-     *              <li><a href="#">SubItem #1</a></li>
-     *              <li><a href="#">SubItem #2</a></li>
+     *              <li><a href="#"><span>SubItem #1</span></a></li>
+     *              <li><a href="#"><span>SubItem #2</span></a></li>
      *          </ul>
      *      </li>
      *  </ul>
@@ -89,9 +92,12 @@ class CMenu extends CWidgs
         $class 				= self::params('class', 'menu');
         $subMenuClass 		= self::params('subMenuClass', '');
         $dropdownItemClass 	= self::params('dropdownItemClass', '');
+		$dropdownItemLinkClass = self::params('dropdownItemLinkClass', 'dropdown-toggle');
+		$dropdownItemLinkDataToggle = self::params('dropdownItemLinkDataToggle', 'dropdown');
         $activeItemClass 	= self::params('activeItemClass', 'active');
 		$type 				= self::params('type', 'horizontal');
 		$separator 			= self::params('separator', '');
+        $itemInnerTag       = self::params('itemInnerTag', '');
 		$id 				= self::params('id', '');
         $selected 			= self::params('selected', '');        
 		$itemsCount 		= 0;
@@ -115,11 +121,14 @@ class CMenu extends CWidgs
 				$itemClass .= (!strcasecmp($selected, $url)) ? ($itemClass ? ' ' : '').$activeItemClass : '';
                 $innerItems = isset($val['items']) ? $val['items'] : '';
 				$linkHtmlOptions = (isset($val['target']) && $val['target'] != '') ? array('target'=>$val['target']) : array();
-                if(is_array($innerItems) && count($innerItems) > 0){
-                    $linkHtmlOptions['class'] = "dropdown-toggle";
-                    $linkHtmlOptions['data-toggle'] = "dropdown";
+                if(is_array($innerItems) && count($innerItems) > 0){					 
+					$linkHtmlOptions['class'] = $dropdownItemLinkClass;
+                    $linkHtmlOptions['data-toggle'] = $dropdownItemLinkDataToggle;
                     $itemClass .= is_array($innerItems) ? ($itemClass ? ' ' : '').$dropdownItemClass : '';
                     $label .= ' '.CHtml::tag('b', array('class'=>'caret'), '', true);
+                }
+                if(!empty($itemInnerTag)){
+                    $label = CHtml::tag($itemInnerTag, array(), $label, true);
                 }
                 $output .= CHtml::openTag('li', array('class'=>($itemClass ? $itemClass : false), 'id'=>($id ? $id : false))).self::NL;
 				$output .= ($separator && $itemsCount > 0) ? $separator : '';
@@ -136,6 +145,9 @@ class CMenu extends CWidgs
                         $iActive = (!strcasecmp($selected, $iUrl)) ? true : false;
 						$iInnerItems = isset($iVal['items']) ? $iVal['items'] : '';
 						$iLinkHtmlOptions = (isset($iVal['target']) && $iVal['target'] != '') ? array('target'=>$iVal['target']) : array();
+                        if(!empty($itemInnerTag)){
+                            $iLabel = CHtml::tag($itemInnerTag, array(), $iLabel, true);
+                        }
 
                         $output .= CHtml::openTag('li', array('class'=>($iActive ? $activeItemClass : false), 'id'=>($iId ? $iId : false)));
                         $output .= CHtml::link($iLabel, $iUrl, $iLinkHtmlOptions);
@@ -148,6 +160,9 @@ class CMenu extends CWidgs
 								$iiUrl = isset($iiVal['url']) ? $iiVal['url'] : '';
 								$iiLabel = isset($iiVal['label']) ? $iiVal['label'] : '';
 								$iiActive = (!strcasecmp($selected, $iiUrl)) ? true : false;
+                                if(!empty($itemInnerTag)){
+                                    $iiLabel = CHtml::tag($itemInnerTag, array(), $iiLabel, true);
+                                }
 								$output .= CHtml::openTag('li', array('class'=>($iiActive ? $activeItemClass : false)));
 								$output .= CHtml::link($iiLabel, $iiUrl);
 								$output .= CHtml::closeTag('li').self::NL;

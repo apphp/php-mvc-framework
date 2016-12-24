@@ -26,11 +26,11 @@ class AuthorsController extends CController
     {
         parent::__construct();
         
-        // block access to this controller for not-logged users
+        // Block access to this controller for not-logged users
         CAuth::handleLogin();
     }
     
-    // other code here...
+    // Other code here...
 }    
 </pre>    
 <br>
@@ -42,23 +42,23 @@ class AuthorsController extends CController
 {
     public function indexAction()
     {
-        // your code here...
+        // Your code here...
     }
     
     public function editProfileAction()
     {
-        // block access to this action for not-logged users
+        // Block access to this action for not-logged users
         CAuth::handleLogin();
         
-        // other code here...
+        // Other code here...
     }
 
     public function loginAction()
     {
-        // redirect logged in authors to the specified location
+        // Redirect logged in authors to the specified location
         CAuth::handleLoggedIn('authors/index');
         
-        // other code here...
+        // Other code here...
     }
 }
 </pre>
@@ -67,10 +67,10 @@ class AuthorsController extends CController
 Following methods allow to retrieve an important data about logged user:<br />
 (please check <code>framework/helpers/CAuth.php</code> for more information)
 <pre name="dlhl" class="php">
-// returns ID of logged user
+// Returns ID of logged user
 CAuth::getLoggedId();
     
-// checks if user is logged in and returns a result as a boolean
+// Checks if user is logged in and returns a result as a boolean
 CAuth::isLoggedIn();
 </pre>
 <br><br>
@@ -90,3 +90,4 @@ if($model->login($this->_view->username, $this->_view->password)){
 }
 </pre>
 <br />
+

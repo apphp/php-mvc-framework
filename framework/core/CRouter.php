@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
  * @license http://www.apphpframework.com/license/ 
  *
  * USAGE:
@@ -158,16 +158,17 @@ class CRouter
         $file = $this->_controller.'Controller.php';
 
 		if(is_file($appDir.$file)){
+			// Framework Controller
 			$class = $this->_controller.'Controller';
         }else{
 			$modulePath = A::app()->mapAppModule($this->_controller);
-			$moduleClassPath = A::app()->mapAppModuleClass($this->_controller);
-            $comDir = APPHP_PATH.DS.'protected'.DS.$modulePath.'controllers'.DS;
-            if(!empty($moduleClassPath)){
-				// Module Controller with non-empty path (new syntax from framework v0.8.0)
+            $moduleDir = APPHP_PATH.DS.'protected'.DS.$modulePath.'controllers'.DS;
+			$classWithNamespace = A::app()->mapAppModuleClass($this->_controller);
+            if(!empty($classWithNamespace)){
+				// Module Controller with namespace (new syntax in framework >= v0.8.0)
 				$class = A::app()->mapAppModuleClass($this->_controller).'Controller';
-			}else if(is_file($comDir.$file)){
-				// Framework Controller
+			}else if(is_file($moduleDir.$file)){
+				// Module Controller
                 $class = $this->_controller.'Controller';
             }else{
             	$class = 'ErrorController';
@@ -175,7 +176,7 @@ class CRouter
             	CDebug::addMessage('errors', 'controller', A::t('core', 'Router: unable to resolve the request "{controller}".', array('{controller}' => $this->_controller)));
             }
         } 
-		A::app()->view->setController($this->_controller);
+		A::app()->view->setController(($class == 'ErrorController' ? 'Error' : $this->_controller));
 		$controller = new $class();
 
 		if(is_callable(array($controller, $this->_action.'Action'))){
@@ -192,9 +193,8 @@ class CRouter
             CDebug::addMessage('errors', 'action', A::t('core', 'The system is unable to find the requested action "{action}".', array('{action}' => $this->_action)));
 		}else{
 			$action = 'indexAction';
-		}
-		
-		A::app()->view->setAction($this->_action);
+		}		
+		A::app()->view->setAction(($action == 'errorAction' ? 'error' : $this->_action));
         
 		// Call controller::action + pass parameters
 		call_user_func_array(array($controller, $action), self::getParams());		 

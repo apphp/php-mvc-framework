@@ -22,7 +22,7 @@ Variant 3 (urlFormat "path"):
 Variant 4 (You may specify a custom format "shortPath" for URL by creating special definitions in configuration file):
 
 <pre name="dlhl" class="php">
-// url manager
+// URL manager
 'urlManager' => array(
     'urlFormat' => 'shortPath',  /* get | path | shortPath */
     'rules' => array(
@@ -46,9 +46,9 @@ Variant 4 (You may specify a custom format "shortPath" for URL by creating speci
 Remember, that rules are checked sequentially until the match rule is found, so you have to order them in a certain way to avoid overlapping.
 For example:
 <pre name="dlhl" class="php">
-// this rule must be defined before
+// This rule must be defined before
 'pages/view/(.*?)/(.*?)/(.*)' => 'pages/view/id/{$0}/param2/{$1}/param3/{$2}',
-// this rule must be defined after
+// This rule must be defined after
 'pages/view/(.*?)/(.*)' => 'pages/view/id/{$0}/param2/{$1}',
 </pre>
 Also, for custom format you have to define all appropriate parameters in your <a href="index.php?page=controllers-and-actions">Controller</a>.

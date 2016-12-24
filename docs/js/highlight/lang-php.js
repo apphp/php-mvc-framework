@@ -36,6 +36,7 @@
         "A",
         "__construct",
         "CModel",
+		'PagesController',
 		"YourModel",
         "Accounts",
         "PagesModel",
@@ -86,6 +87,8 @@
         "save",
         "fieldA",
         "fieldB",
+		"cssFile",
+		"scriptFile",
         "_relations",
         "self",
         "HAS_ONE",
@@ -136,6 +139,7 @@
         "message",
         "menu",
         "setTemplate",
+		"setLayout",
         "date_created",
         "date_updated",
         "date",
@@ -228,6 +232,13 @@
 		"hasOptions",
 		"textField",
 		"contents",
+		"CLog",
+		"addMessage",
+		"Exception",
+		"getMessage",
+		"isMobile",
+		"isTablet",
+		"getMobileDetect",
 	];
 
 	var BUILTINS = {};
@@ -269,6 +280,8 @@
 		"isset",
 		"endforeach",
 		"endif",
+		"try",
+		"catch",
 	];
 
 	var KEYWORDS = {};
@@ -331,7 +344,7 @@
 			}
 		},
 
-		// catch some common errors
+		// Catch some common errors
         //regexp	: /^[,+*=-]\s*[\)\}\]]/g,
 		ERRORS : {
 			regexp	: /^[+=-]\s*[\)\}\]]/g,

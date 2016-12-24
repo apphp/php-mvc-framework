@@ -43,18 +43,18 @@ class CFormView extends CWidgs
      *   
      * Usage: (in view)
      *  echo CWidget::create('CFormView', array(
-     *       'action'=>'locations/update',
-     *       'cancelUrl'=>'locations/view',
-     *       'method'=>'post',
-     *       'htmlOptions'=>array(
-     *           'name'=>'form-contact',
-     *           'enctype'=>'multipart/form-data',
-     *           'autoGenerateId'=>false
+     *       'action'		=> 'locations/update',
+     *       'cancelUrl'	=> 'locations/view',
+     *       'method'		=> 'post',
+     *       'htmlOptions'	=> array(
+     *           'name'			  => 'form-contact',
+     *           'enctype'		  => 'multipart/form-data', // multipart/form-data, application/x-www-form-urlencoded, text/plain or ''
+     *           'autoGenerateId' => false
      *       ),
      *       'requiredFieldsAlert'=>true,
-     *       'fieldSets'=>array('type'=>'frameset|tabs|tabsList', 'firstTabActive'=>true),
-     *       'fieldWrapper'=>array('tag'=>'div', 'class'=>'row'),
-     *       'fields'=>array(
+     *       'fieldSets'	=> array('type'=>'frameset|tabs|tabsList', 'firstTabActive'=>true),
+     *       'fieldWrapper' => array('tag'=>'div', 'class'=>'row'),
+     *       'fields'		=> array(
 	 *         	 'separatorName' =>array(
 	 *               'separatorInfo' => array('legend'=>A::t('app', 'Headers & Footers')),
 	 *               'field_1'=>array('type'=>'textbox', 'title'=>'Field 1', 'tooltip'=>'', 'value'=>'', 'mandatoryStar'=>true, 'htmlOptions'=>array('maxLength'=>'50')),
@@ -68,22 +68,23 @@ class CFormView extends CWidgs
      *           'field_5'=>array('type'=>'textarea', 'title'=>'Field 5', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'htmlOptions'=>array('maxLength'=>'250')),
      *           'field_6'=>array('type'=>'file',     'title'=>'Field 6', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'htmlOptions'=>array()),
      *           'field_7'=>array('type'=>'image',    'title'=>'Field 7', 'tooltip'=>'', 'mandatoryStar'=>true, 'src'=>'', 'alt'=>'Field 6', 'htmlOptions'=>array()),
-     *           'field_8'=>array('type'=>'html',     'title'=>'Field 8', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>''),
+     *           'field_8'=>array('type'=>'html',     'title'=>'Field 8', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'definedValues'=>array()),
      *           'field_9'=>array('type'=>'label',    'title'=>'Field 9', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'definedValues'=>array(), 'format'=>'', 'stripTags'=>false, 'htmlOptions'=>array()),
      *          'field_10'=>array('type'=>'link',     'title'=>'Field 10', 'tooltip'=>'', 'mandatoryStar'=>true, 'linkUrl'=>'path/to/param', 'linkText'=>'', 'videoPreview'=>false, 'htmlOptions'=>array()),
      *          'field_11'=>array('type'=>'videolink','title'=>'Field 11','tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'preview'=>false, 'htmlOptions'=>array('maxLength'=>'50')),
      *          'field_12'=>array('type'=>'datetime', 'title'=>'Field 12', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'definedValues'=>array(), 'format'=>'', 'minDate'=>'', 'maxDate'=>'', 'buttonTrigger'=>true, 'htmlOptions'=>array()),
      *          'field_13'=>array('type'=>'checkbox', 'title'=>'Field 13', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'checked'=>true, 'htmlOptions'=>array(), 'viewType'=>'|custom'),
      *          'field_14'=>array('type'=>'select',   'title'=>'Field 14', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'data'=>array(), 'emptyOption'=>false, 'emptyValue'=>'', 'viewType'=>'dropdownlist|checkboxes', 'multiple'=>false, 'storeType'=>'serialized|separatedValues', 'separator'=>';', 'htmlOptions'=>array('class'=>'chosen-select-filter')),
-     *          'field_15'=>array('type'=>'radioButton', 'title'=>'Field 15', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'checked'=>'true', 'htmlOptions'=>array()),
-     *          'field_16'=>array('type'=>'radioButtonList', 'title'=>'Field 16', 'tooltip'=>'', 'mandatoryStar'=>true, 'checked'=>0, 'data'=>array(), 'htmlOptions'=>array()),
-	 *          'field_17'=>array('type'=>'imageUpload', 'title'=>'Field 17', 'tooltip'=>'', 'mandatoryStar'=>false, 'value'=>'', 
+     *          'field_16'=>array('type'=>'color',    'title'=>'Field 15', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'htmlOptions'=>array('maxLength'=>'50')),
+     *          'field_17'=>array('type'=>'radioButton', 'title'=>'Field 15', 'tooltip'=>'', 'mandatoryStar'=>true, 'value'=>'', 'checked'=>'true', 'htmlOptions'=>array()),
+     *          'field_18'=>array('type'=>'radioButtonList', 'title'=>'Field 16', 'tooltip'=>'', 'mandatoryStar'=>true, 'checked'=>0, 'data'=>array(), 'htmlOptions'=>array()),
+	 *          'field_19'=>array('type'=>'imageUpload', 'title'=>'Field 17', 'tooltip'=>'', 'mandatoryStar'=>false, 'value'=>'', 
 	 *          	'imageOptions' =>array('showImage'=>true, 'showImageName'=>true, 'showImageSize'=>true, 'imageClass'=>'avatar'),
 	 *          	'deleteOptions'=>array('showLink'=>true, 'linkUrl'=>'admins/edit/avatar/delete', 'linkText'=>'Delete'),
 	 *          	'rotateOptions'=>array('showLinks'=>true, 'linkRotateLeft'=>'admins/edit/rotate/left', 'linkRotateRigth'=>'admin/edit/rotate/right', 'iconRotateLeft'=>'templates/backend/images/rotateLeft.png', 'iconRotateRight'=>'templates/backend/images/rotateRight.png'),
 	 *          	'fileOptions'=>array('showAlways'=>false, 'class'=>'file', 'size'=>'25', 'filePath'=>'templates/backend/files/accounts/')
 	 *          ),
-     *          'field_18'=>array('type'=>'fileUpload', 'title'=>'Field 18', 'tooltip'=>'', 'mandatoryStar'=>false, 'value'=>'', 'download'=>false,
+     *          'field_20'=>array('type'=>'fileUpload', 'title'=>'Field 18', 'tooltip'=>'', 'mandatoryStar'=>false, 'value'=>'', 'download'=>false,
 	 *          	'iconOptions'=>array('showType'=>true, 'showFileName'=>true, 'showFileSize'=>true),
 	 *          	'deleteOptions'=>array('showLink'=>true, 'linkUrl'=>'templates/backend/files/accounts/', 'linkText'=>'Delete'),
 	 *          	'fileOptions'=>array('showAlways'=>false, 'class'=>'file', 'size'=>'25', 'filePath'=>'templates/backend/files/accounts/')
@@ -132,20 +133,10 @@ class CFormView extends CWidgs
 		$tabs = array();
 		$tabsCount = 0;
         
-		self::unsetKey('autoGenerateId', $htmlOptions);
-		if(!self::issetKey('class', $htmlOptions)) $htmlOptions['class'] = 'widget-cformview';
-		else $htmlOptions['class'] .= ' widget-cformview';
-        $output .= CHtml::openForm($action, $method, $htmlOptions).self::NL;
-
-        // Draw required fields alert
-		if($requiredFieldsAlert){
-			$output .= CHtml::tag('span', array('class'=>'required-fields-alert'), A::t('core','Items marked with an asterisk (*) are required'), true).self::NL;
-		}
-		
-        // Draw top buttons
-        if($buttonsPosition == 'top' || $buttonsPosition == 'both') $output .= self::_drawButtons($buttons, 'top');
-
-		// Run in loop to remove disabled fields
+		// Run in loop:
+		// 1. Remove disabled fields
+		// 2. Add or remove 'enctype'=>'multipart/form-data' according to defined "file" fields in the form
+		$fileFieldFound = false;
 		foreach($fields as $field => $fieldInfo){
             if(preg_match('/separator/i', $field) && is_array($fieldInfo)){
                 foreach($fieldInfo as $iField => $iFieldInfo){						
@@ -158,6 +149,34 @@ class CFormView extends CWidgs
 					unset($fields[$field]);
 				}
             }
+			
+			// Automatically add enctype according if "file" field found
+			if(!$fileFieldFound && isset($fieldInfo['type']) && in_array($fieldInfo['type'], array('file', 'fileupload', 'imageupload'))){
+				$fileFieldFound = true;
+				if(empty($htmlOptions['enctype'])){
+					$htmlOptions['enctype'] = 'multipart/form-data';
+				}
+			}
+		}
+		
+		// Automatically clean enctype if no "file" fields found
+		if(!$fileFieldFound && isset($htmlOptions['enctype']) && $htmlOptions['enctype'] === 'multipart/form-data'){
+			unset($htmlOptions['enctype']);
+		}
+		
+		self::unsetKey('autoGenerateId', $htmlOptions);
+		if(!self::issetKey('class', $htmlOptions)) $htmlOptions['class'] = 'widget-cformview';
+		else $htmlOptions['class'] .= ' widget-cformview';
+        $output .= CHtml::openForm($action, $method, $htmlOptions).self::NL;
+		
+        // Draw required fields alert
+		if($requiredFieldsAlert){
+			$output .= CHtml::tag('span', array('class'=>'required-fields-alert'), A::t('core','Items marked with an asterisk (*) are required'), true).self::NL;
+		}
+		
+        // Draw top buttons
+        if($buttonsPosition == 'top' || $buttonsPosition == 'both'){
+			$output .= self::_drawButtons($buttons, 'top');
 		}
 
 		// Run in loop to draw fields
@@ -264,6 +283,7 @@ class CFormView extends CWidgs
         $value			= self::keyAt('value', $fieldInfo, '');
         $title 			= self::keyAt('title', $fieldInfo, false);
 		$tooltip 		= self::keyAt('tooltip', $fieldInfo, '');
+		$default 		= self::keyAt('default', $fieldInfo, '');
 		$definedValues 	= self::keyAt('definedValues', $fieldInfo, '');
         $mandatoryStar 	= self::keyAt('mandatoryStar', $fieldInfo, false);
 		$autocomplete 	= self::keyAt('autocomplete', $fieldInfo, array(), 'is_array');
@@ -331,10 +351,17 @@ class CFormView extends CWidgs
                 break;
 			
             case 'html':
+				if(is_array($definedValues) && self::issetKey($value, $definedValues)){ /* don't use here self::keyAt */
+                    $value = $definedValues[$value];
+                }
                 $fieldHtml = html_entity_decode($value);
                 break;
 			
             case 'label':				
+				if($value === ''){
+					$value = $default;
+				}
+
 				$format = self::keyAt('format', $fieldInfo, '');
                 $stripTags = (bool)self::keyAt('stripTags', $fieldInfo, false);
                 if($stripTags) $value = strip_tags(CHtml::decode($value));
@@ -359,6 +386,9 @@ class CFormView extends CWidgs
             case 'datetime':
 				$fieldId = self::keyAt('id',  $htmlOptions, $formName.'_'.$field);
 				$format = self::keyAt('format', $fieldInfo, 'yy-mm-dd');
+				if(empty($format)){
+					$format = 'yy-mm-dd';
+				}
 				$buttonTrigger = self::keyAt('buttonTrigger', $fieldInfo, true);
                 $minDate = (int)self::keyAt('minDate', $fieldInfo, ''); /* max days before current date */
                 $maxDate = (int)self::keyAt('maxDate', $fieldInfo, ''); /* max days from current date */
@@ -629,6 +659,10 @@ class CFormView extends CWidgs
 				$fieldHtml = CHtml::radioButtonList($field, $checked, $data, $htmlOptions);
 				break;
 			
+            case 'color':
+                $fieldHtml = CHtml::colorField($field, $value, $htmlOptions);
+                break;
+
             case 'textbox':
             default:
 				$autocompleteEnabled = self::keyAt('enable', $autocomplete);

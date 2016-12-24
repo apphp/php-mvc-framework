@@ -6,7 +6,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
@@ -57,7 +57,7 @@ class CUri extends CComponent
 	public static function init()
 	{
 		return parent::init(__CLASS__);
-	}    
+	}
 
 	/**
 	 * Fetch a URI Segment

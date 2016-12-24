@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
@@ -20,11 +20,14 @@
  * renderView
  * setTemplate
  * getTemplate
+ * setLayout
+ * getLayout
  * setController
  * getController
  * setAction
  * getAction
  * getContent
+ * getLayoutContent
  * isDefaultPage
  * 
  */	  
@@ -33,10 +36,8 @@ class CView
 {
 	/**	@var string */
 	private $_template;
-	/**	@var mixed */
-	private $_content;
-	/**	@var mixed */
-	private $_renderContent;
+	/**	@var string */
+	private $_layout;
 	/** @var string */
 	private $_controller;
 	/** @var string */
@@ -56,7 +57,22 @@ class CView
 
 
 	/** @var mixed */
-	private $__template = '';
+	private $__templateFile = '';
+	/** @var mixed */
+	private $__templateContent = '';
+	/** @var bool */
+	private $__isTemplateFound = true;
+	/** @var mixed */
+	private $__layoutFile = '';	
+	/** @var bool */
+	private $__isLayoutFound = false;
+	/** @var mixed */
+	private $__layoutContent = '';
+	/**	@var mixed */
+	private $__viewContent;
+	/**	@var mixed */
+	private $__renderContent;
+
 	/** @var string */
 	private $__controller = '';
 	/** @var string */
@@ -67,19 +83,17 @@ class CView
 	private $__viewPath	= '';
 	/** @var string */
 	private $__viewFile = '';
-	/** @var bool */
-	private $__isTemplateFound = true;
-	/** @var mixed */
-	private $__templateContent = '';
-    
+	    
   
 	/**
 	 * Class constructor
 	 */
 	public function __construct()
 	{
-        $this->_content = '';
-		$this->_renderContent = ''; 
+		$this->_template = CConfig::get('default.template');        
+		$this->_layout = CConfig::get('layout.default', 'default');
+		$this->__viewContent = '';
+		$this->__renderContent = ''; 
     }
 
 	/**
@@ -161,7 +175,7 @@ class CView
         }
         
 		try{
-			$this->__isTemplateFound = true;			
+			$this->__isTemplateFound = true;
 			
 			// Set default controller and action
 			$this->__controller = $this->_controller;
@@ -192,77 +206,111 @@ class CView
 			}else{
                 // Force using lower-case names for view files
                 $this->__controller = strtolower($this->__controller);
-
-				$this->__template = APPHP_PATH.DS.'templates'.DS.(!empty($this->_template) ? $this->_template.DS : '').'default.php';			
-				if(!file_exists($this->__template)){
-					$this->__isTemplateFound = false;
-					if(!empty($this->_template)){
+				
+				// Get template file
+				$this->__templateFile = APPHP_PATH.DS.'templates'.DS.(!empty($this->_template) ? $this->_template.DS : '').'default.php';
+				if(!empty($this->_template)){
+					if(!file_exists($this->__templateFile)){
+						$this->__isTemplateFound = false;
 						CDebug::addMessage('errors', 'render-template', A::t('core', 'Template file: "templates/{template}" cannot be found.', array('{template}'=>$this->_template)));
 					}
+				}else{
+					$this->__isTemplateFound = false;
+					CDebug::addMessage('errors', 'render-template', A::t('core', 'Template file: "templates/{template}" cannot be found.', array('{template}'=>'default.php')));
+				}				
+				
+				// Get layout file
+				if(CConfig::get('layout.enable')){
+					$this->__layoutFile = APPHP_PATH.DS.'templates'.DS.$this->_template.DS.'layouts'.DS.(!empty($this->_layout) ? $this->_layout : '').'.php';
+					if(!empty($this->_layout)){
+						if(file_exists($this->__layoutFile)){
+							$this->__isLayoutFound = true;
+						}else{
+							CDebug::addMessage('errors', 'render-layout', A::t('core', 'Layout file: "{layout}" cannot be found.', array('{layout}'=>'templates/'.$this->_template.'/layouts/'.$this->_layout.'.php')));
+						}
+					}
 				}
-                $this->__viewFile = APPHP_PATH.DS.'protected'.DS.'views'.DS.$this->__viewPath.'.php';
+				
+				// Get view file
+				$this->__viewFile = APPHP_PATH.DS.'protected'.DS.'views'.DS.strtolower($this->__viewPath).'.php';
 				if(is_file($this->__viewFile)){
                     // Check application view
                 }else{
                     // Check modules view
-                    $this->__viewFile = APPHP_PATH.DS.'protected'.DS.A::app()->mapAppModule($this->__controller).'views'.DS.$this->__viewPath.'.php';
-                    // [#001 - 28.05.2013] under check - removed as un-needed
-					// if(is_file($moduleView)){
-                    // 		$this->__viewFile = $moduleView;
-                    // }
+					$this->__viewFile = APPHP_PATH.DS.'protected'.DS.strtolower(A::app()->mapAppModule($this->__controller)).'views'.DS.strtolower($this->__viewPath).'.php';
                 }
 				
+				// [19.09.2016] under check - doesn't work with uppercase
 				// Force using lower-case names for view files
-				$this->__viewFile = strtolower($this->__viewFile);
+				// $this->__viewFile = strtolower($this->__viewFile);
 
-                // Prepare content from view file
+                // Prepare content variables for view file
                 foreach($this->_vars as $key => $value){
                     $$key = $value;
                 }
-                if(file_exists($this->__viewFile)){
-                    ob_start();
-                    include $this->__viewFile;
-                    $this->_content = ob_get_contents();
-                    ob_end_clean();
+				
+				// Get view file content
+				// We need to get it before layout content - to be sure it already exists when we show it in our layout
+				if(file_exists($this->__viewFile)){
+					ob_start();
+					include $this->__viewFile;
+					$this->__viewContent = ob_get_contents();
+					ob_end_clean();
 					
 					CDebug::addMessage('general', 'included', $this->__viewFile);
-                }else{
+				}else{
 					if(preg_match('/[A-Z]/', $this->_controller)){
 						CDebug::addMessage('errors', 'render-view', A::t('core', 'The system is unable to find the requested view file: {file}. Case sensitivity mismatch!', array('{file}'=>$this->__viewFile)));
 					}else{
 						CDebug::addMessage('errors', 'render-view', A::t('core', 'The system is unable to find the requested view file: {file}', array('{file}'=>$this->__viewFile)));						
 					}
+				}
+				
+				// Get layout file content
+                if($this->__isLayoutFound){
+                    ob_start();
+                    include $this->__layoutFile;
+                    $this->__layoutContent = ob_get_contents();
+                    ob_end_clean();
+					
+					CDebug::addMessage('general', 'included', $this->__layoutFile);
                 }
 				
+				$output = '';
 				if($isPartial){
-					$output = $this->_content;
+					if($this->__isLayoutFound){
+						$output = $this->__layoutContent;
+					}else{
+						$output = $this->__viewContent;
+					}
 				}else{
 					// Prepare and include template file
 					if($this->__isTemplateFound){
 						ob_start();		
-						include $this->__template;	
+						include $this->__templateFile;	
 						$this->__templateContent = ob_get_contents();
 						ob_end_clean();
 						
-						CDebug::addMessage('general', 'included', $this->__template);
+						CDebug::addMessage('general', 'included', $this->__templateFile);
 	
 						// Render registered scripts					
 						A::app()->getClientScript()->render($this->__templateContent);
 					
-						$output = $this->__templateContent;					
+						$output = $this->__templateContent;
 					}else{
-						$output = $this->_content;
+						$output = $this->__viewContent;
 					}								
 				}
 				
 				if($return){					
 					return $output;
 				}else{
-					echo $output;					
+					echo $output;
 				}				
 				
 				CDebug::addMessage('params', 'view', $this->__viewFile);
-				CDebug::addMessage('params', 'template', $this->_template);				
+				CDebug::addMessage('params', 'layout', $this->_layout ? $this->_layout : A::t('core', 'Unknown'));
+				CDebug::addMessage('params', 'template', $this->_template ? $this->_template : A::t('core', 'Unknown'));
 			}			
 		}catch(Exception $e){
 			CDebug::addMessage('errors', 'render', $e->getMessage());
@@ -294,20 +342,21 @@ class CView
         }
 
         $content = '';
-		// [28.02.2014] DEPRECATED
-        //$this->__viewFile = strtolower(APPHP_PATH.DS.'protected'.DS.'components'.DS.'views'.DS.$view.'.php');
-		$this->__viewFile = strtolower(APPHP_PATH.DS.'protected'.DS.'views'.DS.'components'.DS.$view.'.php');
+		// [19.09.2016] under check - doesn't work with uppercase
+		//$this->__viewFile = strtolower(APPHP_PATH.DS.'protected'.DS.'views'.DS.'components'.DS.$view.'.php');
+		$this->__viewFile = APPHP_PATH.DS.'protected'.DS.'views'.DS.'components'.DS.strtolower($view).'.php';
 
         if(is_file($this->__viewFile) && file_exists($this->__viewFile)){
-            // Prepare content from view file
+            // Prepare content variables for view file
             foreach($this->_vars as $key => $value){
                 $$key = $value;
             }		
 
+			// Get view file content
             if(file_exists($this->__viewFile)){
                 ob_start();
                 include $this->__viewFile;
-                $this->_renderContent = ob_get_contents();
+                $this->__renderContent = ob_get_contents();
                 ob_end_clean();
 				
 				CDebug::addMessage('general', 'included', $this->__viewFile);
@@ -319,7 +368,7 @@ class CView
                 }
             }
 
-            echo $this->_renderContent;
+            echo $this->__renderContent;
 			
 			CDebug::addMessage('params', 'render-content', $this->__viewFile);
 
@@ -358,6 +407,8 @@ class CView
 			}
 
 			$controller = strtolower($controller);
+            // CORRECTION [20.09.2016]
+			$view = strtolower($view);
 
 			$viewFile = APPHP_PATH.DS.'protected'.DS.'views'.DS.$controller.DS.$view.'.php';
 			if(is_file($viewFile)){
@@ -367,18 +418,20 @@ class CView
 				$viewFile = APPHP_PATH.DS.'protected'.DS.A::app()->mapAppModule($controller).'views'.DS.$controller.DS.$view.'.php';
 			}
 			// Force using lower-case names for view files
-			$viewFile = strtolower($viewFile);
+			//$viewFile = strtolower($viewFile);
 
-			// Prepare content from view file
+			// Prepare content variables for view file
 			if(is_array($data)){
 				foreach($data as $key => $value){
 					$$key = $value;
 				}
 			}
+			
+			// Get view file content
 			if(file_exists($viewFile)){
 				ob_start();
 				include $viewFile;
-				$this->_content = ob_get_contents();
+				$this->__viewContent = ob_get_contents();
 				ob_end_clean();
 				
 				CDebug::addMessage('general', 'included', $viewFile);
@@ -390,7 +443,7 @@ class CView
 				}
 			}				
 
-			echo $this->_content;
+			echo $this->__viewContent;
 			
 			CDebug::addMessage('params', 'render-view', $viewFile);
 
@@ -403,9 +456,9 @@ class CView
 	 * Template setter
 	 * @param string $template
 	 */
-	public function setTemplate($template)
+	public function setTemplate($template = '')
 	{
-		$this->_template = !empty($template) ? $template : 'default';
+		$this->_template = !empty($template) ? $template : '';
 	}
 
   	/**	 
@@ -415,6 +468,33 @@ class CView
 	public function getTemplate()
 	{
 		return $this->_template;
+	}
+
+	/**	 
+	 * Layout setter
+	 * @param string $layout
+	 */
+	public function setLayout($layout = '')
+	{
+		$this->_layout = !empty($layout) ? $layout : '';
+	}
+
+  	/**	 
+	 * Layout getter
+	 * @return string $layout
+	 */
+	public function getLayout()
+	{
+		return $this->_layout;
+	}
+
+  	/**	 
+	 * Layout content getter
+	 * @return string $__layoutContent
+	 */
+	public function getLayoutContent()
+	{
+		return $this->__layoutContent;
 	}
 
 	/**	 
@@ -457,7 +537,7 @@ class CView
 	 */
 	public function getContent()
 	{
-		return $this->_content;
+		return $this->__viewContent;
 	}    
 
 	/**	 

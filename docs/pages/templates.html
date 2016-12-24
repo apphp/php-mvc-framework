@@ -9,8 +9,10 @@ defined as default the <code>"default"</code> name will be used.
 
 <pre name="dlhl" class="php">&lt;?php
 return array(
-    // application settings
-    'defaultTemplate' => 'default',
+    // Template default settings  
+    'template' => array(
+        'default' => 'default'
+    ),
 );
 </pre>
 <br>
@@ -75,7 +77,7 @@ Example of default.php file:
         &lt;/nav&gt;
     &lt;/header&gt;
     &lt;section&gt;
-        // your content here
+        // Your content is here ...
         &lt;?php echo A::app()->view->getContent(); ?&gt;
     &lt;/section&gt;
     &lt;footer&gt;
@@ -101,7 +103,7 @@ You may split default.php file into some files if you need. For example:
 &lt;body&gt;
     &lt;?php include('header.php'); ?&gt;
     &lt;section&gt;
-        // your content here
+        // Your content is here...
         &lt;?php echo A::app()->view->getContent(); ?&gt;
     &lt;/section&gt;
     &lt;?php include('footer.php'); ?&gt;
@@ -120,12 +122,12 @@ class AdminsController extends CController
     public function __construct()
     {
         parent::__construct();
-        // use template of protected area for whole controller
+        // Use template of protected area for whole controller
     }
     
     public function dashboardAction()
     {
-        // use template of protected area for specific action
+        // Use template of protected area for specific action
         A::app()->view->setTemplate('backend');
         // - or - set backend mode
         // Website::setBackend();
@@ -133,7 +135,7 @@ class AdminsController extends CController
 
     public function view()
     {
-        // use default template for this specific action
+        // Use default template for this specific action
         A::app()->view->setTemplate('default');               
         // - or - set frontend mode
         // Website::setFrontend();

@@ -72,7 +72,7 @@ function getCookie(c_name){
 }
 
 jQuery(function($){
-    // scroll
+    // Scroll
     $(window).scroll(function(){
 		var scrollTop = $(this).scrollTop();
 

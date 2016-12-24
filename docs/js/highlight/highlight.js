@@ -79,7 +79,7 @@ var DlHighlight;
 
 	H.is_ie = /MSIE/.test(navigator.userAgent) && !/Gecko|KHTML|Opera/.test(navigator.userAgent);
 
-	// definitions useful for most languages out there
+	// Definitions useful for most languages out there
 	H.BASE = {
 
 		COMMENT_CPP : function(txt) {
@@ -214,9 +214,9 @@ var DlHighlight;
 			unknown = "";
 			tokens = this.tokens = [];
 			while (code.length > 0) {
-				// jumping whitespace one character at a time
-				// might eat a lot of time, let's skip it
-				// quickly
+				// Jumping whitespace one character at a time
+				// Might eat a lot of time, let's skip it
+				// Quickly
 				m = /^\s+/.exec(code);
 				if(m){
 					unknown += m[0];

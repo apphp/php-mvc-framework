@@ -83,7 +83,7 @@ private $_csrfValidation = true;
 or define in your application <code>config/main.php</code> file as follows:
 
 <pre name="dlhl" class="php">&lt;?php
-// validation
+// Validation
 'validation' => array(
     'csrf' => true,
 ),
@@ -147,7 +147,7 @@ login page for defined time could make a search algorithm not effective.
 By default, the Brute-Force prevention is disabled. To enable it, or define in your
 application <code>config/main.php</code> file as follows:
 <pre name="dlhl" class="php">&lt;?php
-// validation
+// Validation
 'validation' => array(
     'bruteforce' => array('enable' => true, 'badLogins' => 5, 'redirectDelay' => 3),
 ),

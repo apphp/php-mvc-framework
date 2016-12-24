@@ -56,16 +56,16 @@ Below the example of such message file:
 
 Usage example:
 <pre name="dlhl" class="php">
-// will print "Actions"
+// Will print "Actions"
 echo A::t('core', 'Actions');
-// will print "Errors"
+// Will print "Errors"
 echo A::t('core', 'Errors');
-// will print "New records have been successfully added to the database."
+// Will print "New records have been successfully added to the database."
 echo A::t('core', 'Success message');
-// will replace placeholders {class} and {name} with $className and $eventName print the specified text
+// Will replace placeholders {class} and {name} with $className and $eventName print the specified text
 // Ex.: Event "Customers.create" is not defined.
 echo A::t('core', 'Event is not defined.', array('{class}'=>$className, '{name}'=>$eventName)); 
-// will print HTML encodded message "Success &аmp; Lucky"
+// Will print HTML encodded message "Success &аmp; Lucky"
 echo A::te('core', 'Success & Lucky');
 </pre>
 <br><br>

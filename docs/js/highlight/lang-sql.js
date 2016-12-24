@@ -128,7 +128,7 @@
 			}
 		},
 
-		// catch some common errors
+		// Catch some common errors
         //regexp	: /^[,+*=-]\s*[\)\}\]]/g,
 		ERRORS : {
 			regexp	: /^[+=-]\s*[\)\}\]]/g,

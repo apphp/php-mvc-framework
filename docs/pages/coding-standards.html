@@ -9,7 +9,7 @@ applications without writing and managing large and complex configurations.
     <li>Code
         <ul>
             <li><a href="#php-code-tags">PHP Code Tags</a></li>
-            <li><a href="#indenting">Indenting and Whitespace</a></li>
+            <li><a href="#indentation">Indentation and Whitespace</a></li>
             <li><a href="#operators">Operators</a></li>
             <li><a href="#strings">Strings</a></li>
             <li><a href="#arrays">Arrays</a></li>
@@ -48,7 +48,8 @@ For more details click <a href="index.php?page=routing" target="_top">here</a>.
 <h3>PHP Code Tags <a class="hashlink" href="#php-code-tags">¶</a></h3>  
 We always use <code>&lt;?php ?&gt;</code> to delimit PHP code, not the shorthand, <code>&lt;? ?&gt;</code>.
 This is required because it's the most portable way to include PHP code on differing operating systems,
-projects and set-ups.
+projects and set-ups. There is only one exclusion from this rule, when you may use shorthand tags: is that using of
+short syntax for output as: <code>&lt;?= $var; ?&gt;</code> instead of <code>&lt;?php echo $var; ?&gt;</code>
 <br><br>
 The <code>?&gt;</code> at the end of code files is purposely omitted. The reasons for this is we want to remove
 the possibility for unwanted whitespace at the end of files which can cause "header already sent" errors,
@@ -56,8 +57,8 @@ XHTML/XML validation issues, and other problems.
 <br><br><br>
 
 
-<a name="indenting"></a>
-<h3>Indenting and Whitespace <a class="hashlink" href="#indenting">¶</a></h3>  
+<a name="indentation"></a>
+<h3>Indentation and Whitespace <a class="hashlink" href="#indentation">¶</a></h3>  
 Use an indent of 4 spaces, with no tabs. Lines should have no trailing whitespace at the end.
 <br><br><br>
 
@@ -103,9 +104,9 @@ multiple lines to improve the readability. In these cases operator "." must be i
 operator:     
 <pre name="dlhl" class="php">
 $sql = "SELECT `id`, `first_name`, `last_name` "
-  ."FROM `people` "
-  ."WHERE `is_active` = 1 "
-  ."ORDER BY `last_name` ASC";
+     ."FROM `people` "
+     ."WHERE `is_active` = 1 "
+     ."ORDER BY `last_name` ASC";
 </pre>
 <br><br>
 
@@ -164,8 +165,8 @@ The following is an example of an acceptable class declaration:<br>
 */
 class TheSampleClass
 {
-    // all contents of class
-    // must be indented four spaces
+    // All contents of class
+    // Must be indented four spaces
 }    
 </pre>
 
@@ -173,7 +174,7 @@ Class that extends other classes or which implement interfaces should declare th
 <pre name="dlhl" class="php">
 class TheSampleClass extends AbstractClass implements ClassInterface
 {
-    // all contents of class
+    // All contents of class
 }    
 </pre>
 
@@ -201,8 +202,8 @@ class TheSampleClass
     */
     public function myFunctionName()
     {
-        // all contents of function
-        // must be indented four spaces
+        // All contents of function
+        // Must be indented four spaces
     }
 }    
 </pre>

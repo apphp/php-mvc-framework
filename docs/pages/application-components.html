@@ -42,7 +42,7 @@ return $output;
 In this case you have to use following syntax, where method <code>renderContent()</code>
 accepts a name of the view file, placed in a views directory <code>protected/views/components/</code>:
 <pre name="dlhl" class="php">
-// hint: don't try to work with A::app()->view->render(), it's reserved for controllers use only
+// Hint: don't try to work with A::app()->view->render(), it's reserved for controllers use only
 A::app()->view->renderContent('leftmenu');
 </pre>
 <div class="msg_important">
@@ -58,7 +58,7 @@ A::app()->view->renderContent('leftmenu');
 For each application you have to define a list of components the will be loaded for your application, where
 all important parameters are define. For example:
 <pre name="dlhl" class="php">&lt;?php
-// application components
+// Application components
 'components' => array(
     'blogMenu' => array('enable'=>true, 'class'=>'BlogMenu'),
     'blogHelper' => array('enable'=>true, 'class'=>'BlogHelper'),        
@@ -122,7 +122,7 @@ class BlogMenu extends CComponent
         return parent::init(__CLASS__);    
     }
     
-    // other class code here
+    // Other class code here
 }    
 </pre>
     
@@ -137,7 +137,7 @@ class BlogHelper extends CComponent
         return $string;
     }
     
-    // other class code here
+    // Other class code here
 }    
 </pre>
 <br>

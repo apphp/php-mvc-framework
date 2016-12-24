@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
@@ -31,7 +31,8 @@ class CFormValidation extends CWidgs
      * - possible validation types:
      *  	alpha, numeric, alphanumeric, variable, mixed, seoLink, phone, phoneString, username, timeZone, zipCode,
      *  	password, email, fileName, identity|identityCode, date, integer|int, positiveInteger|positiveInt, percent, isHtmlSize,
-     *  	float, any, confirm, url, ip, range ('minValue'=>'' and 'maxValue'=>''), set, text, hexColor
+     *  	float, any, confirm, url, ip, range ('minValue'=>'' and 'maxValue'=>''), length ('minLength'=>'' and 'maxLength'=>''),
+     *  	simplePassword, set, text, hexColor
      * - attribute 'validation'=>array(..., 'forbiddenChars'=>array('+', '$')) is used to define forbidden characters
      * - attribute 'validation'=>array(..., 'trim'=>true) - removes spaces from field value before validation
      * - validated field in $_POST may also be an array
@@ -68,7 +69,7 @@ class CFormValidation extends CWidgs
      * $result = CWidget::create('CFormValidation', array(
      *     'fields'=>array(
      *         'field_1'=>array('title'=>'Username',        'validation'=>array('required'=>true, 'type'=>'username')),
-     *         'field_2'=>array('title'=>'Password',        'validation'=>array('required'=>true, 'type'=>'password', 'minLength'=>6)),
+     *         'field_2'=>array('title'=>'Password',        'validation'=>array('required'=>true, 'type'=>'password', 'minLength'=>6, 'maxLength'=>20, 'simplePassword'=>false)),
      *         'field_3'=>array('title'=>'Repeat Password', 'validation'=>array('required'=>true, 'type'=>'confirm', 'confirmField'=>'field_2')),
      *         'field_4'=>array('title'=>'Email',           'validation'=>array('required'=>true, 'type'=>'email')),
      *         'field_5'=>array('title'=>'Confirm Email',   'validation'=>array('required'=>true, 'type'=>'confirm', 'confirmField'=>'field_4')),
@@ -143,6 +144,7 @@ class CFormValidation extends CWidgs
 		$minValue       = self::keyAt('validation.minValue', $fieldInfo, '');
 		$maxValue       = self::keyAt('validation.maxValue', $fieldInfo, '');
         $countryCode    = self::keyAt('validation.countryCode', $fieldInfo, '');
+		$simplePassword = self::keyAt('validation.simplePassword', $fieldInfo, true);
 		$maxSize        = self::keyAt('validation.maxSize', $fieldInfo, '');
 						if(!empty($maxSize)) $maxSize = CHtml::convertFileSize($maxSize);
 		$maxWidth       = self::keyAt('validation.maxWidth', $fieldInfo, '');
@@ -353,6 +355,10 @@ class CFormValidation extends CWidgs
 					case 'password':
 						$valid = CValidator::isPassword($fieldValue);
 						$errorMessage = A::t($msgSource, 'The field {title} must have a valid password value! Please re-enter.', array('{title}'=>$title));
+						if($valid && !$simplePassword){
+							$valid = !CValidator::isSimplePassword($fieldValue);
+							$errorMessage = A::t($msgSource, 'The password you entered is too easy, too simple, or too common! Please re-enter.');
+						}
 						break;
 					case 'email':
 						$valid = CValidator::isEmail($fieldValue);

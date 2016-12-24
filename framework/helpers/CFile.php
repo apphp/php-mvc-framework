@@ -5,19 +5,21 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
- * getExtension          	                            _findFilesRecursive
- * getMimeType        									_validatePath
- * getMimeTypeByExtension								_errorHanler
+ * isWritable											_findFilesRecursive
+ * getExtension          	                            _validatePath
+ * getMimeType        									_errorHanler
+ * getMimeTypeByExtension								
  * deleteDirectory                                      
  * emptyDirectory                                       
  * copyDirectory
  * isDirectoryEmpty
  * getDirectoryFilesNumber
+ * removeDirectoryOldestFile
  * findSubDirectories
  * writeToFile
  * copyFile
@@ -31,6 +33,39 @@
 class CFile
 {
     
+	/**
+	 * Tests for file writability
+	 * Windows servers return true for is_writable() returns TRUE even if you really can't write to file.
+	 * But on on Unix servers if safe_mode is "on" it's is also unreliable.
+	 * @link https://bugs.php.net/bug.php?id=54709
+	 * @param string
+	 * @return bool
+	 */
+	public static function isWritable($file)
+	{
+		// Check if we're on a Unix server with safe_mode "off", in this case we call is_writable
+		if (DIRECTORY_SEPARATOR === '/' && (substr(phpversion(), 0, 3) == '5.4' || !ini_get('safe_mode'))){
+			return is_writable($file);
+		}
+
+		// For Windows servers and safe_mode "on" we'll actually write a file and then read it.
+		if (is_dir($file)){
+			$file = rtrim($file, '/').'/'.md5(mt_rand());
+			if(($fp = @fopen($file, 'ab')) === false){
+				return false;
+			}
+			fclose($fp);
+			@chmod($file, 0777);
+			@unlink($file);
+			return true;
+		}elseif(!is_file($file) || ($fp = @fopen($file, 'ab')) === false){
+			return false;
+		}
+		
+		fclose($fp);
+		return true;
+	}
+
 	/**
 	 * Returns the extension name of a given file path (ex.: "path/to/some/thing.php" will return "php")
 	 * @param string $path 
@@ -218,7 +253,7 @@ class CFile
 	/**
 	 * Returns the result of check if given directory is empty
 	 * @param string $dir
-	*/
+	 */
 	public static function isDirectoryEmpty($dir = '')
 	{
 		if($dir == '' || !is_readable($dir)) return false; 
@@ -235,23 +270,32 @@ class CFile
 	/**
 	 * Returns the number of files in a given directory
 	 * @param string $dir
-	*/
+	 */
 	public static function getDirectoryFilesNumber($dir = '')
 	{
         return count(glob($dir.'*'));
     }
     
 	/**
-	 * Deletes the oldest file in a given directory
+	 * Deletes the oldest file in a given directory or file older than a given days before
 	 * @param string $dir
-	*/
-	public static function removeDirectoryOldestDile($dir = '')
+	 * @param int $days
+	 * @param array $exclude
+	 * return void
+	 */
+	public static function removeDirectoryOldestFile($dir = '', $days = 0, $exclude = array())
 	{
-        $oldestFileTime = @date('Y-m-d H:i:s');
+		if(!empty($days)){
+			$oldestFileTime = @date('Y-m-d H:i:s', strtotime('-'.(int)$days.' days'));
+		}else{
+			$oldestFileTime = @date('Y-m-d H:i:s');	
+		}        
         $oldestFileName = '';
         if($hdir = opendir($dir)){
             while(false !== ($obj = @readdir($hdir))){
-                if($obj == '.' || $obj == '..' || $obj == '.htaccess') continue; 
+                if($obj == '.' || $obj == '..' || $obj == '.htaccess' || in_array($obj, $exclude)){
+					continue;
+				}
                 $fileTime = @date('Y-m-d H:i:s', @filectime($dir.$obj));
                 if($fileTime < $oldestFileTime){
                     $oldestFileTime = $fileTime;
@@ -262,7 +306,7 @@ class CFile
         if(!empty($oldestFileName)){
             self::deleteFile($dir.$oldestFileName);
         }
-    }    
+    }
 
 	/**
 	 * Returns the list of subdirectories in a given path 

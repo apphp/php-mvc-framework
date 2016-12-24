@@ -7,6 +7,7 @@
 	<li><a href="#define-start-page">How to define default controller and action (start page) for application?</a></li>
 	<li><a href="#define-default-action">How to define my own default action for all project controllers?</a></li>
 	<li><a href="#date-time-localization">How to display time and date formats in my local language?</a></li>
+	<li><a href="#devices-detection">How to detect mobile, tablet ot desktop devices?</a></li>
 </ul>
 
 <h4>Modules:</h4>
@@ -15,6 +16,12 @@
 	<li><a href="#seo-links">How to create SEO links for module?</a></li>
 	<li><a href="#installation-updating">How to install/update module?</a></li>
 	<li><a href="#search-in-modules">How to allow search in module?</a></li>
+</ul>
+
+<h4>Debugging and Error Handling:</h4>
+<ul>
+	<li><a href="#enable-debug-mode">How to turn "On" debug mode?</a></li>
+	<li><a href="#enable-error-logging">How to enable error logging?</a></li>
 </ul>
 <br><br>
 
@@ -33,10 +40,10 @@
 <pre name="dlhl" class="php">
 public function viewAllAction($menuId = 0)
 {
-    // set frontend mode
+    // Set frontend mode
     Website::setFrontend();
 
-    // your code here...
+    // Your code here...
 }
 </pre>
 
@@ -46,10 +53,10 @@ public function viewAllAction($menuId = 0)
 <pre name="dlhl" class="php">
 public function addAction($menuId = 0)
 {
-    // set backend mode
+    // Set backend mode
     Website::setBackend();
 
-    // your code here...
+    // Your code here...
 }
 </pre>
 
@@ -59,13 +66,13 @@ To do this simply call <code>Website::prepareBackendAction();</code></p>
 <pre name="dlhl" class="php">
 public function addAction($menuId = 0)
 {
-    // set backend mode
+    // Set backend mode
     // 1st param - action name. e.g. "manage", "add", "insert", "edit", "update" or "delete"
     // 2st param - privilege category, e.g. "posts", "restaurant_info", "restaurant_menus" etc.
     // 3st param - redirtion path, e.g. "modules/manage", "posts/view", "modules/settings/code/restaurant" etc.
     Website::prepareBackendAction('add', 'restaurant_info', 'modules/settings/code/restaurant');
 
-    // your code here...
+    // Your code here...
 }
 </pre>
 <br><br>
@@ -140,7 +147,7 @@ class CHtml extends Html
 <pre name="dlhl" class="php">
 &lt;?php
 return array(
-    // default settings 
+    // Default settings 
     'defaultController' => 'pages',
     'defaultAction' => 'view',
 );    
@@ -151,7 +158,7 @@ or redefine it in module <code>module/config/[module-name].php</code> file using
 <pre name="dlhl" class="php">
 &lt;?php
 return array(
-    // default settings (optional, if defined - will be used as application default settings)
+    // Default settings (optional, if defined - will be used as application default settings)
     'defaultController' => 'posts',
     'defaultAction' => 'index',
 );    
@@ -182,10 +189,25 @@ Remeber: these changes will affect all controllers in the project.
 <p><b>A:</b> To display date or datetime string in your local language you have to use <code>CLocale</code> helper:
 <pre name="dlhl" class="php">
 &lt;?php
-// use string format
+// Use string format
 echo CLocale::date('F j Y, g:ia', $dateTime);
-// use Unix format
+// Use Unix format
 echo CLocale::date('F j Y, g:ia', strtotime($dateTime), true);
+</pre>
+<br><br>
+
+
+<a name="devices-detection"></a>
+<p><b>Q: How to detect mobile, tablet ot desktop devices?</b></p>
+<p><b>A:</b> To detect what device your visitor uses you have to use following code:
+<pre name="dlhl" class="php">
+&lt;?php
+// Call mobile detect componenet
+$detect = A::app()->getMobileDetect();
+// Test if this is a mobile device
+if($detect->isMobile()) echo 'You work on a mobile device!';
+if($detect->isTablet()) echo 'You work on a tablet device!';
+if(!$detect->isMobile() && !$detect->isTablet()) echo 'You work on desktop!';
 </pre>
 <br><br>
 
@@ -232,7 +254,7 @@ echo CLocale::date('F j Y, g:ia', strtotime($dateTime), true);
 <pre name="dlhl" class="php">
 &lt;?php
 return array(
-    // url manager
+    // URL manager
     'urlManager' => array(
         'rules' => array(
             'pages/view/id/([0-9]+)' => 'pages/view/id/{$0}',
@@ -305,6 +327,52 @@ public function search($keywords = '', $itemsCount = 10)
     }
     
     return $result;
+}
+</pre>
+<br><br>
+
+
+<a name="debugging"></a>
+<h3>Debugging and Error Handling <a class="hashlink" href="#debugging">¶</a></h3>  
+
+
+<a name="enable-debug-mode"></a>
+<p><b>Q: How to turn "On" debug mode?</b></p>
+<p><b>A:</b> Find more information how to turn "On" debug mode: <a href="index.php?page=errors-handling#debug_mode">Debug Mode Info</a>.
+</p>   
+<br><br>
+
+<a name="enable-error-logging"></a>
+<p><b>Q: How to enable error logging?</b></p>
+<p><b>A:</b> Directy CMF has embedded features to log errors, warnings, etc.<br>
+   To enable logger you have turn it "On" via <code>config/config.main.php</code> file.
+</p>   
+<pre name="dlhl" class="php">
+// Logger settings 
+'log' => array(
+   'enable'	=> true, 
+   'path' 	=> 'protected/tmp/logs/',
+   'fileExtension' => 'php', 	
+   'dateFormat'	=> 'Y-m-d H:i:s',
+   'threshold' 	=> 1,
+   'filePermissions' => 0644,
+   'lifetime' 	=> 30	/* in days */
+),
+</pre>
+
+After logger is turned "On" you may use it by yourself in the code with following syntax:
+<pre name="dlhl" class="php">
+CLog::addMessage('error', 'Error description');
+CLog::addMessage('debug', 'Debug description');
+CLog::addMessage('info', 'Info description');
+</pre>
+
+Example of usage:
+<pre name="dlhl" class="php">
+try{
+   // Your code here...		
+}catch(Exception $e){
+   CLog::addMessage('debug', 'Exception caught: ',  $e->getMessage(), "\n");
 }
 </pre>
 

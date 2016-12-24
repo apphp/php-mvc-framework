@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE (static):		
@@ -338,7 +338,7 @@ class CDebug
 			'.A::t('core', 'Script version').': '.CConfig::get('version').'<br>
 			'.A::t('core', 'Framework version').': '.A::getVersion().'<br>
 			'.A::t('core', 'PHP version').': '.phpversion().'<br>
-			'.ucfirst(CConfig::get('db.driver')).' '.A::t('core', 'version').': '.CDatabase::init()->getVersion().'<br><br>';			
+			'.(CConfig::get('db.driver') != '' ? ucfirst(CConfig::get('db.driver')) : 'DB').' '.A::t('core', 'version').': '.CDatabase::init()->getVersion().'<br><br>';
 			
 			$totalRunningTime = round((float)self::$_endTime - (float)self::$_startTime, 5);
 			$totalRunningTimeSql = round($totalRunningTime - (float)self::$_sqlTotalTime, 5);

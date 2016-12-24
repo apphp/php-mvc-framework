@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
@@ -23,6 +23,7 @@
  * getLoggedAvatar
  * getLoggedLang
  * getLoggedRole
+ * getLoggedRoleId
  * getLoggedParam
  * 
  */	  
@@ -178,6 +179,15 @@ class CAuth
     public static function getLoggedRole()
     {
         return (self::isLoggedIn()) ? A::app()->getSession()->get('loggedRole') : null;
+    }
+
+    /**
+     * Returns role of logged in role ID
+     * @return string
+     */
+    public static function getLoggedRoleId()
+    {
+        return (self::isLoggedIn()) ? A::app()->getSession()->get('loggedRoleId') : null;
     }
 
     /**

@@ -35,25 +35,25 @@ class AccountController extends CController
         parent::__construct();
     }
     
-    // default action
+    // Default action
     public function indexAction()
     {
         ...
     }
 
-    // delete action
+    // Delete action
     public function deleteAction()
     {
         ...
     }
 
-    // protected method (not action)
+    // Protected method (not action)
     protected function _protectedMethod()
     {
         ...
     }
 
-    // private method (not action)
+    // Private method (not action)
     private function _privateMethod()
     {
         ...
@@ -116,7 +116,7 @@ class PostsController extends CController
             $language = $_GET['language'];
         }
 		
-        // other code starts here ...
+        // Other code starts here ...
     }
 }
 </pre>
@@ -130,11 +130,11 @@ class PostsController extends CController
         $category = A::app()->getRequest()->getQuery('category');
         $language = A::app()->getRequest()->getQuery('language');
 		
-		// short format
+		// Short format
 		$category = A::app()->request()->post('category');
 		$language = A::app()->request()->get('language');
 		
-        // other code starts here ...
+        // Other code starts here ...
     }
 }
 </pre>
@@ -147,7 +147,7 @@ class PostsController extends CController
     {
         $category = (int)$category;
 		
-        // other code starts here ...
+        // Other code starts here ...
     }
 }
 </pre>
@@ -186,29 +186,29 @@ class AccountController extends CController
 {
     public function indexAction()
     {
-        // create a model instance to retrieve data from the DB
+        // Create a model instance to retrieve data from the DB
         $model = new Accounts();
         
-        // retrieve all records from DB
+        // Retrieve all records from DB
         $records = $model->fetchAll();
         
-        // assign data to the view variables
+        // Assign data to the view variables
         $this->_view->records = $records;
         $this->_view->title = 'Account Management';
         
-        // pass prepared data to the view file
+        // Pass prepared data to the view file
         $this->_view->render('accounts/index');
     }
 
     public function viewAction()
     {
-        // example of working with active record
+        // Example of working with active record
         $model = Accounts::model()->findByPk(10);
         $model->fieldA = 'new name';
         $model->fieldB = 'new type';    
         $model->save();
 
-        // pass prepared data to the view file
+        // Pass prepared data to the view file
         $this->_view->render('accounts/view');
     }
 }    

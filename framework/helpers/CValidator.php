@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2015 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
@@ -25,6 +25,7 @@
  * isPhone
  * isPhoneString
  * isPassword
+ * isSimplePassword
  * isUsername
  * isEmail
  * isIdentityCode
@@ -256,6 +257,43 @@ class CValidator
     }
 
 	/**
+	 * Checks if a given parameter is a simple password.
+	 * It checks if it's a most popular password or it consists from the same symbols
+	 * @param mixed $value
+	 * @return boolean
+	 */
+    public static function isSimplePassword($value)
+	{
+		$passwords = array(
+			'password',
+			'123456',
+			'1234567',
+			'12345678',
+			'123456789',
+			'1234567890',
+			'abc123',
+			'super123',
+			'111111',
+			'1111111',
+			'123123',
+			'baseball',
+			'qwerty',
+			'asdasd',
+			'qweqwe',
+			'monkey',
+			'letmein',
+			'dragon',
+			'test123',
+			'admin123',
+			'1q2w3e4r',
+			'2wsx3edc',
+			'000000',
+			'apphp123'			
+		);
+		return (in_array($value, $passwords) || preg_match('/^(.)\1*$/', $value)) ? true : false;
+    }
+
+	/**
 	 * Checks if a given parameter is a username
 	 * @param mixed $value
 	 * @return boolean
@@ -387,7 +425,8 @@ class CValidator
 	 */
     public static function isUrl($value)    
 	{
-        return (!preg_match("/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i", $value)) ? false : true;
+		return (preg_match('/(http:\/\/|https:\/\/|ftp:\/\/)/i', $value) && filter_var($value, FILTER_VALIDATE_URL)) ? true : false;
+        ///return (!preg_match("/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i", $value)) ? false : true;
     }
 	
 	/**
