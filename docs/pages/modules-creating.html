@@ -341,7 +341,7 @@ class [CONTROLLER_NAME]Controller extends CController
         parent::__construct();
         
         // Block access if the module is not installed
-        if(!Modules::model()->exists("code = '[MODULE_CODE]' AND is_installed = 1")){
+		if(!Modules::model()->isInstalled([MODULE_CODE])){
             if(CAuth::isLoggedInAsAdmin()){
                 $this->redirect('modules/index');
             }else{

@@ -38,7 +38,7 @@
 			<p>
 			<?php if($result > 0){ ?>
 				<span class="ok">Congratulations! Your server configuration satisfies all requirements by ApPHP Framework.</span>
-			<?php }else if($result < 0){ ?>
+			<?php }elseif($result < 0){ ?>
 				<span class="warning">Your server configuration satisfies the minimum requirements by ApPHP Framework. Please pay attention to the warnings listed below if your application will use the corresponding features.</span>
 			<?php }else{ ?>
 				<span class="failed">Unfortunately your server configuration does not satisfy the requirements by ApPHP Framework.</span>

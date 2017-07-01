@@ -49,11 +49,11 @@ class CConfig
 				if(isset(self::$_conf[$paramParts[0]])){
 					self::$_conf[$paramParts[0]] = $value;
 				}
-			}else if($parts == 2){
+			}elseif($parts == 2){
 				if(isset(self::$_conf[$paramParts[0]][$paramParts[1]])){
 					self::$_conf[$paramParts[0]][$paramParts[1]] = $value;
 				}
-			}else if($parts == 3){
+			}elseif($parts == 3){
 				if(isset(self::$_conf[$paramParts[0]][$paramParts[1]][$paramParts[2]])){
 					self::$_conf[$paramParts[0]][$paramParts[1]][$paramParts[2]] = $value;
 				}
@@ -78,11 +78,11 @@ class CConfig
 				if(isset(self::$_conf[$paramParts[0]])){
 					$result = self::$_conf[$paramParts[0]];
 				}
-			}else if($parts == 2){
+			}elseif($parts == 2){
 				if(isset(self::$_conf[$paramParts[0]][$paramParts[1]])){
 					$result = self::$_conf[$paramParts[0]][$paramParts[1]];
 				}
-			}else if($parts == 3){
+			}elseif($parts == 3){
 				if(isset(self::$_conf[$paramParts[0]][$paramParts[1]][$paramParts[2]])){
 					$result = self::$_conf[$paramParts[0]][$paramParts[1]][$paramParts[2]];
 				}
@@ -108,11 +108,11 @@ class CConfig
 				if(isset(self::$_conf[$paramParts[0]])){
 					$result = true;
 				}
-			}else if($parts == 2){
+			}elseif($parts == 2){
 				if(isset(self::$_conf[$paramParts[0]][$paramParts[1]])){
 					$result = true;
 				}
-			}else if($parts == 3){
+			}elseif($parts == 3){
 				if(isset(self::$_conf[$paramParts[0]][$paramParts[1]][$paramParts[2]])){
 					$result = true;
 				}

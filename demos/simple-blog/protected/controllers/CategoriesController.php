@@ -84,8 +84,10 @@ class CategoriesController extends CController
     
     public function indexAction($msg = '')
     {
-        // block access to this action for not-logged users
-		CAuth::handleLogin();	
+        // block access to this controller for not-logged users
+		if(!CAuth::isLoggedIn()){
+			$this->redirect('index/index');
+		}	
     	
         $this->_view->setMetaTags('title', 'Categories | '.$this->_view->blogName);        
     	$this->_view->activeLink = 'edit_category';
@@ -95,13 +97,13 @@ class CategoriesController extends CController
             if($msg == 'delete_success'){
                 $msgType = 'Category has been successfully deleted!';
                 $msgType = 'success';
-            }else if($msg == 'delete_error'){
+            }elseif($msg == 'delete_error'){
                 $msgType = 'An error occurred while deleting the category!';
                 $msgType = 'error';
-            }else if($msg == 'delete_demo'){
+            }elseif($msg == 'delete_demo'){
                 $msgType = '<b>:(</b> Sorry, but delete operation is blocked in DEMO version!';
                 $msgType = 'warning';
-            }else if($msg == 'wrong-id'){
+            }elseif($msg == 'wrong-id'){
                 $msgType = 'Wrong parameter passed! Check category ID.';
                 $msgType = 'error';                
             }
@@ -128,8 +130,10 @@ class CategoriesController extends CController
 
     public function addAction()
     {
-        // block access to this action for not-logged users
-		CAuth::handleLogin();
+        // block access to this controller for not-logged users
+		if(!CAuth::isLoggedIn()){
+			$this->redirect('index/index');
+		}	
         
         $this->_view->setMetaTags('title', 'Add Category | '.$this->_view->blogName);
 		$this->_view->activeLink = 'add_category';
@@ -138,8 +142,10 @@ class CategoriesController extends CController
 
     public function insertAction()
     {
-         // block access to this action for not-logged users
-		CAuth::handleLogin();
+        // block access to this controller for not-logged users
+		if(!CAuth::isLoggedIn()){
+			$this->redirect('index/index');
+		}	
         
         $this->_view->setMetaTags('title', 'Add Category | '.$this->_view->blogName);
 		$this->_view->activeLink = 'add_category';
@@ -172,7 +178,7 @@ class CategoriesController extends CController
                             $msg = 'Category "'.$this->_view->categoryName.'" already exists! Please re-enter.';
                             $msgType = 'error';
                             $this->_view->errorField = 'categoryName';
-                        }else if($categories->save()){
+                        }elseif($categories->save()){
                             $msg = 'New category "'.$this->_view->categoryName.'" has been successfully added!';
                             $msgType = 'success';
                         }else{
@@ -197,8 +203,10 @@ class CategoriesController extends CController
     
     public function editAction($categoryId = null)
     {
-        // block access to this action for not-logged users
-		CAuth::handleLogin();	
+        // block access to this controller for not-logged users
+		if(!CAuth::isLoggedIn()){
+			$this->redirect('index/index');
+		}	
     	
         $this->_view->setMetaTags('title', 'Edit Category | '.$this->_view->blogName);
 		$this->_view->activeLink = 'edit_category';
@@ -215,8 +223,10 @@ class CategoriesController extends CController
 
     public function updateAction($categoryId = null)
     {
-        // block access to this action for not-logged users
-		CAuth::handleLogin();
+        // block access to this controller for not-logged users
+		if(!CAuth::isLoggedIn()){
+			$this->redirect('index/index');
+		}	
         
         $this->_view->setMetaTags('title', 'Edit Category | '.$this->_view->blogName);
 		$this->_view->activeLink = 'edit_category';
@@ -250,7 +260,7 @@ class CategoriesController extends CController
                             $msg = 'Category "'.$this->_view->categoryName.'" already exists! Please re-enter.';
                             $msgType = 'error';
                             $this->_view->errorField = 'categoryName';
-                        }else if($categories->save()){
+                        }elseif($categories->save()){
                             $msg = 'Category has been successfully updated!';
                             $msgType = 'success';
                         }else{
@@ -276,8 +286,10 @@ class CategoriesController extends CController
 
     public function deleteAction($categoryId)
     {
-        // block access to this action for not-logged users
-		CAuth::handleLogin();	
+        // block access to this controller for not-logged users
+		if(!CAuth::isLoggedIn()){
+			$this->redirect('index/index');
+		}	
     	
         if(APPHP_MODE == 'demo'){
             $this->redirect('categories/index/msg/delete_demo');

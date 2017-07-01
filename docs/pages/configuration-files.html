@@ -66,7 +66,7 @@ return array(
     'password' => array(
         'encryption' => true,
         'encryptAlgorithm' => 'sha256',
-		'encryptSalt' => true,
+        'encryptSalt' => true,
         'hashKey' => 'YOUR_HASH_PASSWORD_KEY',    
     ),
     
@@ -92,10 +92,17 @@ return array(
         'bruteforce' => array('enable' => true, 'badLogins' => 5, 'redirectDelay' => 3),
     ),
 
+    // Exception handling
+    // Define exceptions exceptions in application
+    'exceptionHandling' => array(
+        'enable' => true, 
+        'level' => 'global'
+    ),
+
     // Output compression
     'compression' => array(
-        'enable' => true, 
-        'method' => 'gzip'
+		'gzip' => array('enable' => true),
+		'html' => array('enable' => false),
     ),
 
     // Session settings
@@ -138,13 +145,24 @@ return array(
     // Datetime settings
     'defaultTimeZone' => 'UTC',
     
-    // Application default settings  
-    'defaultTemplate' => 'default',
-    'defaultController' => 'Index',		/* may be overridden by module settings */
-    'defaultAction' => 'index',			/* may be overridden by module settings */
+    // Template default settings  
+    'template' => array(
+        'default' => 'default'
+    ),
     
-    // Application payment complete page (may be overridden by module settings)
-    'defaultAction' => '',
+    // Layout default settings  
+    'layouts' => array(
+        'enable' => true, 
+        'default' => 'default'
+    ),
+    
+    // Default settings (optional, if defined - will be used as application default settings)
+    'defaultErrorController' => 'Error', /* may be overridden by module settings */
+    'defaultController' => 'Index',		 /* may be overridden by module settings */
+    'defaultAction' => 'index',			 /* may be overridden by module settings */
+    
+    // Application payment complete page (controller/action - may be overridden by module settings)
+    'paymentCompletePage' => '',
 
     // Application components
     'components' => array(
@@ -186,7 +204,7 @@ Below the list of all parameters that can be used in file <code>main.php</code>:
     <li><b>installationKey</b>: application installation key (used to identify specific installation)</li>
     <li><b>password.encryption</b>: specifies whether to use password encryption or not</li>
     <li><b>password.encryptAlgorithm</b>: encryption algorithm</li>
-	<li><b>password.encryptSalt</b>: specifies whether to use "salt" for passwords encryption</li>
+    <li><b>password.encryptSalt</b>: specifies whether to use "salt" for passwords encryption</li>
     <li><b>password.hashKey</b>: password hash key (used to encrypt passwords in database)</li>                
     <li><b>email.mailer</b>: specifies mailer type</li>
     <li><b>email.from</b>: specifies email address used as "from" email</li>
@@ -203,7 +221,8 @@ Below the list of all parameters that can be used in file <code>main.php</code>:
     <li><b>cache.lifetime</b>: defines a lifetime of cache in minutes</li>
     <li><b>cache.path</b>: defines a path to cache files</li>
     <li><b>defaultTimeZone</b>: defines default timezone for application</li>
-    <li><b>defaultTemplate</b>: specifies default template for application</li>
+    <li><b>template.default</b>: specifies default template for application</li>
+    <li><b>defaultErrorController</b>: specifies default error controller</li>
     <li><b>defaultController</b>: specifies default controller</li>
     <li><b>defaultAction</b>: specifies default action</li>
     <li><b>components</b>: specifies allowed application components</li>
@@ -224,14 +243,16 @@ Example of the <code>db.php</code> file for Login System application:
 return array(
     // Database settings
     'db' => array(
-        'driver' => 'mysql',
-        'host' => 'localhost',
-        'database' => 'mvc',
-        'username' => 'root',
-        'password' => '',
-        'prefix' => 'apcmf_',
-        'charset' => 'uft8',
-        'schema' => 'public'
+        'driver' 	=> 'mysql',
+        'socket' 	=> '',
+        'host' 		=> 'localhost',
+        'port' 		=> '',
+        'database' 	=> 'mvc',
+        'username' 	=> 'root',
+        'password' 	=> '',
+        'prefix' 	=> 'apcmf_',
+        'charset' 	=> 'utf8',
+        'schema' 	=> 'public'
     ),       
 );
 </pre>    
@@ -239,12 +260,14 @@ return array(
 Below the list of all parameters that can be used in file <code>db.php</code>:
 <ul>
     <li><b>db.driver</b>: the type of database: mysql, mssql, etc.</li>
+	<li><b>db.socket</b>: socket (e.g /tmp/mysql.sock) - if defined db.host is ignored</li>
     <li><b>db.host</b>: database host</li>
+	<li><b>db.port</b>: database port</li>
     <li><b>db.database</b>: database name</li>
-    <li><b>db.user</b>: database user</li>
+    <li><b>db.username</b>: database username</li>
     <li><b>db.password</b>: database user password</li>
     <li><b>db.prefix</b>: prefix for database tables (optional parameter)</li>
-    <li><b>db.charset</b>: charset for database tables (optional parameter, default - uft8)</li>
+    <li><b>db.charset</b>: charset for database tables (optional parameter, default - utf8)</li>
     <li><b>db.schema</b>: schema for database (optional parameter)</li>
 </ul>
 <br />

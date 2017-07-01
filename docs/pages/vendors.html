@@ -50,7 +50,7 @@ public static function send($to, $subject, $message, $params = '')
 {
     if(!strcasecmp(self::$_mailer, 'smtpMailer')){
         return self::smtpMailer($to, $subject, $message, $params);
-    }else if(!strcasecmp(self::$_mailer, 'phpMailer')){
+    }elseif(!strcasecmp(self::$_mailer, 'phpMailer')){
         return self::phpMailer($to, $subject, $message, $params);
     }else{
         return self::phpMail($to, $subject, $message, $params);

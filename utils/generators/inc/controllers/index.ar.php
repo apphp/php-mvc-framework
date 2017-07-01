@@ -11,7 +11,7 @@ if($act){
     if($controller_name == ''){
         $msg = '<div class="msg_error">Controller Name cannot be empty! Please re-enter.</div>';
         $focusField = 'txtController';
-    }else if($model_name == ''){
+    }elseif($model_name == ''){
         $msg = '<div class="msg_error">Model Name cannot be empty! Please re-enter.</div>';
         $focusField = 'txtModel';
     }else{

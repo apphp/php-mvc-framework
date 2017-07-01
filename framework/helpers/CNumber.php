@@ -13,6 +13,8 @@
  * americanFormat
  * europeanFormat
  * format
+ * percent
+ * percentage
  * 
  */	  
 
@@ -69,4 +71,35 @@ class CNumber
 		return $number;
 	}
 
+	/**
+	 * Formats a number as a pecrcent
+	 * @param float $value
+	 * @param int $decimalPoints
+	 * @param string $sign
+	 * @return string
+	 */
+	function percent($value, $decimalPoints = 2, $sign = '%')
+	{
+		return round((float)$value, $decimalPoints).$sign;
+	}
+	
+	/**
+	 * Gets two numbers and returns calculated percentage
+	 * @param float $part
+	 * @param float $whole
+	 * @param int $decimalPoints
+	 * @param string $sign
+	 * @return string
+	 */
+	function percentage($part, $whole, $decimalPoints = 2, $sign = '%')
+	{		
+		$result = 0;
+	
+		// Prevent division by zero
+		if(!empty($whole)){
+			$result = percent(($part / $whole * 100), $decimalPoints, '');
+		}
+		
+		return $result.$sign;
+	}
 }

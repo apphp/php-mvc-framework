@@ -121,7 +121,7 @@ class [CONTROLLER_NAME]Controller extends CController
         if($model->is_default){
             $msg = A::t('app', 'Delete Default Alert');
             $msgType = 'error';
-        }else if($model->delete()){
+        }elseif($model->delete()){
             if($model->getError()){
                 $msg = A::t('app', 'Delete Warning Message');
                 $msgType = 'warning';

@@ -52,9 +52,9 @@ class CMessageSource extends CComponent
 
 		if($category == 'core'){
             $messageFile = $this->_basePath.DS.'..'.DS.'messages'.DS.$language.DS.$category.'.php';        
-		}else if($category == 'i18n'){
+		}elseif($category == 'i18n'){
             $messageFile = $this->_basePath.DS.'..'.DS.'i18n'.DS.$language.'.php';
-        }else if($category == 'setup'){
+        }elseif($category == 'setup'){
             $messageFile = APPHP_PATH.DS.'protected'.DS.'modules'.DS.$category.DS.'messages'.DS.$language.DS.$category.'.php';        
         }else{
             $messageFile = APPHP_PATH.DS.'protected'.DS.'messages'.DS.$language.DS.$category.'.php';        
@@ -87,7 +87,7 @@ class CMessageSource extends CComponent
 
         if(isset($this->_messages[$key][$message])){
 			return $this->_messages[$key][$message];
-        }else if($pos = strpos($message, '.') !== false){
+        }elseif($pos = strpos($message, '.') !== false){
             // Check sub-arrays (upto 2 levels)
             $messageParts = explode('.', $message);
             $parts = count($messageParts);
@@ -97,7 +97,7 @@ class CMessageSource extends CComponent
                 if(is_array($arrMessages) && isset($arrMessages[$messageParts[1]])){
                     return $arrMessages[$messageParts[1]];
                 }
-            }else if($parts == 3){
+            }elseif($parts == 3){
                 $arrSubMessages = isset($this->_messages[$key][$messageParts[0]][$messageParts[1]]) ? $this->_messages[$key][$messageParts[0]][$messageParts[1]] : '';
                 if(is_array($arrSubMessages) && isset($arrSubMessages[$messageParts[2]])){
                     return $arrSubMessages[$messageParts[2]];

@@ -69,7 +69,11 @@ class PageController extends CController
 	
 	public function dashboardAction()
 	{
-		CAuth::handleLogin();		
+        // block access to this controller for not-logged users
+		if(!CAuth::isLoggedIn()){
+			$this->redirect('index/index');
+		}	
+
 		$this->_view->render('page/dashboard');		
 	}	
 

@@ -123,7 +123,7 @@ class CPagination extends CWidgs
                         }
                     }
                 // Enough pages to hide some    
-                }else if($lastpage > 5 + ($adjacents * 2)){                
+                }elseif($lastpage > 5 + ($adjacents * 2)){                
                     // Close to beginning, only hide later pages
                     if($page < 1 + ($adjacents * 2)){
                         for($counter = 1; $counter < 4 + ($adjacents * 2); $counter++){
@@ -138,7 +138,7 @@ class CPagination extends CWidgs
                         $middlePart .= CHtml::link($lastpage, $actionPath.(($linkType) ? '/page/'.$lastpage : $paramsSign.'page='.$lastpage));
                     }
                     // In middle, hide some front and some back
-                    else if($lastpage - ($adjacents * 2) > $page && $page > ($adjacents * 2)){
+                    elseif($lastpage - ($adjacents * 2) > $page && $page > ($adjacents * 2)){
                         $middlePart .= CHtml::link('1', $actionPath.(($linkType) ? '/page/1' : $paramsSign.'page=1'));
                         $middlePart .= CHtml::link('2', $actionPath.(($linkType) ? '/page/2' : $paramsSign.'page=2'));
                         $middlePart .= '...';

@@ -12,7 +12,7 @@
 
     <?php echo CHtml::cssFile('templates/default/css/main.css'); ?>
 	
-	<?php echo CHtml::scriptFile('http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js'); ?>
+	<?php echo CHtml::scriptFile('//code.jquery.com/jquery-1.8.3.min.js'); ?>
 	<?php echo CHtml::scriptFile('templates/default/js/main.js'); ?>
 </head>
 <body>

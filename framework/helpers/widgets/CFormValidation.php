@@ -61,7 +61,7 @@ class CFormValidation extends CWidgs
      *     ...
      *      $fieldsImages = array();
      *		for($i = 1; $i <= 10; $i++){
-     *			$fieldsImages['listing_image'][] = array('title'=>A::t('autoportal', 'Image').' #'.$i, 'validation'=>array('required'=>false, 'type'=>'image', 'targetPath'=>'images/modules/autoportal/listings/gallery/', 'maxSize'=>'990k', 'fileName'=>'l'.$listingId.'_'.CHash::getRandomString(10), 'mimeType'=>'image/jpeg, image/jpg, image/png, image/gif'));
+     *			$fieldsImages['listing_image'][] = array('title'=>A::t('autoportal', 'Image').' #'.$i, 'validation'=>array('required'=>false, 'type'=>'image', 'targetPath'=>'assets/modules/gallery/images/items/', 'maxSize'=>'990k', 'fileName'=>'l'.$listingId.'_'.CHash::getRandomString(10), 'mimeType'=>'image/jpeg, image/jpg, image/png, image/gif'));
      *		}
      * 		$result = CWidget::create('CFormValidation', array('fields'=>$fieldsImages));
      *  
@@ -196,7 +196,7 @@ class CFormValidation extends CWidgs
 					$fileWidth = CImage::getImageSize($fileTempName, 'width');
 					$fileHeight = CImage::getImageSize($fileTempName, 'height');
 				}
-			}else if($type == 'file'){
+			}elseif($type == 'file'){
 				if($required && !isset($_FILES[$field]['tmp_name'])){
 					$required = false;
 				}else{
@@ -207,19 +207,19 @@ class CFormValidation extends CWidgs
 			if($required && empty($fileSize)){
 				$valid = false;
 				$errorMessage = A::t($msgSource, 'The field {title} cannot be empty! Please re-enter.', array('{title}'=>$title));
-			}else if(!empty($fileSize)){
+			}elseif(!empty($fileSize)){
 				if($maxSize !== '' && $fileSize > $maxSize){
 					$valid = false;
 					$sFileSize = CConvert::fileSize($fileSize);
 					$sMaxAllowed = CConvert::fileSize($maxSize);
 					$errorMessage = A::t($msgSource, 'Invalid file size for field {title}: {file_size} (max. allowed: {max_allowed})', array('{title}'=>$title, '{file_size}'=>$sFileSize, '{max_allowed}'=>$sMaxAllowed));
-				}else if(!empty($fileMimeTypes) && !in_array($fileType, $fileMimeTypes)){
+				}elseif(!empty($fileMimeTypes) && !in_array($fileType, $fileMimeTypes)){
 					$valid = false;
 					$errorMessage = A::t($msgSource, 'Invalid file type for field {title}: you may only upload {mime_type} files.', array('{title}'=>$title.' ('.$fileType.')', '{mime_type}'=>$fileMimeType));
-				}else if($maxWidth !== '' && $fileWidth > $maxWidth){
+				}elseif($maxWidth !== '' && $fileWidth > $maxWidth){
 					$valid = false;
 					$errorMessage = A::t($msgSource, 'Invalid image width for field {title}: {image_width}px (max. allowed: {max_allowed}px)', array('{title}'=>$title, '{image_width}'=>$fileWidth, '{max_allowed}'=>$maxWidth));
-				}else if($maxHeight !== '' && $fileHeight > $maxHeight){
+				}elseif($maxHeight !== '' && $fileHeight > $maxHeight){
 					$valid = false;
 					$errorMessage = A::t($msgSource, 'Invalid image height for field {title}: {image_height}px (max. allowed: {max_allowed}px)', array('{title}'=>$title, '{image_height}'=>$fileHeight, '{max_allowed}'=>$maxHeight));
 				}else{
@@ -228,7 +228,7 @@ class CFormValidation extends CWidgs
 						$errorMessage = A::t($msgSource, 'This operation is blocked in Demo Mode!');                        
 					}
 					// Prevent malicious users and possible file upload attacks
-					else if(@is_uploaded_file($fileTempName)){
+					elseif(@is_uploaded_file($fileTempName)){
 						// Set predefined file name
 						if(!empty($fileDefinedName)){
 							$targetFileName = strtolower($fileDefinedName.'.'.pathinfo($fileName, PATHINFO_EXTENSION));
@@ -242,7 +242,7 @@ class CFormValidation extends CWidgs
 						}else{
 							$valid = false;
 							$errorMessage = A::t($msgSource, 'An error occurred while uploading your file for field {title}. Please try again.', array('{title}'=>$title));
-							if(version_compare(PHP_VERSION, '5.2.0', '>=')){
+							if(version_compare(phpversion(), '5.2.0', '>=')){
 								$err = error_get_last();
 								if(!empty($err['message'])){
 									$lastError = $err['message'].' | file: '.$err['file'].' | line: '.$err['line'];
@@ -278,10 +278,10 @@ class CFormValidation extends CWidgs
 					}
 				}                    
 			}
-		}else if($required && (!is_array($fieldValue) && trim($fieldValue) === '' || is_array($fieldValue) && empty($fieldValue))){
+		}elseif($required && (!is_array($fieldValue) && trim($fieldValue) === '' || is_array($fieldValue) && empty($fieldValue))){
 			$valid = false;
 			$errorMessage = A::t($msgSource, 'The field {title} cannot be empty! Please re-enter.', array('{title}'=>$title));
-		}else if($type == 'confirm'){                
+		}elseif($type == 'confirm'){                
 			$confirmField = self::keyAt('validation.confirmField', $fieldInfo, '');
 			$confirmFieldValue = $cRequest->getPost($confirmField);
 			$confirmFieldName = self::keyAt($confirmField.'.title', $fields, '');
@@ -289,14 +289,14 @@ class CFormValidation extends CWidgs
 				$valid = false;
 				$errorMessage = A::t($msgSource, 'The {confirm_field} and {title} fields do not match! Please re-enter.', array('{confirm_field}'=>$confirmFieldName, '{title}'=>$title));
 			}
-		}else if($fieldValue !== ''){
+		}elseif($fieldValue !== ''){
 			if(!empty($minLength) && !CValidator::validateMinLength($fieldValue, $minLength)){
 				$valid = false;
 				$errorMessage = A::t($msgSource, 'The {title} field length must be at least {min_length} characters! Please re-enter.', array('{title}'=>$title, '{min_length}'=>$minLength));                
-			}else if(!empty($maxLength) && !self::_validateMaxLength($fieldValue, $maxLength, $title, $msgSource)){
+			}elseif(!empty($maxLength) && !self::_validateMaxLength($fieldValue, $maxLength, $title, $msgSource)){
 				$valid = false;
 				$errorMessage = self::$_errorMessage;
-			}else if(is_array($forbiddenChars) && !empty($forbiddenChars)){
+			}elseif(is_array($forbiddenChars) && !empty($forbiddenChars)){
 				foreach($forbiddenChars as $char){
 					if(preg_match('/'.$char.'/i', $fieldValue)){
 						$valid = false;
@@ -397,7 +397,7 @@ class CFormValidation extends CWidgs
 						break;
 					case 'percent':
 						$valid = CValidator::validateRange($fieldValue, 0, 100);
-						$errorMessage = A::t($msgSource, 'The value of field {title} value must be between {min} and {max}! Please re-enter.', array('{title}'=>$title, '{min}'=>'0', '{max}'=>'100'));
+						$errorMessage = A::t($msgSource, 'The value of field {title} must be between {min} and {max}! Please re-enter.', array('{title}'=>$title, '{min}'=>'0', '{max}'=>'100'));
 						break;							
 					case 'isHtmlSize':	
 						$valid = CValidator::isHtmlSize($fieldValue);
@@ -508,7 +508,7 @@ class CFormValidation extends CWidgs
 					break;
 				}
 			}
-		}else if(!CValidator::validateMaxLength($fieldValue, $maxLength)){
+		}elseif(!CValidator::validateMaxLength($fieldValue, $maxLength)){
 			self::$_errorMessage = A::t($msgSource, 'The {title} field length may be {max_length} characters maximum! Please re-enter.', array('{title}'=>$title, '{max_length}'=>$maxLength));
 			$result = false;
 		}

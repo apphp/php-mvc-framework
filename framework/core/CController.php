@@ -68,10 +68,11 @@ class CController
 	/**
 	 * Redirects to another controller
 	 * Parameter may consist from 2 parts: controller/action or just controller name
-	 * @param string $path
+	 * @param string $path			Redirect path
+	 * @param int $code				HTTP Response status code
 	 * @param bool $isDirectUrl
 	 */
-    public function redirect($path, $isDirectUrl = false)
+    public function redirect($path, $isDirectUrl = false, $code = '')
 	{
 		if(APPHP_MODE == 'test') return true;
         
@@ -87,10 +88,10 @@ class CController
 				if($parts == 1){
 					$controller = $calledController;
 					$action = isset($paramsParts[0]) ? $paramsParts[0] : '';
-				}else if($parts == 2){
+				}elseif($parts == 2){
 					$controller = isset($paramsParts[0]) ? $paramsParts[0] : $calledController;
 					$action = isset($paramsParts[1]) ? $paramsParts[1] : '';
-				}else if($parts > 2){
+				}elseif($parts > 2){
 					$controller = isset($paramsParts[0]) ? $paramsParts[0] : $calledController;
 					$action = isset($paramsParts[1]) ? $paramsParts[1] : '';
 					for($i=2; $i<$parts; $i++){
@@ -103,12 +104,26 @@ class CController
 		}else{
 			$newLocation = $path;
 		}
-                
+        
+		// Prepare redirection code
+		// 301 - Moved Permanently
+		// 303 - See Other (since HTTP/1.1)
+		// 307 - Temporary Redirect (since HTTP/1.1)
+		// 302 - Found
+		if(empty($code) || !is_numeric($code)){
+			if(isset($_SERVER['SERVER_PROTOCOL'], $_SERVER['REQUEST_METHOD']) && $_SERVER['SERVER_PROTOCOL'] === 'HTTP/1.1'){
+				// reference: http://en.wikipedia.org/wiki/Post/Redirect/Get
+				$code = ($_SERVER['REQUEST_METHOD'] !== 'GET') ? 303 : 307;
+			}else{
+				$code = 302;
+			}
+		}
+
         // Close the session with user data
         A::app()->getSession()->closeSession();
 
         // Perform redirection
-        header('location: '.$newLocation);
+        header('location: '.$newLocation, true, $code);
         exit;
     }
  
@@ -123,7 +138,7 @@ class CController
 		if(!isset($bt[1])){
 			// Cannot find called class -> stack level too deep
 			return false; 
-		}else if(!isset($bt[1]['type'])){
+		}elseif(!isset($bt[1]['type'])){
 			// Type not set
 			return false; 
 		}else switch ($bt[1]['type']) { 

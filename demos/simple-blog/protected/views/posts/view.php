@@ -14,7 +14,7 @@ if(!empty($posts)){
 		$posts_new[0]['header'] = $posts->header;
 		$posts_new[0]['post_text'] = $posts->post_text;
 		$posts_new[0]['category_id'] = $posts->category_id;
-		$posts_new[0]['category_name'] = $post->category_name;
+		$posts_new[0]['category_name'] = $posts->category_name;
 		$posts_new[0]['login'] = $posts->login;
 		$posts_new[0]['post_datetime'] = $posts->post_datetime;
 		$posts = $posts_new;

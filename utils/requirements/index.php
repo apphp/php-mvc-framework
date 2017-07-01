@@ -14,7 +14,7 @@ include('inc/functions.inc.php');
  */
 $requirements = array(
 	array('Web Server',           false, get_server_info(), true, 'ApPHP Framework', ''),
-	array('PHP version',          true,  PHP_VERSION, version_compare(PHP_VERSION, '5.2.3', '>='), 'ApPHP Framework', 'PHP 5.2.3 or higher is required.'),
+	array('PHP version',          true,  phpversion(), version_compare(phpversion(), '5.2.3', '>='), 'ApPHP Framework', 'PHP 5.2.3 or higher is required.'),
 	array('PHP Short Open Tag',   true,  (($message = check_short_open_tag()) == 'on' ? 'enabled' : ''), $message, 'ApPHP Framework', 'PHP 5.4.0 or higher is required or PHP must be configured with the <b>--enable-short-tags</b> option.'),
 	array('PHP error_get_last() function',  false, (function_exists('error_get_last')) ? 'exists' : '', function_exists('error_get_last'), 'ApPHP Framework', 'PHP 5 >= 5.2.0'),
 	array('PHP "mcrypt_" functions',  false, (function_exists('mcrypt_decrypt') && function_exists('mcrypt_encrypt')) ? 'exists' : 'not found', (function_exists('mcrypt_decrypt') && function_exists('mcrypt_encrypt')), 'ApPHP Framework', 'PHP 4 >= 4.0.2, PHP 5'),
@@ -32,7 +32,7 @@ $result = 1;
 
 foreach($requirements as $i => $requirement){
 	if($requirement[1] && !$requirement[2]) $result = 0;
-	else if($result > 0 && !$requirement[1] && !$requirement[2]) $result = -1;
+	elseif($result > 0 && !$requirement[1] && !$requirement[2]) $result = -1;
 	if($requirement[4] === '') $requirements[$i][4] = '&nbsp;';
 }
 

@@ -57,10 +57,10 @@ if($project == 'framework'){
         }else{
             $content = '<span class="failed">Cannot open "inc/'.$action.'/data.php".</span>';	
         }
-    }else if(!empty($action)){
+    }elseif(!empty($action)){
         $content = '<span class="failed">Wrong parameter passed! Cannot find "'.$action.'" action.</span>';
     }
-}else if(isset($arr_projects[$project])){
+}elseif(isset($arr_projects[$project])){
     $arr_actions = array('controller'=>'Controller');
     if(isset($arr_actions[$action])){
         if(file_exists('inc/'.$action.'/data.php')){
@@ -84,7 +84,7 @@ if($project == 'framework'){
         }else{
             $content = '<span class="failed">Cannot open "inc/'.$action.'/data.php".</span>';	
         }
-    }else if(!empty($action)){
+    }elseif(!empty($action)){
         $content = '<span class="failed">Wrong parameter passed! Cannot find "'.$action.'" action.</span>';
     }
 }

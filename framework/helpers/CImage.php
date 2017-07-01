@@ -51,7 +51,7 @@ class CImage
         $imagePathName = $imagePath.$imageName;        
         if(empty($imagePathName)){ // No Image?    
             CDebug::addMessage('errors', A::t('core', 'Uploaded {file} is not a valid image! Please check carefully the file type.', array('{file}'=>$imageName)));
-		}else if(!function_exists('imagecreatefromjpeg')){
+		}elseif(!function_exists('imagecreatefromjpeg')){
             CDebug::addMessage('errors', A::t('core', 'The function {function} does not exist! Please check carefully your server settings.', array('{function}'=>'imagecreatefromjpeg')));
 			return $imageName;
         }else{ // An Image?
@@ -63,8 +63,8 @@ class CImage
                 $currExt = strtolower(substr($imagePathName,strrpos($imagePathName,'.')+1));
 				$imagetype = (function_exists('exif_imagetype')) ? exif_imagetype($imagePathName) : '';	
                 if($imagetype == '1' && $currExt != 'gif') $ext = 'gif';
-				else if($imagetype == '2' && $currExt != 'jpg' && $currExt != 'jpeg') $ext = 'jpg';
-                else if($imagetype == '3' && $currExt != 'png') $ext = 'png';
+				elseif($imagetype == '2' && $currExt != 'jpg' && $currExt != 'jpeg') $ext = 'jpg';
+                elseif($imagetype == '3' && $currExt != 'png') $ext = 'png';
 				else $ext = $currExt;
                 switch($ext){
                     case 'png':
@@ -92,10 +92,10 @@ class CImage
 					if($resizeWidth != '' && $resizeHeight == ''){
 						$newWidth = $resizeWidth;
 						$newHeight = ($height/$width) * $newWidth;                
-					}else if($resizeWidth == '' && $resizeHeight != ''){
+					}elseif($resizeWidth == '' && $resizeHeight != ''){
 						$newHeight = $resizeHeight;
 						$newWidth=($width/$height)*$newHeight;
-					}else if($resizeWidth != '' && $resizeHeight != ''){
+					}elseif($resizeWidth != '' && $resizeHeight != ''){
 						$newWidth = $resizeWidth;
 						$newHeight = $resizeHeight;                    
 					}else{
@@ -106,7 +106,7 @@ class CImage
 					@imagecopyresampled($iOut,$iTmp,0,0,0,0,intval($newWidth), intval($newHeight), $width, $height);
 					if($case == 'png'){
 						@imagepng($iOut,$imagePathNameNew,0);
-					}else if($case == 'gif'){
+					}elseif($case == 'gif'){
 						@imagegif($iOut,$imagePathNameNew); 
 					}else{
 						@imagejpeg($iOut,$imagePathNameNew,100);	

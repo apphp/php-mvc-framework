@@ -54,7 +54,7 @@ class CLanguageSelector extends CWidgs
         $totalLangs = count($languages);
         if($totalLangs == 1 && !$forceDrawing){
             return '';
-        }else if($totalLangs < 6 && in_array($display, array('names', 'keys', 'icons'))){
+        }elseif($totalLangs < 6 && in_array($display, array('names', 'keys', 'icons'))){
             // Render options
             $totalLanguages = count($languages);
 			$count = 0;
@@ -64,9 +64,9 @@ class CLanguageSelector extends CWidgs
 				
 				if($display == 'names'){
                     $displayValue = $langName;
-                }else if($display == 'icons'){
+                }elseif($display == 'icons'){
                     $displayValue = '<img src="'.$imagesPath.$langIcon.'" alt="'.$langName.'" />';
-                }else if($display == 'keys'){
+                }elseif($display == 'keys'){
                     $displayValue = strtoupper($key);
                 }else{
 					$displayValue = $key;
@@ -83,13 +83,13 @@ class CLanguageSelector extends CWidgs
             }
 			
             $output = trim($output, ' | ');
-        }else if ($display == 'list'){
+        }elseif ($display == 'list'){
 			$output .= CHtml::openTag('ul', array('class'=>$class)).self::NL;       
 			foreach($languages as $key => $lang){
 				$langName = isset($lang['name']) ? $lang['name'] : '';
 				$langIcon = (isset($lang['icon']) && !empty($lang['icon']) && file_exists($imagesPath.$lang['icon'])) ? $lang['icon'] : 'no_image.png';
 				
-				$output .= '<li>'.CHtml::link('<img src="'.$imagesPath.$langIcon.'" alt="'.$langName.'" /> &nbsp;&nbsp; '.$langName, 'languages/change/lang/'.$key, array('title'=>$langName)).'</li>'.self::NL;
+				$output .= '<li'.($key == $currentLang ? ' class="current"' : '').'>'.CHtml::link('<img src="'.$imagesPath.$langIcon.'" alt="'.$langName.'" /> &nbsp;&nbsp; '.$langName, 'languages/change/lang/'.$key, array('title'=>$langName)).'</li>'.self::NL;
 			}
 			$output .= CHtml::closeTag('ul').self::NL;       
         }else{

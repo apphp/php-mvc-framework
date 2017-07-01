@@ -162,6 +162,7 @@
 		"exists",
 		"count",
         "max",
+		"min",
 		"sum",
 		"distinct",
 		"openForm",
@@ -239,6 +240,7 @@
 		"isMobile",
 		"isTablet",
 		"getMobileDetect",
+		"resultArray",
 	];
 
 	var BUILTINS = {};

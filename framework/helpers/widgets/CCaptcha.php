@@ -50,8 +50,8 @@ class CCaptcha extends CWidgs
         
         // Set result in session var
         if($operator == '+') $captchaResult = $firstDigit + $secondDigit;
-        else if($operator == '-') $captchaResult = $firstDigit - $secondDigit;
-        else if($operator == '*') $captchaResult = $firstDigit * $secondDigit;
+        elseif($operator == '-') $captchaResult = $firstDigit - $secondDigit;
+        elseif($operator == '*') $captchaResult = $firstDigit * $secondDigit;
         else $captchaResult = 0;        
 
         A::app()->getSession()->set($name, $captchaResult);

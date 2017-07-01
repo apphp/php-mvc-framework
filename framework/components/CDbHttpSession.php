@@ -239,7 +239,7 @@ class CDbHttpSession extends CComponent
 	{
 		if(ini_get('session.use_cookies') === '0'){
 			return 'none';
-		}else if(ini_get('session.use_only_cookies') === '0'){
+		}elseif(ini_get('session.use_only_cookies') === '0'){
 			return 'allow';
 		}else{
 			return 'only';

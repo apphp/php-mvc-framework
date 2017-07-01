@@ -94,13 +94,13 @@ class MenusController extends CController
             if($msg == 'delete_success'){
                 $msg_text = 'Menu has been successfully deleted!';
                 $msgType = 'success';
-            }else if($msg == 'delete_error'){
+            }elseif($msg == 'delete_error'){
                 $msg_text = 'An error occurred while deleting the menu!';
                 $msgType = 'error';
-            }else if($msg == 'delete_demo'){
+            }elseif($msg == 'delete_demo'){
                 $msg_text = '<b>:(</b> Sorry, but delete operation is blocked in DEMO version!';
                 $msgType = 'warning';
-            }else if($msg == 'wrong-id'){
+            }elseif($msg == 'wrong-id'){
                 $msg_text = 'Wrong parameter passed! Check menu ID.';
                 $msgType = 'error';                
             }
@@ -172,7 +172,7 @@ class MenusController extends CController
                             $msg = 'Menu "'.$this->_view->menuName.'" already exists! Please re-enter.';
                             $msgType = 'error';
                             $this->_view->errorField = 'menuName';
-                        }else if($menus->save()){
+                        }elseif($menus->save()){
                             $msg = 'New menu "'.$this->_view->menuName.'" has been successfully added!';
                             $msgType = 'success';
                         }else{
@@ -254,7 +254,7 @@ class MenusController extends CController
                             $msg = 'Menu "'.$this->_view->menuName.'" already exists! Please re-enter.';
                             $msgType = 'error';
                             $this->_view->errorField = 'menuName';
-                        }else if($menus->save()){
+                        }elseif($menus->save()){
                             $msg = 'Menu has been successfully updated!';
                             $msgType = 'success';
                         }else{

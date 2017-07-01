@@ -71,7 +71,8 @@ Here the file structure for a real News module:
                     <li class="folder-protected">
                         <b>data/</b> <span class="description">module data files</span><br>
                         <ul>
-                            <li class="file">install.mysql.sql</li>                
+							<li class="file">delete.test.mysql.sql</li>
+                            <li class="file">install.mysql.sql</li>
                             <li class="file">uninstall.mysql.sql</li>                
                             <li class="file">update.002.mysql.sql</li>
                             <li class="file">update.003.mysql.sql</li>
@@ -144,7 +145,7 @@ Initial release
     &lt;copyright&gt;ApPHP&lt;/copyright&gt;
     &lt;license&gt;LGPL&lt;/license&gt;
     &lt;manual&gt;&lt;/manual&gt;
-    &lt;icon&gt;images/modules/news/icon.png&lt;/icon&gt;
+    &lt;icon&gt;assets/modules/news/images/icon.png&lt;/icon&gt;
     &lt;moduleType&gt;application&lt;/moduleType&gt;
     &lt;code&gt;news&lt;/code&gt;
     &lt;files&gt;
@@ -167,7 +168,7 @@ Initial release
             &lt;/update&gt;
             &lt;uninstall&gt;uninstall.mysql.sql&lt;/uninstall&gt;
         &lt;/data&gt;
-        &lt;images installationPath="images/modules/news/"&gt;
+        &lt;images installationPath="assets/modules/news/images/"&gt;
             &lt;filename&gt;icon.png&lt;/filename&gt;
         &lt;/images&gt;
         &lt;robots exclude="yes"&gt;
@@ -218,8 +219,12 @@ return array(
         ),
     ),    
 
+    // Default Backend url (optional, if defined - will be used as application default settings)
+    'backendDefaultUrl' => 'news/manage',
+
     // Default settings (optional, if defined - will be used as application default settings)
-    'defaultController' => 'pages',
+    'defaultErrorController' => 'NewsError',
+    'defaultController' => 'news',
     'defaultAction' => 'view',
 );    
 </pre>
@@ -231,7 +236,7 @@ return array(
 class NewsComponent extends CComponent
 {
     const NL = "\n";
-	
+
     /**
      * Draws last news side block
      */
@@ -240,7 +245,7 @@ class NewsComponent extends CComponent
         $output = '';
         $headerLength = 80;
         $newsCount = 3;
-		
+
         $headerLength = ModulesSettings::model()->param('news', 'news_header_length');
         $newsCount = ModulesSettings::model()->param('news', 'news_count');
         

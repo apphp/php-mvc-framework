@@ -17,19 +17,19 @@ if($act){
     if($module_code == ''){
         $msg = '<div class="msg_error">Module Code cannot be empty! Please re-enter.</div>';
         $focusField = 'txtModuleCode';
-    }else if($controller_name == ''){
+    }elseif($controller_name == ''){
         $msg = '<div class="msg_error">Controller Name cannot be empty! Please re-enter.</div>';
         $focusField = 'txtController';
-    }else if($model_name == ''){
+    }elseif($model_name == ''){
         $msg = '<div class="msg_error">Model Name cannot be empty! Please re-enter.</div>';
         $focusField = 'txtModel';
-    }else if($view_name_manage == ''){
+    }elseif($view_name_manage == ''){
         $msg = '<div class="msg_error">Manage View Name cannot be empty! Please re-enter.</div>';
         $focusField = 'txtViewManage';
-    }else if($view_name_add == ''){
+    }elseif($view_name_add == ''){
         $msg = '<div class="msg_error">Add View Name cannot be empty! Please re-enter.</div>';
         $focusField = 'txtViewAdd';
-    }else if($view_name_edit == ''){
+    }elseif($view_name_edit == ''){
         $msg = '<div class="msg_error">Edit View Name cannot be empty! Please re-enter.</div>';
         $focusField = 'txtViewEdit';
     }else{

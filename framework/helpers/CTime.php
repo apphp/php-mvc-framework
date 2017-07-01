@@ -56,7 +56,7 @@ class CTime
 	 */
 	public static function isEmptyDate($date)
 	{
-		return ($date == '0000-00-00' || empty($date)) ? true : false;
+		return (empty($date) || $date == '0000-00-00') ? true : false;
 	}
 
 	/**
@@ -66,7 +66,7 @@ class CTime
 	 */
 	public static function isEmptyDateTime($dateTime)
 	{
-		return ($dateTime == '0000-00-00 00:00:00' || empty($dateTime)) ? true : false;
+		return (empty($dateTime) || $dateTime == '0000-00-00 00:00:00') ? true : false;
 	}
 
     /**
@@ -126,7 +126,7 @@ class CTime
 				$skipCurrent = ('\\' == $lastChar);
 				if(!$skipCurrent && isset($keys[$char])){
 					$regex .= '(?P<'.$keys[$char][0].'>'.$keys[$char][1].')';
-				}else if('\\' == $char ){
+				}elseif('\\' == $char ){
 					$regex .= $char;
 				}else{
 					$regex .= preg_quote($char);

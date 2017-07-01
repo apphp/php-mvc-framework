@@ -72,10 +72,8 @@ class CHttpRequest extends CComponent
 	private $_csrfValidation = false;
 	/** @var string excluding controllers */
 	private $_csrfExclude = array();
-	/** @var boolean whether to enable output compression */
-	private $_compression = false;
-	/** @var string */
-	private $_compressionType = '';
+	/** @var boolean to enable gzip output compression */
+	private $_gzipCompression = false;
 	/** @var string */
 	private $_csrfTokenKey = 'APPHP_CSRF_TOKEN';
 	/** @var string */
@@ -97,8 +95,7 @@ class CHttpRequest extends CComponent
 	{
 		$this->_csrfValidation = (CConfig::get('validation.csrf.enable') === true) ? true : false;
 		$this->_csrfExclude = CConfig::exists('validation.csrf.exclude') ? CConfig::get('validation.csrf.exclude') : array();
-		$this->_compression = (CConfig::get('compression.enable') === true) ? true : false;
-		$this->_compressionType = CConfig::exists('compression.method') ? CConfig::get('compression.method') : 'gzip';
+		$this->_gzipCompression = (CConfig::get('compression.gzip.enable') === true) ? true : false;
 		
 		$this->_cleanRequest();
 		$this->_baseUrl = $this->setBaseUrl();
@@ -116,9 +113,9 @@ class CHttpRequest extends CComponent
 			case 'post':
 				if(count($args) == 0){
 					return $this->_getAll('post');
-				}else if(count($args) == 1){
+				}elseif(count($args) == 1){
 					return $this->getPost($args[0]);
-				}else if(count($args) == 2){
+				}elseif(count($args) == 2){
 					return $this->setPost($args[0], $args[1]);
 				}
 				break;
@@ -126,9 +123,9 @@ class CHttpRequest extends CComponent
 			case 'get':
 				if(count($args) == 0){
 					return $this->_getAll('get');
-				}else if(count($args) == 1){
+				}elseif(count($args) == 1){
 					return $this->getQuery($args[0]);
-				}else if(count($args) == 2){
+				}elseif(count($args) == 2){
 					return $this->setQuery($args[0], $args[1]);
 				}
 				break;
@@ -142,9 +139,9 @@ class CHttpRequest extends CComponent
 			case 'request':
 				if(count($args) == 0){
 					return $this->_getAll('request');
-				}else if(count($args) == 1){
+				}elseif(count($args) == 1){
 					return $this->getRequest($args[0]);
-				}else if(count($args) == 2){
+				}elseif(count($args) == 2){
 					return $this->getRequest($args[0], $args[1]);
 				}
 				break;
@@ -220,7 +217,7 @@ class CHttpRequest extends CComponent
             $http = $secure ? 'https' : 'http';
             if(isset($_SERVER['HTTP_HOST'])){
                 $this->_hostInfo = $http.'://'.$_SERVER['HTTP_HOST'];
-            }else if (isset($_SERVER['SERVER_NAME'])){
+            }elseif (isset($_SERVER['SERVER_NAME'])){
                 $this->_hostInfo = $http.'://'.$_SERVER['SERVER_NAME'];
                 $port = $secure ? $this->getSecurePort() : $this->getPort();
                 if (($port !== 80 && !$secure) || ($port !== 443 && $secure)) {
@@ -279,13 +276,13 @@ class CHttpRequest extends CComponent
 		$scriptName = basename($_SERVER['SCRIPT_FILENAME']);
 		if(basename($_SERVER['SCRIPT_NAME']) === $scriptName){
 			$scriptUrl = $_SERVER['SCRIPT_NAME'];
-		}else if(basename($_SERVER['PHP_SELF']) === $scriptName){
+		}elseif(basename($_SERVER['PHP_SELF']) === $scriptName){
 			$scriptUrl = $_SERVER['PHP_SELF'];
-		}else if(isset($_SERVER['ORIG_SCRIPT_NAME']) && basename($_SERVER['ORIG_SCRIPT_NAME']) === $scriptName){
+		}elseif(isset($_SERVER['ORIG_SCRIPT_NAME']) && basename($_SERVER['ORIG_SCRIPT_NAME']) === $scriptName){
 			$scriptUrl = $_SERVER['ORIG_SCRIPT_NAME'];
-		}else if(($pos=strpos($_SERVER['PHP_SELF'], '/'.$scriptName)) !== false){
+		}elseif(($pos=strpos($_SERVER['PHP_SELF'], '/'.$scriptName)) !== false){
 			$scriptUrl = substr($_SERVER['SCRIPT_NAME'], 0, $pos).'/'.$scriptName;
-		}else if(isset($_SERVER['DOCUMENT_ROOT']) && strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) === 0){
+		}elseif(isset($_SERVER['DOCUMENT_ROOT']) && strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) === 0){
 			$scriptUrl = str_replace('\\','/',str_replace($_SERVER['DOCUMENT_ROOT'],'',$_SERVER['SCRIPT_FILENAME']));
 		}else{
 			CDebug::addMessage('error', 'entry_script', A::t('core', 'Framework is unable to determine the entry script URL'));
@@ -501,7 +498,7 @@ class CHttpRequest extends CComponent
 			if($this->_csrfTokenType == 'session'){
 				$this->_csrfTokenValue = md5(uniqid(rand(), true));	
 				A::app()->getSession()->set('token', $this->_csrfTokenValue);
-			}else if($this->_csrfTokenType == 'cookie'){
+			}elseif($this->_csrfTokenType == 'cookie'){
 				// TODO: release cookies code here
 				// ...
 			}
@@ -551,16 +548,18 @@ class CHttpRequest extends CComponent
 	 */
 	protected function _cleanRequest()
 	{
-		// Clean request
-		if(function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()){
-			$_GET = $this->stripSlashes($_GET);
-			$_POST = $this->stripSlashes($_POST);
-			$_REQUEST = $this->stripSlashes($_REQUEST);
-			$_COOKIE = $this->stripSlashes($_COOKIE);            
+		// Clean request only for PHP < 5.3, in greater versions of PHP 'magic' functions are deprecated
+		if(version_compare(phpversion(), '5.3.0', '<')){
+			if(function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()){
+				$_GET = $this->stripSlashes($_GET);
+				$_POST = $this->stripSlashes($_POST);
+				$_REQUEST = $this->stripSlashes($_REQUEST);
+				$_COOKIE = $this->stripSlashes($_COOKIE);            
+			}
 		}
         
 		if($this->getCsrfValidation()) A::app()->attachEventHandler('_onBeginRequest', array($this, 'validateCsrfToken'));
-		if($this->_compression) A::app()->attachEventHandler('_onBeginRequest', array($this, 'setGzipHandler'));
+		if($this->_gzipCompression) A::app()->attachEventHandler('_onBeginRequest', array($this, 'setGzipHandler'));
 		if($this->_referrerInSession) A::app()->attachEventHandler('_onBeginRequest', array($this, 'setHttpReferer'));
 	}
 	
@@ -574,9 +573,9 @@ class CHttpRequest extends CComponent
 		$protocol = 'http://';
 		$port = '';
 		$httpHost = isset($_SERVER['HTTP_HOST']) ? htmlentities($_SERVER['HTTP_HOST']) : '';
+		$serverProtocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : '';
 		
-		if((isset($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) != 'off')) ||
-			strtolower(substr($_SERVER['SERVER_PROTOCOL'], 0, 5)) == 'https'){
+		if((isset($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) != 'off')) || strtolower(substr($serverProtocol, 0, 5)) == 'https'){
 			$protocol = 'https://';
 		}			
 		
@@ -588,8 +587,7 @@ class CHttpRequest extends CComponent
 		}
 		
 		return $protocol.$httpHost.$port;		
-	}
-	
+	}	
 
     /**
      *	Returns parameter from global arrays $_GET or $_POST according to type of request
@@ -625,9 +623,9 @@ class CHttpRequest extends CComponent
 				$temp = array_slice($temp, 1);
 				if(isset($temp[$name])) $value = $temp[$name];
 			}			
-		}else if($type == 'post' && isset($_POST[$name])){
+		}elseif($type == 'post' && isset($_POST[$name])){
 			$value = $_POST[$name];
-		}else if($type == 'request' && (isset($_GET[$name]) || isset($_POST[$name]))){
+		}elseif($type == 'request' && (isset($_GET[$name]) || isset($_POST[$name]))){
 			$value = isset($_GET[$name]) ? $_GET[$name] : $_POST[$name];
 		}
 		
@@ -651,9 +649,9 @@ class CHttpRequest extends CComponent
 	{
 		if($type == 'get'){
 			return isset($_GET) ? $_GET : array();	
-		}else if($type == 'post'){
+		}elseif($type == 'post'){
 			return isset($_POST) ? $_POST : array();
-		}else if($type == 'request' && (isset($_GET) || isset($_POST))){
+		}elseif($type == 'request' && (isset($_GET) || isset($_POST))){
 			return isset($_GET) ? $_GET : $_POST;
 		}
 		

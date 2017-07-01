@@ -225,5 +225,9 @@ $this->redirect('controller/action/param1/value1');
 $this->redirect('controller/action/?sort_by=code&sort_dir=asc&page=1');
 /* sample 3 - short syntax, missing controller means use current controller name */
 $this->redirect('index'); 
+/* sample 4 - full path */
+$this->redirect('http://apphp.com', true); 
+/* sample 5 - full path with redirect code */
+$this->redirect('http://apphp.com', true, 301); 
 </pre>
 <br><br>

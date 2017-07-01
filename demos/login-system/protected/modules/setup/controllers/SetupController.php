@@ -63,7 +63,7 @@ class SetupController extends CController
 			$endArrayKeys = end($arrayKeys);
             if(strlen($match[1])){
                 $phpinfo[$match[1]] = array();
-            }else if(isset($match[3])){
+            }elseif(isset($match[3])){
                 $phpinfo[$endArrayKeys][$match[2]] = isset($match[4]) ? array($match[3], $match[4]) : $match[3];
             }else{				
                 $phpinfo[$endArrayKeys][] = $match[2];
@@ -74,7 +74,7 @@ class SetupController extends CController
         
         if(version_compare(phpversion(), '5.2.3', '<')){	
             $this->_view->notifyMessage = CWidget::create('CMessage', array('error', 'This program requires at least <b>PHP version 5.2.3</b> installed. You cannot proceed the installation.'));	
-        }else if(!is_writable(APPHP_PATH.'/protected/config/')){
+        }elseif(!is_writable(APPHP_PATH.'/protected/config/')){
             $this->_view->notifyMessage = CWidget::create('CMessage', array('error', 'The directory <b>'.APPHP_PATH.'/protected/config/</b> is not writable! You must grant "write" permissions (access rights 0755 or 777, depending on your system settings) to this directory before you start the installation!'));	
         }else{            
             $this->_view->phpversion = function_exists('phpversion') ? '<span class="found">'.phpversion().'</span>' : '<span class="unknown">Unknown</span>';
@@ -140,7 +140,7 @@ class SetupController extends CController
         // check if previous step was passed
         if($this->cSession->get('step') < 1){
             $this->redirect('setup/index');
-        }else if($this->cRequest->getPost('act') == 'send'){
+        }elseif($this->cRequest->getPost('act') == 'send'){
 
             $result = CWidget::create('CFormValidation', array(
                 'fields' => $this->_view->formFields
@@ -195,7 +195,7 @@ class SetupController extends CController
         // check if previous step was passed
         if($this->cSession->get('step') < 2){
             $this->redirect('setup/index');
-        }else if($this->cRequest->getPost('act') == 'send'){
+        }elseif($this->cRequest->getPost('act') == 'send'){
             $this->_view->email = $this->cRequest->getPost('email');
             $this->_view->username = $this->cRequest->getPost('username');
             $this->_view->password = $this->cRequest->getPost('password');
@@ -236,7 +236,7 @@ class SetupController extends CController
         // check if previous step was passed
         if($this->cSession->get('step') < 3){
             $this->redirect('setup/index');
-        }else if($this->cRequest->getPost('act') == 'send'){
+        }elseif($this->cRequest->getPost('act') == 'send'){
             // get sql schema
 			$sqlDump = file(APPHP_PATH.'/protected/data/schema.mysql.sql');
             if(empty($sqlDump)){

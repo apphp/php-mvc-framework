@@ -41,7 +41,7 @@ class AdminsController extends CController
 		
         if(CAuth::isLoggedInAs('owner')){
         	$rolesList = array('mainadmin'=>'mainadmin', 'admin'=>'admin');
-        }else if(CAuth::isLoggedInAs('mainadmin')){
+        }elseif(CAuth::isLoggedInAs('mainadmin')){
         	$rolesList = array('admin'=>'admin');
         }        	        	
         $roles = array(
@@ -168,7 +168,7 @@ class AdminsController extends CController
     		$msg = A::t('core', 'Operation Blocked Error Message');
     		$msgType = 'error';
     	// delete the admin
-    	}else if($admin->delete()){
+    	}elseif($admin->delete()){
         	$msg = A::t('core', 'Deleting operation has been successfully completed!');
 			$msgType = 'success';
     	}else{

@@ -86,7 +86,7 @@ class CHttpCookie extends CComponent
 		$path = (!empty($path)) ? $path : $this->_path;
 		$domain = (!empty($domain)) ? $domain : $this->_domain;
 		
-		if(version_compare(PHP_VERSION,'5.2.0','>=')){
+		if(version_compare(phpversion(),'5.2.0','>=')){
 			setcookie($name, $value, $expire, $path, $domain, $this->secure, $this->httpOnly);
 		}else{
 			setcookie($name, $value, $expire, $path, $domain, $this->secure);
@@ -108,7 +108,7 @@ class CHttpCookie extends CComponent
 	 */
 	public function remove($name)
 	{
-		if(version_compare(PHP_VERSION,'5.2.0','>=')){
+		if(version_compare(phpversion(),'5.2.0','>=')){
 			setcookie($name, null, 0, $this->_path, $this->_domain, $this->secure, $this->httpOnly);
 		}else{
 			setcookie($name, null, 0, $this->_path, $this->_domain, $this->secure);

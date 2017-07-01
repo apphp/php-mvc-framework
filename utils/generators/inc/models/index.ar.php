@@ -11,7 +11,7 @@ if($act){
     if($model_name == ''){
         $msg = '<div class="msg_error">Model Name cannot be empty! Please re-enter.</div>';
         $focusField = 'txtModel';
-    }else if($table_name == ''){
+    }elseif($table_name == ''){
         $msg = '<div class="msg_error">Table Name cannot be empty! Please re-enter.</div>';
         $focusField = 'txtTable';
     }else{

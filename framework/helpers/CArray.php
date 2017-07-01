@@ -13,6 +13,7 @@
  * flipByField
  * uniqueByField
  * changeKeysCase
+ * toArray
  * 
  */	  
 
@@ -39,16 +40,21 @@ class CArray
      *   
 	 * @param array $array 
 	 * @param string $field
+	 * @param string $group - allows to groub elements in more then one
 	 * @return array
 	 */
-	public static function flipByField($array, $field = '')
+	public static function flipByField($array, $field = '', $group = false)
 	{
         $return = array();
         
         if(is_array($array)){
             foreach($array as $k => $v){
                 if(isset($v[$field])){
-                    $return[$v[$field]] = $v;
+					if($group){
+						$return[$v[$field]][] = $v;
+					}else{
+						$return[$v[$field]] = $v;	
+					}                    
                 }                
             }            
         }
@@ -106,7 +112,7 @@ class CArray
             if(is_array($value)){
 				// $value is an array, handle keys too
                 $newArray[$function($key)] = self::changeKeysCase($value, $case);
-			}else if(is_string($key)){
+			}elseif(is_string($key)){
                 $newArray[$function($key)] = $value;
 			}else{
 				// $key is not a string
@@ -115,6 +121,28 @@ class CArray
         }
 		
 		return $newArray;
+	}	
+
+	/**	
+	 * Convert current object to array
+	 * @return array
+	 */
+	public static function toArray($obj = null)
+	{
+		if(is_object($obj)){
+			$obj = (array)$obj;
+		}
+		
+		if(is_array($obj)){
+			$new = array();
+			foreach($obj as $key => $val){
+				$new[$key] = self::toArray($val);
+			}
+		}else{
+			$new = $obj;
+		}
+		
+		return $new;		
 	}	
 	
 }

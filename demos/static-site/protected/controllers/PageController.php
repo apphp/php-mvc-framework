@@ -125,7 +125,7 @@ class PageController extends CController
 				
 				$this->_view->actionMessage = CWidget::create('CMessage', array('validation', $msg)); 
 			}
-		}else if($cRequest->getQuery('act') == 'success'){
+		}elseif($cRequest->getQuery('act') == 'success'){
 			$this->_view->actionMessage = CWidget::create('CMessage', array('success', 'Your message has been successfully sent!'));
 		}
 		

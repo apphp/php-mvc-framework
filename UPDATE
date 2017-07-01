@@ -10,9 +10,15 @@ following the instructions for both A and B.
 General update intructions
 ---------------------------
 - Make a backup.
-- Replace 'framework' dir with the new one or point SVN to a fresh release and update.
+- Replace 'framework' directory with the new one or point SVN to a fresh release and update.
 - Check if everything is OK, if not - revert from backup and post issues to ApPHP issue tracker.
 
+
+Updating from 0.9.0 to 1.0.3
+------------------------------
+- in AR->findall() cacheId added as a 3rd optional parameter
+- move modules/ and vendors/ directories to assets/ directory
+- change format of compression in config files: 'compression.enable' to 'compression.gzip.enable'
 
 Updating from 0.8.3 to 0.9.0
 ------------------------------

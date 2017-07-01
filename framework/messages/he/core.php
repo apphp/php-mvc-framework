@@ -1,6 +1,6 @@
 <?php
 /**
- * Message translations for 'en' - English
+ * Message translations for 'he' - Hebrew
  */
 return array (
 'Actions' => 'פעולות',
@@ -10,24 +10,30 @@ return array (
 'An error occurred while deleting the file {file}.' => 'An error occurred while deleting the file <strong>{file}</strong>.',
 'An error occurred while uploading your file for field {title}. Please try again.' => 'An error occurred while uploading your file for field <strong>{title}</strong>. Please try again.',
 'An error occurred while writing to file {file}.' => 'An error occurred while writing to file <strong>{file}</strong>.',
+'An Error Was Encountered' => 'אירעה שגיאה',
 'An invalid name was submitted as the product name: {item}. The name can only contain alpha-numeric characters, dashes, underscores, colons and spaces.' => 'An invalid name was submitted as the product name: {item}. The name can only contain alpha-numeric characters, dashes, underscores, colons and spaces.',
 'AR before operation on table: {table}' => 'AR before operation on table: {table}',
 'AR before delete operation on table: {table}' => 'AR before delete operation on table: {table}',
 'Are you sure you want to delete this record?' => 'האם ברצונך באמת למחוק רשומה זו?',
 'Are you sure you want to delete all records?' => 'האם ברצונך למחוק את כל הרשומות?',
 'AVG' => 'ממוצע',
+'Backtrace' => 'מעקב לאחור',
+'Backtrace information is available in debug mode' => 'מידע מעקב לאחור זמין במצב debug',
 'Cancel' => 'בטל',
-'Cannot find widget class: {class}' => 'Cannot find widget class: {class}!',
-'Check if this function exists and usable: {function}' => 'Check if this function exists and usable: {function}',
+'Cannot find widget class: {class}' => 'לא ניתן למצוא את המחלקה של הוידג\'ט: {class}!',
+'Check if this function exists and usable: {function}' => 'בדוק אם פונקציה זו קיימת ושימושי: {function}',
 'Could not complete the operation! One or more parameter values are not valid.' => 'לא יכולת להשלים את הפעולה! אחד או יותר מערכי פרמטרים אינן חוקים.',
 'Component or method does not exist: {component}' => 'Component or method does not exist: {component}',
+'compression rate' => 'שיעור דחיסה',
 'Console' => 'קונסולה',
 'Database Query Cache' => 'מטמון שאילתת מסד נתונים',
 'Debug' => 'דיבג',
 'Delete' => 'מחק',
 'Double call of function {function} with parameters: {params}' => 'Double call of function {function} with parameters: {params}',
+'enabled' => 'מאופשר',
 'Errors' => 'שגיאות',
 'Event "{class}.{name}" is not defined.' => 'Event "{class}.{name}" is not defined.',
+'Exception caught' => 'תפס חריג',
 'Failed' => 'נכשל',
 'Failed to create directory {path}.' => 'נכשל ביצירת הספרייה {path}.',
 'Failed to load XML file {file}.' => 'נכשל הניסיון לטעון קובץ XML {file}',
@@ -139,6 +145,7 @@ return array (
 'total' => 'total',
 'Total memory usage' => 'סה"כ שימוש בזיכרון',
 'Total running time' => 'סה"כ זמן ריצה',
+'Unable to find file: "{file}".' => 'לא ניתן למצוא את הקובץ: "{file}".',
 'Unable to find class "{class}".' => 'לא ניתן למצוא בכיתה "{class}".',
 'Unable to find locale "{locale}" on your server.' => 'לא ניתן למצוא מקום "{locale}" בשרת שלך.',
 'Unable to find the model class "{model}".' => 'לא ניתן למצוא את מחלקת מודל "{model}".',

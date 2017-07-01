@@ -2,6 +2,7 @@
 /**
  * CActiveRecord base class for classes that represent relational data.
  * It implements the Active Record design pattern.
+ * Compatible with PHP v5.3.0 or higher.
  *
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
@@ -9,6 +10,12 @@
  * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  * @version PHP 5.3.0 or higher
+ *
+ * NOTES:
+ * 	if(isset($this->_columns[$index])){...}
+ * 	Doesn't work if array value is NULL - used in MySQL >= 5.7
+ * 	Replaced with if(array_key_exists($index, $this->_columns)){...} 
+ * 
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		        
  * ---------------         	---------------            	---------------
@@ -21,6 +28,7 @@
  * init (static)			
  * set                      							
  * get
+ * resultArray
  * isColumnExists
  * setSpecialField
  * getSpecialField
@@ -155,7 +163,7 @@ abstract class CActiveRecord extends CModel
 	 */
 	public function __get($index)
 	{        
-        if(isset($this->_columns[$index])){
+		if(array_key_exists($index, $this->_columns)){
             return $this->_columns[$index];
         }else{
             CDebug::AddMessage('errors', 'wrong_column'.$index, A::t('core', 'Wrong column name: {index} in table {table}', array('{index}'=>$index, '{table}'=>$this->_table)));
@@ -169,7 +177,9 @@ abstract class CActiveRecord extends CModel
 	 */
 	public function __unset($index)
 	{
-		if(isset($this->_columns[$index])) unset($this->_columns[$index]);
+		if(array_key_exists($index, $this->_columns)){
+			unset($this->_columns[$index]);
+		}
 	}
 
 	/**
@@ -215,7 +225,7 @@ abstract class CActiveRecord extends CModel
 	 */
 	public function get($index)
 	{
-        if(isset($this->_columns[$index])){
+		if(array_key_exists($index, $this->_columns)){
             return $this->_columns[$index];
         }else{
             CDebug::AddMessage('errors', 'wrong_column'.$index, A::t('core', 'Wrong column name: {index} in table {table}', array('{index}'=>$index, '{table}'=>$this->_table)));
@@ -224,13 +234,24 @@ abstract class CActiveRecord extends CModel
 	}
 	
 	/**	
+	 * Convert current object to array
+	 * @return array
+	 */
+	public function resultArray()
+	{
+		if(is_object($this)){
+			return $this->_columns;
+		}
+	}	
+	
+	/**	
 	 * Checks if a given column exists 
 	 * @param string $index
 	 * @return bool
 	 */
 	public function isColumnExists($index)
 	{
-		return isset($this->_columns[$index]) ? true : false;
+		return (array_key_exists($index, $this->_columns)) ? true : false;
 	}	
 
 	/**	
@@ -299,11 +320,12 @@ abstract class CActiveRecord extends CModel
     
 	/**
 	 * Returns the table name value
+	 * @param bool $usePrefix
 	 * @return string
 	 */
-	public function getTableName()
+	public function getTableName($usePrefix = false)
 	{
-        return $this->_table;
+        return ($usePrefix ? CConfig::get('db.prefix') : '').$this->_table;
     }    
 
 	/**
@@ -420,8 +442,13 @@ abstract class CActiveRecord extends CModel
         if(!is_array($cols)) return false;
 
         foreach($cols as $array){
-            // Insert default value $array[4]
-            $this->_columns[$array[0]] = ($array[4] != '') ? $array[4] : '';
+            // If NULL is allowed and NULL is default value, use null
+			// otherwise insert default value $array[4]
+			if($array[2] === 'YES'){
+				$this->_columns[$array[0]] = null;
+			}else{
+				$this->_columns[$array[0]] = ($array[4] != '') ? $array[4] : '';	
+			}
             $arrayParts = explode('(', $array[1]);
             $this->_columnTypes[$array[0]] = array_shift($arrayParts);
             if($array[3] == 'PRI'){
@@ -441,14 +468,16 @@ abstract class CActiveRecord extends CModel
      * Ex.: find(array('condition'=>'postID = :postID AND isActive = :isActive', 'order|orderBy'=>'id DESC'), 'params'=>array(':postID'=>10, ':isActive'=>1));
      * @param mixed $conditions
      * @param array $params
+     * @param bool|string $cacheId
+     * @return object
      */
-    public function find($conditions = '', $params = array())
+    public function find($conditions = '', $params = array(), $cacheId = false)
     {
         if(is_array($conditions)){
             $where = isset($conditions['condition']) ? $conditions['condition'] : '';
 			if(isset($conditions['order'])){
 				$order = isset($conditions['order']) ? $conditions['order'] : '';	
-			}else if(isset($conditions['orderBy'])){
+			}elseif(isset($conditions['orderBy'])){
 				$order = isset($conditions['orderBy']) ? $conditions['orderBy'] : '';	
 			}
         }else{
@@ -470,7 +499,8 @@ abstract class CActiveRecord extends CModel
                 '.$whereClause.'
                 '.$orderBy.'
                 LIMIT 1';
-        $result = $this->_db->select($sql, $params);    
+		
+		$result = $this->_db->select($sql, $params, PDO::FETCH_ASSOC, $cacheId);
         if(isset($result[0]) && is_array($result[0])){
             foreach($result[0] as $key => $val){
                 $this->$key = $val;
@@ -488,16 +518,17 @@ abstract class CActiveRecord extends CModel
      * Ex.: findByPk($pk, array('condition'=>'postID = :postID AND isActive = :isActive', 'order|orderBy'=>'id DESC'), 'params'=>array(':postID'=>10, ':isActive'=>1));
      * @param string $pk
      * @param mixed $conditions
-     * @param array $params 
+     * @param array $params
+     * @param bool|string $cacheId
      * @return object
      */
-    public function findByPk($pk, $conditions = '', $params = array())
+    public function findByPk($pk, $conditions = '', $params = array(), $cacheId = false)
     {
         if(is_array($conditions)){
             $where = isset($conditions['condition']) ? $conditions['condition'] : '';
 			if(isset($conditions['order'])){
 				$order = isset($conditions['order']) ? $conditions['order'] : '';
-			}else if(isset($conditions['orderBy'])){
+			}elseif(isset($conditions['orderBy'])){
 				$order = isset($conditions['orderBy']) ? $conditions['orderBy'] : '';	
 			}
         }else{
@@ -520,7 +551,8 @@ abstract class CActiveRecord extends CModel
                 '.$whereClause.'
                 '.$orderBy.'
                 LIMIT 1';
-        $result = $this->_db->select($sql, $params);
+        
+		$result = $this->_db->select($sql, $params, PDO::FETCH_ASSOC, $cacheId);
         if(isset($result[0]) && is_array($result[0])){
             foreach($result[0] as $key => $val){
                 $this->$key = $val;
@@ -547,7 +579,7 @@ abstract class CActiveRecord extends CModel
             $where = isset($conditions['condition']) ? $conditions['condition'] : '';
 			if(isset($conditions['order'])){
 				$order = isset($conditions['order']) ? $conditions['order'] : '';
-			}else if(isset($conditions['orderBy'])){
+			}elseif(isset($conditions['orderBy'])){
 				$order = isset($conditions['orderBy']) ? $conditions['orderBy'] : '';	
 			}
             $limit = isset($conditions['limit']) ? $conditions['limit'] : '';
@@ -587,34 +619,34 @@ abstract class CActiveRecord extends CModel
     /** 
      * This method queries your database to find all related objects
      * Ex.: findAll('post_id = :postID AND is_active = :isActive', array(':postID'=>10, ':isActive'=>1));
-     * Ex.: findAll(array('condition'=>'post_id = :postID AND is_active = :isActive', 'group|groupBy'=>'', 'order|orderBy'=>'id DESC', 'limit'=>'0, 10', 'cacheId'=>''), array(':postID'=>10, ':isActive'=>1));
+     * Ex.: findAll(array('condition'=>'post_id = :postID AND is_active = :isActive', 'group|groupBy'=>'', 'order|orderBy'=>'id DESC', 'limit'=>'0, 10'), array(':postID'=>10, ':isActive'=>1));
      * Ex.: findAll(CConfig::get('db.prefix').$this->_tableTranslation.'.news_text LIKE :keywords', array(':keywords'=>'%'.$keywords.'%'));
      * @param mixed $conditions
      * @param array $params
+     * @param bool|string $cacheId
+     * @param int $fetchMode
      * @return array
      */
-	public function findAll($conditions = '', $params = array(), $fetchMode = PDO::FETCH_ASSOC)
+	public function findAll($conditions = '', $params = array(), $cacheId = false, $fetchMode = PDO::FETCH_ASSOC)
     {
         if(is_array($conditions)){
             $where = isset($conditions['condition']) ? $conditions['condition'] : '';
 			if(isset($conditions['group'])){
 				$group = isset($conditions['group']) ? $conditions['group'] : '';
-			}else if(isset($conditions['groupBy'])){
+			}elseif(isset($conditions['groupBy'])){
 				$group = isset($conditions['groupBy']) ? $conditions['groupBy'] : '';
 			}            
 			if(isset($conditions['order'])){
 				$order = isset($conditions['order']) ? $conditions['order'] : '';
-			}else if(isset($conditions['orderBy'])){
+			}elseif(isset($conditions['orderBy'])){
 				$order = isset($conditions['orderBy']) ? $conditions['orderBy'] : '';	
 			}
             $limit = isset($conditions['limit']) ? $conditions['limit'] : '';
-            $cacheId = isset($conditions['cacheId']) ? $conditions['cacheId'] : '';
         }else{
             $where = $conditions;
             $group = '';
             $order = '';
             $limit = '';
-            $cacheId = '';
         }
         
 		$whereClause = !empty($where) ? ' WHERE '.$where : '';
@@ -910,13 +942,13 @@ abstract class CActiveRecord extends CModel
             $where = isset($conditions['condition']) ? $conditions['condition'] : '';
 			if(isset($conditions['group'])){
 				$group = isset($conditions['group']) ? $conditions['group'] : '';
-			}else if(isset($conditions['groupBy'])){
+			}elseif(isset($conditions['groupBy'])){
 				$group = isset($conditions['groupBy']) ? $conditions['groupBy'] : '';
 			}
             if(!empty($group)){
                 if(isset($conditions['order'])){
                     $order = isset($conditions['order']) ? $conditions['order'] : '';
-                }else if(isset($conditions['orderBy'])){
+                }elseif(isset($conditions['orderBy'])){
                     $order = isset($conditions['orderBy']) ? $conditions['orderBy'] : '';
                 }
             }

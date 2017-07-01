@@ -201,15 +201,6 @@ class CUri extends CComponent
 		if(strncmp($uri, '?/', 2) === 0){
 			$uri = substr($uri, 2);
 		}
-
-		$parts = preg_split('#\?#i', $uri, 2);
-		$uri = $parts[0];
-		if(isset($parts[1])){
-		//	$_SERVER['QUERY_STRING'] = $parts[1];
-		//	parse_str($_SERVER['QUERY_STRING'], $_GET);
-		}else{
-		//	$_SERVER['QUERY_STRING'] = '';
-		}
 		
 		if($uri == '/' || empty($uri)){
 			return '/';
@@ -339,7 +330,7 @@ class CUri extends CComponent
 	
 		if($where == 'trailing'){
 			$leading    = '';
-		}else if ($where == 'leading'){
+		}elseif ($where == 'leading'){
 			$trailing    = '';
 		}
 		

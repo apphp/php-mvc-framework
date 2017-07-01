@@ -50,7 +50,7 @@ class CCurrencySelector extends CWidgs
         
 		if($totalCurrencies == 1 && !$forceDrawing){
             return '';        
-        }else if($totalCurrencies < 6 && in_array($display, array('names', 'symbols', 'keys'))){
+        }elseif($totalCurrencies < 6 && in_array($display, array('names', 'symbols', 'keys'))){
             // Render options 
             $totalCurrencies = count($currencies);
 			$count = 0;
@@ -59,9 +59,9 @@ class CCurrencySelector extends CWidgs
 				$currSymbol = self::keyAt('symbol', $val, '');
                 if($display == 'names'){
                     $displayValue = $currName;
-                }else if($display == 'symbols'){
+                }elseif($display == 'symbols'){
                     $displayValue = $currSymbol;
-                }else if($display == 'keys'){
+                }elseif($display == 'keys'){
                     $displayValue = strtoupper($key);
                 }else{
 					$displayValue = $key;
@@ -75,13 +75,13 @@ class CCurrencySelector extends CWidgs
                     $output .= ' | '; 
                 } 
             }            
-        }else if ($display == 'list'){
+        }elseif ($display == 'list'){
 			$output .= CHtml::openTag('ul', array('class'=>$class)).self::NL;       
 			foreach($currencies as $key => $val){
 				$curName = isset($val['name']) ? $val['name'] : '';
 				$curSymbol = isset($val['symbol']) ? $val['symbol'] : '';
 				
-				$output .= '<li>'.CHtml::link($curSymbol.' &nbsp;&nbsp; '.$curName, 'currencies/change/currency/'.$key, array('title'=>$curName)).'</li>'.self::NL;
+				$output .= '<li'.($key == $currentCurrency ? ' class="current"' : '').'>'.CHtml::link($curSymbol.' &nbsp;&nbsp; '.$curName, 'currencies/change/currency/'.$key, array('title'=>$curName)).'</li>'.self::NL;
 			}
 			$output .= CHtml::closeTag('ul').self::NL;       
         }else{

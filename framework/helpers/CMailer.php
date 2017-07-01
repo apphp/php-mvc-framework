@@ -67,7 +67,7 @@ class CMailer
     {
 		if(!strcasecmp(self::$_mailer, 'smtpMailer')){
 			$result = self::smtpMailer($to, $subject, $message, $params, $attachments);
-		}else if(!strcasecmp(self::$_mailer, 'phpMailer')){
+		}elseif(!strcasecmp(self::$_mailer, 'phpMailer')){
 			$result = self::phpMailer($to, $subject, $message, $params, $attachments);
 		}else{
 			$result = self::phpMail($to, $subject, $message, $params);
@@ -136,7 +136,7 @@ class CMailer
 		$result = @mail($to, $subject, $message, $headers, $additionalParameters);
 
 		if(!$result){
-			if(version_compare(PHP_VERSION, '5.2.0', '>=')){
+			if(version_compare(phpversion(), '5.2.0', '>=')){
                 $err = error_get_last();
 				if(isset($err['message']) && $err['message'] != ''){
 					self::$_error = $err['message'].' | file: '.$err['file'].' | line: '.$err['line'];
@@ -165,6 +165,9 @@ class CMailer
 
 		$mail = PHPMailer::Instance();
 
+		// Set language
+		$mail->setLanguage(A::app()->getLanguage());
+
 		// Telling the class to use SMTP
 		$mail->isSMTP(); 
 		// Enables SMTP debug information (for testing)
@@ -174,15 +177,12 @@ class CMailer
 		$mail->SMTPDebug  = 0;      	
 		// Ask for HTML-friendly debug output
 		// $mail->Debugoutput = 'html';
-		$mail->SMTPAuth   = (self::$_smtpAuth == 1) ? true : false; // Enable SMTP authentication
+		$mail->SMTPAuth   = self::$_smtpAuth == 1 ? true : false; // Enable SMTP authentication
 		$mail->SMTPSecure = self::$_smtpSecure; // Sets the prefix to the server
 		$mail->Host       = self::$_smtpHost;
 		$mail->Port       = self::$_smtpPort;
 		$mail->Username   = self::$_smtpUsername;
 		$mail->Password   = self::$_smtpPassword;
-
-		// Set language
-		$mail->setLanguage(A::app()->getLanguage());
 
 		// Set "from" parameters
 		// Ex.: $mail->setFrom($mail_from, 'First Last');
@@ -237,6 +237,9 @@ class CMailer
 
 		$mail = PHPMailer::Instance();
 		
+		// Set language
+		$mail->setLanguage(A::app()->getLanguage());
+
 		// Ex.: $mail->setFrom($mail_from, 'First Last');
 		$mail->setFrom($from, $fromName);
 		// Ex.: $mail->addReplyTo($mail_to, 'First Last');

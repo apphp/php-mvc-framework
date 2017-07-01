@@ -84,9 +84,9 @@ class CHash
         
 		if($type == 'numeric'){
             $template = '1234567890';    
-        }else if($type == 'positiveNumeric'){
+        }elseif($type == 'positiveNumeric'){
             $template = '123456789';    
-        }else if($type == 'alpha'){
+        }elseif($type == 'alpha'){
             $template = 'abcdefghijklmnopqrstuvwxyz';    
         }else{
             $template = '1234567890abcdefghijklmnopqrstuvwxyz';
@@ -133,7 +133,7 @@ class CHash
      */
     public static function getSequentialString($number = '', $length = 10)
     {
-		str_pad($number, $length, '0', STR_PAD_LEFT);
+		return str_pad($number, $length, '0', STR_PAD_LEFT);
 	}
 
 	/**
@@ -145,19 +145,42 @@ class CHash
     {
         $secretKey = self::_padKey($secretKey);
 
-		return trim(strtr(base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $secretKey, $value, MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB), MCRYPT_RAND))), '+/=', '-_,'));
+		if(version_compare(phpversion(), '7.0.0', '<')){
+			$return = strtr(base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $secretKey, $value, MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB), MCRYPT_RAND))), '+/=', '-_,');	
+		}else{
+			// Generate an initialization vector
+			$iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length('aes-256-cbc'));
+			// Encrypt the data using AES 256 encryption in CBC mode using our encryption key and initialization vector
+			$encrypted = openssl_encrypt($value, 'aes-256-cbc', base64_decode($secretKey), 0, $iv);
+			// The $iv is just as important as the key for decrypting, so save it with our encrypted data using a unique separator (::)
+			$return = base64_encode($encrypted.'::'.$iv);
+		}
+		
+		return trim($return);
     }
 	
 	/**
 	 * Decrypt given value
 	 * @param $value
 	 * @param $secretKey
+	 * @return string
 	 */
 	public static function decrypt($value, $secretKey)
 	{
         $secretKey = self::_padKey($secretKey);
-
-        return trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $secretKey, base64_decode(strtr($value, '-_,', '+/=')), MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB), MCRYPT_RAND)));
+		$return = '';
+		
+		if(!empty($value)){
+			if(version_compare(phpversion(), '7.0.0', '<')){
+				$return = mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $secretKey, base64_decode(strtr($value, '-_,', '+/=')), MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB), MCRYPT_RAND));	
+			}else{
+				// To decrypt, split the encrypted data from our IV - our unique separator used was "::"
+				list($encrypted_data, $iv) = explode('::', base64_decode($value), 2);
+				$return = openssl_decrypt($encrypted_data, 'aes-256-cbc', base64_decode($secretKey), 0, $iv);
+			}
+		}
+		
+		return trim($return);
 	}
     
 	/**

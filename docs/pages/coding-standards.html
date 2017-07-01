@@ -220,7 +220,7 @@ Here is an example of <code>if</code> statement, since it is the most complicate
 <pre name="dlhl" class="php">
 if($x == $y){
     $a = $b;
-}else if($x == $z){
+}elseif($x == $z){
     $a = $c;
 }else{
     $a = $d;
@@ -255,6 +255,14 @@ etc.
 Translation tables generally named in singular with adding suffix "_translations", for example:
 <code>customer_translations</code>, <code>hotel_translations</code>, 
 <code>news_translations</code>, etc.
+<br><br>
+
+<b>Default Values</b>
+<ul>
+	<li>All numneric fields must have default value (generally '0')</li>
+	<li>All date/datetime fields default value must be NULL (not '0000-00-00' or '1970-00-02' or something else)</li>
+</ul>
+
 
 <br><br><br>
 

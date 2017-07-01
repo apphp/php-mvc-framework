@@ -73,14 +73,16 @@ class CDatabase extends PDO
         // For direct use (e.g. setup module)
         if(!empty($params)){
             $dbDriver = isset($params['dbDriver']) ? $params['dbDriver'] : '';
+			$dbSocket = isset($params['dbSocket']) ? $params['dbSocket'] : '';
             $dbHost = isset($params['dbHost']) ? $params['dbHost'] : '';
+			$dbPort = isset($params['dbPort']) ? $params['dbPort'] : '';
             $dbName = isset($params['dbName']) ? $params['dbName'] : '';
             $dbUser = isset($params['dbUser']) ? $params['dbUser'] : '';
             $dbPassword = isset($params['dbPassword']) ? $params['dbPassword'] : '';
             $dbCharset = isset($params['dbCharset']) ? $params['dbCharset'] : 'utf8';
         
             try{
-				$this->_init($dbDriver, $dbHost, $dbName, $dbUser, $dbPassword, $dbCharset);
+				$this->_init($dbDriver, $dbSocket, $dbHost, $dbPort, $dbName, $dbUser, $dbPassword, $dbCharset);
 			}catch(Exception $e){
                 self::$_error = true;
                 self::$_errorMessage = $e->getMessage();
@@ -92,7 +94,7 @@ class CDatabase extends PDO
 			if(!A::app()->isSetup()){
 				try{
 					if(CConfig::get('db') != ''){						
-						$this->_init(CConfig::get('db.driver'), CConfig::get('db.host'), CConfig::get('db.database'), CConfig::get('db.username'), CConfig::get('db.password'), CConfig::get('db.charset', 'utf8'));
+						$this->_init(CConfig::get('db.driver'), CConfig::get('db.socket'), CConfig::get('db.host'), CConfig::get('db.port'), CConfig::get('db.database'), CConfig::get('db.username'), CConfig::get('db.password'), CConfig::get('db.charset', 'utf8'));
 					}else{
 						throw new Exception('Missing database configuration file');
 					}
@@ -160,11 +162,11 @@ class CDatabase extends PDO
      * @param string $sql SQL string
      * @param array $params parameters to bind
      * @param constant $fetchMode PDO fetch mode
-     * @param string $cacheId cache identificator
+     * @param bool|string $cacheId cache identificator
      * @return mixed - an array containing all of the result set rows
      * Ex.: Array([0] => Array([id] => 11, [name] => John), ...)
      */
-    public function select($sql, $params = array(), $fetchMode = PDO::FETCH_ASSOC, $cacheId = '', $cacheResult = false)
+    public function select($sql, $params = array(), $fetchMode = PDO::FETCH_ASSOC, $cacheId = '')
     {
 		$startTime = $this->_formattedMicrotime();
 		
@@ -173,7 +175,7 @@ class CDatabase extends PDO
         $error = false;
 
 		try{
-            if($this->_isCacheAllowed($cacheResult)){
+            if($this->_isCacheAllowed($cacheId)){
                 $param = !empty($cacheId) ? $cacheId : (is_array($params) ? implode('|',$params) : '');
                 $cacheContent = CCache::getContent(
                     $this->_cacheDir.md5($sql.$param).'.cch',
@@ -192,7 +194,7 @@ class CDatabase extends PDO
                 $sth->execute();
                 $result = $sth->fetchAll($fetchMode);
                 
-                if($this->_isCacheAllowed($cacheResult)) CCache::setContent($result, $this->_cacheDir);
+                if($this->_isCacheAllowed($cacheId)) CCache::setContent($result, $this->_cacheDir);
             }else{
                 $result = $cacheContent;
             }            
@@ -649,29 +651,34 @@ class CDatabase extends PDO
     /**
      * Initialize connection
      * @param string $dbDriver
+     * @param string $dbSocket
      * @param string $dbHost
+     * @param string $dbPort
      * @param string $dbName
      * @param string $dbUser
      * @param string $dbPassword
      * @param string $dbCharset
      * @return void
      */
-    private function _init($dbDriver = '', $dbHost = '', $dbName = '', $dbUser = '', $dbPassword = '', $dbCharset = '')
+    private function _init($dbDriver = '', $dbSocket = '', $dbHost = '', $dbPort = '', $dbName = '', $dbUser = '', $dbPassword = '', $dbCharset = '')
     {
-		$dsn = $dbDriver.':host='.$dbHost.';dbname='.$dbName;
+		// Set db connection type, port and db name
+		$dsn = (!empty($dbSocket)) ? $dbDriver.':unix_socket='.$dbSocket : $dbDriver.':host='.$dbHost;
+		$dsn .= !empty($dbPort) ? ';port='.$dbPort : '';
+		$dsn .= ';dbname='.$dbName;
 		$options = array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION);
 		
-		if(version_compare(PHP_VERSION, '5.3.6', '<')){
+		if(version_compare(phpversion(), '5.3.6', '<')){
 			if(defined('PDO::MYSQL_ATTR_INIT_COMMAND')){
 				$options[PDO::MYSQL_ATTR_INIT_COMMAND] = "SET NAMES '".$dbCharset."'";
 			}
 		}else{
 			$dsn .= ';charset='.$dbCharset;
-		}						
+		}
 		
 		@parent::__construct($dsn, $dbUser, $dbPassword, $options);
 		
-		if(version_compare(PHP_VERSION, '5.3.6', '<') && !defined('PDO::MYSQL_ATTR_INIT_COMMAND')){
+		if(version_compare(phpversion(), '5.3.6', '<') && !defined('PDO::MYSQL_ATTR_INIT_COMMAND')){
 			$this->exec("SET NAMES '".$dbCharset."'");
 		}
 	}  
@@ -748,7 +755,7 @@ class CDatabase extends PDO
 					$keys[] = '/:'.$newKey.'/';
 					$params[$newKey] = $params[$key];
 					unset($params[$key]);
-				}else if($ind !== false){
+				}elseif($ind !== false){
 					$keys[] = '/'.$key.'/';
 				}else{
 					$keys[] = '/:'.$key.'/';
@@ -809,12 +816,13 @@ class CDatabase extends PDO
     }
 	
 	/**
-	 * Check cache state 
-	 * @param bool
+	 * Check cache state
+	 * @param $cacheId
+	 * @return bool
 	 */
-    private function _isCacheAllowed($cacheResult = false)
+    private function _isCacheAllowed($cacheId = false)
     {
-		return ($this->_cache && ($this->_cacheType == 'auto' || ($this->_cacheType == 'manual' && $cacheResult == true)));
+		return ($this->_cache && ($this->_cacheType == 'auto' || ($this->_cacheType == 'manual' && !empty($cacheId))));
     }	
 	
 	/**

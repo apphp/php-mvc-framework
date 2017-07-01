@@ -54,7 +54,10 @@ class CView
 	private $_isRendered = false;
 	/** @var bool */
 	private $_isCompRendered = false;
-
+	/** @var boolean to enable html output compression */
+	private $_htmlCompression = false;
+    /** @var int */
+    private static $_count = 0;
 
 	/** @var mixed */
 	private $__templateFile = '';
@@ -90,8 +93,9 @@ class CView
 	 */
 	public function __construct()
 	{
-		$this->_template = CConfig::get('default.template');        
-		$this->_layout = CConfig::get('layout.default', 'default');
+		$this->_htmlCompression = (CConfig::get('compression.html.enable') === true) ? true : false;
+		$this->_template = CConfig::get('template.default');
+		$this->_layout = CConfig::get('layouts.default', 'default');
 		$this->__viewContent = '';
 		$this->__renderContent = ''; 
     }
@@ -124,9 +128,9 @@ class CView
 	{
 		if($tag === 'title'){
 			$this->_pageTitle = $val;	
-		}else if($tag === 'keywords'){
+		}elseif($tag === 'keywords'){
 			$this->_pageKeywords = $val;	
-		}else if($tag === 'description'){
+		}elseif($tag === 'description'){
 			$this->_pageDescription = $val;	
 		}		
 	}
@@ -141,9 +145,9 @@ class CView
         $tagValue = '';
 		if($tag === 'title'){
 			$tagValue = $this->_pageTitle;	
-		}else if($tag === 'keywords'){
+		}elseif($tag === 'keywords'){
 			$tagValue = $this->_pageKeywords;	
-		}else if($tag === 'description'){
+		}elseif($tag === 'description'){
 			$tagValue = $this->_pageDescription;	
 		}
         return $tagValue;
@@ -189,10 +193,10 @@ class CView
 				$parts = count($paramsParts);
 				if($parts == 1){
 					$this->__action = isset($paramsParts[0]) ? $paramsParts[0] : $this->action;
-				}else if($parts == 2){
+				}elseif($parts == 2){
 					$this->__controller = isset($paramsParts[0]) ? $paramsParts[0] : $this->_controller;
 					$this->__action = isset($paramsParts[1]) ? $paramsParts[1] : $this->action;					
-				}else if($parts >= 2){
+				}elseif($parts >= 2){
 					$this->__controller = isset($paramsParts[0]) ? $paramsParts[0] : $this->_controller;
 					$this->__viewSubFolder = isset($paramsParts[1]) ? $paramsParts[1].DS : '';
 					$this->__action = isset($paramsParts[2]) ? $paramsParts[2] : $this->action;
@@ -220,7 +224,7 @@ class CView
 				}				
 				
 				// Get layout file
-				if(CConfig::get('layout.enable')){
+				if(CConfig::get('layouts.enable')){
 					$this->__layoutFile = APPHP_PATH.DS.'templates'.DS.$this->_template.DS.'layouts'.DS.(!empty($this->_layout) ? $this->_layout : '').'.php';
 					if(!empty($this->_layout)){
 						if(file_exists($this->__layoutFile)){
@@ -258,6 +262,7 @@ class CView
 					ob_end_clean();
 					
 					CDebug::addMessage('general', 'included', $this->__viewFile);
+					CDebug::addMessage('params', 'view'.(++self::$_count > 1 ? self::$_count : ''), $this->__viewFile);
 				}else{
 					if(preg_match('/[A-Z]/', $this->_controller)){
 						CDebug::addMessage('errors', 'render-view', A::t('core', 'The system is unable to find the requested view file: {file}. Case sensitivity mismatch!', array('{file}'=>$this->__viewFile)));
@@ -302,13 +307,25 @@ class CView
 					}								
 				}
 				
+				// Output content
+				if($this->_htmlCompression){
+					if(APPHP_MODE == 'debug') {
+						$beforeCompression = strlen($output);	
+					}
+					$output	= CMinify::html($output);
+					if(APPHP_MODE == 'debug') {
+						$afterCompression = strlen($output);
+						CDebug::addMessage('data', 'html-compression-rate', (!empty($beforeCompression) ? 100 - round($afterCompression / $beforeCompression * 100, 1) : '0').'%' );
+					}
+				}
+				
 				if($return){					
 					return $output;
 				}else{
 					echo $output;
 				}				
 				
-				CDebug::addMessage('params', 'view', $this->__viewFile);
+				///CDebug::addMessage('params', 'view', $this->__viewFile);
 				CDebug::addMessage('params', 'layout', $this->_layout ? $this->_layout : A::t('core', 'Unknown'));
 				CDebug::addMessage('params', 'template', $this->_template ? $this->_template : A::t('core', 'Unknown'));
 			}			
@@ -368,10 +385,20 @@ class CView
                 }
             }
 
-            echo $this->__renderContent;
+			// Output content
+			$renderContent = $this->__renderContent;
+			if(APPHP_MODE == 'debug') {
+				$beforeCompression = strlen($renderContent);	
+			}			
+			$renderContent = ($this->_htmlCompression) ? CMinify::html($renderContent) : $renderContent;
+			if(APPHP_MODE == 'debug') {
+				$afterCompression = strlen($renderContent);
+				CDebug::addMessage('data', 'html-compression-rate', (!empty($beforeCompression) ? 100 - round($afterCompression / $beforeCompression * 100, 1) : '0').'%' );
+			}
+			
+			echo $renderContent;
 			
 			CDebug::addMessage('params', 'render-content', $this->__viewFile);
-
         }else{
             CDebug::addMessage('errors', 'render-content', A::t('core', 'The system is unable to find the requested component view file: {file}', array('{file}'=>$this->__viewFile)));
         }
@@ -400,7 +427,7 @@ class CView
 				$parts = count($paramsParts);
 				if($parts == 1){
 					if(isset($paramsParts[0])) $view = $paramsParts[0];
-				}else if($parts >= 2){
+				}elseif($parts >= 2){
 					if(isset($paramsParts[0])) $controller = $paramsParts[0];
 					if(isset($paramsParts[1])) $view = $paramsParts[1];
 				}
@@ -443,7 +470,8 @@ class CView
 				}
 			}				
 
-			echo $this->__viewContent;
+			// Output view content
+			echo ($this->_htmlCompression) ? CMinify::html($this->__viewContent) : $this->__viewContent;
 			
 			CDebug::addMessage('params', 'render-view', $viewFile);
 

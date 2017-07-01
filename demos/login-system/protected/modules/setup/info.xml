@@ -11,7 +11,7 @@
     <copyright>ApPHP</copyright>
     <license>LGPL</license>
     <manual></manual>
-    <icon>images/modules/setup/icon.png</icon>
+    <icon>assets/modules/setup/images/icon.png</icon>
     <moduleType>system</moduleType>
     <code>setup</code>
     <files>
@@ -24,7 +24,7 @@
             <update></update>
             <uninstall>uninstall.mysql.sql</uninstall>
         </data>
-        <images installationPath="images/modules/setup/">
+        <images installationPath="assets/modules/setup/images/">
             <filename>icon.png</filename>
         </images>
         <templates movingPath="templates/setup/">

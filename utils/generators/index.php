@@ -31,31 +31,31 @@ if($generation_type == 'controller'){
     }else{
         $content = '<br><span class="failed">Cannot open "inc/controllers/index.php".</span>';	
     }
-}else if($generation_type == 'model'){
+}elseif($generation_type == 'model'){
     if(file_exists('inc/models/index.php')){
         include('inc/models/index.php');
     }else{
         $content = '<br><span class="failed">Cannot open "inc/models/index.php".</span>';	
     }
-}else if($generation_type == 'view'){
+}elseif($generation_type == 'view'){
     if(file_exists('inc/views/index.php')){
         include('inc/views/index.php');
     }else{
         $content = '<br><span class="failed">Cannot open "inc/views/index.php".</span>';	
     }
-}else if($generation_type == 'ar_controller'){
+}elseif($generation_type == 'ar_controller'){
     if(file_exists('inc/controllers/index.ar.php')){
         include('inc/controllers/index.ar.php');
     }else{
         $content = '<br><span class="failed">Cannot open "inc/controllers/index.ar.php".</span>';	
     }
-}else if($generation_type == 'ar_model'){
+}elseif($generation_type == 'ar_model'){
     if(file_exists('inc/models/index.ar.php')){
         include('inc/models/index.ar.php');
     }else{
         $content = '<br><span class="failed">Cannot open "inc/models/index.ar.php".</span>';	
     }
-}else if($generation_type == 'ar_view'){
+}elseif($generation_type == 'ar_view'){
     if(file_exists('inc/views/index.ar.php')){
         include('inc/views/index.ar.php');
     }else{

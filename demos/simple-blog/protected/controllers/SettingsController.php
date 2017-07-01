@@ -18,7 +18,9 @@ class SettingsController extends CController
         parent::__construct();
 
         // block access to this controller for not-logged users
-		CAuth::handleLogin();				
+		if(!CAuth::isLoggedIn()){
+			$this->redirect('index/index');
+		}	
 	
         $settings = Settings::model()->findByPk(1);
         $this->_view->setMetaTags('title', 'Settings | '.$settings->metatag_title);

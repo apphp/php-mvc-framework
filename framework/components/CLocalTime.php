@@ -120,6 +120,7 @@ class CLocalTime extends CComponent
             'fr_FR'=>A::t('i18n', 'languages.fr').' - '.A::t('i18n', 'countries.fr'),
             'fr_LU'=>A::t('i18n', 'languages.fr').' - '.A::t('i18n', 'countries.lu'),
             'gl_ES'=>A::t('i18n', 'languages.gl').' - '.A::t('i18n', 'countries.es'),
+			'el_GR'=>A::t('i18n', 'languages.el').' - '.A::t('i18n', 'countries.gr'),
             'gu_IN'=>A::t('i18n', 'languages.gu').' - '.A::t('i18n', 'countries.in'),
             'he_IL'=>A::t('i18n', 'languages.he').' - '.A::t('i18n', 'countries.il'),
             'hi_IN'=>A::t('i18n', 'languages.hi').' - '.A::t('i18n', 'countries.in'),

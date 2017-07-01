@@ -343,10 +343,12 @@ Pages::model()->deleteByPk($pk, $condition, $params);
 To read data from a database table, we can use one of the find methods as follows.
 
 <pre name="dlhl" class="php">
-// Finds the first row satisfying the specified conditions
-$page = Pages::model()->find($conditions, $params);
-// Finds the row with the specified primary key
-$page = Pages::model()->findByPk($pk, $conditions, $params);
+// Finds the first row satisfying specific conditions 
+$page = Pages::model()->find($conditions, $params);                 /* returns object */
+$page = Pages::model()->find($conditions, $params)->resultArray();  /* returns array */
+// Finds the row with the specified primary key 
+$page = Pages::model()->findByPk($pk, $conditions, $params);                 /* returns object */ 
+$page = Pages::model()->findByPk($pk, $conditions, $params)->resultArray();  /* returns array */
 // Finds the row with the specified attribute values
 $page = Pages::model()->findByAttributes($attributes, $conditions, $params);
 // Finds all rows satisfying the specified conditions
@@ -370,6 +372,8 @@ $page = Pages::model()->exists($conditions, $params);
 $page = Pages::model()->count($conditions, $params);
 // Finds a maximum value of the specified column
 $page = Pages::model()->max($columnName, $conditions, $params);
+// Finds a minimum value of the specified column
+$page = Pages::model()->min($columnName, $conditions, $params);
 // Finds a sum value of the specified column
 $page = Pages::model()->sum($columnName, $conditions, $params);
 // Reloads model data according to current primary key

@@ -1,6 +1,7 @@
 <?php
 /**
- * CComponent is the base class for all components
+ * CComponent is the base class for all components.
+ * Compatible with PHP v5.3.0 or higher.
  *
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>

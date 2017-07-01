@@ -110,19 +110,19 @@ class PagesController extends CController
             if($msg == 'added'){
                 $msg_text = 'New page has been successfully added!';
                 $msgType = 'success';
-            }else if($msg == 'deleted'){
+            }elseif($msg == 'deleted'){
                 $msg_text = 'Page has been successfully deleted!';
                 $msgType = 'success';                
-            }else if($msg == 'delete_error'){
+            }elseif($msg == 'delete_error'){
                 $msg_text = 'An error occurred while deleting the page!';
                 $msgType = 'error';                
-            }else if($msg == 'delete_homepage_error'){
+            }elseif($msg == 'delete_homepage_error'){
                 $msg_text = 'You cannot delete Homepage!';
                 $msgType = 'error';                
-            }else if($msg == 'delete_demo'){
+            }elseif($msg == 'delete_demo'){
                 $msg_text = '<b>:(</b> Sorry, but delete operation is blocked in DEMO version!';
                 $msgType = 'warning';
-            }else if($msg == 'wrong-id'){
+            }elseif($msg == 'wrong-id'){
                 $msg_text = 'Wrong parameter passed! Check page ID.';
                 $msgType = 'error';                
             }
@@ -358,7 +358,7 @@ class PagesController extends CController
 			if($pages->is_homepage == 1){
                 $msg = 'delete_homepage_error';
                 $msgType = 'error';				
-			}else if($pages && $pages->delete()){
+			}elseif($pages && $pages->delete()){
                 $msg = 'deleted';
                 $msgType = 'success';
             }else{

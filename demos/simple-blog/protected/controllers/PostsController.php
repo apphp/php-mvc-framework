@@ -99,8 +99,10 @@ class PostsController extends CController
 
     public function indexAction($msg = '')
     {
-        // block access to this action for not-logged users
-		CAuth::handleLogin();	
+        // block access to this controller for not-logged users
+		if(!CAuth::isLoggedIn()){
+			$this->redirect('index/index');
+		}	
     	
         $this->_view->setMetaTags('title', 'Posts | '.$this->_view->blogName);
     	$this->_view->activeLink = 'edit_post';
@@ -109,13 +111,13 @@ class PostsController extends CController
             if($msg == 'added'){
                 $msg_text = 'New post has been successfully added!';
                 $msgType = 'success';
-            }else if($msg == 'deleted'){
+            }elseif($msg == 'deleted'){
                 $msg_text = 'Post has been successfully deleted!';
                 $msgType = 'success';                
-            }else if($msg == 'delete_demo'){
+            }elseif($msg == 'delete_demo'){
                 $msg_text = '<b>:(</b> Sorry, but delete operation is blocked in DEMO version!';
                 $msgType = 'warning';
-            }else if($msg == 'wrong-id'){
+            }elseif($msg == 'wrong-id'){
                 $msg_text = 'Wrong parameter passed! Check post ID.';
                 $msgType = 'error';                
             }
@@ -142,8 +144,10 @@ class PostsController extends CController
 
     public function addAction()
     {
-        // block access to this action for not-logged users
-		CAuth::handleLogin();	
+        // block access to this controller for not-logged users
+		if(!CAuth::isLoggedIn()){
+			$this->redirect('index/index');
+		}	
 
         $this->_view->setMetaTags('title', 'Add Post | '.$this->_view->blogName);
         $this->_view->activeLink = 'add_post';        
@@ -159,8 +163,10 @@ class PostsController extends CController
 
     public function insertAction()
     {
-        // block access to this action for not-logged users
-		CAuth::handleLogin();	
+        // block access to this controller for not-logged users
+		if(!CAuth::isLoggedIn()){
+			$this->redirect('index/index');
+		}	
     	
     	$cRequest = A::app()->getRequest();
         $this->_view->setMetaTags('title', 'Add Post | '.$this->_view->blogName);
@@ -228,8 +234,10 @@ class PostsController extends CController
 
     public function editAction($postId = null)
     {
-        // block access to this action for not-logged users
-		CAuth::handleLogin();	
+        // block access to this controller for not-logged users
+		if(!CAuth::isLoggedIn()){
+			$this->redirect('index/index');
+		}	
 
         $this->_view->setMetaTags('title', 'Edit Post | '.$this->_view->blogName);        
 		$this->_view->activeLink = 'edit_post';
@@ -253,8 +261,10 @@ class PostsController extends CController
     
     public function updateAction()
     {
-        // block access to this action for not-logged users
-		CAuth::handleLogin();	
+        // block access to this controller for not-logged users
+		if(!CAuth::isLoggedIn()){
+			$this->redirect('index/index');
+		}	
     	
     	$cRequest = A::app()->getRequest();
 		$this->_view->setMetaTags('title', 'Edit Post | '.$this->_view->blogName);        
@@ -327,8 +337,10 @@ class PostsController extends CController
 
     public function deleteAction($postId)
     {
-        // block access to this action for not-logged users
-		CAuth::handleLogin();	
+        // block access to this controller for not-logged users
+		if(!CAuth::isLoggedIn()){
+			$this->redirect('index/index');
+		}	
     	
 		$this->_view->activeLink = 'edit_post';
     	$msg = '';

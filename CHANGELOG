@@ -1,3 +1,26 @@
+Version 1.0.3 - 23 Jun, 2017
+----------------------------
+- New: added possibility to catch and handle global exceptions
+- New: added possibility to use in config default error controller
+- New: added possibility to return CActiveRecord find() result as array
+- New: added new helper CMinify
+- Enh: changes in CHtml, CArray, CValidator, CFile, CGridView helpers
+- Enh: changed format of compression if config
+- Enh: added multi-select for SELECT tags
+- Enh: modules/ and vendors/ directories moved to assets/ directory
+- Enh: PHPMailer upgraded to 5.2.22
+- Enh: removed check for "magic_quotes" functions for PHP < 5.3
+- Enh: added new parameter "redirection code" for method redirect() for controllers
+- Enh: added possibility to define custom methods for model in CGridView
+- Enh: added possibility to define db connection via sockets
+- Enh: changed names for classes that compatible with PHP 5.3.0 or higher
+- Enh: added alternative for PHP > 7.0.0 for mcrypt_encrypt/mcrypt_decrypt functions in CHash helper
+- Enh: added styling for debug panel on mobile devices
+- Bug: fixed error on including module classes in "hidden" mode
+- Bug: fixed error in Facebook social login
+- Bug: added missing locales in CLocalTime
+
+
 Version 0.9.0 - 10 Dec, 2016
 ----------------------------
 - New: added new components: CLogger, CMobileDetect
@@ -25,7 +48,7 @@ Version 0.8.3 - 01 Jul, 2016
 - Enh: minor changes in CDebug core class
 - Enh: minor changes in CHtml::link() method - added automatically added rel="nofollow noopener" for target="_new"
 - Enh: minor changes in helper CGeoLocation
-- Enh: translattion in Spanish for core messages
+- Enh: translation in Spanish for core messages
 - Enh: minor changes in CDatabase db class
 - Enh: added new options for DB-level caching: "auto" and "manual"
 - Bug: fixed non-working 'definedValues'=>'' attribute for label fields in CDataForm widget

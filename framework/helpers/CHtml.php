@@ -11,8 +11,8 @@
  * PUBLIC (static):			PROTECTED (static):			PRIVATE (static):
  * ----------               ----------                  ----------
  * tag                      _inputField                 _renderAttributes 
- * openTag                  _clientChange               _escapeHex
- * closeTag                                             _escapeHexEntity 
+ * openTag                  _clientChange               
+ * closeTag                                             
  * link
  * label
  * encode
@@ -29,6 +29,8 @@
  * passwordField
  * fileField
  * colorField
+ * emailField
+ * searchField
  * getIdByName
  * dropDownList
  * listBox
@@ -44,6 +46,8 @@
  * button
  * convertFileSize
  * convertImageDimensions
+ * escapeHex
+ * escapeHexEntity 
  * 
  */	  
 
@@ -107,8 +111,8 @@ class CHtml
 	{
 		if($url !== '') $htmlOptions['href'] = $url;
         if(isset($htmlOptions['escape']) && $htmlOptions['escape'] === true){
-            $text = self::_escapeHexEntity($text);
-            $htmlOptions['href'] = self::_escapeHex($htmlOptions['href']);
+            $text = self::escapeHexEntity($text);
+            $htmlOptions['href'] = self::escapeHex($htmlOptions['href']);
             unset($htmlOptions['escape']);
         }
 		if(isset($htmlOptions['target']) && strtolower($htmlOptions['target']) === '_blank' && empty($htmlOptions['rel'])){
@@ -134,26 +138,28 @@ class CHtml
 	/**
 	 * Encodes special characters into HTML entities
 	 * @param string $text
+	 * @param int $flag
 	 * @return string 
 	 */
-	public static function encode($text)
+	public static function encode($text, $flag = ENT_QUOTES)
 	{
 		if(version_compare(phpversion(), '5.5', '<')){
 			// Generates error if text is  ASCII and A::app()->charset is UTF-8
-			return @htmlspecialchars($text, ENT_QUOTES, A::app()->charset);
+			return @htmlspecialchars($text, $flag, A::app()->charset);
 		}else{
-			return htmlspecialchars($text, ENT_QUOTES, A::app()->charset);
+			return htmlspecialchars($text, $flag, A::app()->charset);
 		}
 	}
 
 	/**
 	 * Decodes special HTML entities back to the corresponding characters
 	 * @param string $text
+	 * @param int $flag
 	 * @return string
 	 */
-	public static function decode($text)
+	public static function decode($text, $flag = ENT_QUOTES)
 	{
-		return htmlspecialchars_decode($text, ENT_QUOTES);
+		return htmlspecialchars_decode($text, $flag);
 	}
 
 	/**
@@ -339,6 +345,32 @@ class CHtml
 	}
 
 	/**
+	 * Generates a email input
+	 * @param string $name
+	 * @param string $value
+	 * @param array $htmlOptions
+	 * @return string
+	 * @see inputField
+	 */
+	public static function emailField($name, $value = '', $htmlOptions = array())
+	{
+		return self::_inputField('email', $name, $value, $htmlOptions);
+	}
+
+	/**
+	 * Generates a search input
+	 * @param string $name
+	 * @param string $value
+	 * @param array $htmlOptions
+	 * @return string
+	 * @see inputField
+	 */
+	public static function searchField($name, $value = '', $htmlOptions = array())
+	{
+		return self::_inputField('search', $name, $value, $htmlOptions);
+	}
+
+	/**
 	 * Generates a valid HTML ID based on name
 	 * @param string $name 
 	 * @return string 
@@ -363,7 +395,7 @@ class CHtml
 		$htmlOptions['value'] = $value;
 		$htmlOptions['name'] = $name;
 		if(!isset($htmlOptions['id'])) $htmlOptions['id'] = self::getIdByName($name);
-		else if($htmlOptions['id'] === false) unset($htmlOptions['id']);
+		elseif($htmlOptions['id'] === false) unset($htmlOptions['id']);
 		return self::tag('input', $htmlOptions, false);
 	}
     
@@ -378,7 +410,7 @@ class CHtml
 	{
 		$htmlOptions['name'] = $name;
 		if(!isset($htmlOptions['id'])) $htmlOptions['id'] = self::getIdByName($name);
-		else if($htmlOptions['id'] === false) unset($htmlOptions['id']);
+		elseif($htmlOptions['id'] === false) unset($htmlOptions['id']);
 		return self::tag('textarea', $htmlOptions, isset($htmlOptions['encode']) && !$htmlOptions['encode'] ? $value : self::encode($value));
 	}
 
@@ -573,9 +605,14 @@ class CHtml
      */	
 	public static function dropDownList($name, $select = '', $data = array(), $htmlOptions = array(), $specialOptions = array())
 	{
+		$multiple = isset($htmlOptions['multiple']) ? (bool)$htmlOptions['multiple'] : false;
+		if($multiple && substr($name, -2) !== '[]'){
+			$name .= '[]';
+		}
+
 		$htmlOptions['name'] = $name;
 		if(!isset($htmlOptions['id'])) $htmlOptions['id'] = self::getIdByName($name);
-		else if($htmlOptions['id'] === false) unset($htmlOptions['id']);
+		elseif($htmlOptions['id'] === false) unset($htmlOptions['id']);
 		self::_clientChange('change', $htmlOptions);
         
         $specialType = isset($specialOptions['type']) ? $specialOptions['type'] : '';
@@ -586,7 +623,7 @@ class CHtml
                 $ind = (($i < 10) ? '0' : '').$i;
                 $data[$ind] = $ind;
             }
-        }else if($specialType == 'minutes'){
+        }elseif($specialType == 'minutes'){
             if($specialStep < 1 || $specialStep > 60) $specialStep = 1;
             for($i = 0; $i < 60; $i+=$specialStep){
                 $ind = (($i < 10) ? '0' : '').$i;
@@ -651,7 +688,7 @@ class CHtml
 			foreach($selection as $i=>$item){
 				if(is_object($item)) $selection[$i] = $item->$key;
 			}
-		}else if(is_object($selection)){
+		}elseif(is_object($selection)){
             $selection = $selection->$key;
         }
         if(!is_array($listData)) return $content;
@@ -660,7 +697,7 @@ class CHtml
                 if(isset($value['optionValue'])){
                     // For single-level arrays where additional options available
                     $attributes = array('value'=>(string)$key, 'encode'=>!$raw);
-                    if(isset($value['optionDisabled']) && isset($value['optionDisabled'])) $attributes['disabled'] = true;
+                    if(!empty($value['optionDisabled'])) $attributes['disabled'] = true;
                     if(!is_array($selection) && !strcmp($key,$selection) || is_array($selection) && in_array($key,$selection)){
                         $attributes['selected'] = 'selected';
                     }
@@ -769,9 +806,9 @@ class CHtml
 		if(!is_numeric($fileSize)){
 			if(stripos($fileSize, 'm') !== false){ 
 				$return = intval($fileSize) * 1024 * 1024; 
-			}else if(stripos($fileSize, 'k') !== false){ 
+			}elseif(stripos($fileSize, 'k') !== false){ 
 				$return = intval($fileSize) * 1024; 
-			}else if(stripos($fileSize, 'g') !== false){ 
+			}elseif(stripos($fileSize, 'g') !== false){ 
 				$return = intval($fileSize) * 1024 * 1024 * 1024;
 			}
 		}
@@ -792,6 +829,34 @@ class CHtml
 		}
 		return $return;
 	}
+
+	/**
+	 * Renders escaped hex string
+	 * Ex. for link: '<a href="'.escapeHex($string).'">...</a>'
+	 * @param string $string
+	 */
+    public static function escapeHex($string)
+    {
+        $return = '';
+        for($i=0; $i < strlen($string); $i++){
+            $return .= ($string[$i] == '/') ? $string[$i] : '%'.bin2hex($string[$i]);
+        }
+        return $return;
+    }
+    
+	/**
+	 * Renders escaped hex entity string
+	 * Ex. for text: '<a href="...">'.escapeHexEntity($string).'</a>'
+	 * @param string $string
+	 */
+    public static function escapeHexEntity($string)
+    {
+        $return = '';
+        for($i=0; $i < strlen($string); $i++){
+            $return .= '&#x'.bin2hex($string[$i]).';';
+        }
+        return $return;
+    }
 
 	/**
 	 * Generates JavaScript code with specified client changes
@@ -875,7 +940,7 @@ class CHtml
 			foreach($htmlOptions as $name => $value){
 				if(isset($specialAttributes[$name])){
 					if($value) $output .= ' '.$name.'="'.$name.'"';
-				}else if($value !== null){
+				}elseif($value !== null){
 					$output .= ' '.$name.'="'.(($encode) ? self::encode($value) : $value).'"';
 				}
 			}			
@@ -883,31 +948,5 @@ class CHtml
 		
 		return $output;
 	}
-
-	/**
-	 * Renders escaped hex string
-	 * @param string $string
-	 */
-    private static function _escapeHex($string)
-    {
-        $return = '';
-        for($x=0; $x < strlen($string); $x++){
-            $return .= ($string[$x] == '/') ? $string[$x] : '%'.bin2hex($string[$x]);
-        }
-        return $return;
-    }
-    
-	/**
-	 * Renders escaped hex entity string
-	 * @param string $string
-	 */
-    private static function _escapeHexEntity($string)
-    {
-        $return = '';
-        for($x=0; $x < strlen($string); $x++){
-            $return .= '&#x'.bin2hex($string[$x]).';';
-        }
-        return $return;
-    }
 
 }

@@ -11,7 +11,7 @@
  * PUBLIC:					PROTECTED:					    PRIVATE:		
  * ----------               ----------                      ----------
  * __construct              _onBeginRequest                 _autoload
- * run                      _onEndRequest
+ * run                      _onEndRequest					_runApp
  * init (static)			_registerCoreComponents
  * app (static)				_setComponent
  * powered (static)			_registerAppComponents
@@ -66,7 +66,7 @@ class A
 	
 
 	/** @var string */
-	private static $_frameworkVersion = '0.9.0';	
+	private static $_frameworkVersion = '1.0.3';	
 	/** @var string */
 	private static $_phpVersion;
 	/** @var object */
@@ -87,13 +87,13 @@ class A
         'CRouter'       => 'core/CRouter.php',
         'CView'         => 'core/CView.php',
         
-        'CActiveRecord' => array('5.2.0'=>'db/CActiveRecord.520.php', '5.3.0'=>'db/CActiveRecord.530.php'),
+        'CActiveRecord' => array('5.2.0'=>'db/CActiveRecord.520.php', '5.3.0'=>'db/CActiveRecord.php'),
         'CDatabase'     => 'db/CDatabase.php',
         'CDataGrid'     => 'db/CDataGrid.php',
     );
     /** @var array */
     private static $_coreComponents = array(
-		'component'    	=> array('class' => 'CComponent', 		'path' => array('5.2.0'=>'components/CComponent.520.php', '5.3.0'=>'components/CComponent.530.php')),
+		'component'    	=> array('class' => 'CComponent', 		'path' => array('5.2.0'=>'components/CComponent.520.php', '5.3.0'=>'components/CComponent.php')),
         'clientScript'	=> array('class' => 'CClientScript', 	'path' => 'components/CClientScript.php'),
         'dbSession' 	=> array('class' => 'CDbHttpSession', 	'path' => 'components/CDbHttpSession.php'),
         'request'   	=> array('class' => 'CHttpRequest', 	'path' => 'components/CHttpRequest.php'),
@@ -124,6 +124,7 @@ class A
 		'CLocale'       => 'helpers/CLocale.php',
 		'CLog'       	=> 'helpers/CLog.php',
         'CMailer'       => 'helpers/CMailer.php',
+		'CMinify'       => 'helpers/CMinify.php',
         'CNumber'       => 'helpers/CNumber.php',
 		'COauth'        => 'helpers/COauth.php',
 		'CPdf'          => 'helpers/CPdf.php',
@@ -231,6 +232,10 @@ class A
 								$arrConfig['defaultController'] = ucfirst($configFileContent['defaultController']);
 								$arrConfig['defaultAction'] = $configFileContent['defaultAction'];
 							}
+                            // Override default ErrorController settings
+                            if(isset($configFileContent['defaultErrorController'])){
+								$arrConfig['defaultErrorController'] = ucfirst($configFileContent['defaultErrorController']);
+							}
                             // Override default payment complete page settings
                             if(isset($configFileContent['paymentCompletePage'])){
 								$arrConfig['paymentCompletePage'] = $configFileContent['paymentCompletePage'];
@@ -279,42 +284,16 @@ class A
 			$this->view->setTemplate(CConfig::get('template.default'));
         }
         
-        // Register framework core components
-        $this->_registerCoreComponents();
-
-        // Global test for database
-        if(CConfig::get('db.driver') != ''){
-            $db = CDatabase::init();
-            if(!CAuth::isGuest()) $db->cacheOff();
-        }
-   
-		// Global debug backtrace
-		try{
-			
-			// Register application components
-			$this->_registerAppComponents();
-			// Register application helpers
-			$this->_registerAppHelpers();
-			// Register application modules
-			$this->_registerAppModules();	
-			
-			// Run begin events
-			if($this->_hasEventHandler('_onBeginRequest')) $this->_onBeginRequest();
-			
-			if(APPHP_MODE != 'hidden'){
-				$this->router = new CRouter();
-				$this->router->route();
-				// Run finish events
-				if($this->_hasEventHandler('_onEndRequest')) $this->_onEndRequest();
-				// Show debug bar
-				CDebug::displayInfo();
+		// Run application and global debug backtrace
+		if(CConfig::get('exceptionHandling.enable') && CConfig::get('exceptionHandling.level') === 'global'){
+			try{
+				$this->_runApp();
+			}catch(Exception $e){
+				echo CDebug::backtrace($e->getMessage(), $e->getTrace());
+				exit;
 			}
-
-		}catch(Exception $e){
-			echo 'Exception caught: ',  $e->getMessage(), "\n";
-			echo 'Backtrace:';
-			echo CDebug::backtrace($e->getTrace());
-			exit;
+		}else{
+			$this->_runApp();
 		}
     }
 
@@ -395,7 +374,7 @@ class A
     }
 
     /**
-     * Translates a message to the specified language with encoded output
+     * Translates a message to the specified language with encoded output (used htmlspecialchars() function)
      * @param string $category
      * @param string $message
      * @param array $params
@@ -432,7 +411,7 @@ class A
 			include(dirname(__FILE__).DS.$classPath);
 		}
 		// Framework: HELPER CLASSES or HELPER EXTENSIONS
-		else if(isset(self::$_coreHelpers[$className])){            
+		elseif(isset(self::$_coreHelpers[$className])){            
 			$coreHelper = dirname(__FILE__).DS.self::$_coreHelpers[$className];
 			$extCoreHelper = APPHP_PATH.DS.'protected'.DS.self::$_coreHelpers[$className];
 			// Check if there extension exists in application
@@ -443,16 +422,16 @@ class A
 			}		
         }
 		// Framework: COMPONENT CLASSES
-		else if($coreComponent = $this->mapCoreComponent($className)){			
+		elseif($coreComponent = $this->mapCoreComponent($className)){			
 			include(dirname(__FILE__).DS.$coreComponent);
         }
 
 		// Application: COMPONENT CLASSES
-		else if(isset(self::$_appClasses[$className])){            
+		elseif(isset(self::$_appClasses[$className])){            
             include(APPHP_PATH.DS.'protected'.DS.self::$_appClasses[$className]);
         }
 		// Application: HELPER CLASSES
-		else if(isset(self::$_coreHelpers[$className])){
+		elseif(isset(self::$_coreHelpers[$className])){
 			include(APPHP_PATH.DS.'protected'.DS.self::$_appHelpers[$className]);
 		}
 		 
@@ -514,6 +493,41 @@ class A
     }    
 
     /**
+     * Run application 
+     * @return void
+     */
+    private function _runApp()
+    {
+		// Register framework core components
+		$this->_registerCoreComponents();
+
+		// Global test for database
+		if(CConfig::get('db.driver') != ''){
+			$db = CDatabase::init();
+			if(!CAuth::isGuest()) $db->cacheOff();
+		}
+   
+		// Register application components
+		$this->_registerAppComponents();
+		// Register application helpers
+		$this->_registerAppHelpers();
+		// Register application modules
+		$this->_registerAppModules();	
+		
+		// Run begin events
+		if($this->_hasEventHandler('_onBeginRequest')) $this->_onBeginRequest();
+		
+		if(APPHP_MODE != 'hidden'){
+			$this->router = new CRouter();
+			$this->router->route();
+			// Run finish events
+			if($this->_hasEventHandler('_onEndRequest')) $this->_onEndRequest();
+			// Show debug bar
+			CDebug::displayInfo();
+		}
+	}
+
+    /**
      * Puts a component under the management of the application
      * @param string $id
      * @param class $component 
@@ -523,11 +537,11 @@ class A
     	if($component === null){
             unset($this->_components[$id]);		
     	}else{
-            // For PHP_VERSION >= 5.3.0 you may use
+            // For PHP_VERSION | phpversion() >= 5.3.0 you may use
             // $this->_components[$id] = $component::init();
             if($callback = call_user_func_array($component.'::init', array())){
                 $this->_components[$id] = $callback;    
-            }else if(!in_array($component, array('CComponent'))){
+            }elseif(!in_array($component, array('CComponent'))){
                 CDebug::addMessage('warnings', 'missing-components', $component);    
             }            
         }
@@ -773,7 +787,7 @@ class A
      * @param string $name 
      * @return boolean 
      */
-    public function _hasEventHandler($name)
+    protected function _hasEventHandler($name)
     {
     	$name = strtolower($name);
     	return isset($this->_events[$name]) && count($this->_events[$name]) > 0;
@@ -783,7 +797,7 @@ class A
      * Raises an event
      * @param string $name 
      */
-    public function _raiseEvent($name)
+    protected function _raiseEvent($name)
     {
         $name = strtolower($name);
         if(isset($this->_events[$name])){
@@ -793,7 +807,7 @@ class A
 					$method = $handler[1];
 					if(is_string($object)){
 						@call_user_func_array(array($object, $method), array());
-					}else if(method_exists($object, $method)){
+					}elseif(method_exists($object, $method)){
 						$object->$method();
 					}
                 }else{
@@ -907,14 +921,15 @@ class A
     {
     	$this->_language = $language;
         $this->getSession()->set('language', $this->_language);
+		
+		if(isset($params['name'])) $this->getSession()->set('language_name', $params['name']);
+		if(isset($params['name_native'])) $this->getSession()->set('language_name_native', $params['name_native']);
         if(isset($params['locale'])){
             $this->getSession()->set('language_locale', $params['locale']);
             if(!setlocale(LC_ALL, $params['locale'])) CDebug::addMessage('warnings', 'missing-locale', A::t('core', 'Unable to find locale "{locale}" on your server.', array('{locale}'=>$params['locale'])), 'session');
         }
         if(isset($params['direction'])) $this->getSession()->set('language_direction', $params['direction']);
 		if(isset($params['icon'])) $this->getSession()->set('language_icon', $params['icon']);
-		if(isset($params['name'])) $this->getSession()->set('language_name', $params['name']);
-		if(isset($params['name_native'])) $this->getSession()->set('language_name_native', $params['name_native']);
     }
 
     /**
@@ -928,9 +943,9 @@ class A
         $language = $this->getSession()->get('language');
         if(!empty($param)){
 			return $this->getSession()->get('language_'.$param);
-		}else if(!empty($language)){
+		}elseif(!empty($language)){
             return $language;
-        }else if($this->_language === null && $useDefault){ 
+        }elseif($this->_language === null && $useDefault){ 
             return $this->sourceLanguage;
         }else{
             return $this->_language;
@@ -946,6 +961,8 @@ class A
     {
     	$this->_currency = $currency;
         $this->getSession()->set('currency_code', $this->_currency);
+		
+		if(isset($params['name'])) $this->getSession()->set('currency_name', $params['name']);
         if(isset($params['symbol'])) $this->getSession()->set('currency_symbol', $params['symbol']);
         if(isset($params['symbol_place'])) $this->getSession()->set('currency_symbol_place', $params['symbol_place']);
         if(isset($params['decimals'])) $this->getSession()->set('currency_decimals', $params['decimals']);
@@ -985,7 +1002,7 @@ class A
     	foreach(self::$_coreComponents as $id => $component){
             if(CConfig::get('session.customStorage') && $id == 'session'){
                 continue; 
-            }else if(!CConfig::get('session.customStorage') && $id == 'dbSession'){
+            }elseif(!CConfig::get('session.customStorage') && $id == 'dbSession'){
                 continue; 
             }
             $this->_setComponent($id, $component['class']);
@@ -1054,7 +1071,7 @@ class A
             $enable = isset($module['enable']) ? (bool)$module['enable'] : false;
             if($enable){
                 $moduleName = strtolower($id);
-                $moduleConfig = 'protected/modules/'.$moduleName.'/config/main.php';
+                $moduleConfig = APPHP_PATH.DS.'protected'.DS.'modules'.DS.$moduleName.DS.'config'.DS.'main.php';
                 if(file_exists($moduleConfig)){
                     $arrConfig = include_once($moduleConfig);
                     self::$_appModules[$moduleName] = $arrConfig;

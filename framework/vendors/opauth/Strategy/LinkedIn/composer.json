@@ -1,0 +1,23 @@
+{
+	"name": "opauth/linkedin",
+	"description": "LinkedIn strategy for Opauth",
+	"keywords": ["authentication","auth","linkedin","linked in"],
+	"homepage": "http://opauth.org",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "U-Zyn Chua",
+			"email": "chua@uzyn.com",
+			"homepage": "http://uzyn.com"
+		}
+	],
+	"require": {
+		"php": ">=5.2.0",
+		"opauth/opauth": ">=0.4.0"
+	},
+	"autoload": {
+		"psr-0": {
+			"": "."
+		}
+	}
+}

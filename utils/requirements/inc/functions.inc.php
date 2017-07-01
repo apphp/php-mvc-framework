@@ -56,9 +56,8 @@ function check_module_mod_rewrite()
     }else{
         // old - $mod_rewrite = getenv('HTTP_MOD_REWRITE') == 'On' ? true : false ;
 		$file_content = null;
-		if(file_exists(get_base_url().'tests/test1.txt')){
-			$file_content = file_get_contents(get_base_url().'tests/test1.txt');	
-		}        
+		$absolutePath = ini_get('allow_url_fopen') ? get_base_url() : '';
+		$file_content = file_get_contents($absolutePath.'tests/test1.txt');	
         $mod_rewrite = ($file_content == '2') ? true : false;
     }
 	
@@ -125,10 +124,11 @@ function get_base_url($absolute = true)
         $protocol = 'http://';
         $port = '';
         $httpHost = isset($_SERVER['HTTP_HOST']) ? htmlentities($_SERVER['HTTP_HOST']) : '';
-        if((isset($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) != 'off')) ||
-            strtolower(substr($_SERVER['SERVER_PROTOCOL'], 0, 5)) == 'https'){
-            $protocol = 'https://';
-        }	
+		$serverProtocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : '';
+
+		if((isset($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) != 'off')) || strtolower(substr($serverProtocol, 0, 5)) == 'https'){
+			$protocol = 'https://';
+		}
         if(isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] != '80'){
             if(!strpos($httpHost, ':')){
                 $port = ':'.$_SERVER['SERVER_PORT'];
@@ -140,13 +140,13 @@ function get_base_url($absolute = true)
     $scriptName = basename($_SERVER['SCRIPT_FILENAME']);
     if(basename($_SERVER['SCRIPT_NAME']) === $scriptName){
         $scriptUrl = $_SERVER['SCRIPT_NAME'];
-    }else if(basename($_SERVER['PHP_SELF']) === $scriptName){
+    }elseif(basename($_SERVER['PHP_SELF']) === $scriptName){
         $scriptUrl = $_SERVER['PHP_SELF'];
-    }else if(isset($_SERVER['ORIG_SCRIPT_NAME']) && basename($_SERVER['ORIG_SCRIPT_NAME']) === $scriptName){
+    }elseif(isset($_SERVER['ORIG_SCRIPT_NAME']) && basename($_SERVER['ORIG_SCRIPT_NAME']) === $scriptName){
         $scriptUrl = $_SERVER['ORIG_SCRIPT_NAME'];
-    }else if(($pos=strpos($_SERVER['PHP_SELF'], '/'.$scriptName)) !== false){
+    }elseif(($pos=strpos($_SERVER['PHP_SELF'], '/'.$scriptName)) !== false){
         $scriptUrl = substr($_SERVER['SCRIPT_NAME'], 0, $pos).'/'.$scriptName;
-    }else if(isset($_SERVER['DOCUMENT_ROOT']) && strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) === 0){
+    }elseif(isset($_SERVER['DOCUMENT_ROOT']) && strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) === 0){
         $scriptUrl = str_replace('\\','/',str_replace($_SERVER['DOCUMENT_ROOT'],'',$_SERVER['SCRIPT_FILENAME']));
     }else{
         CDebug::addMessage('error', 'entry_script', 'Framework is unable to determine the entry script URL');
@@ -172,7 +172,7 @@ function get_php_info()
 		$endArrayKeys = end($arrayKeys);
 		if(strlen($match[1])){
 			$phpInfo[$match[1]] = array();
-		}else if(isset($match[3])){
+		}elseif(isset($match[3])){
 			$phpInfo[$endArrayKeys][$match[2]] = isset($match[4]) ? array($match[3], $match[4]) : $match[3];
 		}else{				
 			$phpInfo[$endArrayKeys][] = $match[2];

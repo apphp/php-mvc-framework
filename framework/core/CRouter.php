@@ -116,7 +116,7 @@ class CRouter
 					if(!$this->_controller){
 						$this->_controller = ucfirst($part);					
 						CDebug::addMessage('params', 'controller', $this->_controller);
-					}else if(!$this->_action){
+					}elseif(!$this->_action){
 						$this->_action = $part;			
 						CDebug::addMessage('params', 'action', $this->_action);
 					}else{					
@@ -140,7 +140,7 @@ class CRouter
 			$this->_action = !empty($defaultAction) ? CFilter::sanitize('alphanumeric', $defaultAction) : $this->_defaultAction; 
 		}
 		// There is a controller, but no action - use default action setings
-		else if($this->_controller && !$this->_action){
+		elseif($this->_controller && !$this->_action){
 			if($this->_controller == $defaultController){
 				$this->_action = !empty($defaultAction) ? CFilter::sanitize('alphanumeric', $defaultAction) : $this->_defaultAction; 	
 			}else{
@@ -156,6 +156,10 @@ class CRouter
 	{
         $appDir = APPHP_PATH.DS.'protected'.DS.'controllers'.DS;
         $file = $this->_controller.'Controller.php';
+		$errorClass = '';
+		// Get default error controller
+		$errorController = CConfig::get('defaultErrorController', 'Error');
+		$errorController = preg_replace('/controller/i', '', $errorController);
 
 		if(is_file($appDir.$file)){
 			// Framework Controller
@@ -167,25 +171,39 @@ class CRouter
             if(!empty($classWithNamespace)){
 				// Module Controller with namespace (new syntax in framework >= v0.8.0)
 				$class = A::app()->mapAppModuleClass($this->_controller).'Controller';
-			}else if(is_file($moduleDir.$file)){
+			}elseif(is_file($moduleDir.$file)){
 				// Module Controller
                 $class = $this->_controller.'Controller';
             }else{
-            	$class = 'ErrorController';
+				$errorClass = A::app()->mapAppModuleClass($errorController);
+				if(!empty($errorClass)){
+					$class = $errorClass.'Controller';
+				}else{
+					$class = $errorController.'Controller';
+				}
+				
                 A::app()->setResponseCode('404');
             	CDebug::addMessage('errors', 'controller', A::t('core', 'Router: unable to resolve the request "{controller}".', array('{controller}' => $this->_controller)));
             }
         } 
-		A::app()->view->setController(($class == 'ErrorController' ? 'Error' : $this->_controller));
+		A::app()->view->setController(($class == $errorController ? 'Error' : $this->_controller));
 		$controller = new $class();
 
 		if(is_callable(array($controller, $this->_action.'Action'))){
 			$action = $this->_action.'Action';
-		}else if($class != 'ErrorController'){
+		}elseif($class != $errorController){
 			// For non-logged users and classes where errorAction was not redeclared - force using standard 404 error controller
 			$reflector = new ReflectionMethod($class, 'errorAction');
 			if(!CAuth::isLoggedIn() && $reflector->getDeclaringClass()->getName() == 'CController'){
-				$controller = new ErrorController();
+				$errorClass = A::app()->mapAppModuleClass($errorController);
+				if(!empty($errorClass)){
+					$errorClass .= 'Controller';
+					$controller = new $errorClass();
+				}else{
+					$errorController .= 'Controller';
+					$controller = new $errorController();
+				}				
+				
 				$action = 'indexAction';				
 			}else{
 				$action = 'errorAction';	
@@ -199,8 +217,8 @@ class CRouter
 		// Call controller::action + pass parameters
 		call_user_func_array(array($controller, $action), self::getParams());		 
 
-		CDebug::addMessage('params', 'run_controller', $class);
-		CDebug::addMessage('params', 'run_action', $action);		
+		CDebug::addMessage('params', 'running_controller', (!empty($errorClass) ? $errorClass : $class));
+		CDebug::addMessage('params', 'running_action', $action);		
 	}
     
  	/**	 

@@ -17,7 +17,9 @@ class AuthorsController extends CController
         parent::__construct();
         
         // block access to this controller for not-logged users
-		CAuth::handleLogin();	
+		if(!CAuth::isLoggedIn()){
+			$this->redirect('index/index');
+		}	
 			
         $this->_loggedId = CAuth::getLoggedId();
 

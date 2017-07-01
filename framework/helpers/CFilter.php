@@ -36,34 +36,34 @@ class CFilter
         if($type == 'string'){
             // Strip tags, optionally strip or encode special characters
             return filter_var($data, FILTER_SANITIZE_STRING);        
-        }else if($type == 'email'){
+        }elseif($type == 'email'){
             // Remove all characters excepting letters, digits and !#$%&'*+-=?^_`{|}~@.[].
             return filter_var($data, FILTER_SANITIZE_EMAIL);       
-        }else if($type == 'url'){
+        }elseif($type == 'url'){
             // Remove all characters excepting letters, digits and $-_.+!*'(),{}|\\^~[]`<>#%";/?:@&=.
             return filter_var($data, FILTER_SANITIZE_URL);
-        }else if($type == 'alpha'){
+        }elseif($type == 'alpha'){
             // Leave only letters 
             return preg_replace('/[^A-Za-z]/', '', $data);       
-        }else if($type == 'alphanumeric'){
+        }elseif($type == 'alphanumeric'){
             // Leave only letters and digits
             return preg_replace('/[^A-Za-z0-9]/', '', $data);       
-        }else if($type == 'hour' || $type == 'minute'){
+        }elseif($type == 'hour' || $type == 'minute'){
             // Leave only digits and zero
             return preg_replace('/[^0-9]/', '', $data);       
-        }else if($type == 'integer' || $type == 'int'){
+        }elseif($type == 'integer' || $type == 'int'){
             // Remove all characters except digits, plus and minus sign
             return filter_var($data, FILTER_SANITIZE_NUMBER_INT);       
-        }else if($type == 'float'){
+        }elseif($type == 'float'){
             // Remove all characters except digits, +- and optionally .,eE
             return filter_var($data, FILTER_SANITIZE_NUMBER_FLOAT);
-        }else if($type == 'dbfield'){
+        }elseif($type == 'dbfield'){
             // Leave only allowed characters for database field name
             return preg_replace('/[^A-Za-z0-9_\-]/', '', $data);
-		}else if($type == 'filename'){
+		}elseif($type == 'filename'){
 			// Sanitize filename
 			return $ciSecurity->sanitize_filename($data);
-		}else if($type == 'xss'){
+		}elseif($type == 'xss'){
 			// Sanitize input with xss
 			return $ciSecurity->xss_clean($data);
         }

@@ -101,9 +101,9 @@ class CRss
 
 		if(self::$_rssType === 'rss1'){
 			self::$_channelDate = LocalTime::currentDate('Y-m-d').'T'.LocalTime::currentTime('H:i:s').'+02:00';
-		}else if(self::$_rssType === 'rss2'){
+		}elseif(self::$_rssType === 'rss2'){
 			self::$_channelDate = LocalTime::currentDateTime('D, d M Y H:i:s T');
-		}else if(self::$_rssType === 'atom'){
+		}elseif(self::$_rssType === 'atom'){
 			self::$_channelDate = LocalTime::currentDate('Y-m-d').'T'.LocalTime::currentTime('H:i:sP');
 		}else{
 			self::$_channelDate=LocalTime::currentDate('Y-m-d').'T'.LocalTime::currentTime('H:i:sT');
@@ -187,7 +187,7 @@ class CRss
 			$output .= '</feed>'.$nl;			
 		
 		// RSS 2.0
-		}else if(self::$_rssType == 'rss2'){
+		}elseif(self::$_rssType == 'rss2'){
 			$output =  '<?xml version="1.0" encoding="utf-8"?>'.$nl;
 			$output .= '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">'.$nl;
 			$output .= '<channel>'.$nl;

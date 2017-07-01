@@ -21,11 +21,13 @@
  * getDirectoryFilesNumber
  * removeDirectoryOldestFile
  * findSubDirectories
+ * fileExists
  * writeToFile
  * copyFile
  * findFiles
  * deleteFile
  * getFileSize
+ * getImageDimensions
  * createShortenName
  * 
  */	  
@@ -179,28 +181,29 @@ class CFile
 
 	/**
 	 * Deletes given directory with files it includes 
-	 * @param string $dir
+	 * @param string $path
 	 * @return bool
 	 */
-	public static function deleteDirectory($dir = '')
+	public static function deleteDirectory($path = '')
 	{
-		self::emptyDirectory($dir);
-        return rmdir($dir);
+		$files = glob($path.'/*');
+		foreach($files as $file){
+			is_dir($file) ? self::deleteDirectory($file) : unlink($file);
+		}
+		rmdir($path);
+		return true;
 	}
 
 	/**
 	 * Removes files and subdirectories of the given directory
-	 * @param string $dir
+	 * @param string $path
 	 * @return bool
 	 */
-	public static function emptyDirectory($dir = '')
+	public static function emptyDirectory($path = '')
 	{
-		foreach(glob($dir.'/*') as $file){
-			if(is_dir($file)){
-				self::emptyDirectory($file);
-			}else{
-				unlink($file);
-			}
+		$files = glob($path.'/*');
+		foreach($files as $file){
+			is_dir($file) ? self::emptyDirectory($file) : unlink($file); 
 		}
 		return true;
 	}
@@ -225,7 +228,7 @@ class CFile
 			$dir = opendir($dirPath);
 			if(!$dir) return $result;
 			if(!file_exists(trim($dest, '/').'/')){
-                mkdir((($fullPath) ? APPHP_PATH.'/' : '').$dest);
+                mkdir((($fullPath) ? APPHP_PATH.'/' : '').ltrim($dest, '/'), 0777, true);
             }
             if(is_dir($dest)){
 				@chmod($dest, (isset($options['newDirMode']) ? $options['newDirMode'] : 0777));
@@ -328,6 +331,21 @@ class CFile
 	}
     
 	/**
+	 * Check sif file exists
+	 * @param string $path
+	 * @return bool
+	 */
+	public static function fileExists($path = '')
+	{
+		$result = true;		
+		if(substr($path, -1) === '/' || !file_exists($path)){
+			$result = false;
+			CDebug::addMessage('errors', 'warnings', A::t('core', 'Unable to find file: "{file}".', array('{file}'=>$path)));
+		}		
+		return $result;
+	}
+
+	/**
 	 * Writes to the file
 	 * @param string $file  
 	 * @param mixed $content
@@ -429,7 +447,21 @@ class CFile
 				break;
 		}
 		return $result;
-	}	
+	}
+	
+	/**
+	 * Returns dimensions of the given file
+	 * @param string $image
+	 * @return array
+	 */
+	public static function getImageDimensions($image)
+	{
+		if(!$image || !is_file($image)) return 0;
+		
+		list($width, $height) = getimagesize($image);
+		
+		return array('width'=>$width, 'height'=>$height);
+	}
    
 	/**
 	 * Returns shorten name of the given file
@@ -464,7 +496,7 @@ class CFile
 				if(self::_validatePath($base, $file, $isFile, $fileTypes, $exclude)){
 					if($isFile){
 						$list[] = ($returnType == 'fileOnly') ? $file : $path;
-					}else if($level){
+					}elseif($level){
 						$list = array_merge($list, self::_findFilesRecursive($path, $base.'/'.$file, $fileTypes, $exclude, $level-1, $returnType));
 					}
 				}
@@ -503,7 +535,7 @@ class CFile
      */
     private static function _errorHanler($msgType = '', $msg = '')
     {
-        if(version_compare(PHP_VERSION, '5.2.0', '>=')){	
+        if(version_compare(phpversion(), '5.2.0', '>=')){	
             $err = error_get_last();
             if(isset($err['message']) && $err['message'] != ''){
                 $lastError = $err['message'].' | file: '.$err['file'].' | line: '.$err['line'];
