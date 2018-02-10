@@ -3,6 +3,7 @@
 <ul>
     <li><a href="#general">General Info</a></li>
     <li><a href="#pdo">Working with PDO</a></li>
+	<li><a href="#query_builder">Working with Query Builder</a></li>
     <li>
         <a href="#active_records">Working with Active Records</a>
         <ul>
@@ -22,7 +23,8 @@
 Database manipulation classes representes the "Model" layer as it defined in MVC. ApPHP framework contains
 core class called Model for the implementation of database models. Description classes for entities used
 in applications must extend this class. Model class files must be located in subdirectory 
-<code>protected/models/</code> inside the application directory.
+<code>protected/models/</code> inside the application directory. There are some table names that reserved for system needs:
+table names that end with <code>_translations</code>, <code>_description</code> or <code>site_info</code>.
 <br /><br />
 
 
@@ -135,6 +137,30 @@ $result = CDatabase::init()->select('SELECT COUNT(*) as cnt FROM '.CConfig::get(
 </pre>
 <br /><br />
 
+
+<a name="query_builder"></a>
+<h3>Working with Query Builder <a class="hashlink" href="#query_builder">¶</a></h3>
+CDbCommand represents an SQL statement to execute against a database.
+<br>
+To execute a non-query SQL (such as insert, delete, update), use <code>PDO methods</code> (see previous paragraph).
+<br>
+To execute an SQL statement that returns result data set (such as SELECT), use query or its convenient versions
+queryRow, queryColumn, or queryScalar.
+
+<pre name="dlhl" class="php">
+$accounts = CDatabase::init()->createCommand()
+    ->select('username, password')
+    ->from(CConfig::get('db.prefix').'accounts')
+    ->order('id ASC')
+    ->queryAll();
+     
+$account = CDatabase::init()->createCommand()
+    ->select('username, password')
+    ->from(CConfig::get('db.prefix').'accounts')
+    ->where('id=:id', array(':id'=>1))
+    ->queryRow();
+</pre>
+<br /><br />
 
 
 <a name="active_records"></a>
@@ -280,7 +306,7 @@ property will reflect the primary key value of the newly inserted post, even tho
 change it explicitly.    
 <br><br>
 
-If a column is defined with some pre-defined default value (e.g. 0000-00-00, 1 or NULL) in the table
+If a column is defined with some pre-defined default value (e.g. 'pending', 1 or NULL) in the table
 schema, the corresponding property in the AR instance will automatically get such value after
 the instance is created.
 <br><br>

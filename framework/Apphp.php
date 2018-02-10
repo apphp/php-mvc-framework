@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC:					PROTECTED:					    PRIVATE:		
@@ -66,7 +66,7 @@ class A
 	
 
 	/** @var string */
-	private static $_frameworkVersion = '1.0.3';	
+	private static $_frameworkVersion = '1.1.5';	
 	/** @var string */
 	private static $_phpVersion;
 	/** @var object */
@@ -87,13 +87,13 @@ class A
         'CRouter'       => 'core/CRouter.php',
         'CView'         => 'core/CView.php',
         
-        'CActiveRecord' => array('5.2.0'=>'db/CActiveRecord.520.php', '5.3.0'=>'db/CActiveRecord.php'),
+        'CActiveRecord' => array('5.3.0'=>'db/CActiveRecord.php'),
         'CDatabase'     => 'db/CDatabase.php',
-        'CDataGrid'     => 'db/CDataGrid.php',
+        'CDbCommand'    => 'db/CDbCommand.php',
     );
     /** @var array */
     private static $_coreComponents = array(
-		'component'    	=> array('class' => 'CComponent', 		'path' => array('5.2.0'=>'components/CComponent.520.php', '5.3.0'=>'components/CComponent.php')),
+		'component'    	=> array('class' => 'CComponent', 		'path' => array('5.3.0'=>'components/CComponent.php')),
         'clientScript'	=> array('class' => 'CClientScript', 	'path' => 'components/CClientScript.php'),
         'dbSession' 	=> array('class' => 'CDbHttpSession', 	'path' => 'components/CDbHttpSession.php'),
         'request'   	=> array('class' => 'CHttpRequest', 	'path' => 'components/CHttpRequest.php'),
@@ -344,7 +344,7 @@ class A
      */
     public static function powered()
     {
-        return self::t('core', 'Powered by').' <a href="http://www.apphp.com/" rel="external">ApPHP</a>';
+        return self::t('core', 'Powered by').' <a href="https://www.apphp.com" rel="external">ApPHP</a>';
     }
 
     /**
@@ -1032,6 +1032,7 @@ class A
     protected function _registerAppComponents()
     {
     	if(!is_array(CConfig::get('components'))) return false;
+		$arrSetComponents = array();
         foreach(CConfig::get('components') as $id => $component){
             $enable = isset($component['enable']) ? (bool)$component['enable'] : false;
             $class = isset($component['class']) ? $component['class'] : '';
@@ -1040,10 +1041,15 @@ class A
             if($enable && $class){
                 self::$_appClasses[$class] = (!empty($module) ? 'modules/'.$module.'/' : '').'components/'.$class.'.php';
 				if(!preg_match('/Component/i', $class)){
-					$this->_setComponent($id, $class);	
+					$arrSetComponents[$id] = $class;
 				}
             }
         }
+		if(!empty($arrSetComponents)){
+            foreach($arrSetComponents as $id => $className){
+                $this->_setComponent($id, $className);
+            }
+        }		
     }
 	
     /**

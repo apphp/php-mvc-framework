@@ -10,4 +10,10 @@ return array(
 	'defaultErrorController' => 'Error',
 	'defaultController' => 'Index',
     'defaultAction' => 'index',	
+
+	// Layout default settings  
+	'layouts' => array(
+		'enable' => false, 
+		'default' => 'default'
+	),
 );

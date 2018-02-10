@@ -14,6 +14,10 @@ General update intructions
 - Check if everything is OK, if not - revert from backup and post issues to ApPHP issue tracker.
 
 
+Updating from 1.0.3 to 
+------------------------------
+- changed format for 'layouts' in config file
+
 Updating from 0.9.0 to 1.0.3
 ------------------------------
 - in AR->findall() cacheId added as a 3rd optional parameter

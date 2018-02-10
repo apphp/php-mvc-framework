@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED (static):			PRIVATE (static):
@@ -113,10 +113,11 @@ class CHtml
         if(isset($htmlOptions['escape']) && $htmlOptions['escape'] === true){
             $text = self::escapeHexEntity($text);
             $htmlOptions['href'] = self::escapeHex($htmlOptions['href']);
-            unset($htmlOptions['escape']);
+            if(isset($htmlOptions['escape'])) unset($htmlOptions['escape']);
         }
+		// Prevent target="_blank" vulnerability
 		if(isset($htmlOptions['target']) && strtolower($htmlOptions['target']) === '_blank' && empty($htmlOptions['rel'])){
-			$htmlOptions['rel'] = 'nofollow noopener';
+			$htmlOptions['rel'] = 'noopener noreferrer';
 		}
 		return self::tag('a', $htmlOptions, $text);
 	}
@@ -130,8 +131,12 @@ class CHtml
 	 */
 	public static function label($label, $for = false, $htmlOptions = array())
 	{
-		if($for === false) unset($htmlOptions['for']);
-		else $htmlOptions['for'] = $for;        
+		if($for === false){
+			if(isset($htmlOptions['for'])) unset($htmlOptions['for']);
+		}
+		else{
+			$htmlOptions['for'] = $for;
+		}
 		return self::tag('label', $htmlOptions, $label);
 	}
 
@@ -425,7 +430,7 @@ class CHtml
 	{
 		if($checked){
 			$htmlOptions['checked'] = 'checked';
-		}else{
+		}elseif(isset($htmlOptions['checked'])){
 			unset($htmlOptions['checked']);
 		}
 
@@ -488,8 +493,11 @@ class CHtml
 		}		
 		unset($htmlOptions['checkAll'], $htmlOptions['checkAllLast']);
 
-		$labelOptions = isset($htmlOptions['labelOptions']) ? $htmlOptions['labelOptions'] : array();
-		unset($htmlOptions['labelOptions']);
+		$labelOptions = array();
+		if(isset($htmlOptions['labelOptions'])){
+			$labelOptions = $htmlOptions['labelOptions'];
+			unset($htmlOptions['labelOptions']);
+		}
 
 		$items = array();
 		$baseID = self::getIdByName($name);
@@ -539,7 +547,7 @@ class CHtml
 	public static function radioButton($name, $checked = false, $htmlOptions = array())
 	{
 		if($checked) $htmlOptions['checked'] = 'checked';
-		else unset($htmlOptions['checked']);
+		elseif(isset($htmlOptions['checked'])) unset($htmlOptions['checked']);
 		
 		$value = isset($htmlOptions['value']) ? $htmlOptions['value'] : 1;
 		
@@ -578,8 +586,11 @@ class CHtml
 		$template = isset($htmlOptions['template']) ? $htmlOptions['template'] : '{input} {label}';
 		$separator = isset($htmlOptions['separator']) ? $htmlOptions['separator'] : "\n";
 		unset($htmlOptions['template'], $htmlOptions['separator']);
-		$labelOptions = isset($htmlOptions['labelOptions']) ? $htmlOptions['labelOptions'] : array();
-		unset($htmlOptions['labelOptions']);
+		$labelOptions = array();
+		if(isset($htmlOptions['labelOptions'])){
+			$labelOptions = $htmlOptions['labelOptions'];
+			unset($htmlOptions['labelOptions']);
+		}
 		$items = array();
 		$baseID = self::getIdByName($name);
 		$id = 0;
@@ -720,7 +731,7 @@ class CHtml
 				$content .= self::tag('option', $attributes, $raw ? (string)$value : self::encode((string)$value))."\n";
 			}
 		}
-		unset($htmlOptions['key']);
+		if(isset($htmlOptions['key'])) unset($htmlOptions['key']);
 		return $content;
 	}
 

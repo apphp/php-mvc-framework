@@ -241,6 +241,12 @@
 		"isTablet",
 		"getMobileDetect",
 		"resultArray",
+		"createCommand",
+		"from",
+		"order",
+		"where",
+		"queryRow",
+		"queryAll",		
 	];
 
 	var BUILTINS = {};

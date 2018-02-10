@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE (static):		
@@ -82,6 +82,7 @@ class CGridView extends CWidgs
 	 *    'linkType' 			=> 0,
 	 *    'options'	=> array(
 	 *    	 'filterDiv' 	=> array('class'=>''),
+	 *    	 'filterForm' 	=> array('class'=>''),
 	 *    	 'filterType' 	=> 'default|megamenu',
 	 *    	 'gridWrapper'	=> array('tag'=>'div', 'class'=>''),
 	 *    	 'gridTable' 	=> array('class'=>''),
@@ -93,17 +94,17 @@ class CGridView extends CWidgs
      *    	 'field_4' 	=> array('title'=>'Field 4', 'type'=>'datetime', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'80px', 'maxLength'=>'', 'format'=>'', 'htmlOptions'=>array()),
      *    ),
 	 *    'fields'	=> array(
-	 *       'field_1' => array('title'=>'Field 1', 'type'=>'index', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>false),
-	 *       'field_2' => array('title'=>'Field 2', 'type'=>'concat', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>true, 'concatFields'=>array('first_name', 'last_name'), 'concatSeparator'=>', ',),
-	 *       'field_3' => array('title'=>'Field 3', 'type'=>'decimal', 'align'=>'', 'width'=>'', 'class'=>'right', 'headerClass'=>'right', 'isSortable'=>true, 'format'=>'american|european', 'decimalPoints'=>''),
-	 *       'field_4' => array('title'=>'Field 4', 'type'=>'datetime', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'format'=>''),
-	 *       'field_5' => array('title'=>'Field 5', 'type'=>'enum', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerClass'=>'center', 'isSortable'=>true, 'source'=>array('0'=>'No', '1'=>'Yes')),
-	 *       'field_6' => array('title'=>'Field 6', 'type'=>'image', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerClass'=>'center', 'isSortable'=>false, 'imagePath'=>'images/flags/', 'defaultImage'=>'', 'imageWidth'=>'16px', 'imageHeight'=>'16px', 'alt'=>'', 'showImageInfo'=>true),
-	 *       'field_7' => array('title'=>'Field 7', 'type'=>'label', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'stripTags'=>false, 'case'=>'', 'maxLength'=>'', 'showTooltip'=>true, 'callback'=>array('function'=>$functionName, 'params'=>$functionParams)),
-	 *       'field_8' => array('title'=>'Field 8', 'type'=>'html', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'stripTags'=>false, 'case'=>'', 'maxLength'=>'', 'showTooltip'=>true, 'callback'=>array('function'=>$functionName, 'params'=>$functionParams)),
-	 *       'field_9' => array('title'=>'Field 9', 'type'=>'link', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerClass'=>'center', 'isSortable'=>false, 'linkUrl'=>'path/to/param/{field_name}', 'linkText'=>'', 'definedValues'=>array(), 'htmlOptions'=>array()),
-	 *       'field_10' => array('title'=>'Field 10', 'type'=>'evaluation', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerClass'=>'center', 'isSortable'=>false, 'minValue'=>1, 'maxValue'=>5, 'tooltip'=>A::t('app', 'Value'), 'counts'=>array('fieldName'=>'', 'title'=>A::t('app', 'Evaluations')), 'definedValues'=>array(), 'htmlOptions'=>array()),
-	 *       'field_11' => array('title'=>'Field 11', 'type'=>'template', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerClass'=>'left', 'isSortable'=>false, 'sortBy'=>'', 'html'=>'{category_id}', 'fields'=>array('category_id'=>array('default'=>'', 'prefix'=>'', 'postfix'=>'', 'source'=>array()))),
+	 *       'field_1' => array('title'=>'Field 1', 'type'=>'index', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>false),
+	 *       'field_2' => array('title'=>'Field 2', 'type'=>'concat', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>true, 'concatFields'=>array('first_name', 'last_name'), 'concatSeparator'=>', ',),
+	 *       'field_3' => array('title'=>'Field 3', 'type'=>'decimal', 'align'=>'', 'width'=>'', 'class'=>'right', 'headerTooltip'=>'', 'headerClass'=>'right', 'isSortable'=>true, 'format'=>'american|european', 'decimalPoints'=>''),
+	 *       'field_4' => array('title'=>'Field 4', 'type'=>'datetime', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'format'=>''),
+	 *       'field_5' => array('title'=>'Field 5', 'type'=>'enum', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerTooltip'=>'', 'headerClass'=>'center', 'isSortable'=>true, 'source'=>array('0'=>'No', '1'=>'Yes')),
+	 *       'field_6' => array('title'=>'Field 6', 'type'=>'image', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerTooltip'=>'', 'headerClass'=>'center', 'isSortable'=>false, 'imagePath'=>'images/flags/', 'defaultImage'=>'', 'imageWidth'=>'16px', 'imageHeight'=>'16px', 'alt'=>'', 'showImageInfo'=>true),
+	 *       'field_7' => array('title'=>'Field 7', 'type'=>'label', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'stripTags'=>false, 'case'=>'', 'maxLength'=>'', 'showTooltip'=>true, 'callback'=>array('function'=>$functionName, 'params'=>$functionParams)),
+	 *       'field_8' => array('title'=>'Field 8', 'type'=>'html', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'stripTags'=>false, 'case'=>'', 'maxLength'=>'', 'showTooltip'=>true, 'callback'=>array('function'=>$functionName, 'params'=>$functionParams)),
+	 *       'field_9' => array('title'=>'Field 9', 'type'=>'link', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerTooltip'=>'', 'headerClass'=>'center', 'isSortable'=>false, 'linkUrl'=>'path/to/param/{field_name}', 'linkText'=>'{field_name}|free text', 'definedValues'=>array(), 'htmlOptions'=>array()),
+	 *       'field_10' => array('title'=>'Field 10', 'type'=>'evaluation', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerTooltip'=>'', 'headerClass'=>'center', 'isSortable'=>false, 'minValue'=>1, 'maxValue'=>5, 'tooltip'=>A::t('app', 'Value'), 'counts'=>array('fieldName'=>'', 'title'=>A::t('app', 'Evaluations')), 'definedValues'=>array(), 'htmlOptions'=>array()),
+	 *       'field_11' => array('title'=>'Field 11', 'type'=>'template', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>false, 'sortBy'=>'', 'html'=>'{category_id}', 'fields'=>array('category_id'=>array('default'=>'', 'prefix'=>'', 'postfix'=>'', 'source'=>array()))),
 	 *    ),
 	 *    'actions'	=> array(
      *    	 'edit'    => array('link'=>'locations/edit/id/{id}/page/{page}', 'imagePath'=>'templates/backend/images/edit.png', 'title'=>'Edit this record'),
@@ -133,6 +134,7 @@ class CGridView extends CWidgs
 		$actions 	   		= self::params('actions', array());
 		$sortingEnabled 	= (bool)self::params('sorting', false);
 		$filterDiv			= self::params('options.filterDiv', array());
+		$filterForm			= self::params('options.filterForm', array());
 		$filterItemDiv		= self::params('options.filterItemDiv', array());
 		$filterType			= self::params('options.filterType', 'default');
 		$gridWrapper		= self::params('options.gridWrapper', array());
@@ -221,7 +223,7 @@ class CGridView extends CWidgs
                 $output .= CHtml::closeTag('a');
                 $output .= CHtml::openTag('div', array('class'=>(!empty($filterDiv['class']) ? $filterDiv['class'] : 'filtering-wrapper'), 'style'=>'display:none;')).self::NL;
                 $output .= CHtml::openTag('div', array('class'=>'filtering-wrapper-inner')).self::NL;
-                $output .= CHtml::openForm($actionPath, 'get', array('id'=>'frmFilter'.$modelName)).self::NL;
+                $output .= CHtml::openForm($actionPath, 'get', array('id'=>'frmFilter'.$modelName, 'class'=>(!empty($filterForm['class']) ? $filterForm['class'] : null))).self::NL;
                 $output .= CHtml::openTag('div', array('class'=>'row')).self::NL;
             }else{
                 $output .= CHtml::openTag('div', array('class'=>(!empty($filterDiv['class']) ? $filterDiv['class'] : 'filtering-wrapper'))).self::NL;
@@ -607,6 +609,7 @@ class CGridView extends CWidgs
 					$sortField 		= self::keyAt('sortBy', $val, '');
 					$widthAttr 		= self::keyAt('width', $val);
 					$alignAttr 		= self::keyAt('align', $val);
+					$headerTooltip 	= self::keyAt('headerTooltip', $val);
 					
 					// Prepare style attributes
 					$width = (!empty($widthAttr) && CValidator::isHtmlSize($widthAttr)) ? 'width:'.$widthAttr.';' : '';
@@ -626,6 +629,9 @@ class CGridView extends CWidgs
 						$linkUrl .= self::_customParams($customParameters, $linkType, '&');
 						$title = CHtml::link($title.$sortImg, $linkUrl);
 					}
+					
+					$title .= !empty($headerTooltip) ? ' '.CHtml::link('', false, array('class'=>'tooltip-icon', 'title'=>$headerTooltip)) : '';
+					
 					$output .= CHtml::tag('th', array('class'=>$headerClass, 'style'=>$style), $title).self::NL;
 				}
 				if($activeActions > 0){
@@ -830,7 +836,7 @@ class CGridView extends CWidgs
 							$fieldOutput .= $htmlCode;							
 							break;
 						
-						case 'html':						
+						case 'html':
 						case 'label':
 						default:
 							// Call of closure function on item creating event

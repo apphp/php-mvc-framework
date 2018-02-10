@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * IMPORTANT:
@@ -23,12 +23,14 @@
  * cacheOff                                             _setCaching
  * select                                               _isCacheAllowed
  * insert                                               _formattedMicrotime
- * update                                               
+ * update                                               _quotes
  * delete
+ * truncate
  * lastId
  * lastQuery
  * customQuery                                          
  * customExec
+ * createCommand
  * showTables
  * showColumns
  * getVersion
@@ -59,6 +61,8 @@ class CDatabase extends PDO
     private $_cacheDir;
 	/**	@var string */
 	private $_query;
+	/**	@var char */
+	private $_backQuote = '`';
 	/**	@var boolean */
 	private static $_error;
 	/**	@var string */
@@ -128,7 +132,12 @@ class CDatabase extends PDO
 				$this->_cacheDir = CConfig::get('cache.path'); /* protected/tmp/cache/ */
 				if($this->_cache) CDebug::addMessage('general', 'cache', 'enabled ('.$this->_cacheType.') ');
 			}
-        }        
+        }
+		
+		// Set back quote according to database driver
+		if(preg_match('/mssql|sqlsrv/i', $this->_dbDriver)){
+			$this->_backQuote = '';
+		}
     }    
 
 	/**
@@ -161,14 +170,17 @@ class CDatabase extends PDO
      * Performs select query
      * @param string $sql SQL string
      * @param array $params parameters to bind
+     * @param string $method (e.g 'fetch' or 'fetchAll')
      * @param constant $fetchMode PDO fetch mode
      * @param bool|string $cacheId cache identificator
      * @return mixed - an array containing all of the result set rows
      * Ex.: Array([0] => Array([id] => 11, [name] => John), ...)
      */
-    public function select($sql, $params = array(), $fetchMode = PDO::FETCH_ASSOC, $cacheId = '')
+    public function select($sql, $params = array(), $method = 'fetchAll', $fetchMode = PDO::FETCH_ASSOC, $cacheId = '')
     {
-		$startTime = $this->_formattedMicrotime();
+		if(APPHP_MODE == 'debug'){
+			$startTime = $this->_formattedMicrotime();
+		}
 		
         $sth = $this->prepare($sql);
         $cacheContent = null;
@@ -192,7 +204,7 @@ class CDatabase extends PDO
                     }
                 }            
                 $sth->execute();
-                $result = $sth->fetchAll($fetchMode);
+                $result = $sth->$method($fetchMode);
                 
                 if($this->_isCacheAllowed($cacheId)) CCache::setContent($result, $this->_cacheDir);
             }else{
@@ -231,14 +243,16 @@ class CDatabase extends PDO
 			return false;
 		}
 		
-		$startTime = $this->_formattedMicrotime();
+		if(APPHP_MODE == 'debug'){
+			$startTime = $this->_formattedMicrotime();
+		}
 
         ksort($data);
         
-        $fieldNames = implode('`, `', array_keys($data));
+        $fieldNames = $this->_quotes(implode($this->_backQuote.', '.$this->_backQuote, array_keys($data)));
         $fieldValues = ':'.implode(', :', array_keys($data));
         
-        $sql = 'INSERT INTO `'.$this->_dbPrefix.$table.'` (`'.$fieldNames.'`) VALUES ('.$fieldValues.')';
+        $sql = 'INSERT INTO '.$this->_quotes($this->_dbPrefix.$table).' ('.$fieldNames.') VALUES ('.$fieldValues.')';
         $sth = $this->prepare($sql);
         
         if(is_array($data)){
@@ -285,18 +299,20 @@ class CDatabase extends PDO
 			return false;
 		} 
 		
-		$startTime = $this->_formattedMicrotime();
+		if(APPHP_MODE == 'debug'){
+			$startTime = $this->_formattedMicrotime();
+		}
 
 		ksort($data);
         
         $fieldDetails = NULL;
         if(is_array($data)){
             foreach($data as $key => $value){
-                $fieldDetails .= '`'.$key.'` = :'.$key.',';
+                $fieldDetails .= $this->_quotes($key).' = :'.$key.',';
             }            
         }
         $fieldDetails = rtrim($fieldDetails, ',');
-        $sql = 'UPDATE `'.$this->_dbPrefix.$table.'` SET '.$fieldDetails.' WHERE '.$where;
+        $sql = 'UPDATE '.$this->_quotes($this->_dbPrefix.$table).' SET '.$fieldDetails.' WHERE '.$where;
 
         $sth = $this->prepare($sql);
         if(is_array($data)){
@@ -346,7 +362,7 @@ class CDatabase extends PDO
      * @param string $table
      * @param string $where the WHERE clause of query 
      * @param array $params
-     * @return integer affected rows
+     * @return bool|int affected rows or false
      */
     public function delete($table, $where = '', $params = array())
     {
@@ -355,10 +371,12 @@ class CDatabase extends PDO
 			return false;
 		} 
 
-		$startTime = $this->_formattedMicrotime();
-
+		if(APPHP_MODE == 'debug'){
+			$startTime = $this->_formattedMicrotime();
+		}
+		
         $where_clause = (!empty($where) && !preg_match('/\bwhere\b/i', $where)) ? ' WHERE '.$where : $where;
-        $sql = 'DELETE FROM `'.$this->_dbPrefix.$table.'` '.$where_clause;
+        $sql = 'DELETE FROM '.$this->_quotes($this->_dbPrefix.$table).' '.$where_clause;
         
         $sth = $this->prepare($sql);
         if(is_array($params)){
@@ -389,6 +407,48 @@ class CDatabase extends PDO
 		
 		return $result; 
     }
+	
+    /**
+     * Builds and executes a SQL statement for truncating a DB table
+	 * @param string $table the table to be truncated
+	 * @return bool|int affected rows or false
+	 * @since 1.1.0
+     */
+    public function truncate($table)
+    {
+        if(APPHP_MODE == 'demo'){
+			self::$_errorMessage = A::t('core', 'This operation is blocked in Demo Mode!');
+			return false;
+		} 
+
+		if(APPHP_MODE == 'debug'){
+			$startTime = $this->_formattedMicrotime();
+		}
+
+		$sql = ' TRUNCATE TABLE '.$this->_quotes($this->_dbPrefix.$table);
+		$sth = $this->prepare($sql);
+		
+		try{
+            $sth->execute();
+            $result = $sth->rowCount();
+		}catch(PDOException $e){			
+            $this->_errorLog('delete [database.php, ln.:'.$e->getLine().']', $e->getMessage().' => '.$sql);
+			$result = false;
+		}
+		
+		// Save query
+		$this->_query = $sql;
+
+		// Save data for debug
+		if(APPHP_MODE == 'debug'){
+			$finishTime = $this->_formattedMicrotime();
+			$sqlTotalTime = round((float)$finishTime - (float)$startTime, 5);
+			CDebug::addSqlTime($sqlTotalTime);
+			CDebug::addMessage('queries', ++self::$count.'. truncate | '.$sqlTotalTime.' '.A::t('core', 'sec').'. | <i>'.A::t('core', 'total').': '.(($result) ? $result : '0 (<b>warning</b>)').'</i>', $this->_query);
+		}
+		
+		return $result; 
+	}
 	
     /**
      * Returns ID of the last inserted record
@@ -422,7 +482,9 @@ class CDatabase extends PDO
 			return false;
 		}
 		
-		$startTime = $this->_formattedMicrotime();
+		if(APPHP_MODE == 'debug'){
+			$startTime = $this->_formattedMicrotime();
+		}
         
 		try{
             if(is_array($params) && !empty($params)){
@@ -468,7 +530,9 @@ class CDatabase extends PDO
 			return false;
 		} 
 
-		$startTime = $this->_formattedMicrotime();
+		if(APPHP_MODE == 'debug'){
+			$startTime = $this->_formattedMicrotime();
+		}
 		
 		try{
             if(is_array($params) && !empty($params)){
@@ -502,33 +566,45 @@ class CDatabase extends PDO
     }
     
 	/**
+	 * Creates a DB command for execution
+	 * @param mixed $query
+	 * @return CDbCommand
+	 */
+	public function createCommand($query = null)
+	{
+		return new CDbCommand($this, $query);
+	}
+
+	/**
      * Performs a show tables query
      * @return mixed
      */
 	public function showTables()
 	{
-		$startTime = $this->_formattedMicrotime();
+		if(APPHP_MODE == 'debug'){
+			$startTime = $this->_formattedMicrotime();
+		}
 
         switch($this->_dbDriver){
 			case 'mssql';
             case 'sqlsrv':
-				$sql = 'SELECT * FROM sys.all_objects WHERE type = \'U\'';
+				$sql = "SELECT * FROM sys.all_objects WHERE type = 'U'";
 				break;
             case 'pgsql':
                 $sql = 'SELECT tablename FROM pg_tables WHERE tableowner = current_user';
                 break;
             case 'sqlite':
-                $sql = 'SELECT * FROM sqlite_master WHERE type=\'table\'';
+                $sql = "SELECT * FROM sqlite_master WHERE type='table'";
                 break;
 			case 'oci':
 				$sql = 'SELECT * FROM system.tab';
 				break;
 			case 'ibm':
-				$sql = 'SELECT TABLE_NAME FROM qsys2.systables'.((CConfig::get('db.schema') != '') ? ' WHERE TABLE_SCHEMA = \''.CConfig::get('db.schema').'\'' : '');
+				$sql = "SELECT TABLE_NAME FROM qsys2.systables".((CConfig::get('db.schema') != '') ? " WHERE TABLE_SCHEMA = '".CConfig::get('db.schema')."'" : '');
 				break;
 			case 'mysql':
 			default:
-				$sql = 'SHOW TABLES IN `'.$this->_dbName.'`';	
+				$sql = 'SHOW TABLES IN '.$this->_quotes($this->_dbName);	
 				break;
 		}
 
@@ -561,7 +637,9 @@ class CDatabase extends PDO
      */
 	public function showColumns($table = '')
 	{
-		$startTime = $this->_formattedMicrotime();
+		if(APPHP_MODE == 'debug'){
+			$startTime = $this->_formattedMicrotime();
+		}
 		
         $cacheContent = '';
         
@@ -570,10 +648,13 @@ class CDatabase extends PDO
                 $sql = "SELECT COLUMN_NAME FROM qsys2.syscolumns WHERE TABLE_NAME = '".$this->_dbPrefix.$table."'".((CConfig::get('db.schema') != '') ? " AND TABLE_SCHEMA = '".CConfig::get('db.schema')."'" : ''); 
                 break;
             case 'mssql':
-                $sql = "SELECT COLUMN_NAME, data_type, character_maximum_length FROM ".$this->_dbName.".information_schema.columns WHERE table_name = '".$this->_dbPrefix.$table."'";
+			case 'sqlsrv':	
+                /// old version
+				/// $sql = "SELECT COLUMN_NAME, data_type, character_maximum_length FROM ".$this->_dbName.".information_schema.columns WHERE table_name = '".$this->_dbPrefix.$table."'";
+				$sql = "SELECT COLUMN_NAME, data_type, IS_NULLABLE, '', COLUMN_DEFAULT, character_maximum_length as extra FROM ".$this->_dbName.".information_schema.columns WHERE table_name = '".$this->_dbPrefix.$table."'";
                 break;
             default:
-                $sql = 'SHOW COLUMNS FROM `'.$this->_dbPrefix.$table.'`';
+                $sql = 'SHOW COLUMNS FROM '.$this->_quotes($this->_dbPrefix.$table);
                 break;
         }
 
@@ -663,24 +744,35 @@ class CDatabase extends PDO
     private function _init($dbDriver = '', $dbSocket = '', $dbHost = '', $dbPort = '', $dbName = '', $dbUser = '', $dbPassword = '', $dbCharset = '')
     {
 		// Set db connection type, port and db name
-		$dsn = (!empty($dbSocket)) ? $dbDriver.':unix_socket='.$dbSocket : $dbDriver.':host='.$dbHost;
-		$dsn .= !empty($dbPort) ? ';port='.$dbPort : '';
-		$dsn .= ';dbname='.$dbName;
-		$options = array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION);
-		
-		if(version_compare(phpversion(), '5.3.6', '<')){
-			if(defined('PDO::MYSQL_ATTR_INIT_COMMAND')){
-				$options[PDO::MYSQL_ATTR_INIT_COMMAND] = "SET NAMES '".$dbCharset."'";
-			}
-		}else{
-			$dsn .= ';charset='.$dbCharset;
-		}
-		
-		@parent::__construct($dsn, $dbUser, $dbPassword, $options);
-		
-		if(version_compare(phpversion(), '5.3.6', '<') && !defined('PDO::MYSQL_ATTR_INIT_COMMAND')){
+        if(strcasecmp($dbDriver, 'sqlsrv') == 0){
+			$dsn = 'sqlsrv:Server='.$dbHost;
+			$dsn .= !empty($dbPort) ? ','.$dbPort : '';
+			$dsn .= ';Database='.$dbName;
+			
 			$this->exec("SET NAMES '".$dbCharset."'");
-		}
+			
+			@parent::__construct($dsn, $dbUser, $dbPassword, array());
+			
+        }else{
+			$dsn = (!empty($dbSocket)) ? $dbDriver.':unix_socket='.$dbSocket : $dbDriver.':host='.$dbHost;
+			$dsn .= !empty($dbPort) ? ';port='.$dbPort : '';
+			$dsn .= ';dbname='.$dbName;
+			$options = array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION);
+			
+			if(version_compare(phpversion(), '5.3.6', '<')){
+				if(defined('PDO::MYSQL_ATTR_INIT_COMMAND')){
+					$options[PDO::MYSQL_ATTR_INIT_COMMAND] = "SET NAMES '".$dbCharset."'";
+				}
+			}else{
+				$dsn .= ';charset='.$dbCharset;
+			}
+			
+			@parent::__construct($dsn, $dbUser, $dbPassword, $options);
+			
+			if(version_compare(phpversion(), '5.3.6', '<') && !defined('PDO::MYSQL_ATTR_INIT_COMMAND')){
+				$this->exec("SET NAMES '".$dbCharset."'");
+			}
+		}		
 	}  
 
     /**
@@ -727,7 +819,7 @@ class CDatabase extends PDO
             </div>
             <div id="footer">
                 If you\'re unsure what this error means you should probably contact your host.
-                If you still need a help, you can alway visit <a href="http://apphp.net/forum" target="_new">ApPHP Support Forums</a>.
+                If you still need a help, you can alway visit <a href="http://apphp.net/forum" target="_blank" rel="noopener noreferrer">ApPHP Support Forums</a>.
             </div>
         </body>
         </html>';        
@@ -834,5 +926,16 @@ class CDatabase extends PDO
         list($usec, $sec) = explode(' ', microtime());
         return ((float)$usec + (float)$sec);
     }
+	
+	/**
+	 * Escapes given string with backquotes
+	 * Prepares table name for using in SQL statements
+	 * @param string $string
+	 * @return string
+	 */
+	private function _quotes($string = '')
+	{
+		return $this->_backQuote.$string.$this->_backQuote;
+	}
 	
 }

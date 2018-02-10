@@ -92,7 +92,9 @@ $content = '<h2>Generate code for Active Records Views</h2>
         <tr>
             <td valign="top">Manage View Code:</td>
             <td>
-                '.($templateManageContent ? '<a href="javascript:void(\'select\');" onclick="selectCode(\'selCode\')">Select</a>' : '').'
+                '.($templateManageContent ? '<a href="javascript:void(\'select\');" onclick="selectCode(\'selCode\', \'msgActionManage\')">Select</a>' : '').'
+                '.($templateManageContent ? '<a href="javascript:void(\'copy\');" onclick="copyToClipboard(\'selCode\', \'msgActionManage\')">Copy</a>' : '').'
+                <span id="msgActionManage" class="msg_success hidden" style="width:98%;"></span>
                 <textarea id="selCode" style="width:99%;height:100px;">'.$templateManageContent.'</textarea>
             </td>
         </tr>
@@ -104,7 +106,9 @@ $content = '<h2>Generate code for Active Records Views</h2>
         <tr>
             <td valign="top">Add View Code:</td>
             <td>
-                '.($templateAddContent ? '<a href="javascript:void(\'select\');" onclick="selectCode(\'selAddCode\')">Select</a>' : '').'
+                '.($templateAddContent ? '<a href="javascript:void(\'select\');" onclick="selectCode(\'selAddCode\', \'msgActionAdd\')">Select</a>' : '').'
+                '.($templateAddContent ? '<a href="javascript:void(\'copy\');" onclick="copyToClipboard(\'selAddCode\', \'msgActionAdd\')">Copy</a>' : '').'
+                <span id="msgActionAdd" class="msg_success hidden" style="width:98%;"></span>
                 <textarea id="selAddCode" style="width:99%;height:100px;">'.$templateAddContent.'</textarea>
             </td>
         </tr>
@@ -116,7 +120,9 @@ $content = '<h2>Generate code for Active Records Views</h2>
         <tr>
             <td valign="top">Edit View Code:</td>
             <td>
-                '.($templateEditContent ? '<a href="javascript:void(\'select\');" onclick="selectCode(\'selEditCode\')">Select</a>' : '').'
+                '.($templateEditContent ? '<a href="javascript:void(\'select\');" onclick="selectCode(\'selEditCode\', \'msgActionEdit\')">Select</a>' : '').'
+                '.($templateEditContent ? '<a href="javascript:void(\'copy\');" onclick="copyToClipboard(\'selEditCode\', \'msgActionEdit\')">Copy</a>' : '').'
+                <span id="msgActionEdit" class="msg_success hidden" style="width:98%;"></span>
                 <textarea id="selEditCode" style="width:99%;height:100px;">'.$templateEditContent.'</textarea>
             </td>
         </tr>

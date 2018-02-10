@@ -2,12 +2,12 @@
             -= YOU MAY NOT REMOVE OR CHANGE THIS NOTICE =-                 
  --------------------------------------------------------------------------- 
  ApPHP Web Development Framework                                            
- Version :      0.9.0
+ Version :      1.1.5
  Developed by:  ApPHP <info@apphp.com>                                      
  License:       GNU LGPL v.3                                                
- Site:          http://www.apphp.com/php-framework/                         
+ Site:          https://www.apphp.com/php-framework/                         
                 http://www.apphpframework.com                               
- Copyright:     ApPHP Web Development Framework (c) 2012 - 2016
+ Copyright:     ApPHP Web Development Framework (c) 2012 - 2018
                 All rights reserved.                                        
 
 
@@ -19,6 +19,6 @@
  - NuSOAP - Web Services Toolkit for PHP						v1.123 		http://dietrich.ganx4.com/nusoap
  - Opauth - Multi-provider authentication framework for PHP					http://opauth.org
  - PHPMailer (PHP mailer)										v5.2.16		https://github.com/PHPMailer/PHPMailer
- - TCPDF (PHP class for generating PDF documents and barcodes) 	v6.2.8 		http://www.tcpdf.org
+ - TCPDF (PHP PDF Library) 										v6.2.13 	http://www.tcpdf.org
 
  - DlHighlight (JavaScript-based syntax highlighting engine)				http://mihai.bazon.net/blog (Mihai Bazon)

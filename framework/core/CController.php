@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
  * @license http://www.apphpframework.com/license/ 
  * 
  * PUBLIC:                 	PROTECTED:                 	PRIVATE:
@@ -36,9 +36,9 @@ class CController
 	 */
 	public function testAction()
 	{
-		if(APPHP_MODE == 'test'){            
+		if(APPHP_MODE == 'test'){
 			$controller = $this->_getCalledClass();
-			if($controller.'/index' == $this->_view->render($controller.'/index')){
+			if($controller.DS.'index' == $this->_view->render($controller.'/index')){
 				return true; 
 			}else{
 				return false; 

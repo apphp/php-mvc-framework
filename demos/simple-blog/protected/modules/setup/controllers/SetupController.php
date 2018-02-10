@@ -55,8 +55,8 @@ class SetupController extends CController
         
         $this->_view->notifyMessage = '';
         
-        if(version_compare(phpversion(), '5.2.3', '<')){	
-            $this->_view->notifyMessage = CWidget::create('CMessage', array('error', 'This program requires at least <b>PHP version 5.2.3</b> installed. You cannot proceed the installation.'));	
+        if(version_compare(phpversion(), '5.3.0', '<')){	
+            $this->_view->notifyMessage = CWidget::create('CMessage', array('error', 'This program requires at least <b>PHP version 5.3.0</b> installed. You cannot proceed the installation.'));	
         }elseif(!is_writable(APPHP_PATH.'/protected/config/')){
             $this->_view->notifyMessage = CWidget::create('CMessage', array('error', 'The directory <b>'.APPHP_PATH.'/protected/config/</b> is not writable! You must grant "write" permissions (access rights 0755 or 777, depending on your system settings) to this directory before you start the installation!'));	
         }else{            
@@ -186,8 +186,8 @@ class SetupController extends CController
             $result = CWidget::create('CFormValidation', array(
                 'fields'=>array(
                     'email'=>array('title'=>'Email', 'validation'=>array('required'=>false, 'type'=>'email')),
-                    'username'=>array('title'=>'Username', 'validation'=>array('required'=>true, 'type'=>'username', 'minLength'=>6)),
-                    'password'=>array('title'=>'Password', 'validation'=>array('required'=>true, 'type'=>'password', 'minLength'=>6)),
+                    'username'=>array('title'=>'Username', 'validation'=>array('required'=>true, 'type'=>'username', 'minLength'=>4)),
+                    'password'=>array('title'=>'Password', 'validation'=>array('required'=>true, 'type'=>'password', 'minLength'=>4)),
                 ),            
             ));
              

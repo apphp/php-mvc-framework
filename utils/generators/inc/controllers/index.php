@@ -34,7 +34,9 @@ $content = '<h2>Generate code for Simple Controller</h2>
         <tr>
             <td valign="top">Code:</td>
             <td>
-                '.($templateContent ? '<a href="javascript:void(\'select\');" onclick="selectCode(\'selCode\')">Select</a>' : '').'
+                '.($templateContent ? '<a href="javascript:void(\'select\');" onclick="selectCode(\'selCode\', \'msgAction\')">Select</a>' : '').'
+                '.($templateContent ? '<a href="javascript:void(\'copy\');" onclick="copyToClipboard(\'selCode\', \'msgAction\')">Copy</a>' : '').'
+                <span id="msgAction" class="msg_success hidden" style="width:98%;"></span>
                 <textarea id="selCode" style="width:99%;height:300px;">'.$templateContent.'</textarea>
             </td>
         </tr>

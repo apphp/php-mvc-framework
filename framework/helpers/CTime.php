@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
@@ -16,7 +16,7 @@
  * isEmptyDateTime
  * getTimeDiff
  * dateParseFromFormat
- * 
+ * parseDateFormat
  */	  
 
 class CTime
@@ -56,7 +56,7 @@ class CTime
 	 */
 	public static function isEmptyDate($date)
 	{
-		return (empty($date) || $date == '0000-00-00') ? true : false;
+		return empty($date) ? true : false;
 	}
 
 	/**
@@ -66,7 +66,7 @@ class CTime
 	 */
 	public static function isEmptyDateTime($dateTime)
 	{
-		return (empty($dateTime) || $dateTime == '0000-00-00 00:00:00') ? true : false;
+		return empty($dateTime) ? true : false;
 	}
 
     /**
@@ -157,5 +157,68 @@ class CTime
 			return $dt;			
 		}
 	}  
+ 
+    /**
+     * 	Returns info about given date formatted according to the specified format
+     * 	@param string $dateFormat
+     * 	@return array
+     */
+    public static function parseDateFormat($dateFormat = '')
+    {
+		$return = array(
+			'simple-format' 	=> '',
+			'calendar-format' 	=> '',
+			'year-index'		=> '',
+			'month-index'		=> '',
+			'day-index'			=> '',
+		);
+		
+		switch($dateFormat){
+			case 'd-m-Y':
+			case 'd M Y':
+			case 'd M, Y':
+			case 'j M, Y':
+			case 'd F Y':
+			case 'j F, Y':
+				$return = array(
+					'simple-format' 	=> 'dd-mm-yy',
+					'calendar-format' 	=> 'dd-mm-yyyy',
+					'year-index'		=> '2',
+					'month-index'		=> '1',
+					'day-index'			=> '0',
+				);
+				break;
+			case 'm-d-Y':
+			case 'M d Y':
+			case 'M d, Y':
+			case 'M j, Y':
+			case 'F d Y':
+			case 'F j, Y':
+				$return = array(
+					'simple-format' 	=> 'mm-dd-yy',
+					'calendar-format' 	=> 'mm-dd-yyyy',
+					'year-index'		=> '2',
+					'month-index'		=> '0',
+					'day-index'			=> '1',
+				);
+				break;
+			case 'Y-m-d':
+			case 'Y M d':
+			case 'Y M j':
+			case 'Y F d':
+			case 'Y F j':	
+			default:
+				$return = array(
+					'simple-format' 	=> 'yy-mm-dd',
+					'calendar-format' 	=> 'yyyy-mm-dd',
+					'year-index'		=> '0',
+					'month-index'		=> '1',
+					'day-index'			=> '2',
+				);
+				break;
+		}
+		
+		return $return;
+	}
     
 }

@@ -1,10 +1,6 @@
-## Deny directory browsing
-Options -Indexes 
-
-## Mod Rewrite
 <IfModule mod_rewrite.c>
     RewriteEngine On
- 
+
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteCond %{REQUEST_FILENAME} !-l
@@ -17,3 +13,9 @@ Options -Indexes
 	ErrorDocument 404 index.php
 </IfModule>
 
+<Limit PUT DELETE>
+	order deny,allow
+	deny from all
+</Limit>
+
+Options All -Indexes

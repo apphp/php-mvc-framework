@@ -95,7 +95,7 @@ function get_server_info()
  */
 function get_footer_info()
 {
-	$info[] = '<a href="http://www.apphp.com/php-framework/">ApPHP Framework</a>';
+	$info[] = '<a href="https://www.apphp.com/php-framework/">ApPHP Framework</a>';
 	$info[] = get_apphp_version();
 	$info[] = @strftime('%Y-%m-%d %H:%M',time());
 	return implode(' : ',$info);

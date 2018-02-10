@@ -7,7 +7,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  * @version PHP 5.3.0 or higher
  *
@@ -25,8 +25,8 @@
  * __unset                  _afterSave 					_getCustomFields
  * __callStatic				_beforeDelete               _addCustomFields
  *                          _afterDelete				_removeCustomFields     
- * init (static)			
- * set                      							
+ * init (static)										_prepareLimit	
+ * set                      							_tableName
  * get
  * resultArray
  * isColumnExists
@@ -37,7 +37,7 @@
  * lastQuery
  * primaryKey
  * getPrimaryKey
- * getTableName 
+ * getTableName
  * getFieldsAsArray
  * isNewRecord
  * getTranslations
@@ -79,13 +79,14 @@ abstract class CActiveRecord extends CModel
     private static $_className;
 	/** @var Database */
 	protected $_db;	
+	/**	@var */ 
+    protected $_dbDriver = '';
+	/**	@var */ 
+    protected $_dbPrefix = '';
 	/**	@var boolean */
 	protected $_error;
 	/**	@var string */
 	protected $_errorMessage;
-
-    /* class name => model */
-    private static $_models = array();			
 
     /**	@var string */
     protected $_table = '';
@@ -95,7 +96,12 @@ abstract class CActiveRecord extends CModel
 	protected $_columns = array();
 	/**	@var used to store fields from $_POST or another tables */ 
 	protected $_specialFields = array();
+	/**	@var char */
+	private $_backQuote = '`';
     
+    /* class name => model */
+    private static $_models = array();			
+
 	/**	@var */ 
     private $_columnTypes = array();
 	/**	@var */ 
@@ -132,7 +138,6 @@ abstract class CActiveRecord extends CModel
     
 	/**
 	 * Class constructor
-	 * @param array $params
 	 */
 	public function __construct() 
 	{
@@ -142,9 +147,17 @@ abstract class CActiveRecord extends CModel
             $this->_createObjectFromTable();
             $this->_pkValue = 0;
         }
-        
+		
+		$this->_dbDriver = CConfig::get('db.driver');
+		$this->_dbPrefix = CConfig::get('db.prefix');
+		
         $this->_error = CDatabase::getError();
         $this->_errorMessage = CDatabase::getErrorMessage();
+		
+		// Set back quote according to database driver
+		if(preg_match('/mssql|sqlsrv/i', $this->_dbDriver)){
+			$this->_backQuote = '';
+		}
 	}
    
 	/**	
@@ -325,7 +338,7 @@ abstract class CActiveRecord extends CModel
 	 */
 	public function getTableName($usePrefix = false)
 	{
-        return ($usePrefix ? CConfig::get('db.prefix') : '').$this->_table;
+        return ($usePrefix ? $this->_dbPrefix : '').$this->_table;
     }    
 
 	/**
@@ -363,7 +376,7 @@ abstract class CActiveRecord extends CModel
 		}		
         
 		$result = $this->_db->select(
-            'SELECT * FROM '.CConfig::get('db.prefix').$this->_tableTranslation.' WHERE '.$key.' = :'.$key,
+            'SELECT * FROM '.$this->_tableName($this->_tableTranslation).' WHERE '.$key.' = :'.$key,
 			array(':'.$key => $value)
 		);
 		foreach($result as $res){
@@ -440,21 +453,78 @@ abstract class CActiveRecord extends CModel
 
         $cols = $this->_db->showColumns($this->_table);
         if(!is_array($cols)) return false;
-
-        foreach($cols as $array){
-            // If NULL is allowed and NULL is default value, use null
-			// otherwise insert default value $array[4]
-			if($array[2] === 'YES'){
-				$this->_columns[$array[0]] = null;
-			}else{
-				$this->_columns[$array[0]] = ($array[4] != '') ? $array[4] : '';	
-			}
-            $arrayParts = explode('(', $array[1]);
-            $this->_columnTypes[$array[0]] = array_shift($arrayParts);
-            if($array[3] == 'PRI'){
-                $this->_primaryKey = $array[0];
-            }
-        }
+		
+		switch($this->_dbDriver){
+			case 'mssql':
+			case 'sqlsrv':
+					// Handle MSSQL or SQLSRV drivers
+					$constraintStatement = "SELECT KU.TABLE_NAME, KU.COLUMN_NAME, KU.ORDINAL_POSITION, KU.CONSTRAINT_NAME
+						FROM [INFORMATION_SCHEMA].[TABLE_CONSTRAINTS] TC, [INFORMATION_SCHEMA].[KEY_COLUMN_USAGE] KU       
+						WHERE TC.TABLE_CATALOG = KU.TABLE_CATALOG AND 
+						TC.CONSTRAINT_SCHEMA = KU.CONSTRAINT_SCHEMA AND
+						TC.CONSTRAINT_NAME = KU.CONSTRAINT_NAME  AND
+						TC.CONSTRAINT_TYPE='PRIMARY KEY' AND 
+						LOWER(KU.TABLE_NAME)='". strtolower($this->_table)."' ";  
+		
+					$primaryInfos = $this->_db->select($constraintStatement);
+					
+					$isPrimaryKey = false;
+					foreach($cols as $array){
+						// If NULL is allowed and NULL is default value, use null otherwise insert default value $array[4]            
+						// In mssql, sqlsrv the results contain are COLUMN_NAME, data_type, character_maximum_length
+						
+						$columnField = $array[0];
+						$columnType = $array[1];
+						$columnNullable = $array[2];
+						$columnKey = $array[3];
+						$columnDefault = $array[4];
+						$columnExtra = $array[5];    
+						
+						$isPrimaryKey = ($columnKey == 'PRI') ? true : false;
+						if(!empty($primaryInfos)){
+							$found = false;
+							foreach($primaryInfos as $info){
+								if((!$found) && (strcasecmp($info['COLUMN_NAME'], $columnField) == 0)){
+									$found = true;
+									$isPrimaryKey = true;
+								}                      
+							}                   
+						}
+						
+						if($columnNullable === 'YES'){
+							$this->_columns[$columnField] = null;
+						}else{
+							$this->_columns[$columnField] = ($columnDefault != '') ? $columnDefault : '';	
+						}
+						 
+						$arrayParts = explode('(', $columnType);
+						$this->_columnTypes[$columnField] = array_shift($arrayParts);
+						if($isPrimaryKey){
+							$this->_primaryKey = $columnField;
+						}
+					}
+				break;
+			
+			default:
+					// Handle all other db drivers
+					// In mysql the results are Field, Type, Null, Key, Default, Extra
+					foreach($cols as $array){
+						// If NULL is allowed and NULL is default value, use null
+						// otherwise insert default value $array[4]
+						if($array[2] === 'YES'){
+							$this->_columns[$array[0]] = null;
+						}else{
+							$this->_columns[$array[0]] = ($array[4] != '') ? $array[4] : '';	
+						}
+						
+						$arrayParts = explode('(', $array[1]);
+						$this->_columnTypes[$array[0]] = array_shift($arrayParts);
+						if($array[3] == 'PRI'){
+							$this->_primaryKey = $array[0];
+						}
+					}
+				break;
+		}
 		
         $this->_addCustomFields();        
         if($this->_primaryKey == '') $this->_primaryKey = 'id';
@@ -484,23 +554,25 @@ abstract class CActiveRecord extends CModel
             $where = $conditions;
             $order = '';
         }
-
+		
         $whereClause = !empty($where) ? ' WHERE '.$where : '';
         $orderBy = !empty($order) ? ' ORDER BY '.$order : '';
         $relations = $this->_getRelations();
         $customFields = $this->_getCustomFields();
-    
-        $sql = 'SELECT
-                    `'.CConfig::get('db.prefix').$this->_table.'`.*
-                    '.$relations['fields'].'
-					'.$customFields.'
-                FROM `'.CConfig::get('db.prefix').$this->_table.'`
-                    '.$relations['tables'].'
-                '.$whereClause.'
-                '.$orderBy.'
-                LIMIT 1';
+		$limits = $this->_prepareLimit('1');
 		
-		$result = $this->_db->select($sql, $params, PDO::FETCH_ASSOC, $cacheId);
+		$sql = 'SELECT
+					'.$limits['before'].' 
+					'.$this->_tableName().'.*
+					'.$relations['fields'].'
+					'.$customFields.'
+				FROM '.$this->_tableName().'
+					'.$relations['tables'].'
+				'.$whereClause.'
+				'.$orderBy.'
+				'.$limits['after'];
+		
+		$result = $this->_db->select($sql, $params, 'fetchAll', PDO::FETCH_ASSOC, $cacheId);
         if(isset($result[0]) && is_array($result[0])){
             foreach($result[0] as $key => $val){
                 $this->$key = $val;
@@ -535,24 +607,26 @@ abstract class CActiveRecord extends CModel
             $where = $conditions;
             $order = '';
         }
-
+		
         $whereClause = !empty($where) ? ' AND ('.$where.')' : '';
         $orderBy = !empty($order) ? ' ORDER BY '.$order : '';
         $relations = $this->_getRelations();
         $customFields = $this->_getCustomFields();
-    
-        $sql = 'SELECT
-                    `'.CConfig::get('db.prefix').$this->_table.'`.*                    
-                    '.$relations['fields'].'
+		$limits = $this->_prepareLimit('1');
+		
+		$sql = 'SELECT
+					'.$limits['before'].' 
+					'.$this->_tableName().'.*                    
+					'.$relations['fields'].'
 					'.$customFields.'
-                FROM `'.CConfig::get('db.prefix').$this->_table.'`
-                    '.$relations['tables'].'
-                WHERE `'.CConfig::get('db.prefix').$this->_table.'`.'.$this->_primaryKey.' = '.(int)$pk.'
-                '.$whereClause.'
-                '.$orderBy.'
-                LIMIT 1';
+				FROM '.$this->_tableName().'
+					'.$relations['tables'].'
+				WHERE '.$this->_tableName().'.'.$this->_primaryKey.' = '.(int)$pk.'
+					'.$whereClause.'
+				'.$orderBy.'
+				'.$limits['after'];
         
-		$result = $this->_db->select($sql, $params, PDO::FETCH_ASSOC, $cacheId);
+		$result = $this->_db->select($sql, $params, 'fetchAll', PDO::FETCH_ASSOC, $cacheId);
         if(isset($result[0]) && is_array($result[0])){
             foreach($result[0] as $key => $val){
                 $this->$key = $val;
@@ -591,7 +665,7 @@ abstract class CActiveRecord extends CModel
 
         $whereClause = !empty($where) ? ' AND '.$where : '';
         $orderBy = !empty($order) ? ' ORDER BY '.$order : '';
-        $limitClause = !empty($limit) ? ' LIMIT '.$limit : '';
+        $limits = $this->_prepareLimit($limit);
         
         $relations = $this->_getRelations();
         $customFields = $this->_getCustomFields();
@@ -600,29 +674,31 @@ abstract class CActiveRecord extends CModel
         foreach($attributes as $key => $value){
             $attributes_clause .= ' AND '.$key." = '".$value."'";
         }
-    
-        $sql = 'SELECT
-                    `'.CConfig::get('db.prefix').$this->_table.'`.*
-                    '.$relations['fields'].'
+		
+		$sql = 'SELECT
+					'.$limits['before'].' 
+					'.$this->_tableName().'.*
+					'.$relations['fields'].'
 					'.$customFields.'
-                FROM `'.CConfig::get('db.prefix').$this->_table.'`
-                    '.$relations['tables'].'
-                WHERE 1 = 1
-                    '.$attributes_clause.'
-                '.$whereClause.'
-                '.$orderBy.'
-               '.$limitClause;                
-        
+				FROM '.$this->_tableName().'
+					'.$relations['tables'].'
+				WHERE 1 = 1
+					'.$attributes_clause.'
+					'.$whereClause.'
+				'.$orderBy.'
+				'.$limits['after'];
+
         return $this->_db->select($sql, $params);
     }
     
     /** 
      * This method queries your database to find all related objects
      * Ex.: findAll('post_id = :postID AND is_active = :isActive', array(':postID'=>10, ':isActive'=>1));
-     * Ex.: findAll(array('condition'=>'post_id = :postID AND is_active = :isActive', 'group|groupBy'=>'', 'order|orderBy'=>'id DESC', 'limit'=>'0, 10'), array(':postID'=>10, ':isActive'=>1));
+     * Ex.: findAll(array('condition'=>'post_id = :postID AND is_active = :isActive', 'select'=>'', 'group|groupBy'=>'', 'order|orderBy'=>'id DESC', 'limit'=>'0, 10'), array(':postID'=>10, ':isActive'=>1));
      * Ex.: findAll(CConfig::get('db.prefix').$this->_tableTranslation.'.news_text LIKE :keywords', array(':keywords'=>'%'.$keywords.'%'));
      * @param mixed $conditions
-     * @param array $params
+     * @param array $params				'select': MAX(date), name or CConfig::get('db.prefix').table.field_name etc. - actually for ONLY_FULL_GROUP_BY mode
+     * 									'groupBy': table.field_name or field_name
      * @param bool|string $cacheId
      * @param int $fetchMode
      * @return array
@@ -642,33 +718,37 @@ abstract class CActiveRecord extends CModel
 				$order = isset($conditions['orderBy']) ? $conditions['orderBy'] : '';	
 			}
             $limit = isset($conditions['limit']) ? $conditions['limit'] : '';
+			$select = isset($conditions['select']) ? $conditions['select'] : '';
         }else{
             $where = $conditions;
             $group = '';
             $order = '';
             $limit = '';
+			$select = '';
         }
         
 		$whereClause = !empty($where) ? ' WHERE '.$where : '';
         $groupBy = !empty($group) ? ' GROUP BY '.$group : '';
         $orderBy = !empty($order) ? ' ORDER BY '.$order : '';
-        $limitClause = !empty($limit) ? ' LIMIT '.$limit : '';
+        $limits = $this->_prepareLimit($limit);
+		$selectList = !empty($select) ? $select : $this->_tableName().'.*';
         
         $relations = $this->_getRelations();
         $customFields = $this->_getCustomFields();
         
-        $sql = 'SELECT
-                    `'.CConfig::get('db.prefix').$this->_table.'`.*                    
-                    '.$relations['fields'].'
+		$sql = 'SELECT
+					'.$limits['before'].'
+					'.$selectList.'
+					'.$relations['fields'].'
 					'.$customFields.'
-                FROM `'.CConfig::get('db.prefix').$this->_table.'`
-                    '.$relations['tables'].'
-                '.$whereClause.'
-                '.$groupBy.'
-                '.$orderBy.'
-                '.$limitClause;
-                
-        return $this->_db->select($sql, $params, $fetchMode, $cacheId);
+				FROM '.$this->_tableName().'
+					'.$relations['tables'].'
+				'.$whereClause.'
+				'.$groupBy.'
+				'.$orderBy.'
+				'.$limits['after'];
+        
+        return $this->_db->select($sql, $params, 'fetchAll', $fetchMode, $cacheId);
     }
 
     /**
@@ -711,6 +791,7 @@ abstract class CActiveRecord extends CModel
             
             if($this->_pkValue > 0){
                 $result = $this->_db->update($this->_table, $data, $this->_primaryKey.' = :primary_key', array(':primary_key'=>(int)$this->_pkValue));
+				$this->_isNewRecord = false;
             }else{
                 $result = $this->_db->insert($this->_table, $data);
                 $this->_isNewRecord = true;
@@ -894,7 +975,7 @@ abstract class CActiveRecord extends CModel
     */
     public function distinct($field = '')
     {
-        return $this->findAll(array('group'=>CConfig::get('db.prefix').$this->_table.'.'.$field));
+        return $this->findAll(array('group' => $this->_tableName().'.'.$field));
     }
 
     /**
@@ -920,9 +1001,17 @@ abstract class CActiveRecord extends CModel
         }else{
             $where = $conditions;
         }
-        $whereClause = !empty($where) ? ' WHERE '.$where : '';
-    
-        $sql = 'SELECT * FROM `'.CConfig::get('db.prefix').$this->_table.'` '.$whereClause.' LIMIT 1';
+        
+		$whereClause = !empty($where) ? ' WHERE '.$where : '';
+		$limits = $this->_prepareLimit('1');
+
+		$sql = 'SELECT
+				'.$limits['before'].' 
+				'.$this->_tableName().'.*
+			FROM '.$this->_tableName().'
+			'.$whereClause.'
+			'.$limits['after'];
+
         $result = $this->_db->select($sql, $params);
         
         return ($result) ? true : false;
@@ -967,19 +1056,20 @@ abstract class CActiveRecord extends CModel
         $whereClause = !empty($where) ? ' WHERE '.$where : '';
         $groupBy = !empty($group) ? ' GROUP BY '.$group : '';
         $orderBy = !empty($order) ? ' ORDER BY '.$order : '';
-        $limitClause = $allRows ? '' : ' LIMIT 1';
- 
+		$limits = $this->_prepareLimit(($allRows ? '' : '1'));
         $relations = $this->_getRelations();
 
-        $sql = 'SELECT 
-                    COUNT('.$count.') as cnt
-                    '.($select ? ', '.$select : '').'
-                FROM `'.CConfig::get('db.prefix').$this->_table.'`
-                    '.$relations['tables'].'
-                '.$whereClause.'
-                '.$groupBy.'
-                '.$orderBy.'
-                '.$limitClause;
+		$sql = 'SELECT
+					'.$limits['before'].' 
+					COUNT('.$count.') as cnt
+					'.($select ? ', '.$select : '').'
+				FROM '.$this->_tableName().'
+					'.$relations['tables'].'
+				'.$whereClause.'
+				'.$groupBy.'
+				'.$orderBy.'
+				'.$limits['after'];
+
         $result = $this->_db->select($sql, $params);
 
         if($allRows){
@@ -1006,15 +1096,18 @@ abstract class CActiveRecord extends CModel
         }
 
         $whereClause = !empty($where) ? ' WHERE '.$where : '';
-        $column = !empty($column) ? CConfig::get('db.prefix').$this->_table.'.'.$column : $this->_primaryKey;
+        $column = !empty($column) ? $this->_tableName().'.'.$column : $this->_primaryKey;
         $relations = $this->_getRelations();
+		$limits = $this->_prepareLimit('1');
 
-        $sql = 'SELECT 
-                    MAX('.$column.') as column_max
-                FROM `'.CConfig::get('db.prefix').$this->_table.'`
-                    '.$relations['tables'].'
-                '.$whereClause.'
-                LIMIT 1';
+		$sql = 'SELECT
+					'.$limits['before'].'
+					MAX('.$column.') as column_max
+				FROM '.$this->_tableName().'
+					'.$relations['tables'].'
+				'.$whereClause.'
+				'.$limits['after'];
+			
         $result = $this->_db->select($sql, $params);
         
         return (isset($result[0]['column_max'])) ? $result[0]['column_max'] : 0;
@@ -1037,17 +1130,20 @@ abstract class CActiveRecord extends CModel
         }
 
         $whereClause = !empty($where) ? ' WHERE '.$where : '';
-        $column = !empty($column) ? CConfig::get('db.prefix').$this->_table.'.'.$column : $this->_primaryKey;
+        $column = !empty($column) ? $this->_tableName().'.'.$column : $this->_primaryKey;
         $relations = $this->_getRelations();
-
-        $sql = 'SELECT 
-                    MIN('.$column.') as column_min
-                FROM `'.CConfig::get('db.prefix').$this->_table.'`
-                    '.$relations['tables'].'
-                '.$whereClause.'
-                LIMIT 1';
+		$limits = $this->_prepareLimit('1');
+		
+		$sql = 'SELECT
+				'.$limits['before'].'
+				MIN('.$column.') as column_min
+			FROM '.$this->_tableName().'
+				'.$relations['tables'].'
+			'.$whereClause.'
+			'.$limits['after'];
+			
         $result = $this->_db->select($sql, $params);
-
+		
         return (isset($result[0]['column_min'])) ? $result[0]['column_min'] : 0;
     }
 
@@ -1066,16 +1162,20 @@ abstract class CActiveRecord extends CModel
         }else{
             $where = $conditions;
         }
+		
         $whereClause = !empty($where) ? ' WHERE '.$where : '';
         $column = !empty($column) ? $column : '';
         $relations = $this->_getRelations();
+		$limits = $this->_prepareLimit('1');
 
-        $sql = 'SELECT 
-                    SUM('.$column.') as column_sum
-                FROM `'.CConfig::get('db.prefix').$this->_table.'`
-                    '.$relations['tables'].'
-                '.$whereClause.'
-                LIMIT 1';
+		$sql = 'SELECT
+				'.$limits['before'].'
+				SUM('.$column.') as column_sum
+			FROM '.$this->_tableName().'
+				'.$relations['tables'].'
+			'.$whereClause.'
+			'.$limits['after'];
+		
         $result = $this->_db->select($sql, $params);
         
         return (isset($result[0]['column_sum'])) ? $result[0]['column_sum'] : 0;
@@ -1225,18 +1325,53 @@ abstract class CActiveRecord extends CModel
                             $field = $fieldAlias;
                             $fieldAlias = '';
                         } 
-                        $result['fields'] .= ', `'.CConfig::get('db.prefix').$relatedTable.'`.'.$field.(!empty($fieldAlias) ? ' as '.$fieldAlias : '');
+                        $result['fields'] .= ', '.$this->_tableName($relatedTable).'.'.$field.(!empty($fieldAlias) ? ' as '.$fieldAlias : '');
                         $result['fieldsArray'][] = (!empty($fieldAlias) ? $fieldAlias : $field);
                     }
                 }else{                        
-                    $result['fields'] .= ', `'.CConfig::get('db.prefix').$relatedTable.'`.*';    
+                    $result['fields'] .= ', '.$this->_tableName($relatedTable).'.*';    
                 }                
-                $result['tables'] .= $joinType.' `'.CConfig::get('db.prefix').$relatedTable.'` ON `'.CConfig::get('db.prefix').$this->_table.'`.'.$key.' = `'.CConfig::get('db.prefix').$relatedTable.'`.'.$relatedTableKey;
+                $result['tables'] .= $joinType.' '.$this->_tableName($relatedTable).' ON '.$this->_tableName().'.'.$key.' = '.$this->_tableName($relatedTable).'.'.$relatedTableKey;
                 $result['tables'] .= (($condition != '') ? ' AND '.$condition : '').$nl;
             }
         }
         
         return $result;
     }
+	
+	/**
+	 * Prepare LIMIT clause for SQL statement
+	 * @param string $limit
+	 * @retun array 
+	 */
+	private function _prepareLimit($limit = '')
+	{
+		$limits = array('before' => '', 'after' => '');
+		
+		if(!empty($limit)){
+			if(preg_match('/mssql|sqlsrv/i', $this->_dbDriver)){
+				$limits['before'] = !empty($limit) ? ' TOP '.$limit : '';
+			}else{
+				$limits['after'] = !empty($limit) ? ' LIMIT '.$limit : '';
+			}
+		}
+		
+		return $limits;
+	}
+	
+	/**
+	 * Escapes table name with backquotes and adds db prefix
+	 * Prepares table name for using in SQL statements
+	 * @param string $table
+	 * @return string
+	 */
+	private function _tableName($table = '')
+	{
+		if(empty($table)){
+			$table = $this->_table;
+		}
+		
+		return $this->_backQuote.$this->_dbPrefix.$table.$this->_backQuote;
+	}
 	
 }

@@ -49,6 +49,8 @@ article.central         { border:1px solid #efefef; margin-left:230px; backgroun
 .msg_normal             { background-color:#fffff1;border:1px solid #ececd7; color:#c1c13a; }
 .msg_important          { background-color:#f1f1ff;border:1px solid #d7d7ec; color:#3a3ac1; }
 
+.hidden					{ display: none; }
+
 hr              { border:0; height:1px; background: #333; background-image: -webkit-linear-gradient(left, #ddd, #ccc, #ddd); background-image: -moz-linear-gradient(left, #ddd, #ccc, #ddd); background-image: -ms-linear-gradient(left, #ddd, #ccc, #ddd); background-image: -o-linear-gradient(left, #ddd, #ccc, #ddd); }
 
 table.result 	{ font-size: 13px; background:#fff none repeat scroll 0% 0%; border-collapse:collapse; width:100%; margin-bottom:10px; }

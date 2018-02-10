@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
@@ -29,15 +29,16 @@ class CPagination extends CWidgs
      * 
      * Usage: (in View file)
      *  echo CWidget::create('CPagination', array(
-     *      'actionPath' => $actionPath,
-     *      'currentPage' => $currentPage,
-     *      'pageSize' => $pageSize,
-     *      'totalRecords' => $totalRecords,
-     *      'linkType' => 0,
-     *      'paginationType' => 'prevNext|olderNewer|fullNumbers|justNumbers'
-     *      'linkNames' => array('previous'=>'', 'next'=>''),
-     *      'showEmptyLinks' => true,
-     *      'showResultsOfTotal' => true
+     *      'actionPath' 		=> $actionPath,
+     *      'currentPage' 		=> $currentPage,
+     *      'pageSize' 			=> $pageSize,
+     *      'totalRecords' 		=> $totalRecords,
+     *      'linkType' 			=> 0,
+     *      'paginationType' 	=> 'prevNext|olderNewer|fullNumbers|justNumbers'
+     *      'linkNames' 		=> array('previous'=>'', 'next'=>''),
+     *      'showEmptyLinks' 	=> true,
+     *      'showResultsOfTotal' => true,
+     *      'htmlOptions' 		=> array('linksWrapperTag' => 'div', 'linksWrapperClass' => 'links-part')
      *      'return' => true
      *  ));
      */
@@ -63,6 +64,10 @@ class CPagination extends CWidgs
 		$showEmptyLinks 	= (bool)self::params('showEmptyLinks', true);
 		$showResultsOfTotal = (bool)self::params('showResultsOfTotal', true);
 		$linkNames			= self::params('linkNames', array());
+		
+		$linksWrapperTag	= self::params('htmlOptions.linksWrapperTag', 'div');
+		$linksWrapperClass	= self::params('htmlOptions.linksWrapperClass', 'links-part');
+		
         $return 			= (bool)self::params('return', true);
                 
         if($page){
@@ -102,7 +107,7 @@ class CPagination extends CWidgs
 			}			
 
             if($lastpage > 1){			
-                $output .= CHtml::openTag('div', array('class'=>'links-part'));
+                $output .= CHtml::openTag($linksWrapperTag, array('class'=>$linksWrapperClass));
                 // Draw previous button
                 if(in_array($paginationType, array('fullnumbers', 'prevnext', 'oldernewer'))){
                     if($page > 1){
@@ -181,8 +186,10 @@ class CPagination extends CWidgs
                         if($showEmptyLinks) $output .= CHtml::tag('span', array('class'=>'disabled'), $wNext.' &raquo;');
                     }
                 }
-                $output .= CHtml::closeTag('div').self::NL;			
-            }			
+				
+                $output .= CHtml::closeTag($linksWrapperTag).self::NL;			
+            }
+			
             $output .= CHtml::closeTag('div').self::NL;       
         }
         

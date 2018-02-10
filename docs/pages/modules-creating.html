@@ -441,6 +441,9 @@ Remember that this is only a sample code for view files, more examples available
 <pre name="dlhl" class="php" style="overflow-x:auto;margin-left:0px;" />
 &lt;?php
     $this->_activeMenu = '[MODULE_CODE]/manage';
+	// Define breadcrumbs title
+	$this->_breadcrumbsTitle = $postHeader;
+	// Define breadcrumbs for this page
     $this->_breadCrumbs = array(
         array('label'=>A::t('[MODULE_CODE]', 'Modules'), 'url'=>'modules/'),
         array('label'=>A::t('[MODULE_CODE]', '[MODULE_NAME]'), 'url'=>'modules/settings/code/[MODULE_CODE]'),

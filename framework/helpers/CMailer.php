@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
  * @license http://www.apphpframework.com/license/ 
  *
  * USAGE:
@@ -132,18 +132,13 @@ class CMailer
 				   'Content-Type: '.$emailType.'; charset='.$charset."\r\n".				   
 				   'X-Mailer: '.$xMailer.'/'.phpversion();
         
-        
 		$result = @mail($to, $subject, $message, $headers, $additionalParameters);
 
 		if(!$result){
-			if(version_compare(phpversion(), '5.2.0', '>=')){
-                $err = error_get_last();
-				if(isset($err['message']) && $err['message'] != ''){
-					self::$_error = $err['message'].' | file: '.$err['file'].' | line: '.$err['line'];
-                    @trigger_error('');
-				}
-			}else{
-				self::$_error = A::t('core', 'PHPMail Error: an error occurred while sending email.');
+			$err = error_get_last();
+			if(isset($err['message']) && $err['message'] != ''){
+				self::$_error = $err['message'].' | file: '.$err['file'].' | line: '.$err['line'];
+				@trigger_error('');
 			}
 		}		
 		return $result;

@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE (static):		
@@ -104,7 +104,7 @@ class CDataForm extends CWidgs
      *              'title'			 	=> 'Image Uploader',
      *              'tooltip'		 	=> '',
      *              'default'		 	=> '',
-     *              'validation'	 	=> array('required'=>true, 'type'=>'image', 'targetPath'=>'templates/backend/images/accounts/', 'maxSize'=>'100k', 'maxWidth'=>'120px', 'maxHeight'=>'90px', 'mimeType'=>'image/jpeg, image/png', 'fileName'=>CHash::getRandomString(10), 'filePrefix'=>'', 'filePostfix'=>'', 'htmlOptions'=>array()),
+     *              'validation'	 	=> array('required'=>true, 'type'=>'image', 'targetPath'=>'templates/backend/images/accounts/', 'maxSize'=>'100k', 'maxWidth'=>'120px', 'maxHeight'=>'90px', 'mimeType'=>'image/jpeg, image/jpg, image/png, image/gif', 'fileName'=>CHash::getRandomString(10), 'filePrefix'=>'', 'filePostfix'=>'', 'htmlOptions'=>array()),
 	 *          	'imageOptions'	 	=> array('showImage'=>true, 'showImageName'=>true, 'showImageSize'=>true, 'showImageDimensions'=>true, 'imageClass'=>'avatar'),
 	 *          	'thumbnailOptions'	=> array('create'=>true, 'directory'=>'', 'field'=>'', 'postfix'=>'_thumb', 'width'=>'', 'height'=>''),
 	 *          	'deleteOptions'	 	=> array('showLink'=>true, 'linkUrl'=>'admins/edit/avatar/delete', 'linkText'=>'Delete'),
@@ -168,7 +168,7 @@ class CDataForm extends CWidgs
 		$successCallbackEdit 	= self::params('successCallback.edit', '');
 		$cancelUrl 				= self::params('cancelUrl', '');
 		$method 				= self::params('method', 'post');
-        $htmlOptions 			= self::params('htmlOptions', array(), 'is_array');
+        $htmlOptions 			= (array)self::params('htmlOptions', array(), 'is_array');
 		$requiredFieldsAlert 	= self::params('requiredFieldsAlert', false);
 		$fieldSets				= self::params('fieldSets', array(), 'is_array');
 		$fieldWrapperTag		= self::params('fieldWrapper.tag', 'div');
@@ -454,20 +454,23 @@ class CDataForm extends CWidgs
 						// Redirect to success URL
 						if(!empty($successUrl)){
 							
+							if(!empty($alertItemName)){
+								$message = ($operationType == 'add') ?
+									A::t($msgSource, 'New {item_type} has been successfully added!', array('{item_type}'=>$alertItemName)) :
+									A::t($msgSource, 'The {item_type} has been successfully updated!', array('{item_type}'=>$alertItemName));
+							}else{
+								$message = ($operationType == 'add') ?
+									A::t($msgSource, 'The adding operation has been successfully completed!') :
+									A::t($msgSource, 'The updating operation has been successfully completed!');
+							}
+							
 							// Create flash alert
 							if($alertType == 'flash'){
-								if(!empty($alertItemName)){
-									$message = ($operationType == 'add') ?
-										A::t($msgSource, 'New {item_type} has been successfully added!', array('{item_type}'=>$alertItemName)) :
-										A::t($msgSource, 'The {item_type} has been successfully updated!', array('{item_type}'=>$alertItemName));
-								}else{
-									$message = ($operationType == 'add') ?
-										A::t($msgSource, 'The adding operation has been successfully completed!') :
-										A::t($msgSource, 'The updating operation has been successfully completed!');
-								}
 								A::app()->getSession()->setFlash('alert', $message);
 								A::app()->getSession()->setFlash('alertType', 'success');
-							}							
+							}else{
+								$msg = $message;
+							}						
 							
                             if($cRequest->isPostExists('btnUpdateClose')){
                                 header('location: '.$baseUrl.$successUrl);

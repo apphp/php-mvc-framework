@@ -59,12 +59,12 @@ CREATE TABLE IF NOT EXISTS `<DB_PREFIX>admins` (
   `last_name` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
   `email` varchar(80) CHARACTER SET latin1 NOT NULL,
   `role` enum('owner','mainadmin','admin') CHARACTER SET latin1 NOT NULL DEFAULT 'owner',
-  `created_at` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `updated_at` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `last_visited_at` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_at` datetime NULL DEFAULT NULL,
+  `updated_at` datetime NULL DEFAULT NULL,
+  `last_visited_at` datetime NULL DEFAULT NULL,
   `is_active` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
 
 INSERT INTO `<DB_PREFIX>admins` (`id`, `username`, `password`, `salt`, `display_name`, `first_name`, `last_name`, `email`, `role`, `created_at`, `updated_at`, `last_visited_at`, `is_active`) VALUES
-(1, '<USERNAME>', '<PASSWORD>', '', '', '', '', '<EMAIL>', 'owner', '<CREATED_AT>', '0000-00-00 00:00:00', '0000-00-00 00:00:00', 1);
+(1, '<USERNAME>', '<PASSWORD>', '', '', '', '', '<EMAIL>', 'owner', '<CREATED_AT>', NULL, NULL, 1);

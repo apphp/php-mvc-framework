@@ -95,4 +95,24 @@ Here the example:
 &lt;/legend&gt;
 </pre>
 
+You may define page title and other meta tags as well as breadcrumbs:
+<pre name="dlhl" class="php">
+&lt;?php 
+    Website::setMetaTags(array('title'=>A::t('users', 'User Registration')));
+
+    // Define breadcrumbs title
+    $this->_breadcrumbsTitle = A::t('users', 'User Registration');
+
+    // Define breadcrumbs for this page
+    $this->_breadCrumbs = array(
+        array('label'=>A::t('users', 'Home'), 'url'=>Website::getDefaultPage()),
+        array('label'=>A::t('users', 'User Registration')),
+    );
+?&gt;
+&lt;h1 class="title"&gt;&lt;?= A::t('users', 'User Registration'); ?&gt;&lt;/h1&gt;
+&lt;div class="block-body"&gt;
+    &lt;?= $actionMessage; ?&gt;
+&lt;/div&gt;
+</pre>
+
 <br /><br />

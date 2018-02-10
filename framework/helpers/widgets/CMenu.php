@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
@@ -135,7 +135,7 @@ class CMenu extends CWidgs
                 $output .= ((!$readonly) ? CHtml::link($label, $url, $linkHtmlOptions) : CHtml::label($label)).self::NL;
 
                 // Draw inner items for 2nd level (if exist)
-                if(is_array($innerItems)){
+                if(!empty($innerItems) && is_array($innerItems)){
                     $output .= CHtml::openTag('ul', array('class'=>$subMenuClass)).self::NL;
                     foreach($innerItems as $iItem => $iVal){
                         if(empty($iVal)) continue;

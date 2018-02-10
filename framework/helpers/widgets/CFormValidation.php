@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
@@ -83,6 +83,7 @@ class CFormValidation extends CWidgs
      *     'multiArray'		=> false,
      *     'messagesSource'	=> 'core',
      *     'showAllErrors'	=> false,
+     *     'method'			=> 'POST',
      * ));
      *
      *   
@@ -134,6 +135,7 @@ class CFormValidation extends CWidgs
 		$fields 		= self::params('fields', array());
         $msgSource 		= self::params('messagesSource', 'core');
 		$showAllErrors 	= self::params('showAllErrors', false);
+		$requestMethod  = strtolower(self::params('method', 'post')) == 'get' ? 'getQuery' : 'getPost';
 
 		$title          = self::keyAt('title', $fieldInfo, '');
 		$required       = self::keyAt('validation.required', $fieldInfo, false);
@@ -158,7 +160,9 @@ class CFormValidation extends CWidgs
 		$fileDefinedName = self::keyAt('validation.fileName', $fieldInfo, '');
 		$trim           = (bool)self::keyAt('validation.trim', $fieldInfo, false);
 		$format         = self::keyAt('validation.format', $fieldInfo, '');
-		$fieldValue     = ($trim) ? trim($cRequest->getPost($field)) : $cRequest->getPost($field);
+		///$fieldValue     = @call_user_func_array(array($cRequest, $requestMethod), array($field));
+		///$fieldValue     = $trim ? trim($fieldValue) : $fieldValue;
+		$fieldValue     = ($trim) ? trim($cRequest->$requestMethod($field)) : $cRequest->$requestMethod($field);
 		$errorMessage   = '';
 		$valid = true;
 				
@@ -182,7 +186,11 @@ class CFormValidation extends CWidgs
 				if($required && !isset($_FILES[$field]['tmp_name'])){
 					$required = false;
 				}else{
-					if(function_exists('image_type_to_mime_type') && function_exists('exif_imagetype')){
+					// Check file type by file extension
+					if(($fileTypeByExt = CFile::getMimeTypeByExtension($fileName)) !== ''){
+						$fileType = $fileTypeByExt;
+					// Check file type by function IMAGE_TYPE_TO_MIME_TYPE
+					}elseif(function_exists('image_type_to_mime_type') && function_exists('exif_imagetype')){
 						$fileType = !empty($fileTempName) && is_file($fileTempName) ? image_type_to_mime_type(exif_imagetype($fileTempName)) : '';
 					}else{
 						if(strrpos($fileTempName, '.') > 0){
@@ -242,35 +250,11 @@ class CFormValidation extends CWidgs
 						}else{
 							$valid = false;
 							$errorMessage = A::t($msgSource, 'An error occurred while uploading your file for field {title}. Please try again.', array('{title}'=>$title));
-							if(version_compare(phpversion(), '5.2.0', '>=')){
-								$err = error_get_last();
-								if(!empty($err['message'])){
-									$lastError = $err['message'].' | file: '.$err['file'].' | line: '.$err['line'];
-									CDebug::addMessage('errors', 'fileUploading', $lastError);
-									@trigger_error('');
-								}
-							}else{
-								CDebug::addMessage('errors', 'fileUploading', $fileError);
-								//switch($HTTP_POST_FILES['userfile']['error']){
-								//	case 0: //no error; possible file attack!
-								//	  echo "There was a problem with your upload.";
-								//	  break;
-								//	case 1: //uploaded file exceeds the upload_max_filesize directive in php.ini
-								//	  echo "The file you are trying to upload is too big.";
-								//	  break;
-								//	case 2: //uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the html form
-								//	  echo "The file you are trying to upload is too big.";
-								//	  break;
-								//	case 3: //uploaded file was only partially uploaded
-								//	  echo "The file you are trying upload was only partially uploaded.";
-								//	  break;
-								//	case 4: //no file was uploaded
-								//	  echo "You must select an image for upload.";
-								//	  break;
-								//	default: //a default error, just in case!  :)
-								//	  echo "There was a problem with your upload.";
-								//	  break;
-								//}
+							$err = error_get_last();
+							if(!empty($err['message'])){
+								$lastError = $err['message'].' | file: '.$err['file'].' | line: '.$err['line'];
+								CDebug::addMessage('errors', 'fileUploading', $lastError);
+								@trigger_error('');
 							}
 						}
 					}else{

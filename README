@@ -22,7 +22,7 @@ You will see the following files and directories:
 
 REQUIREMENTS
 ------------
-The minimum requirement by ApPHP is that your Web server supports PHP 5.2.3 or
+The minimum requirement by ApPHP is that your Web server supports PHP 5.3.0 or
 above. ApPHP has been tested with Apache HTTP server on Windows and Linux
 operating systems.
 
@@ -33,6 +33,6 @@ discussions with other ApPHP users.
 
 The ApPHP Developer Team
 ------------
-http://www.apphp.com/php-framework/
+https://www.apphp.com/php-framework/
 http://www.apphpframework.com
 https://github.com/apphp/php-mvc-framework

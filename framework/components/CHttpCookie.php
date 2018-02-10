@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
@@ -14,6 +14,7 @@
  * init (static)
  * set
  * get
+ * isExists
  * remove
  * clear
  * setDomain
@@ -86,16 +87,13 @@ class CHttpCookie extends CComponent
 		$path = (!empty($path)) ? $path : $this->_path;
 		$domain = (!empty($domain)) ? $domain : $this->_domain;
 		
-		if(version_compare(phpversion(),'5.2.0','>=')){
-			setcookie($name, $value, $expire, $path, $domain, $this->secure, $this->httpOnly);
-		}else{
-			setcookie($name, $value, $expire, $path, $domain, $this->secure);
-		}
+		setcookie($name, $value, $expire, $path, $domain, $this->secure, $this->httpOnly);
 	}
 
 	/**
 	 * Returns cookie value
 	 * @param string $name
+	 * @return mixed
 	 */
 	public function get($name)
 	{
@@ -103,16 +101,22 @@ class CHttpCookie extends CComponent
 	}
 	
 	/**
+	 * Checks if cookie variable exists
+	 * @param string $name
+	 * @return bool
+	 */
+	public function isExists($name)
+	{
+		return isset($_COOKIE[$name]) ? true : false;
+	}
+
+	/**
 	 * Deletes cookie
 	 * @param string $name
 	 */
 	public function remove($name)
 	{
-		if(version_compare(phpversion(),'5.2.0','>=')){
-			setcookie($name, null, 0, $this->_path, $this->_domain, $this->secure, $this->httpOnly);
-		}else{
-			setcookie($name, null, 0, $this->_path, $this->_domain, $this->secure);
-		}
+		setcookie($name, null, 0, $this->_path, $this->_domain, $this->secure, $this->httpOnly);
 	}
 
 	/**

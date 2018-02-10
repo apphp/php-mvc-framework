@@ -36,7 +36,7 @@ return array(
     // Validations
 	// Define array of 'excluded' controllers, ex.: array('PaymentProviders', 'Checkout')
     'validation' => array(
-        'csrf' => array('enable' => true, 'exclude' => array('PaymentProviders')),
+        'csrf' => array('enable' => true, 'exclude' => array('PaymentProviders'), 'tokenType' => 'session'),
         'bruteforce' => array('enable' => true, 'badLogins' => 5, 'redirectDelay' => 3)
     ),
 
@@ -93,7 +93,7 @@ return array(
 	
 	// Layout default settings  
 	'layouts' => array(
-		'enable' => true, 
+		'enable' => false, 
 		'default' => 'default'
 	),
 	
@@ -107,6 +107,7 @@ return array(
     
 	// application components
     'components' => array(
+		'Bootstrap' => array('enable' => true, 'class' => 'Bootstrap'),
         'cmsMenu' => array('enable'=>true, 'class'=>'CmsMenu'),
         'cmsHelper' => array('enable'=>true, 'class'=>'CmsHelper'),        
     ),
@@ -129,8 +130,7 @@ return array(
     // Url manager
     'urlManager' => array(
         'urlFormat' => 'shortPath',  /* get | path | shortPath */
-        'rules' => array(
-        ),
+        'rules' => array(),
     ),
     
 );

@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC(static):			PROTECTED:					PRIVATE:		
@@ -298,7 +298,7 @@ class CFormView extends CWidgs
 		$definedValues 	= self::keyAt('definedValues', $fieldInfo, '');
         $mandatoryStar 	= self::keyAt('mandatoryStar', $fieldInfo, false);
 		$autocomplete 	= self::keyAt('autocomplete', $fieldInfo, array(), 'is_array');
-        $htmlOptions 	= self::keyAt('htmlOptions', $fieldInfo, array(), 'is_array');
+        $htmlOptions 	= (array)self::keyAt('htmlOptions', $fieldInfo, array(), 'is_array');
 		$prependCode 	= self::keyAt('prependCode', $fieldInfo, '');
 		$appendCode 	= self::keyAt('appendCode', $fieldInfo, '');
 		$appendLabel 	= '';
@@ -549,7 +549,7 @@ class CFormView extends CWidgs
                 $iconRotateLeft = isset($fieldInfo['rotateOptions']['iconRotateLeft']) ? $fieldInfo['rotateOptions']['iconRotateLeft'] : '';
                 $rotateText = '';
 				// File options
-				$fileHtmlOptions = self::keyAt('fileOptions', $fieldInfo, '');
+				$fileHtmlOptions = self::keyAt('fileOptions', $fieldInfo, array());
 				$showAlways = (bool)self::keyAt('fileOptions.showAlways', $fieldInfo, false);
 				if($showAlways) unset($fileHtmlOptions['showAlways']);
 								

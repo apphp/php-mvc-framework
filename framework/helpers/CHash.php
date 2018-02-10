@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE (static):
@@ -13,6 +13,7 @@
  * create                                               _padKey
  * salt
  * equals
+ * getRandomToken
  * getRandomString
  * getSequentialString
  * encrypt
@@ -50,7 +51,11 @@ class CHash
      */
     public static function salt()
     {
-		return base64_encode(mcrypt_create_iv(24, MCRYPT_DEV_URANDOM));	
+		if(version_compare(phpversion(), '7.0.0', '<')){
+			return base64_encode(mcrypt_create_iv(24, MCRYPT_DEV_URANDOM));	
+		}else{
+			return substr(strtr(base64_encode(hex2bin(self::getRandomToken(32))), '+', '.'), 0, 44);
+		}	    
 	}
 	
     /**
@@ -62,14 +67,37 @@ class CHash
     public static function equals($a, $b)
     {
 		$diff = strlen($a) ^ strlen($b);
-		for($i = 0; $i < strlen($a) && $i < strlen($b); $i++)
-		{
+		for($i = 0; $i < strlen($a) && $i < strlen($b); $i++){
 			$diff |= ord($a[$i]) ^ ord($b[$i]);
 		}
 		return $diff === 0; 
 	}
 
-    /**
+	/**
+     * Creates random token
+     * @param int $length
+     * @return string
+     */
+	public static function getRandomToken($length = 32){
+		
+		$token = '';
+		
+		if(!isset($length) || intval($length) <= 8 ){
+		  $length = 32;
+		}
+		
+		if(version_compare(phpversion(), '7.0.0', '<') && function_exists('mcrypt_create_iv')){
+			$token = bin2hex(mcrypt_create_iv($length, MCRYPT_DEV_URANDOM));
+		}elseif(function_exists('random_bytes')){
+			$token = bin2hex(random_bytes($length));
+		}elseif(function_exists('openssl_random_pseudo_bytes')){
+			$token = bin2hex(openssl_random_pseudo_bytes($length));
+		}
+		
+		return $token;
+	}
+
+	/**
      * Creates random string
      * @param integer $length
      * @param array $params
@@ -146,7 +174,7 @@ class CHash
         $secretKey = self::_padKey($secretKey);
 
 		if(version_compare(phpversion(), '7.0.0', '<')){
-			$return = strtr(base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $secretKey, $value, MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB), MCRYPT_RAND))), '+/=', '-_,');	
+			$return = strtr(base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $secretKey, $value, MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB), MCRYPT_RAND))), '+/=', '-_,');
 		}else{
 			// Generate an initialization vector
 			$iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length('aes-256-cbc'));

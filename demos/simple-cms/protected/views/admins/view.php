@@ -24,7 +24,7 @@
                     'email'     	=> array('title'=>A::t('app', 'Email'), 'type'=>'label', 'class'=>'left', 'headerClass'=>'left'),
                     'role'    		=> array('title'=>A::t('app', 'Account Type'), 'type'=>'enum', 'class'=>'center', 'headerClass'=>'center', 'source'=>$rolesList, 'width'=>'110px'),
                     'is_active'     => array('title'=>A::t('app', 'Active'), 'type'=>'enum', 'class'=>'center', 'headerClass'=>'center', 'source'=>array('0'=>'<span class="badge-red">'.A::t('app', 'No').'</span>', '1'=>'<span class="badge-green">'.A::t('app', 'Yes').'</span>'), 'width'=>'110px'),
-                    'last_visited_at'=> array('title'=>A::t('app', 'Last Visit'), 'type'=>'label', 'class'=>'center', 'headerClass'=>'center', 'definedValues'=>array('0000-00-00 00:00:00'=>A::t('app', 'Never')), 'width'=>'100px', 'format'=>$dateTimeFormat),
+                    'last_visited_at'=> array('title'=>A::t('app', 'Last Visit'), 'type'=>'label', 'class'=>'center', 'headerClass'=>'center', 'definedValues'=>array(null=>A::t('app', 'Never')), 'width'=>'100px', 'format'=>$dateTimeFormat),
                 ),
                 'actions'=>array(
                     'edit'   => array('link'=>'admins/edit/id/{id}', 'imagePath'=>'templates/backend/images/edit.png', 'title'=>A::t('app', 'Edit this record')),

@@ -6,14 +6,14 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
  * __construct              _cleanRequest               _getParam
  * __call					_getProtocolAndHost			_getAll
- * init (static)										
+ * init (static)			_getControllerAndAction
  * stripSlashes											
  * getBasePath
  * getBaseUrl
@@ -78,8 +78,10 @@ class CHttpRequest extends CComponent
 	private $_csrfTokenKey = 'APPHP_CSRF_TOKEN';
 	/** @var string */
 	private $_csrfTokenValue = null;
-	/** @var string session or cookie */
+	/** @var string session, cookie or multipages */
 	private $_csrfTokenType = 'session';
+	/** @var int */
+	private $_csrfMaxTokenedPages = 20;
 	/** @var int port number */
 	private $_port = null;
 	/** @var int secure port number */
@@ -96,6 +98,8 @@ class CHttpRequest extends CComponent
 		$this->_csrfValidation = (CConfig::get('validation.csrf.enable') === true) ? true : false;
 		$this->_csrfExclude = CConfig::exists('validation.csrf.exclude') ? CConfig::get('validation.csrf.exclude') : array();
 		$this->_gzipCompression = (CConfig::get('compression.gzip.enable') === true) ? true : false;
+		$csrfTokenType = CConfig::get('validation.csrf.tokenType');
+		$this->_csrfTokenType = ($csrfTokenType !== '' && in_array($csrfTokenType, array('session', 'cookie', 'multipages'))) ? $csrfTokenType : 'session';
 		
 		$this->_cleanRequest();
 		$this->_baseUrl = $this->setBaseUrl();
@@ -457,12 +461,12 @@ class CHttpRequest extends CComponent
 	}
 
 	/**
-	 * Returns is csrf validation is used
+	 * Returns if csrf validation is used
 	 * @return string 
 	 */
 	public function getCsrfValidation()
 	{
-		if(is_array($this->_csrfExclude) && !empty($this->_csrfExclude)){
+		if(!empty($this->_csrfExclude) && is_array($this->_csrfExclude)){
 			// Retrirve current controller
 			// TODO: this is a simplest code, we need to improve it and use URL rules
 			$request = isset($_GET['url']) ? $_GET['url'] : '';
@@ -478,7 +482,7 @@ class CHttpRequest extends CComponent
 	}
 	
 	/**
-	 * Returns csrf token key name
+	 * Returns CSRF token key name
 	 * @return string 
 	 */
 	public function getCsrfTokenKey()
@@ -494,13 +498,36 @@ class CHttpRequest extends CComponent
 	public function getCsrfTokenValue()
 	{
 		// Check and set token
-		if($this->_csrfTokenValue === null){
-			if($this->_csrfTokenType == 'session'){
-				$this->_csrfTokenValue = md5(uniqid(rand(), true));	
+		$csrfTokenValue = md5(uniqid(rand(), true));
+		
+		if($this->_csrfTokenType == 'session'){
+			if($this->_csrfTokenValue === null){
+				$this->_csrfTokenValue = $csrfTokenValue;
 				A::app()->getSession()->set('token', $this->_csrfTokenValue);
-			}elseif($this->_csrfTokenType == 'cookie'){
-				// TODO: release cookies code here
-				// ...
+			}
+		}elseif($this->_csrfTokenType == 'cookie'){
+			if($this->_csrfTokenValue === null){
+				$this->_csrfTokenValue = $csrfTokenValue;
+				A::app()->getCookie()->set('token', $this->_csrfTokenValue);
+			}
+		}elseif($this->_csrfTokenType == 'multipages'){
+			// Get page ID
+			$pageId = $this->_getControllerAndAction();
+			if(CString::length($pageId) < 100 && CValidator::isVariable($pageId)){
+				if($this->_csrfTokenValue === null){
+					$this->_csrfTokenValue = $csrfTokenValue;
+				}				
+				// Get array and validate
+				$csrfTokenValues = A::app()->getSession()->get('token');
+				if(empty($csrfTokenValues) || !is_array($csrfTokenValues)){
+					$csrfTokenValues = array();
+				}				
+				// Save data
+				$csrfTokenValues[$pageId] = ($this->_csrfTokenValue !== null) ? $this->_csrfTokenValue : $csrfTokenValue;
+				if(count($csrfTokenValues) > $this->_csrfMaxTokenedPages){
+					array_shift($csrfTokenValues);
+				}
+				A::app()->getSession()->set('token', $csrfTokenValues);
 			}
 		}
 		
@@ -513,17 +540,42 @@ class CHttpRequest extends CComponent
 	public function validateCsrfToken()
 	{
 		// Validate only POST requests
-		if($this->isPostRequest()){			
-			if(A::app()->getSession()->isExists('token') && isset($_POST[$this->_csrfTokenKey])){
-				$tokenFromSession = A::app()->getSession()->get('token');
-				$tokenFromPost = $_POST[$this->_csrfTokenKey];
-				$valid = ($tokenFromSession === $tokenFromPost);
-			}else{
-				$valid = false;
+		if($this->isPostRequest()){
+			
+			$valid = false;
+			$tokenFromPost = $_POST[$this->_csrfTokenKey];
+			
+			if($this->_csrfTokenType == 'session'){
+				if(A::app()->getSession()->isExists('token') && isset($_POST[$this->_csrfTokenKey])){
+					$tokenFromSession = A::app()->getSession()->get('token');
+					$valid = ($tokenFromSession === $tokenFromPost);
+				}
+			}elseif($this->_csrfTokenType == 'cookie'){
+				if(A::app()->getCookie()->isExists('token') && isset($_POST[$this->_csrfTokenKey])){
+					$tokenFromCookie = A::app()->getCookie()->get('token');					
+					$valid = ($tokenFromCookie === $tokenFromPost);
+				}
+			}elseif($this->_csrfTokenType == 'multipages'){
+				// Get page ID
+				$pageId = $this->_getControllerAndAction();
+				if(A::app()->getSession()->isExists('token') && isset($_POST[$this->_csrfTokenKey])){
+					$tokenFromSession = A::app()->getSession()->get('token');
+					$tokenFromSession = isset($tokenFromSession[$pageId]) ? $tokenFromSession[$pageId] : '';
+					$valid = ($tokenFromSession === $tokenFromPost);
+				}
 			}
 			
 			if(!$valid){
 				unset($_POST);
+				A::app()->getSession()->setFlash(
+					'csrfError',
+					A::t('core', 'The CSRF token has expired or invalid. Please try to <a href="javascript:csrf_refresh_page()" class="csrf-refresh-page">refresh page</a> and resubmit the form.')
+				);
+		        A::app()->getClientScript()->registerScript(
+		            'csrfError',
+		            'function csrf_refresh_page(){location.href = location.href + \'?\' + Math.random();}',
+					2
+				);
 				CDebug::addMessage('warnings', 'csrf_token', A::t('core', 'The CSRF token could not be verified.'));
 			}
 		}
@@ -535,10 +587,16 @@ class CHttpRequest extends CComponent
 	public function setGzipHandler()
 	{
 		if(isset($_SERVER['HTTP_ACCEPT_ENCODING']) && substr_count($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip')){
+			// Fix for warning: ob_start() [ref.outcontrol]: output handler 'ob_gzhandler' conflicts with zlib output compression'
+			if(extension_loaded('zlib')){
+				if(ob_get_length()){
+					ob_end_clean();
+				}
+			}			
 			ob_start('ob_gzhandler');
 		}else{
 			ob_start();
-		}
+		} 		
 	}
 
 	/**
@@ -587,6 +645,20 @@ class CHttpRequest extends CComponent
 		}
 		
 		return $protocol.$httpHost.$port;		
+	}
+	
+	/**
+	 * Returns controller and action from URL
+	 * @return string
+	 */
+	protected function _getControllerAndAction()
+	{
+		$request = isset($_GET['url']) ? $_GET['url'] : '';
+		$split = explode('/', trim($request, '/'));
+		$pageId = isset($split[0]) ? $split[0] : '';
+		$pageId .= isset($split[1]) ? '_'.$split[1] : '';		
+		
+		return $pageId;
 	}	
 
     /**

@@ -36,7 +36,7 @@ return array(
     // Validations
 	// Define array of 'excluded' controllers, ex.: array('PaymentProviders', 'Checkout')
     'validation' => array(
-        'csrf' => array('enable' => true, 'exclude' => array('PaymentProviders')),
+        'csrf' => array('enable' => true, 'exclude' => array('PaymentProviders'), 'tokenType' => 'session'),
         'bruteforce' => array('enable' => true, 'badLogins' => 5, 'redirectDelay' => 3)
     ),
 
@@ -93,7 +93,7 @@ return array(
 	
 	// Layout default settings  
 	'layouts' => array(
-		'enable' => true, 
+		'enable' => false, 
 		'default' => 'default'
 	),
 	

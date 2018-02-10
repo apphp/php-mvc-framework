@@ -86,8 +86,8 @@ class AuthorsController extends CController
 				
             $result = CWidget::create('CFormValidation', array(
                 'fields'=>array(
-                    'password'	=>array('title'=>'Password', 'validation'=>array('required'=>false, 'type'=>'password', 'minLength'=>6, 'maxlength'=>20)),
-                    'passwordRetype' =>array('title'=>'Repeat Password', 'validation'=>array('required'=>false, 'type'=>'confirm', 'confirmField'=>'password', 'minLength'=>6, 'maxlength'=>20)),
+                    'password'	=>array('title'=>'Password', 'validation'=>array('required'=>false, 'type'=>'password', 'minLength'=>4, 'maxlength'=>20)),
+                    'passwordRetype' =>array('title'=>'Repeat Password', 'validation'=>array('required'=>false, 'type'=>'confirm', 'confirmField'=>'password', 'minLength'=>4, 'maxlength'=>20)),
                 	'email' 	=>array('title'=>'Email', 'validation'=>array('required'=>true, 'type'=>'email', 'maxLength'=>100)),
                 	'aboutText' =>array('title'=>'About Me', 'validation'=>array('required'=>true, 'type'=>'any', 'maxLength'=>300)),
     				'avatar'	=>array('title'=>'Avatar', 'validation'=>array('required'=>false, 'type'=>'image', 'targetPath'=>'templates/default/images/authors/', 'maxSize'=>'100k', 'mimeType'=>'image/jpeg, image/png, image/gif, image/jpg')),

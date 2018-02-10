@@ -1,12 +1,19 @@
-## Deny directory browsing
-Options -Indexes 
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Rewrite all other URLs to index.php/URL
+    RewriteRule ^(.*)test1\.txt$   tests/test2.txt [QSA]
+</IfModule>
 
-# Redirect domain.com to www.domain.com
-RewriteEngine On
-
-RewriteRule ^(.*)test1\.txt$   tests/test2.txt [QSA]
+<IfModule !mod_rewrite.c>
+	ErrorDocument 404 index.php
+</IfModule>
 
 <FILES ~ "\.txt$">  
     Order allow,deny
     Allow from all
 </FILES>
+
+Options All -Indexes
+
+

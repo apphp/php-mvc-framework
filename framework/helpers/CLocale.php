@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
@@ -129,11 +129,15 @@ class CLocale
 			$day 		= isset($day[0]) ? $dayParts[0] : '';
 	
 			$convertedFormat = isset($dateFormat['converted_format']) ? $dateFormat['converted_format'] : '';		
-		}elseif(isset(self::$_arrTimeFormats[$format])){			
+		}elseif(isset(self::$_arrTimeFormats[$format])){
 			$dateFormat = self::$_arrTimeFormats[$format];
 			
-			$parts 	= explode(' ', $date);
-			$timeParts	= isset($parts[1]) ? explode(':', $parts[1]) : array();
+			if(strlen($date) > 8){
+				$parts 	= explode(' ', $date);
+				$timeParts	= isset($parts[1]) ? explode(':', $parts[1]) : array();
+			}else{
+				$timeParts	= explode(':', $date);
+			}
 			
 			$hour 		= isset($timeParts[0]) ? $timeParts[0] : '';
 			$hour24 	= $hour;

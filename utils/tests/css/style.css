@@ -60,3 +60,7 @@ td.failed		{ color:#ff8080; border:1px solid silver; padding:2px; }
 .ok				{ font-weight:bold; color:#49b649; }
 .warning 		{ color:#ffffbf; font-weight:bold; }
 .failed 		{ color:#ff8080; font-weight:bold; }
+.true			{ font-weight:bold; color:#008080; }
+.false 			{ color:#804040; font-weight:bold; }
+
+.align-center	{ text-align: center !important; }

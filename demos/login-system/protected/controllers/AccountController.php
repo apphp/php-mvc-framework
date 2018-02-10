@@ -35,8 +35,8 @@ class AccountController extends CController
             // perform account edit form validation
             $result = CWidget::create('CFormValidation', array(
                 'fields'=>array(
-                    //'username'=>array('title'=>'Username' 'validation'=>array('required'=>true, 'type'=>'username', 'minLength'=>6)),
-                    'password'=>array('title'=>'Password', 'validation'=>array('required'=>true, 'type'=>'password', 'minLength'=>6)),
+                    //'username'=>array('title'=>'Username' 'validation'=>array('required'=>true, 'type'=>'username', 'minLength'=>4)),
+                    'password'=>array('title'=>'Password', 'validation'=>array('required'=>true, 'type'=>'password', 'minLength'=>4)),
                 ),            
             ));
 

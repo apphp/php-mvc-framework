@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2016 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
@@ -13,6 +13,7 @@
  * __construct                                          
  * __set
  * __get
+ * getAllVars
  * setMetaTags
  * getMetaTags
  * render
@@ -48,6 +49,8 @@ class CView
 	private $_pageKeywords;
 	/**	@var string */
 	private $_pageDescription;
+	/**	@var string */
+	private $_breadcrumbsTitle;
 	/** @var array */
 	private $_vars = array();
 	/** @var bool */
@@ -118,6 +121,15 @@ class CView
  	{
 		return isset($this->_vars[$index]) ? $this->_vars[$index] : '';
  	}
+	
+	/**
+	 *	Returns all defined variables for current view
+	 *	@return array
+	 */
+	public function getAllVars()
+	{
+		return $this->_vars;
+	}	
 
 	/**
 	 *	Sets meta tags for page
@@ -224,7 +236,7 @@ class CView
 				}				
 				
 				// Get layout file
-				if(CConfig::get('layouts.enable')){
+				if(($this->getTemplate() === 'backend' && CConfig::get('layouts.enable.backend')) || ($this->getTemplate() !== 'backend'  && CConfig::get('layouts.enable.frontend'))){
 					$this->__layoutFile = APPHP_PATH.DS.'templates'.DS.$this->_template.DS.'layouts'.DS.(!empty($this->_layout) ? $this->_layout : '').'.php';
 					if(!empty($this->_layout)){
 						if(file_exists($this->__layoutFile)){

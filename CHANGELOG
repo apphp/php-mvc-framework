@@ -1,3 +1,24 @@
+Version 1.1.5 - 06 Jan, 2018
+----------------------------
+- New: added CDbCommand - query builder core class
+- New: added possibility to define select list in CActiveRecord::FindAll() method
+- New: added new type of CSRF tokens "multipages", that allows to generate tokens for separate pages
+- Enh: mininum requirements for PHP is defined as 5.3.0 
+- Enh: for date and datetime fields default value defined as NULL, '0000-00-00' is deprecated
+- Enh: TCPDF library updated to v6.2.13
+- Enh: showed all variables that were defined in current view in Debug Panel
+- Enh: added automatically added back quotes in SQL statements according to database driver
+- Enh: minor changes in CLocale, CTime, CGridView, CString helpers
+- Enh: changes in CDatabase core class
+- Enh: minor changes in code for PHP7 compatibility
+- Enh: CHash::salt() is now capatible with PHP7.1 or later
+- Bug: fixed registration of empty components in _registerAppComponents()
+- Bug: fixed output handler 'ob_gzhandler' conflicts with zlib output compression' - specail thanks to Ilias Minogiannis
+- Bug: isNewRecord was staying with previous value after using save() method in CActiveRecord
+- Bug: fixed possibility to upload unexpected file extensions
+- Bug: fixed warning on empty buffer when calls ob_end_clean()
+
+
 Version 1.0.3 - 23 Jun, 2017
 ----------------------------
 - New: added possibility to catch and handle global exceptions
@@ -46,7 +67,7 @@ Version 0.8.3 - 01 Jul, 2016
 - New: added SOAP vendor - nusoap
 - New: added OPAUTH vendor - opauth
 - Enh: minor changes in CDebug core class
-- Enh: minor changes in CHtml::link() method - added automatically added rel="nofollow noopener" for target="_new"
+- Enh: minor changes in CHtml::link() method - added automatically added rel="noopener noreferrer" for target="_blank"
 - Enh: minor changes in helper CGeoLocation
 - Enh: translation in Spanish for core messages
 - Enh: minor changes in CDatabase db class
