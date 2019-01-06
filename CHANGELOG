@@ -1,19 +1,34 @@
+Version 1.2.2 -  01 Jan, 2019
+----------------------------
+- New: added possibility to define Captcha fields in CDataForm widget
+- New: added possibility to define access permissions to controller actions via _accessRules() method
+- New: added possibility to minify CSS and JS files via config file
+- Enh: allowed creating and removing cache files by cache ID
+- Enh: changes in helpers CFile, CDataForm, CHttpRequest, CValidator, CLocalTime
+- Enh: added possibility to add watermark for uploaded images with CImage::addWatermark() in CDataForm
+- Enh: added possibility to remove whole section in FormView by using 'disabled'=>true
+- Enh: minimum requirements for PHP is defined as 5.4.0
+- New: added Arabic language to i18n
+- Bug: fixed error on witting to file in CFile helper
+- Bug: fixed warning on double call of CView::renderContent()
+
+
 Version 1.1.5 - 06 Jan, 2018
 ----------------------------
 - New: added CDbCommand - query builder core class
 - New: added possibility to define select list in CActiveRecord::FindAll() method
 - New: added new type of CSRF tokens "multipages", that allows to generate tokens for separate pages
-- Enh: mininum requirements for PHP is defined as 5.3.0 
+- Enh: minimum requirements for PHP is defined as 5.3.0 
 - Enh: for date and datetime fields default value defined as NULL, '0000-00-00' is deprecated
 - Enh: TCPDF library updated to v6.2.13
 - Enh: showed all variables that were defined in current view in Debug Panel
 - Enh: added automatically added back quotes in SQL statements according to database driver
-- Enh: minor changes in CLocale, CTime, CGridView, CString helpers
+- Enh: minor changes in CLocale, CTime, CGridView, CString, CHtml helpers
 - Enh: changes in CDatabase core class
 - Enh: minor changes in code for PHP7 compatibility
-- Enh: CHash::salt() is now capatible with PHP7.1 or later
+- Enh: CHash::salt() is now compatible with PHP7.1 or later
 - Bug: fixed registration of empty components in _registerAppComponents()
-- Bug: fixed output handler 'ob_gzhandler' conflicts with zlib output compression' - specail thanks to Ilias Minogiannis
+- Bug: fixed output handler 'ob_gzhandler' conflicts with zlib output compression' - special thanks to Ilias Minogiannis
 - Bug: isNewRecord was staying with previous value after using save() method in CActiveRecord
 - Bug: fixed possibility to upload unexpected file extensions
 - Bug: fixed warning on empty buffer when calls ob_end_clean()

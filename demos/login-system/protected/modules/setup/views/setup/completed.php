@@ -1,18 +1,22 @@
 <?php
+	A::app()->view->setMetaTags('title', A::t('setup', 'Completed'));
+
     $this->_activeMenu = $this->_controller.'/'.$this->_action;
+    $baseUrl = A::app()->getRequest()->getBaseUrl();
+	$backendUrl = $baseUrl.'backend/login';
 ?>
 
-<h1>Completed</h1>
+<h1><?= A::t('setup', 'Completed'); ?></h1>
 
-<?php echo $actionMessage; ?>
+<?= $actionMessage; ?>
     
 <p>
-    Your website is available at <a href="<?php echo A::app()->getRequest()->getBaseUrl(); ?>"><?php echo A::app()->getRequest()->getBaseUrl(); ?></a>
+    <?= A::t('setup', 'Your website is available at'); ?> <a href="<?= $baseUrl; ?>"><?= $baseUrl; ?></a>
     <br><br>
-    You may login using these details:<br>
-    Username is: <i><?php echo $username; ?></i>
+    <?= A::t('setup', 'You may login to Admin Panel'); ?>: <a href="<?= $backendUrl; ?>"><?= $backendUrl; ?></a><br>
+    <?= A::t('setup', 'Username is'); ?>: <i><?= $username; ?></i>
     <br>
-    Password is: <i><?php echo $password; ?></i>
+    <?= A::t('setup', 'Password is'); ?>: <i><?= $password; ?></i>
     <br><br>
 </p>
 

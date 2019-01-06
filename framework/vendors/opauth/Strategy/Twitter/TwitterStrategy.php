@@ -23,7 +23,7 @@ class TwitterStrategy extends OpauthStrategy {
      */
     public $defaults = array(
         'method' => 'POST',         // The HTTP method being used. e.g. POST, GET, HEAD etc
-        'oauth_callback' => '{complete_url_to_strategy}oauth_callback',
+        'oauth_callback' => '{complete_url_to_strategy}oauth2callback',
 
         // For Twitter
         'request_token_url' => 'https://api.twitter.com/oauth/request_token',
@@ -75,8 +75,8 @@ class TwitterStrategy extends OpauthStrategy {
 
         $results =  $this->_request('POST', $this->strategy['request_token_url'], $params);
 
-        if ($results !== false && !empty($results['oauth_token']) && !empty($results['oauth_token_secret'])){
-            if (!session_id()) {
+        if($results !== false && !empty($results['oauth_token']) && !empty($results['oauth_token_secret'])){
+            if(!session_id()) {
                 session_start();
             }
             $_SESSION['_opauth_twitter'] = $results;
@@ -88,14 +88,14 @@ class TwitterStrategy extends OpauthStrategy {
     /**
      * Receives oauth_verifier, requests for access_token and redirect to callback
      */
-    public function oauth_callback() {
-        if (!session_id()) {
+    public function oauth2callback() {
+        if(!session_id()) {
             session_start();
         }
         $session = $_SESSION['_opauth_twitter'];
         unset($_SESSION['_opauth_twitter']);
 
-        if (!empty($_REQUEST['oauth_token']) && $_REQUEST['oauth_token'] == $session['oauth_token']) {
+        if(!empty($_REQUEST['oauth_token']) && $_REQUEST['oauth_token'] == $session['oauth_token']){
             $this->tmhOAuth->config['user_token'] = $session['oauth_token'];
             $this->tmhOAuth->config['user_secret'] = $session['oauth_token_secret'];
 
@@ -105,10 +105,10 @@ class TwitterStrategy extends OpauthStrategy {
 
             $results =  $this->_request('POST', $this->strategy['access_token_url'], $params);
 
-            if ($results !== false && !empty($results['oauth_token']) && !empty($results['oauth_token_secret'])) {
+            if($results !== false && !empty($results['oauth_token']) && !empty($results['oauth_token_secret'])){
                 $credentials = $this->_verify_credentials($results['oauth_token'], $results['oauth_token_secret']);
 
-                if (!empty($credentials['id'])) {
+                if(!empty($credentials['id'])){
 
                     $this->auth = array(
                         'uid' => $credentials['id'],
@@ -134,7 +134,7 @@ class TwitterStrategy extends OpauthStrategy {
                     $this->callback();
                 }
             }
-        } else {
+        }else{
             $error = array(
                 'code' => 'access_denied',
                 'message' => 'User denied access.',
@@ -152,8 +152,8 @@ class TwitterStrategy extends OpauthStrategy {
             'oauth_token' => $oauth_token
         );
 
-        if (!empty($this->strategy['force_login'])) $params['force_login'] = $this->strategy['force_login'];
-        if (!empty($this->strategy['screen_name'])) $params['screen_name'] = $this->strategy['screen_name'];
+        if(!empty($this->strategy['force_login'])) $params['force_login'] = $this->strategy['force_login'];
+        if(!empty($this->strategy['screen_name'])) $params['screen_name'] = $this->strategy['screen_name'];
 
         $this->clientGet($this->strategy['authorize_url'], $params);
     }
@@ -187,15 +187,15 @@ class TwitterStrategy extends OpauthStrategy {
     private function _request($method, $url, $params = array(), $useauth = true, $multipart = false) {
         $code = $this->tmhOAuth->request($method, $url, $params, $useauth, $multipart);
 
-        if ($code == 200) {
-            if (strpos($url, '.json') !== false) {
+        if($code == 200){
+            if(strpos($url, '.json') !== false){
                 $response = json_decode($this->tmhOAuth->response['response']);
-            } else {
+            }else{
                 $response = $this->tmhOAuth->extract_params($this->tmhOAuth->response['response']);
             }
 
             return $response;
-        } else {
+        }else{
             $error = array(
                 'code' => $code,
                 'raw' => $this->tmhOAuth->response['response']

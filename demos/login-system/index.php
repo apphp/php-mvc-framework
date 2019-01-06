@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  */	  
 
@@ -14,7 +14,7 @@ defined('APPHP_PATH') || define('APPHP_PATH', dirname(__FILE__));
 // directory separator
 defined('DS') || define('DS', DIRECTORY_SEPARATOR);
 // production | debug | demo | test
-defined('APPHP_MODE') or define('APPHP_MODE', 'production'); 
+defined('APPHP_MODE') or define('APPHP_MODE', 'debug');
 
 
 $apphp = dirname(__FILE__).'/../../framework/Apphp.php';

@@ -11,7 +11,7 @@ You will see the following files and directories:
     demos/              demo applications
     docs/               documentation
     framework/          framework source files
-    utils/              some utillities
+    utils/              some utilities
         requirements/   requirements checker
         tests/          tests
         generators/     code generators
@@ -22,7 +22,7 @@ You will see the following files and directories:
 
 REQUIREMENTS
 ------------
-The minimum requirement by ApPHP is that your Web server supports PHP 5.3.0 or
+The minimum requirement by ApPHP is that your Web server supports PHP 5.4.0 or
 above. ApPHP has been tested with Apache HTTP server on Windows and Linux
 operating systems.
 

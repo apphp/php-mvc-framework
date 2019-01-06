@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
@@ -18,7 +18,7 @@
  * emptyDirectory                                       
  * copyDirectory
  * isDirectoryEmpty
- * getDirectoryFilesNumber
+ * getDirectoryFilesCount
  * removeDirectoryOldestFile
  * findSubDirectories
  * fileExists
@@ -27,6 +27,7 @@
  * findFiles
  * deleteFile
  * getFileSize
+ * getFileTime
  * getImageDimensions
  * createShortenName
  * getFileContent
@@ -47,12 +48,12 @@ class CFile
 	public static function isWritable($file)
 	{
 		// Check if we're on a Unix server with safe_mode "off", in this case we call is_writable
-		if (DIRECTORY_SEPARATOR === '/' && (substr(phpversion(), 0, 3) == '5.4' || !ini_get('safe_mode'))){
+		if(DIRECTORY_SEPARATOR === '/' && (substr(phpversion(), 0, 3) == '5.4' || !ini_get('safe_mode'))){
 			return is_writable($file);
 		}
 
 		// For Windows servers and safe_mode "on" we'll actually write a file and then read it.
-		if (is_dir($file)){
+		if(is_dir($file)){
 			$file = rtrim($file, '/').'/'.md5(mt_rand());
 			if(($fp = @fopen($file, 'ab')) === false){
 				return false;
@@ -188,6 +189,8 @@ class CFile
 	 */
 	public static function deleteDirectory($path = '', $deleteHidden = false)
 	{
+		if(empty($path)) return false;
+		
 		$path = trim($path, '/').'/';
 		
 		$files = glob($path.'*');
@@ -206,13 +209,18 @@ class CFile
 	/**
 	 * Removes files and subdirectories of the given directory
 	 * @param string $path
+	 * @param array $exclude
 	 * @return bool
 	 */
-	public static function emptyDirectory($path = '')
+	public static function emptyDirectory($path = '', $exclude = array())
 	{
 		$files = glob($path.'/*');
 		foreach($files as $file){
-			is_dir($file) ? self::emptyDirectory($file) : unlink($file); 
+			if(is_dir($file)){
+				self::emptyDirectory($file);
+			}elseif(!in_array(basename($file), $exclude)){
+				unlink($file);
+			}
 		}
 		return true;
 	}
@@ -265,17 +273,20 @@ class CFile
 	/**
 	 * Returns the result of check if given directory is empty
 	 * @param string $dir
+	 * @param array $exclude
 	 * @return bool
 	 */
-	public static function isDirectoryEmpty($dir = '')
+	public static function isDirectoryEmpty($dir = '', $exclude = array())
 	{
 		if($dir == '' || !is_readable($dir)) return false; 
 		
 		$hd = opendir($dir);
 		if(!$hd) return false;		
 		while(false !== ($entry = readdir($hd))){
-			if($entry !== '.' && $entry !== '..'){
-				return false;
+			if(($entry !== '.' && $entry !== '..')){
+				if(!in_array($entry, $exclude)){
+					return false;	
+				}				
 			}
 		}
 		closedir($hd);
@@ -284,11 +295,14 @@ class CFile
 	
 	/**
 	 * Returns the number of files in a given directory
-	 * @param string $dir
+	 * @param array $exclude
+	 * @param string $fileExtension
+	 * @return int
 	 */
-	public static function getDirectoryFilesNumber($dir = '')
+	public static function getDirectoryFilesCount($dir = '', $fileExtension = '')
 	{
-        return count(glob($dir.'*'));
+		$search = !empty($fileExtension) ? '*'.$fileExtension : '*';
+        return count(glob($dir.$search));
     }
     
 	/**
@@ -352,7 +366,7 @@ class CFile
 		$result = true;		
 		if(substr($path, -1) === '/' || !file_exists($path)){
 			$result = false;
-			CDebug::addMessage('errors', 'warnings', A::t('core', 'Unable to find file: "{file}".', array('{file}'=>$path)));
+			CDebug::addMessage('warnings', 'missing-file', A::t('core', 'Unable to find file: "{file}".', array('{file}'=>$path)));
 		}		
 		return $result;
 	}
@@ -366,10 +380,16 @@ class CFile
 	 */
 	public static function writeToFile($file = '', $content = '', $mode = 'w')
 	{
-        $fp = @fopen($file, $mode);                     
-        @fwrite($fp, $content);
+		if(!$fp = @fopen($file, $mode)){
+			self::_errorHanler('file-opening-error', A::t('core', 'Cannot open file {file}.', array('{file}'=>$file)));
+			return false;
+		}		
+		if(@fwrite($fp, $content) === FALSE){
+			self::_errorHanler('file-writing-error', A::t('core', 'An error occurred while writing to file {file}.', array('{file}'=>$file)));
+			return false;
+		}
+		
         @fclose($fp);
-        self::_errorHanler('file-writing-error', A::t('core', 'An error occurred while writing to file {file}.', array('{file}'=>$file)));
         return true;
     }
 
@@ -424,6 +444,8 @@ class CFile
 	 */
 	public static function deleteFile($file = '')
 	{
+		if(empty($file)) return false;
+		
         $result = @unlink($file);
         self::_errorHanler('file-deleting-error', A::t('core', 'An error occurred while deleting the file {file}.', array('{file}'=>$file)));
 		return $result;
@@ -458,13 +480,33 @@ class CFile
 				$result = number_format($filesSize, 2, '.', ',');
 				break;
 		}
+		
+		return $result;
+	}
+	
+	/**
+	 * Returns last date of the given file modification
+	 * @param string $file
+	 * @param string $timeFormat
+	 * @return bool|string
+	 */
+	public static function getFileTime($file, $timeFormat = 'Y-m-d H:i:s')
+	{
+		$result = false;
+		
+		if(!$file || !is_file($file)) return $result;
+		
+		if(file_exists($file)){
+			$result = date($timeFormat, filemtime($file));
+		}
+		
 		return $result;
 	}
 	
 	/**
 	 * Returns dimensions of the given file
 	 * @param string $image
-	 * @return array
+	 * @return int|array
 	 */
 	public static function getImageDimensions($image)
 	{

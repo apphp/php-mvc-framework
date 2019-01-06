@@ -101,8 +101,10 @@ return array(
 
     // Output compression
     'compression' => array(
-		'gzip' => array('enable' => true),
-		'html' => array('enable' => false),
+        'gzip' => array('enable' => true),
+        'html' => array('enable' => false),
+        'css' => array('enable' => false, 'path' => 'assets/minified/css/', 'minify' => true),
+        'js' => array('enable' => false, 'path' => 'assets/minified/js/', 'minify' => true),
     ),
 
     // Session settings

@@ -5,13 +5,14 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
- * PUBLIC (static):			PROTECTED:					PRIVATE:		
+ * PUBLIC (static):			PROTECTED (static):			PRIVATE:		
  * ----------               ----------                  ----------
- * getImageSize
+ * getImageSize				_getRealExtension
  * resizeImage
+ * addWatermark
  * 
  */	  
 
@@ -45,6 +46,7 @@ class CImage
      * @param $imageName
      * @param $resizeWidth
      * @param $resizeHeight
+     * @return void
      */
     public static function resizeImage($imagePath, $imageName, $resizeWidth = '', $resizeHeight = '')
 	{
@@ -60,12 +62,8 @@ class CImage
                 $width = $size[0];
                 $height = $size[1];                
                 $case = '';
-                $currExt = strtolower(substr($imagePathName,strrpos($imagePathName,'.')+1));
-				$imagetype = (function_exists('exif_imagetype')) ? exif_imagetype($imagePathName) : '';	
-                if($imagetype == '1' && $currExt != 'gif') $ext = 'gif';
-				elseif($imagetype == '2' && $currExt != 'jpg' && $currExt != 'jpeg') $ext = 'jpg';
-                elseif($imagetype == '3' && $currExt != 'png') $ext = 'png';
-				else $ext = $currExt;
+				$currExt = strtolower(substr($imagePathName,strrpos($imagePathName,'.')+1));				
+				$ext = self::_getRealExtension($imagePathName);				
                 switch($ext){
                     case 'png':
                         $iTmp = @imagecreatefrompng($imagePathName);
@@ -74,15 +72,15 @@ class CImage
                     case 'gif':
                         $iTmp = @imagecreatefromgif($imagePathName);
                         $case = 'gif';
-                        break;                
+                        break;
                     case 'jpeg':            
                         $iTmp = @imagecreatefromjpeg($imagePathName);
                         $case = 'jpeg';
-                        break;                
+                        break;
                     case 'jpg':
                         $iTmp = @imagecreatefromjpeg($imagePathName);
                         $case = 'jpg';
-                        break;                
+                        break;
                 }
                 $imagePathNameOld = $imagePath.$imageName;        
 				$imageName = str_replace('.'.$currExt, '.'.$case, strtolower($imageName));
@@ -103,13 +101,13 @@ class CImage
 						$newHeight = $height;
 					}
 					$iOut = @imagecreatetruecolor(intval($newWidth), intval($newHeight));     
-					@imagecopyresampled($iOut,$iTmp,0,0,0,0,intval($newWidth), intval($newHeight), $width, $height);
+					@imagecopyresampled($iOut, $iTmp, 0, 0, 0, 0, intval($newWidth), intval($newHeight), $width, $height);
 					if($case == 'png'){
-						@imagepng($iOut,$imagePathNameNew,0);
+						@imagepng($iOut,$imagePathNameNew, 0);
 					}elseif($case == 'gif'){
 						@imagegif($iOut,$imagePathNameNew); 
 					}else{
-						@imagejpeg($iOut,$imagePathNameNew,100);	
+						@imagejpeg($iOut,$imagePathNameNew, 100);
 					}
 					if($currExt == 'jpg' && $case != 'jpg') @unlink($imagePathNameOld);
 				}
@@ -117,5 +115,90 @@ class CImage
         }
 		return $imageName;
     }
+	
+    /**
+     * Adds watermark text to image
+     * @param $sourceFile
+     * @param $watermarkText
+     * @param $destination_file
+     * @return void
+     */
+    public static function addWatermark($sourceFile, $watermarkText, $destinationFile = '')
+	{
+        if(!$destinationFile) $destinationFile = $sourceFile;
+        else @unlink($destinationFile); 
+     
+        $top = getimagesize($sourceFile);
+        $top = $top[1] / 15 * 14;
+        list($width, $height) = getimagesize($sourceFile);        
+        $left = 20;   
+     
+        $destImage = imagecreatetruecolor($width, $height); 
+        
+		$ext = self::_getRealExtension($sourceFile);
+		switch($ext){
+			case 'png':
+				$sourceImage = imagecreatefrompng($sourceFile);
+				break;
+			case 'gif':
+				$sourceImage = imagecreatefromgif($sourceFile);
+				break;
+			case 'jpeg':            
+			case 'jpg':
+				$sourceImage = imagecreatefromjpeg($sourceFile);
+				break;
+		}
+
+        imagecopyresampled($destImage, $sourceImage, 0, 0, 0, 0, $width, $height, $width, $height);
+     
+        // Path to the font file on the server
+		$font = APPHP_PATH.DS.'framework'.DS.'vendors'.DS.'fonts'.DS.'arial.ttf'; 
+        // Font size
+        $font_size = 16;     
+        // Add a white shadow
+        $white = imagecolorallocate($destImage, 255, 255, 255);
+        imagettftext($destImage, $font_size, 0, $left, $top, $white, $font, $watermarkText);
+        // Print in black color
+        $black = imagecolorallocate($destImage, 0, 0, 0);
+        imagettftext($destImage, $font_size, 0, $left-2, $top-1, $black, $font, $watermarkText);     
+		
+		if($destinationFile != ''){
+			if($ext == 'png'){
+				imagepng($destImage, $destinationFile, 0);
+			}elseif($ext == 'gif'){
+				imagegif($destImage, $destinationFile);
+			}else{
+				imagejpeg($destImage, $destinationFile, 100);
+			}
+        }else{
+            header('Content-Type: image/'.$ext); 
+            imagejpeg($destImage, null, 100); 
+        }
+        
+        imagedestroy($sourceImage);
+        imagedestroy($destImage);
+	}
+	
+	/**
+	 * Return a real extenstion of the file
+	 * @param string $file
+	 * @return string
+	 */
+	protected static function _getRealExtension($file)
+	{
+		if(empty($file)){
+			return '';
+		}
+		
+ 		$currentExt = strtolower(substr($file,strrpos($file,'.')+1));
+		$imageType = (function_exists('exif_imagetype')) ? exif_imagetype($file) : '';	
+		
+		if($imageType == '1' && $currentExt != 'gif') $realExt = 'gif';
+		elseif($imageType == '2' && $currentExt != 'jpg' && $currentExt != 'jpeg') $realExt = 'jpg';
+		elseif($imageType == '3' && $currentExt != 'png') $realExt = 'png';
+		$realExt = $currentExt;
+		
+		return $realExt;
+	}
 
 }

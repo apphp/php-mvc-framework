@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
@@ -23,6 +23,7 @@
  * getTemplate
  * setLayout
  * getLayout
+ * setBackendPath
  * setController
  * getController
  * setAction
@@ -40,6 +41,8 @@ class CView
 	/**	@var string */
 	private $_layout;
 	/** @var string */
+	private $_backendPath;
+	/** @var string */
 	private $_controller;
 	/** @var string */
 	private $_action;
@@ -55,8 +58,8 @@ class CView
 	private $_vars = array();
 	/** @var bool */
 	private $_isRendered = false;
-	/** @var bool */
-	private $_isCompRendered = false;
+	/** @var array */
+	private $_isCompRendered = array();
 	/** @var boolean to enable html output compression */
 	private $_htmlCompression = false;
     /** @var int */
@@ -166,7 +169,7 @@ class CView
     }
    
  	/**
- 	 * Renders a view with/without template for comtrollers
+ 	 * Renders a view with/without template for controllers
  	 * @param string $params (controller/view or hidden controller/view)
  	 * @param bool $isPartial
  	 * @param bool $return
@@ -186,7 +189,7 @@ class CView
             $calledByClass = get_parent_class($trace[1]['class']);
             if($calledByClass != '' && $calledByClass != 'CController'){
 				CDebug::addMessage('errors', 'render-caller', A::t('core', 'The View::render() method cannot be called by {class} class. Controller classes allowed only.', array('{class}'=>$calledByClass)));
-                return false;                
+                return false;
             }
         }
         
@@ -196,25 +199,29 @@ class CView
 			// Set default controller and action
 			$this->__controller = $this->_controller;
 			$this->__action = $this->_action;
-			
-			$this->__viewPath = $this->__controller.DS.$this->__action;
+			$backendPath = $this->_backendPath ? $this->_backendPath : '';
+			$this->__viewPath = $backendPath.$this->__controller.DS.$this->__action;
 
 			// Set controller and action according to passed params
 			if(!empty($params)){
 				$paramsParts = explode('/', $params);
 				$parts = count($paramsParts);
+				if($this->_backendPath){
+					array_shift($paramsParts);
+					$parts--;
+				}
 				if($parts == 1){
 					$this->__action = isset($paramsParts[0]) ? $paramsParts[0] : $this->action;
 				}elseif($parts == 2){
 					$this->__controller = isset($paramsParts[0]) ? $paramsParts[0] : $this->_controller;
-					$this->__action = isset($paramsParts[1]) ? $paramsParts[1] : $this->action;					
+					$this->__action = isset($paramsParts[1]) ? $paramsParts[1] : $this->action;
 				}elseif($parts >= 2){
 					$this->__controller = isset($paramsParts[0]) ? $paramsParts[0] : $this->_controller;
 					$this->__viewSubFolder = isset($paramsParts[1]) ? $paramsParts[1].DS : '';
 					$this->__action = isset($paramsParts[2]) ? $paramsParts[2] : $this->action;
 				}
-				
-				$this->__viewPath = $this->__controller.DS.$this->__viewSubFolder.$this->__action;
+
+				$this->__viewPath = $backendPath.$this->__controller.DS.$this->__viewSubFolder.$this->__action;
 			}
 
 			if(APPHP_MODE == 'test'){
@@ -233,7 +240,7 @@ class CView
 				}else{
 					$this->__isTemplateFound = false;
 					CDebug::addMessage('errors', 'render-template', A::t('core', 'Template file: "templates/{template}" cannot be found.', array('{template}'=>'default.php')));
-				}				
+				}
 				
 				// Get layout file
 				if(($this->getTemplate() === 'backend' && CConfig::get('layouts.enable.backend')) || ($this->getTemplate() !== 'backend'  && CConfig::get('layouts.enable.frontend'))){
@@ -279,7 +286,7 @@ class CView
 					if(preg_match('/[A-Z]/', $this->_controller)){
 						CDebug::addMessage('errors', 'render-view', A::t('core', 'The system is unable to find the requested view file: {file}. Case sensitivity mismatch!', array('{file}'=>$this->__viewFile)));
 					}else{
-						CDebug::addMessage('errors', 'render-view', A::t('core', 'The system is unable to find the requested view file: {file}', array('{file}'=>$this->__viewFile)));						
+						CDebug::addMessage('errors', 'render-view', A::t('core', 'The system is unable to find the requested view file: {file}', array('{file}'=>$this->__viewFile)));
 					}
 				}
 				
@@ -303,26 +310,26 @@ class CView
 				}else{
 					// Prepare and include template file
 					if($this->__isTemplateFound){
-						ob_start();		
-						include $this->__templateFile;	
+						ob_start();
+						include $this->__templateFile;
 						$this->__templateContent = ob_get_contents();
 						ob_end_clean();
 						
 						CDebug::addMessage('general', 'included', $this->__templateFile);
 	
-						// Render registered scripts					
+						// Render registered scripts
 						A::app()->getClientScript()->render($this->__templateContent);
 					
 						$output = $this->__templateContent;
 					}else{
 						$output = $this->__viewContent;
-					}								
+					}
 				}
 				
 				// Output content
 				if($this->_htmlCompression){
 					if(APPHP_MODE == 'debug') {
-						$beforeCompression = strlen($output);	
+						$beforeCompression = strlen($output);
 					}
 					$output	= CMinify::html($output);
 					if(APPHP_MODE == 'debug') {
@@ -331,31 +338,32 @@ class CView
 					}
 				}
 				
-				if($return){					
+				$this->_isRendered = true;
+				
+				if($return){
 					return $output;
 				}else{
 					echo $output;
-				}				
+				}
 				
 				///CDebug::addMessage('params', 'view', $this->__viewFile);
 				CDebug::addMessage('params', 'layout', $this->_layout ? $this->_layout : A::t('core', 'Unknown'));
 				CDebug::addMessage('params', 'template', $this->_template ? $this->_template : A::t('core', 'Unknown'));
-			}			
+			}
 		}catch(Exception $e){
 			CDebug::addMessage('errors', 'render', $e->getMessage());
 		}
-		
-		$this->_isRendered = true;
-	} 	
+	}
  
 	/**
  	 * Renders a view for components
  	 * @param string $view
+	 * @param bool $return
  	 * @return void
  	 */
-	public function renderContent($view)
+	public function renderContent($view, $return = false)
 	{
-        if($this->_isCompRendered){
+        if(in_array(strtolower($view), $this->_isCompRendered)){
 			CDebug::addMessage('warnings', 'render-double-call', A::t('core', 'Double call of function {function} with parameters: {params}', array('{function}'=>'renderContent()', '{params}'=>'')));
 			return '';
 		}
@@ -370,7 +378,6 @@ class CView
             }
         }
 
-        $content = '';
 		// [19.09.2016] under check - doesn't work with uppercase
 		//$this->__viewFile = strtolower(APPHP_PATH.DS.'protected'.DS.'views'.DS.'components'.DS.$view.'.php');
 		$this->__viewFile = APPHP_PATH.DS.'protected'.DS.'views'.DS.'components'.DS.strtolower($view).'.php';
@@ -398,35 +405,43 @@ class CView
             }
 
 			// Output content
-			$renderContent = $this->__renderContent;
-			if(APPHP_MODE == 'debug') {
-				$beforeCompression = strlen($renderContent);	
-			}			
-			$renderContent = ($this->_htmlCompression) ? CMinify::html($renderContent) : $renderContent;
-			if(APPHP_MODE == 'debug') {
-				$afterCompression = strlen($renderContent);
-				CDebug::addMessage('data', 'html-compression-rate', (!empty($beforeCompression) ? 100 - round($afterCompression / $beforeCompression * 100, 1) : '0').'%' );
-			}
+			$output = $this->__renderContent;
 			
-			echo $renderContent;
+            // Compress content
+            if($this->_htmlCompression){
+				if(APPHP_MODE == 'debug') {
+					$beforeCompression = strlen($output);
+				}
+				$output = CMinify::html($output);
+				if(APPHP_MODE == 'debug') {
+					$afterCompression = strlen($output);
+					CDebug::addMessage('data', 'render-content-compression-rate', (!empty($beforeCompression) ? 100 - round($afterCompression / $beforeCompression * 100, 1) : '0').'%' );
+				}
+			}
+	
+			$this->_isCompRendered[] = strtolower($view);
+   
+			if($return){
+				return $output;
+			}else{
+				echo $output;
+			}
 			
 			CDebug::addMessage('params', 'render-content', $this->__viewFile);
         }else{
             CDebug::addMessage('errors', 'render-content', A::t('core', 'The system is unable to find the requested component view file: {file}', array('{file}'=>$this->__viewFile)));
         }
-        
-		$this->_isCompRendered = true;
-        echo $content;
     }
 
  	/**
  	 * Renders a view from another view
  	 * @param string $params (controller/view)
  	 * @param array $data
+	 * @param bool $return
  	 * @throws Exception
  	 * @return void
  	 */
-	public function renderView($params, $data = array())
+	public function renderView($params, $data = array(), $return = false)
 	{		
 		try{
 			// Set default controller and action
@@ -483,8 +498,26 @@ class CView
 			}				
 
 			// Output view content
-			echo ($this->_htmlCompression) ? CMinify::html($this->__viewContent) : $this->__viewContent;
+			$output = $this->__viewContent;
 			
+			// Compress content
+			if($this->_htmlCompression){
+				if(APPHP_MODE == 'debug') {
+					$beforeCompression = strlen($output);
+				}
+				$output = CMinify::html($this->__viewContent);
+				if(APPHP_MODE == 'debug') {
+					$afterCompression = strlen($output);
+					CDebug::addMessage('data', 'render-view-compression-rate', (!empty($beforeCompression) ? 100 - round($afterCompression / $beforeCompression * 100, 1) : '0').'%' );
+				}
+			}
+			
+			if($return){
+				return $output;
+			}else{
+				echo $output;
+			}
+
 			CDebug::addMessage('params', 'render-view', $viewFile);
 
 		}catch(Exception $e){
@@ -537,7 +570,16 @@ class CView
 		return $this->__layoutContent;
 	}
 
-	/**	 
+	/**
+	 * Backend path setter
+	 * @param string $backendPath
+	 */
+	public function setBackendPath($backendPath)
+	{
+		$this->_backendPath = $backendPath;
+	}
+
+	/**
 	 * Controller setter
 	 * @param string $controller
 	 */

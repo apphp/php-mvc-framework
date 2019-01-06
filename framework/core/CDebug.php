@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE (static):		
@@ -14,6 +14,7 @@
  * dump / d
  * console / c
  * write
+ * prepareBacktrace
  * backtrace
  * addSqlTime
  * addMessage
@@ -140,37 +141,50 @@ class CDebug
     }
 	
     /**
+     * Prepare backtrace
+     * @param array $traceData
+     * @return string
+     */
+    public static function prepareBacktrace($traceData = array())
+    {
+		$stack = '';
+		$i = 0;		
+		
+		// Prepare trace data
+		if(empty($traceData)){
+			$trace = debug_backtrace();
+			// Remove call to this function from stack trace
+			unset($trace[0]);
+		}else{
+			$trace = $traceData;	
+		}
+
+		foreach($trace as $node){
+			$file = isset($node['file']) ? $node['file'] : '';
+			$line = isset($node['line']) ? '('.$node['line'].') ' : '';
+			$stack .= '#'.(++$i).' '.$file.$line.': '; 
+			if(isset($node['class'])){
+				$stack .= $node['class'].'->'; 
+			}
+			$stack .= $node['function'].'()'.PHP_EOL;
+		}
+		
+		return $stack;
+	}
+
+    /**
      * Debug backtrace
      * @param string $message
      * @param array $traceData
      * @param bool $formatted
      * @return HTML
      */
-    public static function backtrace($message = '', $traceData = '', $formatted = true)
+    public static function backtrace($message = '', $traceData = array(), $formatted = true)
     {
-		$stack = '';
-		$i = 0;		
-		
 		if(APPHP_MODE == 'debug'){
-			// Prepare trace data
-			if(empty($traceData)){
-				$trace = debug_backtrace();
-				// Remove call to this function from stack trace
-				unset($trace[0]);
-			}else{
-				$trace = $traceData;	
-			}
-
-			foreach($trace as $node){
-				$file = isset($node['file']) ? $node['file'] : '';
-				$line = isset($node['line']) ? '('.$node['line'].') ' : '';
-				$stack .= '#'.(++$i).' '.$file.$line.': '; 
-				if(isset($node['class'])){
-					$stack .= $node['class'].'->'; 
-				}
-				$stack .= $node['function'].'()'.PHP_EOL;
-			}
+			$stack = self::prepareBacktrace($traceData);
 		}else{
+			$message = A::t('core', 'A fatal exception has occurred. Program will exit.');
 			$stack = A::t('core', 'Backtrace information is available in debug mode');
 		}
 		
@@ -237,8 +251,10 @@ class CDebug
     {
         if(APPHP_MODE != 'debug') return false;
         
+		// Store message in session
         if($storeType == 'session'){
             A::app()->getSession()->set('debug-'.$type, $val);
+			return false;
         }
 		
         if($type == 'general') self::$_arrGeneral[$key][] = CFilter::sanitize('string', $val);
@@ -288,19 +304,26 @@ class CDebug
         if(APPHP_MODE != 'debug') return false;
 		
         self::$_endTime = self::_getFormattedMicrotime();
-		self::$_endMemoryUsage = memory_get_usage(); 
+		self::$_endMemoryUsage = memory_get_usage();
+		$htmlCompression = (CConfig::get('compression.html.enable') === true) ? true : false;
 
 		$nl = "\n";
         
         // Retrieve stored error messages and show them, then remove
         if($debugError = A::app()->getSession()->get('debug-errors')){
-            //self::addMessage('errors', 'debug-errors', $debugError);
+            self::addMessage('errors', 'debug-errors', $debugError);
             A::app()->getSession()->remove('debug-errors');
         }
         if($debugWarning = A::app()->getSession()->get('debug-warnings')){
-            //self::addMessage('warnings', 'debug-warnings', $debugWarning);
+            self::addMessage('warnings', 'debug-warnings', $debugWarning);
             A::app()->getSession()->remove('debug-warnings');
- 		}		
+ 		}
+
+		$totalParams = count(self::$_arrParams);
+		$totalConsole = count(self::$_arrConsole);
+		$totalWarnings = count(self::$_arrWarnings);
+		$totalErrors = count(self::$_arrErrors);
+		$totalQueries = count(self::$_arrQueries);
 
 		// Debug bar status
 		$debugBarState = isset($_COOKIE['debugBarState']) ? $_COOKIE['debugBarState'] : 'min';
@@ -308,20 +331,23 @@ class CDebug
 
         $panelAlign = A::app()->getLanguage('direction') == 'rtl' ? 'left' : 'right';
         $panelTextAlign = A::app()->getLanguage('direction') == 'rtl' ? 'right' : 'left';		
-		echo $nl.'<style type="text/css">
+		$output = $nl.'<style type="text/css">
 			#debug-panel {opacity:0.9;position:fixed;bottom:0;left:0;z-index:2000;width:100%;max-height:90%;font:12px tahoma, verdana, sans-serif;color:#000;}
 			#debug-panel fieldset {padding:0px 10px;background-color:#fff;border:1px solid #ccc;width:98%;margin:0px auto 0px auto;text-align:'.$panelTextAlign.';}
 			#debug-panel fieldset legend {float:'.$panelAlign.';background-color:#f9f9f9;padding:5px 5px 4px 5px;border:1px solid #ccc;border-left:1px solid #ddd;border-bottom:1px solid #f4f4f4;margin:-15px 0 0 10px;font:12px tahoma, verdana, sans-serif;width:auto;}
 			#debug-panel fieldset legend ul {color:#999;font-weight:normal;margin:0px;padding:0px;}
 			#debug-panel fieldset legend ul li{float:left;width:auto;list-style-type:none;}
-			#debug-panel fieldset legend ul li.title{width:50px;padding:0 2px;}
+			#debug-panel fieldset legend ul li.title{min-width:50px;width:auto;padding:0 2px;}
 			#debug-panel fieldset legend ul li.narrow{width:auto;padding:0 2px;}
 			#debug-panel fieldset legend ul li.item{width:auto;padding:0 12px;border-right:1px solid #999;}
 			#debug-panel fieldset legend ul li.item:last-child{'.(A::app()->getLanguage('direction') == 'rtl' ? 'padding:0 12px 0 0;' : 'padding:0 0 0 12px;').'border-right:0px;}
 			#debug-panel a {text-decoration:none;text-transform:none;color:#bbb;font-weight:normal;}
 			#debug-panel a.debugArrow {color:#222;}
+			#debug-panel a.black {color:#222;}
             #debug-panel pre {border:0px;}
 			#debug-panel strong {font-weight:bold;}
+			#debug-panel .tab-orange { color:#d15600 !important; }
+			#debug-panel .tab-red { color:#cc0000 !important; }
 			@media (max-width: 680px) {
 				#debug-panel fieldset legend ul li.item a {display:block;visibility:hidden;}				
 				#debug-panel fieldset legend ul li.item a:first-letter {visibility:visible !important;}
@@ -331,6 +357,7 @@ class CDebug
 		<script type="text/javascript">
 			var arrDebugTabs = ["General","Params","Console","Warnings","Errors","Queries"];
 			var debugTabsHeight = "200px";
+			var cssText = keyTab = "";
 			function appSetCookie(state, tab){ document.cookie = "debugBarState="+state+"; path=/"; if(tab !== null) document.cookie = "debugBarTab="+tab+"; path=/"; }
 			function appGetCookie(name){ if(document.cookie.length > 0){ start_c = document.cookie.indexOf(name + "="); if(start_c != -1){ start_c += (name.length + 1); end_c = document.cookie.indexOf(";", start_c); if(end_c == -1) end_c = document.cookie.length; return unescape(document.cookie.substring(start_c,end_c)); }} return ""; }
 			function appTabsMiddle(){ appExpandTabs("middle", appGetCookie("debugBarTab")); }
@@ -359,7 +386,14 @@ class CDebug
 				if(act != "min"){
 					document.getElementById("content"+keyTab).style.display = "";
 					document.getElementById("content"+keyTab).style.cssText = "width:100%;height:"+debugTabsHeight+";overflow-y:auto;";
-					document.getElementById("tab"+keyTab).style.cssText = "color:#222;";
+					if(document.getElementById("tab"+keyTab).className == "tab-orange"){
+						cssText = "color:#b13600 !important;";
+					}else if(document.getElementById("tab"+keyTab).className == "tab-red"){
+						cssText = "color:#aa0000 !important;";
+					}else{
+						cssText = "color:#222;";	
+					}
+					document.getElementById("tab"+keyTab).style.cssText = cssText;
 				}
 				document.getElementById("debug-panel").style.opacity = (act == "min") ? "0.9" : "1";
 				appSetCookie(act, key);
@@ -376,20 +410,21 @@ class CDebug
 				<li class="narrow"><a id="debugArrowMaximize" class="debugArrow" style="display:;" href="javascript:void(0)" title="Maximize" onclick="javascript:appTabsMaximize()">&#9744;</a></li>
 				<li class="narrow"><a id="debugArrowMinimize" class="debugArrow" style="display:none;" href="javascript:void(0)" title="Minimize" onclick="javascript:appTabsMiddle()">&#9635;</a></li>
 				<li class="item"><a id="tabGeneral" href="javascript:void(\'General\')" onclick="javascript:appExpandTabs(\'auto\', \'General\')" ondblclick="javascript:'.$onDblClick.'">'.A::t('core', 'General').'</a></li>
-				<li class="item"><a id="tabParams" href="javascript:void(\'Params\')" onclick="javascript:appExpandTabs(\'auto\', \'Params\')" ondblclick="javascript:'.$onDblClick.'">'.A::t('core', 'Params').' ('.count(self::$_arrParams).')</a></li>
-				<li class="item"><a id="tabConsole" href="javascript:void(\'Console\')" onclick="javascript:appExpandTabs(\'auto\', \'Console\')" ondblclick="javascript:'.$onDblClick.'">'.A::t('core', 'Console').' ('.count(self::$_arrConsole).')</a></li>
-				<li class="item"><a id="tabWarnings" href="javascript:void(\'Warnings\')" onclick="javascript:appExpandTabs(\'auto\', \'Warnings\')" ondblclick="javascript:'.$onDblClick.'">'.A::t('core', 'Warnings').' ('.count(self::$_arrWarnings).')</a></li>
-				<li class="item"><a id="tabErrors" href="javascript:void(\'Errors\')" onclick="javascript:appExpandTabs(\'auto\', \'Errors\')" ondblclick="javascript:'.$onDblClick.'">'.A::t('core', 'Errors').' ('.count(self::$_arrErrors).')</a></li>
-				<li class="item"><a id="tabQueries" href="javascript:void(\'Queries\')" onclick="javascript:appExpandTabs(\'auto\', \'Queries\')" ondblclick="javascript:'.$onDblClick.'">'.A::t('core', 'SQL Queries').' ('.count(self::$_arrQueries).')</a></li>
+				<li class="item"><a id="tabParams" href="javascript:void(\'Params\')" onclick="javascript:appExpandTabs(\'auto\', \'Params\')" ondblclick="javascript:'.$onDblClick.'">'.A::t('core', 'Params').' ('.$totalParams.')</a></li>
+				<li class="item"><a id="tabConsole" href="javascript:void(\'Console\')" onclick="javascript:appExpandTabs(\'auto\', \'Console\')" ondblclick="javascript:'.$onDblClick.'">'.A::t('core', 'Console').' ('.$totalConsole.')</a></li>
+				<li class="item"><a id="tabWarnings" href="javascript:void(\'Warnings\')" '.($totalWarnings ? 'class="tab-orange"' : '').' onclick="javascript:appExpandTabs(\'auto\', \'Warnings\')" ondblclick="javascript:'.$onDblClick.'">'.A::t('core', 'Warnings').' ('.$totalWarnings.')</a></li>
+				<li class="item"><a id="tabErrors" href="javascript:void(\'Errors\')" '.($totalErrors ? 'class="tab-red"' : '').' onclick="javascript:appExpandTabs(\'auto\', \'Errors\')" ondblclick="javascript:'.$onDblClick.'">'.A::t('core', 'Errors').' ('.$totalErrors.')</a></li>
+				<li class="item"><a id="tabQueries" href="javascript:void(\'Queries\')" onclick="javascript:appExpandTabs(\'auto\', \'Queries\')" ondblclick="javascript:'.$onDblClick.'">'.A::t('core', 'SQL Queries').' ('.$totalQueries.')</a></li>
 			</ul>
 		</legend>
 		
-		<div id="contentGeneral" style="display:none;padding:10px;width:100%;height:200px;overflow-y:auto;">
-			'.A::t('core', 'Script name').': '.CConfig::get('name').'<br>
-			'.A::t('core', 'Script version').': '.CConfig::get('version').'<br>
-			'.A::t('core', 'Framework version').': '.A::getVersion().'<br>
-			'.A::t('core', 'PHP version').': '.phpversion().'<br>
-			'.(CConfig::get('db.driver') != '' ? ucfirst(CConfig::get('db.driver')) : 'DB').' '.A::t('core', 'version').': '.CDatabase::init()->getVersion().'<br><br>';
+		<div id="contentGeneral" style="display:none;padding:10px;width:100%;height:200px;overflow-y:auto;">';
+			
+			$output .= A::t('core', 'Script name').': '.CConfig::get('name').'<br>';
+			$output .= A::t('core', 'Script version').': '.CConfig::get('version').'<br>';
+			$output .= A::t('core', 'Framework version').': '.A::getVersion().'<br>';
+			$output .= A::t('core', 'PHP version').': '.phpversion().'<br>';
+			$output .= (CConfig::get('db.driver') != '' ? ucfirst(CConfig::get('db.driver')) . ' ' . A::t('core', 'version') . ': ' . CDatabase::init()->getVersion() : 'DB: '.A::te('core', 'no')) . '<br><br>';
 			
 			$totalRunningTime = round((float)self::$_endTime - (float)self::$_startTime, 5);
 			$totalRunningTimeSql = round($totalRunningTime - (float)self::$_sqlTotalTime, 5);
@@ -397,162 +432,202 @@ class CDebug
 			$totalMemoryUsage = CConvert::fileSize((float)self::$_endMemoryUsage - (float)self::$_startMemoryUsage);
 			$htmlCompressionRate = !empty(self::$_arrData['html-compression-rate']) ? self::$_arrData['html-compression-rate'] : A::t('core', 'Unknown');
 			
-			echo A::t('core', 'Total running time').': '.$totalRunningTime.' sec.<br>';
-			echo A::t('core', 'Script running time').': '.$totalRunningTimeSql.' sec.<br>';
-			echo A::t('core', 'SQL running time').': '.$totalRunningTimeScript.' sec.<br>';
-			echo A::t('core', 'Total memory usage').': '.$totalMemoryUsage.'<br>';
-			if(!empty(self::$_arrGeneral['cache'])) echo A::t('core', 'Database Query Cache').': '.implode('', self::$_arrGeneral['cache']).'<br>';
-			echo 'GZip '.A::t('core', 'Output compression').': '.(CConfig::get('compression.gzip.enable') ? A::t('core', 'enabled') : A::t('core', 'no')).'<br>';
-			echo 'HTML '.A::t('core', 'Output compression').': '.(CConfig::get('compression.html.enable') ? A::t('core', 'enabled').' ('.A::t('core', 'compression rate').': '.$htmlCompressionRate.')' : A::t('core', 'no')).'<br><br>';
+			$output .= A::t('core', 'Total running time').': '.$totalRunningTime.' '.A::t('core', 'sec').'.<br>';
+			$output .= A::t('core', 'Script running time').': '.$totalRunningTimeSql.' '.A::t('core', 'sec').'.<br>';
+			$output .= A::t('core', 'SQL running time').': '.$totalRunningTimeScript.' '.A::t('core', 'sec').'.<br>';
+			$output .= A::t('core', 'Total memory usage').': '.$totalMemoryUsage.'<br><br>';
+			
+			$dbCacheFiles = CConfig::get('cache.enable') ? CFile::getDirectoryFilesCount(CConfig::get('cache.path'), '.cch') : 0;
+			$cssMinifyFiles = CConfig::get('compression.css.enable') ? CFile::getDirectoryFilesCount(CConfig::get('compression.css.path'), '.css') : 0;
+            $jsMinifyFiles = CConfig::get('compression.js.enable') ? CFile::getDirectoryFilesCount(CConfig::get('compression.js.path'), '.js') : 0;
+            $totalMinifyFiles = $cssMinifyFiles + $jsMinifyFiles;
+			$cssMinifiedFiles = A::app()->getClientScript()->countCompressedFiles('css');
+            $jsMinifiedFiles = A::app()->getClientScript()->countCompressedFiles('js');
+			
+			if(!empty(self::$_arrGeneral['cache'])) $output .= A::t('core', 'Database Query Cache').': '.implode('', self::$_arrGeneral['cache']).' - ('.$dbCacheFiles.' '.($dbCacheFiles == 1 ? A::t('core', 'file') : A::t('core', 'files')).')<br>';
+			$output .= 'GZip '.A::t('core', 'Output compression').': '.(CConfig::get('compression.gzip.enable') ? A::t('core', 'enabled') : A::t('core', 'no')).'<br>';
+			$output .= 'HTML '.A::t('core', 'Output compression').': '.(CConfig::get('compression.html.enable') ? A::t('core', 'enabled').' ('.A::t('core', 'compression rate').': '.$htmlCompressionRate.')' : A::t('core', 'no')).'<br>';
+			$output .= 'CSS '.A::t('core', 'Output compression').': '.(CConfig::get('compression.css.enable') ? A::t('core', 'enabled').' - ('.$cssMinifiedFiles.' '.($cssMinifiedFiles == 1 ? A::t('core', 'file') : A::t('core', 'files')).')' : A::t('core', 'no')).'<br>';
+			$output .= 'JS '.A::t('core', 'Output compression').': '.(CConfig::get('compression.js.enable') ? A::t('core', 'enabled').' - ('.$jsMinifiedFiles.' '.($jsMinifiedFiles == 1 ? A::t('core', 'file') : A::t('core', 'files')).')' : A::t('core', 'no')).'<br>';
+			
+			$output .= A::t('core', 'Action').': [ <a href="index/clear/type/session_and_cookie" class="black">'.A::t('core', 'Clear Session & Cookies').'</a> ] <br>';
+			$output .= A::t('core', 'Action').': [ <a href="index/clear/type/cache_and_minified" class="black">'.A::t('core', 'Clear Cache & Minified').' - ' . $totalMinifyFiles.' '.($totalMinifyFiles == 1 ? A::t('core', 'file') : A::t('core', 'files')) . '</a> ] <br><br>';
 			
 			if(count(self::$_arrGeneral) > 0){
-				echo '<strong>LOADED CLASSES</strong>:';
-				echo '<pre>';
-				isset(self::$_arrGeneral['classes']) ? print_r(self::$_arrGeneral['classes']) : '';
-				echo '</pre>';
-				echo '<br>';
-				echo '<strong>INCLUDED FILES</strong>:';
-				echo '<pre>';
-				isset(self::$_arrGeneral['included']) ? print_r(self::$_arrGeneral['included']) : '';
-				echo '</pre>';
-				echo '<br>';
+				$output .= '<strong>LOADED CLASSES</strong>:';
+				$output .= '<pre>';
+				$classes = isset(self::$_arrGeneral['classes']) ? print_r(self::$_arrGeneral['classes'], true) : '';
+				$output .= $htmlCompression ? nl2br($classes) : $classes;
+				$output .= '</pre>';
+				$output .= '<br>';
+				$output .= '<strong>INCLUDED FILES</strong>:';
+				$output .= '<pre>';
+				$included = isset(self::$_arrGeneral['included']) ? print_r(self::$_arrGeneral['included'], true) : '';
+				$output .= $htmlCompression ? nl2br($included) : $included;
+				$output .= '</pre>';
+				$output .= '<br>';
 			}						
-		echo '</div>
+		$output .= '</div>
 	
 		<div id="contentParams" style="display:none;padding:10px;width:100%;height:200px;overflow-y:auto;">';
 			
-			echo '<strong>APPLICATION</strong>:';
-			if(count(self::$_arrParams) > 0){
-				echo '<pre>';
-				print_r(self::$_arrParams);
-				echo '</pre><br>';            
+			$output .= '<strong>APPLICATION</strong>:';
+			if($totalParams > 0){
+				$output .= '<pre>';
+				$arrParams = print_r(self::$_arrParams, true);
+				$output .= $htmlCompression ? nl2br($arrParams) : $arrParams;
+				$output .= '</pre><br>';            
 			}
 
-			echo '<strong>$_GET</strong>:';
-			echo '<pre style="white-space:pre-wrap;">';
+			$output .= '<strong>$_GET</strong>:';
+			$output .= '<pre style="white-space:pre-wrap;">';
             $arrGet = array();
 			if(isset($_GET)){
                 foreach($_GET as $key => $val){
                     $arrGet[$key] = is_array($val) ? $val : strip_tags($val);
                 }
             }
-            print_r($arrGet);
-			echo '</pre>';
-			echo '<br>';
+			$arrGet = print_r($arrGet, true);
+            $output .= $htmlCompression ? nl2br($arrGet) : $arrGet;
+			$output .= '</pre>';
+			$output .= '<br>';
 			
-			echo '<strong>$_POST</strong>:';
-			echo '<pre style="white-space:pre-wrap;">';
+			$output .= '<strong>$_POST</strong>:';
+			$output .= '<pre style="white-space:pre-wrap;">';
             $arrPost = array();
 			if(isset($_POST)){
                 foreach($_POST as $key => $val){
                     $arrPost[$key] = is_array($val) ? $val : strip_tags($val);
                 }
             }
-            print_r($arrPost);
-			echo '</pre>';
-			echo '<br>';
+            $arrPost = print_r($arrPost, true);
+			$output .= $htmlCompression ? nl2br($arrPost) : $arrPost;
+			$output .= '</pre>';
+			$output .= '<br>';
 
-			echo '<strong>$_FILES</strong>:';
-			echo '<pre style="white-space:pre-wrap;">';
+			$output .= '<strong>$_FILES</strong>:';
+			$output .= '<pre style="white-space:pre-wrap;">';
             $arrFiles = array();
 			if(isset($_FILES)){
                 foreach($_FILES as $key => $val){
                     $arrFiles[$key] = is_array($val) ? $val : strip_tags($val);
                 }
             }
-            print_r($arrFiles);
-			echo '</pre>';
-			echo '<br>';
+            $arrFiles = print_r($arrFiles, true);
+			$output .= $htmlCompression ? nl2br($arrFiles) : $arrFiles;
+			$output .= '</pre>';
+			$output .= '<br>';
 
-			echo '<strong>$_COOKIE</strong>:';
-			echo '<pre style="white-space:pre-wrap;">';
+			$output .= '<strong>$_COOKIE</strong>:';
+			$output .= '<pre style="white-space:pre-wrap;">';
             $arrCookie = array();
 			if(isset($_COOKIE)){
                 foreach($_COOKIE as $key => $val){
                     $arrCookie[$key] = is_array($val) ? $val : strip_tags($val);
                 }
             }
-            print_r($arrCookie);
-			echo '</pre>';
-			echo '<br>';
+			$arrCookie = print_r($arrCookie, true);
+            $output .= $htmlCompression ? nl2br($arrCookie) : $arrCookie;
+			$output .= '</pre>';
+			$output .= '<br>';
 
-			echo '<strong>$_SESSION</strong>:';
-			echo '<pre style="white-space:pre-wrap;">';
+			$output .= '<strong>$_SESSION</strong>:';
+			$output .= '<pre style="white-space:pre-wrap;">';
             $arrSession = array();
 			if(isset($_SESSION)){
                 foreach($_SESSION as $key => $val){
                     $arrSession[$key] = is_array($val) ? $val : strip_tags($val);
                 }
             }
-            print_r($arrSession);
-			echo '</pre>';
-			echo '<br>';
+			$arrSession = print_r($arrSession, true);
+            $output .= $htmlCompression ? nl2br($arrSession) : $arrSession;
+			$output .= '</pre>';
+			$output .= '<br>';
 
-			echo '<strong>CONSTANTS</strong>:';
-			echo '<pre style="white-space:pre-wrap;">';
+			$output .= '<strong>CONSTANTS</strong>:';
+			$output .= '<pre style="white-space:pre-wrap;">';
             $arrConstants = @get_defined_constants(true);
-			$arrUserConstants = isset($arrConstants['user']) ? $arrConstants['user'] : array();
-            print_r($arrUserConstants);
-			echo '</pre>';
-			echo '<br>';
+			$arrUserConstants = isset($arrConstants['user']) ? print_r($arrConstants['user'], true) : array();
+            $output .= $htmlCompression ? nl2br($arrUserConstants) : $arrUserConstants;
+			$output .= '</pre>';
+			$output .= '<br>';
 
-			echo '<strong>VIEW VARIABLES</strong>:';
-			echo '<pre style="white-space:pre-wrap;">';
+			$output .= '<strong>VIEW VARIABLES</strong>:';
+			$output .= '<pre style="white-space:pre-wrap;">';
             $arrViewVars = A::app()->view->getAllVars();
-            print_r(@array_map('htmlspecialchars', $arrViewVars));
-			echo '</pre>';
-			echo '<br>';
+			$arrViewVars = print_r(@array_map('htmlspecialchars', $arrViewVars), true);
+            $output .= $htmlCompression ? nl2br($arrViewVars) : $arrViewVars;
+			$output .= '</pre>';
+			$output .= '<br>';
 
-		echo '</div>
+		$output .= '</div>
 	
 		<div id="contentConsole" style="display:none;padding:10px;width:100%;height:200px;overflow-y:auto;">';
-			if(count(self::$_arrConsole) > 0){
-				echo '<pre>';
-				print_r(self::$_arrConsole);
-				echo '</pre>';            
+			if($totalConsole > 0){
+				$output .= '<pre>';
+				$arrConsole = print_r(self::$_arrConsole, true);
+				$output .= $htmlCompression ? nl2br($arrConsole) : $arrConsole;
+				$output .= '</pre>';            
 			}
-		echo '</div>
-
+		$output .= '</div>
+		
 		<div id="contentWarnings" style="display:none;padding:10px;width:100%;height:200px;overflow-y:auto;">';
-			if(count(self::$_arrWarnings) > 0){
-				echo '<pre>';
-				print_r(self::$_arrWarnings);
-				echo '</pre>';
-				echo '<br>';
+			if($totalWarnings > 0){
+				$output .= '<pre>';
+				foreach(self::$_arrWarnings as $warnKey => $warnVal){
+					$output .= CString::humanize($warnKey).'<br>';
+					if(is_array($warnVal)){
+						foreach($warnVal as $warnValVal){
+							$output .= '- '.$warnValVal.'<br>';
+						}
+					}else{
+						$output .= '- '.$warnVal[0].'<br>';
+					}
+                }
+				$output .= '</pre>';
+				$output .= '<br>';
 			}
-		echo '</div>
-	
+		$output .= '</div>
+		
 		<div id="contentErrors" style="display:none;padding:10px;width:100%;height:200px;overflow-y:auto;">';
-			if(count(self::$_arrErrors) > 0){
+			if($totalErrors > 0){
 				foreach(self::$_arrErrors as $msg){
-					echo '<pre style="white-space:normal;word-wrap:break-word;">';
-                    print_r($msg);
-                    echo '</pre>';
-					echo '<br>';
+					$output .= '<pre style="white-space:normal;word-wrap:break-word;">';
+					$msg = print_r($msg, true);
+                    $output .= $htmlCompression ? nl2br($msg) : $msg;
+                    $output .= '</pre>';
+					$output .= '<br>';
                 }               
 			}
-		echo '</div>
+		$output .= '</div>
 	
 		<div id="contentQueries" style="display:none;padding:10px;width:100%;height:200px;overflow-y:auto;">';
-			if(count(self::$_arrQueries) > 0){
-				echo A::t('core', 'SQL running time').': '.$totalRunningTimeScript.' sec.<br><br>';							
+			if($totalQueries > 0){
+				$output .= A::t('core', 'SQL running time').': '.$totalRunningTimeScript.' sec.<br><br>';							
 				foreach(self::$_arrQueries as $msgKey => $msgVal){
-					echo $msgKey.'<br>';
-					echo $msgVal[0].'<br><br>';
+					$output .= $msgKey.'<br>';
+					$output .= $msgVal[0].'<br><br>';
                 }               
 			}
-		echo '</div>
+		$output .= '</div>
 	
 		</fieldset>
 		</div>';
 		
 		if($debugBarState == 'max'){
-			echo '<script type="text/javascript">appTabsMaximize();</script>';
+			$output .= '<script type="text/javascript">appTabsMaximize();</script>';
 		}elseif($debugBarState == 'middle'){
-			echo '<script type="text/javascript">appTabsMiddle();</script>';
+			$output .= '<script type="text/javascript">appTabsMiddle();</script>';
 		}else{
-			echo '<script type="text/javascript">appTabsMinimize();</script>';
+			$output .= '<script type="text/javascript">appTabsMinimize();</script>';
 		}
+		
+		// Compresss output
+		if(CConfig::get('compression.html.enable') === true){
+			$output	= CMinify::html($output);
+		}
+		
+		echo $output;
     }
     
     /**

@@ -48,13 +48,13 @@ aside ul li             { padding:0 0 5px 15px; float:left; display: block; }
 aside ul li.active      { }
 aside ul li.active      { font-weight:bold; } 
 
-section                 { background: #fff; padding:20px; min-height:512px; padding:10px; padding-bottom:60px; /* Height of the footer */ }
+section                 { background: #fff; padding:10px 10px 60px 10px; min-height:512px; }
 section .breadcrumbs      { color:#444; }
 section .breadcrumbs span { color:#777; }
 section .breadcrumbs a    { color:#444; text-decoration:none; }
 section .breadcrumbs a:hover { color:#111; }
 
-article                 { border:1px solid #efefef; min-height:240px; margin-left:240px; margin-right: 20px; padding:5px 20px 40px 20px; background-color: #f1f2f3; border-radius:5px; font:14px tahoma, verdana, sans-serif; }
+article                 { border:1px solid #efefef; min-height:240px; margin:0 20px 20px 240px; padding:5px 20px 40px 20px; background-color: #f1f2f3; border-radius:5px; font:14px tahoma, verdana, sans-serif; }
 article header          { background-color: #f1f2f3; height:20px; }
 article header h2       { font-size: 15px; color:#000 }
 article header p        { font-size: 14px; }
@@ -113,3 +113,18 @@ INPUT[type=button]:hover,
 BUTTON[type=button]:hover,
 BUTTON[type=reset]:hover
     { box-shadow: 0 1px 3px -1px #aaa; cursor: pointer; }
+
+.toggle_password {
+   background: url("../images/eye.png") left top no-repeat;
+   display: block;
+   width: 27px;
+   height: 18px;
+   cursor:pointer;
+   float:left;
+   margin-top:-25px;
+   margin-left:350px;
+   position: absolute;	
+}
+.toggle_password_closed {
+   background: url("../images/eye.png") left -30px top 0px no-repeat;
+}

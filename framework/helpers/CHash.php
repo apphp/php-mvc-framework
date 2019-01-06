@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE (static):
@@ -166,10 +166,12 @@ class CHash
 
 	/**
 	 * Encrypt given value
-	 * @param $value
-	 * @param $secretKey
+	 * @param mixed $value
+	 * @param string $secretKey		
+	 * @param string $algorithm ('aes-256-cbc', 'aes-128-cbc', etc..)
+	 * @return string
 	 */
-	public static function encrypt($value, $secretKey)
+	public static function encrypt($value, $secretKey, $algorithm = 'aes-256-cbc')
     {
         $secretKey = self::_padKey($secretKey);
 
@@ -177,9 +179,9 @@ class CHash
 			$return = strtr(base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $secretKey, $value, MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB), MCRYPT_RAND))), '+/=', '-_,');
 		}else{
 			// Generate an initialization vector
-			$iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length('aes-256-cbc'));
+			$iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length($algorithm));
 			// Encrypt the data using AES 256 encryption in CBC mode using our encryption key and initialization vector
-			$encrypted = openssl_encrypt($value, 'aes-256-cbc', base64_decode($secretKey), 0, $iv);
+			$encrypted = openssl_encrypt($value, $algorithm, base64_decode($secretKey), 0, $iv);
 			// The $iv is just as important as the key for decrypting, so save it with our encrypted data using a unique separator (::)
 			$return = base64_encode($encrypted.'::'.$iv);
 		}
@@ -191,9 +193,10 @@ class CHash
 	 * Decrypt given value
 	 * @param $value
 	 * @param $secretKey
+	 * @param string $algorithm ('aes-256-cbc', 'aes-128-cbc', etc..)
 	 * @return string
 	 */
-	public static function decrypt($value, $secretKey)
+	public static function decrypt($value, $secretKey, $algorithm = 'aes-256-cbc')
 	{
         $secretKey = self::_padKey($secretKey);
 		$return = '';
@@ -204,7 +207,7 @@ class CHash
 			}else{
 				// To decrypt, split the encrypted data from our IV - our unique separator used was "::"
 				list($encrypted_data, $iv) = explode('::', base64_decode($value), 2);
-				$return = openssl_decrypt($encrypted_data, 'aes-256-cbc', base64_decode($secretKey), 0, $iv);
+				$return = openssl_decrypt($encrypted_data, $algorithm, base64_decode($secretKey), 0, $iv);
 			}
 		}
 		

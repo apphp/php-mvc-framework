@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <install version="1.0" type="module">
-    <name>Setup Module</name>
+    <name>Setup</name>
     <description>Setup module allows to install application using web installation wizard</description>
-    <version>0.0.5</version>
+    <version>0.1.0</version>
     <creationDate>01/02/2013</creationDate>
-    <lastChangedDate>17/07/2013</lastChangedDate>
+    <lastChangedDate>02/12/2017</lastChangedDate>
     <author>ApPHP</author>
     <authorEmail>info@apphp.com</authorEmail>
     <authorUrl>https://www.apphp.com</authorUrl>
@@ -14,6 +14,9 @@
     <icon>assets/modules/setup/images/icon.png</icon>
     <moduleType>system</moduleType>
     <code>setup</code>
+	<requirements>
+		<framework>1.2.0</framework>
+	</requirements>	
     <files>
         <filename>info.xml</filename>
         <config>
@@ -24,15 +27,20 @@
             <update></update>
             <uninstall>uninstall.mysql.sql</uninstall>
         </data>
-        <images installationPath="assets/modules/setup/images/">
+        <images installationPath="assets/modules/setup/images/" byDirectory="true">
+			<filename>.htaccess</filename>            
             <filename>icon.png</filename>
         </images>
-        <templates installationPath="templates/setup/">
+        <js installationPath="assets/modules/setup/js/" byDirectory="true">
+            <filename>setup.js</filename>
+        </js>
+        <templates movingPath="templates/setup/">
             <css>
                 <filename>main.css</filename>    
             </css>
             <images>
                 <filename>wizard.png</filename>    
+				<filename>eye.png</filename>
             </images>
             <filename>default.php</filename>
         </templates>
@@ -42,6 +50,17 @@
         <models>
             <filename>Setup.php</filename>
         </models>
+        <messages exclude="yes">
+            <de>
+                <filename>setup.php</filename>
+            </de>
+            <en>
+                <filename>setup.php</filename>
+            </en>
+            <es>
+                <filename>setup.php</filename>
+            </es>
+        </messages>
         <views>
             <error>
                 <filename>index.php</filename>

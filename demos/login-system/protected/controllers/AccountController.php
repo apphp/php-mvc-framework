@@ -32,7 +32,7 @@ class AccountController extends CController
         
 		if($cRequest->getPost('act') == 'send'){
 
-            // perform account edit form validation
+            // Perform account edit form validation
             $result = CWidget::create('CFormValidation', array(
                 'fields'=>array(
                     //'username'=>array('title'=>'Username' 'validation'=>array('required'=>true, 'type'=>'username', 'minLength'=>4)),

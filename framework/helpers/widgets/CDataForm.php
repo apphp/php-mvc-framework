@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE (static):		
@@ -26,31 +26,33 @@ class CDataForm extends CWidgs
      * Draws HTML form control
      * @param array $params
      * 
-     * TODO:
-     *   - to prevent double quotes issue use 'encode'=>true in htmlOptions
-     *   - insert code (for all fields): 'prependCode=>'', 'appendCode'=>''
-     *   - for "checkbox" 'default'=>1 means checked
-     *   
      * Notes:
-     *   - for INSERT operations don't define 'primaryKey' option at all
+	 *   - to prevent double quotes issue use 'encode'=>true in htmlOptions
+	 *   - insert code (for all fields): 'prependCode=>'', 'appendCode'=>''
+	 *   - for "checkbox" 'default'=>1 means checked
+	 *
+	 *   - for INSERT operations don't define 'primaryKey' option at all
      *   - attribute 'default'=>'' or 'defaultAddMode'=>'' is used for Add mode only
      *   - attribute 'defaultEditMode'=>'' is used for Edit mode only   
-     *   - to disable any field or button use: 'disabled'=>true
      *   - to use <button> tag for buttons use 'buttonTag'=>'button'
      *   - to show buttons at the top use 'buttonsPosition'=>'top' (bottom, top or both)
      *   - attribute 'validation'=>array('unique'=>true, 'uniqueCondition'=>'') is used for Add/Edit modes for standard fields (not for translation fields)
-     * 	 - validation types: 
-     *  	alpha, numeric, alphanumeric, variable, mixed, seoLink, phone, phoneString, username, timeZone, zipCode,
+	 *   - to disable:
+	 * 		- field or button use: 'disabled'=>true
+	 *   	- the whole section use: 'separatorInfo' => array(..., 'disabled'=>true),
+     * 	 - validation types:
+     *  	alpha, numeric, alphanumeric, variable, mixed(alphanumericspaces), alphadash, seoLink, phone, phoneString, username, timeZone, zipCode,
      *  	password, email, fileName, identity|identityCode, date, integer, positiveInteger, percent, isHtmlSize,
-     *  	float, any, text, confirm, url, ip, range ('minValue'=>'' and 'maxValue'=>''), set, hexColor
+     *  	float, any, text, confirm, url, ip, set, hexColor
+     *  	range ('minValue'=>'' and 'maxValue'=>'') or ('minLength'=>'', 'maxLength'=>''),
      *   - attribute 'validation'=>array(..., 'forbiddenChars'=>array('+', '$')) is used to define forbidden characters
      *   - attribute 'validation'=>array(..., 'trim'=>true) - removes spaces from field value before validation
      *   - 'successCallback' - callback methods of controller (must be public methods)
      *   - 'callback'=>array('function'=>'functionName', 'params'=>$functionParams)
      *      callback of closure function that is called when item created (available for "labels" and "html" only), $record - current record
-     *      <  5.3.0 function functionName($record, $params){ return $record['field_name']; }
-     *      >= 5.3.0 $functionName = function($record, $params){ return $record['field_name']; }
+     *      PHP_VERSION >= 5.3.0 $functionName = function($record, $params){ return $record['field_name']; }
      *      Ex.: function callbackFunction($record, $params){...}
+     *   - Encryption for standard text fields: 'encryption'=>array('enabled'=>CConfig::get('text.encryption'), 'encryptAlgorithm'=>CConfig::get('text.encryptAlgorithm'), 'encryptKey'=>CConfig::get('text.encryptKey'))
      *   - separatorName must starts from word 'separator'
      *   - select classes: 'class'=>'chosen-select-filter' or 'class'=>'chosen-select'
      *   - attribute 'autocomplete'=>array(..., 'varN'=>array('function'=>'$("#id").val()')) passed as a parameter jQuery or javascript the function instead of use the variable
@@ -79,12 +81,12 @@ class CDataForm extends CWidgs
      *       'fieldWrapper'=>array('tag'=>'div', 'class'=>'row'),
      *       'fields'=>array(
 	 *         	 'separatorName' =>array(
-	 *               'separatorInfo'=>array('legend'=>A::t('app', 'Headers & Footers')),
+	 *               'separatorInfo'=>array('legend'=>A::t('app', 'Headers & Footers'), 'disabled'=>false),
 	 *               'field_1'=>array('type'=>'textbox', 'title'=>'Field 1', 'tooltip'=>'', 'validation'=>array('required'=>true, 'type'=>''), 'htmlOptions'=>array()),
 	 *               ...
 	 *           ),
-     *           'field_1'=>array('type'=>'textbox',        'title'=>'Username',   'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'username'), 'htmlOptions'=>array()),
-     *           'field_2'=>array('type'=>'password',       'title'=>'Password',   'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'password', 'minLength'=>6, 'maxLength'=>20, 'simplePassword'=>false), 'encryption'=>array('enabled'=>CConfig::get('password.encryption'), 'encryptAlgorithm'=>CConfig::get('password.encryptAlgorithm'), 'encryptSalt'=>CConfig::get('password.encryptSalt')), 'htmlOptions'=>array()),
+     *           'field_1'=>array('type'=>'textbox',        'title'=>'Username',   'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'username', 'minLength'=>6, 'maxLength'=>32), 'htmlOptions'=>array()),
+     *           'field_2'=>array('type'=>'password',       'title'=>'Password',   'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'password', 'minLength'=>6, 'maxLength'=>25, 'simplePassword'=>false), 'encryption'=>array('enabled'=>CConfig::get('password.encryption'), 'encryptAlgorithm'=>CConfig::get('password.encryptAlgorithm'), 'encryptSalt'=>CConfig::get('password.encryptSalt')), 'htmlOptions'=>array()),
      *           'field_3'=>array('type'=>'textbox',        'title'=>'Confirm P',  'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'confirm', 'confirmField'=>'field_2'), 'htmlOptions'=>array()),
      *           'field_4'=>array('type'=>'textbox',        'title'=>'Email',      'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'email'), 'htmlOptions'=>array()),
      *           'field_5'=>array('type'=>'textbox',        'title'=>'Confirm E',  'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'confirm', 'confirmField'=>'field_4'), 'htmlOptions'=>array()),
@@ -104,12 +106,14 @@ class CDataForm extends CWidgs
      *              'title'			 	=> 'Image Uploader',
      *              'tooltip'		 	=> '',
      *              'default'		 	=> '',
-     *              'validation'	 	=> array('required'=>true, 'type'=>'image', 'targetPath'=>'templates/backend/images/accounts/', 'maxSize'=>'100k', 'maxWidth'=>'120px', 'maxHeight'=>'90px', 'mimeType'=>'image/jpeg, image/jpg, image/png, image/gif', 'fileName'=>CHash::getRandomString(10), 'filePrefix'=>'', 'filePostfix'=>'', 'htmlOptions'=>array()),
+     *              'validation'	 	=> array('required'=>true, 'type'=>'image', 'targetPath'=>'templates/backend/images/accounts/', 'maxSize'=>'100k', 'maxWidth'=>'120px', 'maxHeight'=>'90px', 'mimeType'=>'application/zip, application/pdf', 'fileName'=>CHash::getRandomString(10), 'filePrefix'=>'', 'filePostfix'=>'', 'htmlOptions'=>array()),
 	 *          	'imageOptions'	 	=> array('showImage'=>true, 'showImageName'=>true, 'showImageSize'=>true, 'showImageDimensions'=>true, 'imageClass'=>'avatar'),
 	 *          	'thumbnailOptions'	=> array('create'=>true, 'directory'=>'', 'field'=>'', 'postfix'=>'_thumb', 'width'=>'', 'height'=>''),
 	 *          	'deleteOptions'	 	=> array('showLink'=>true, 'linkUrl'=>'admins/edit/avatar/delete', 'linkText'=>'Delete'),
 	 *          	'rotateOptions'		=> array('showLinks'=>true, 'linkRotateLeft'=>'admins/edit/rotate/left', 'linkRotateRigth'=>'admin/edit/rotate/right', 'iconRotateLeft'=>'templates/backend/images/rotateLeft.png', 'iconRotateRight'=>'templates/backend/images/rotateRight.png'),
-	 *          	'fileOptions'	 	=> array('showAlways'=>false, 'class'=>'file', 'size'=>'25', 'filePath'=>'templates/backend/files/accounts/')
+	 *          	'watermarkOptions'	=> array('enable'=>true, 'text'=>'Test Text'),
+	 *          	'fileOptions'	 	=> array('showAlways'=>false, 'class'=>'file', 'size'=>'25', 'filePath'=>'templates/backend/files/accounts/'),
+	 *          	'appendCode'		=> ' (allowed types): zip, pdf)'
      *          ),
      *          'field_18'=>array(
      *              'type'			 	=> 'fileUpload',
@@ -121,14 +125,16 @@ class CDataForm extends CWidgs
 	 *          	'iconOptions'	 	=> array('showType'=>true, 'showFileName'=>true, 'showFileSize'=>true),
 	 *          	'deleteOptions'	 	=> array('showLink'=>true, 'linkUrl'=>'admins/edit/avatar/delete', 'linkText'=>'Delete'),
 	 *          	'fileOptions'	 	=> array('showAlways'=>false, 'class'=>'file', 'size'=>'25', 'filePath'=>'templates/backend/files/accounts/')
+	 *          	'appendCode'		=> ' (allowed types): jpeg, jpg, png, gif)'
      *          ),
-     *          'field_19'=>array('type'=>'label',  	'title'=>'Label 19', 'default'=>'', 'tooltip'=>'', 'definedValues'=>array(), 'htmlOptions'=>array(), 'format'=>'', 'stripTags'=>false, 'callback'=>array('function'=>$functionName, 'params'=>$functionParams)),
-     *          'field_20'=>array('type'=>'html',  		'title'=>'Title 20', 'default'=>'', 'tooltip'=>'', 'definedValues'=>array(), 'htmlOptions'=>array(), 'format'=>'', 'stripTags'=>false, 'callback'=>array('function'=>$functionName, 'params'=>$functionParams)),
-     *          'field_21'=>array('type'=>'link',   	'title'=>'Title 21', 'tooltip'=>'', 'linkUrl'=>'path/to/param', 'linkText'=>'', 'htmlOptions'=>array()),
-     *          'field_22'=>array('type'=>'videoLink',  'title'=>'Title 22', 'tooltip'=>'', 'default'=>'', 'preview'=>false, 'validation'=>array('required'=>false, 'type'=>'url'), 'htmlOptions'=>array()),
-     *          'field_23'=>array('type'=>'datetime', 	'title'=>'Title 23', 'default'=>'', 'tooltip'=>'', 'validation'=>array('required'=>true, 'type'=>'date'), 'htmlOptions'=>array(), 'definedValues'=>array(), 'format'=>'', 'buttonTrigger'=>true, 'minDate'=>'', 'maxDate'=>'', 'yearRange'=>'-100:+0'),
-     *          'field_24'=>array('type'=>'hidden', 	'default'=>'', 'htmlOptions'=>array()),
-     *          'field_25'=>array('type'=>'data', 		'default'=>''),
+     *          'field_19'=>array('type'=>'label',  	'title'=>'Label', 		'tooltip'=>'', 'default'=>'', 'definedValues'=>array(), 'htmlOptions'=>array(), 'format'=>'', 'stripTags'=>false, 'callback'=>array('function'=>$functionName, 'params'=>$functionParams)),
+     *          'field_20'=>array('type'=>'html',  		'title'=>'Html', 		'tooltip'=>'', 'default'=>'', 'definedValues'=>array(), 'htmlOptions'=>array(), 'format'=>'', 'stripTags'=>false, 'callback'=>array('function'=>$functionName, 'params'=>$functionParams)),
+     *          'field_21'=>array('type'=>'link',   	'title'=>'Link', 		'tooltip'=>'', 'linkUrl'=>'path/to/param', 'linkText'=>'', 'htmlOptions'=>array()),
+     *          'field_22'=>array('type'=>'videoLink',  'title'=>'Video Link', 	'tooltip'=>'', 'default'=>'', 'preview'=>false, 'validation'=>array('required'=>false, 'type'=>'url', 'maxLength'=>125), 'htmlOptions'=>array('maxLength'=>125)),
+     *          'field_23'=>array('type'=>'datetime', 	'title'=>'Date Picker', 'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'date', 'maxLength'=>19), 'htmlOptions'=>array('maxlength'=>'19'), 'definedValues'=>array(), 'viewType'=>'datetime|date|time', 'dateFormat'=>'yy-mm-dd', 'timeFormat'=>'HH:mm:ss', 'buttonTrigger'=>true, 'minDate'=>'', 'maxDate'=>'', 'yearRange'=>'-100:+0'),
+     *			'field_24'=>array('type'=>'captcha',  	'title'=>'Captcha', 	'tooltip'=>'', 'default'=>'', 'validation'=>array('required'=>true, 'type'=>'captcha'), 'htmlOptions'=>array()),
+     *          'field_25'=>array('type'=>'hidden', 	'default'=>'', 'htmlOptions'=>array()),
+     *          'field_26'=>array('type'=>'data', 		'default'=>''),
      *       ),
      *       'translationInfo'=>array('relation'=>array('field_from', 'field_to'), 'languages'=>Languages::model()->findAll(array('condition'=>'is_active = 1', 'orderBy'=>'sort_order ASC')),
      *       'translationFields'=>array(
@@ -145,6 +151,7 @@ class CDataForm extends CWidgs
      *       ),
      *       'buttonsPosition'=>'bottom',
      *       'messagesSource'=>'core',
+	 * 		 'customMessages'=>array('insert'=>array('success'=>'', 'error'=>''), 'update'=>array('success'=>'', 'error'=>'')),
      *       'showAllErrors'=>false,
      *		 'alerts'=>array('type'=>standard|flash, 'itemName'=>A::t('app', 'Field Name').' #'.$id),
      *       'return'=>true,
@@ -187,6 +194,7 @@ class CDataForm extends CWidgs
 		
 		$translationFields 		= self::params('translationFields', array());
 		$msgSource 				= self::params('messagesSource', 'core');
+		$customMessages 		= self::params('customMessages', array());
 		$showAllErrors 			= (bool)self::params('showAllErrors', false);
 		$alertType 				= self::params('alerts.type', 'standard');
 		$alertItemName 			= self::params('alerts.itemName', '');
@@ -223,20 +231,27 @@ class CDataForm extends CWidgs
 		// -----------------------------------------------------------
 		if($cRequest->getPost('APPHP_FORM_ACT') == 'send'){
 		
-			// Prepare fields without framesets
-			// Remove disabled fields and framesets
+			// 1. Prepare fields without framesets
+			// 2. Remove disabled fields or framesets
 			$fieldsMainTable = array();
 			foreach($fields as $field => $fieldInfo){
 				if(preg_match('/separator/i', $field) && is_array($fieldInfo)){
-					if(self::issetKey('separatorInfo', $fieldInfo)){
-						unset($fieldInfo['separatorInfo']);
-					}
-					foreach($fieldInfo as $iField => $iFieldInfo){
-						if(!isset($fieldInfo['disabled']) || $fieldInfo['disabled'] !== true){
-							$fieldsMainTable[$iField] = $iFieldInfo;	
+					if(self::keyAt('separatorInfo.disabled', $fieldInfo, '') == true){
+						// Unset disabled section
+						unset($fields[$field]);
+					}else {
+						if (self::issetKey('separatorInfo', $fieldInfo)) {
+							unset($fieldInfo['separatorInfo']);
+						}
+						foreach ($fieldInfo as $iField => $iFieldInfo) {
+							// Unset disabled field
+							if (!isset($fieldInfo['disabled']) || $fieldInfo['disabled'] !== true) {
+								$fieldsMainTable[$iField] = $iFieldInfo;
+							}
 						}
 					}
-				}else{					
+				}else{
+					// Unset disabled field
 					if(!isset($fieldInfo['disabled']) || $fieldInfo['disabled'] !== true){
 						$fieldsMainTable[$field] = $fieldInfo;	
 					}
@@ -343,6 +358,12 @@ class CDataForm extends CWidgs
                                             $records->set($thumbnailField, $thumbFileRealName);
                                         }                                        
                                     }
+									
+									$watermark = self::keyAt('watermarkOptions.enable', $fieldInfo, false);
+									$watermarkText = self::keyAt('watermarkOptions.text', $fieldInfo, '');
+									if($watermark && !empty($watermarkText)){
+										CImage::addWatermark(APPHP_PATH.DS.$targetPath.$thumbnailDirectory.$fieldValue, $watermarkText);
+									} 
                                 }else{
                                     $fieldValue = '';
                                     unset($recordsAssoc[$field]);
@@ -361,7 +382,7 @@ class CDataForm extends CWidgs
                                     }else{
                                         $fileName = pathinfo($_FILES[$field]['name'], PATHINFO_FILENAME);										
 									}
-
+									
 									$fieldValue = $filePrefix.$fileName.$filePostfix.'.'.$fileExtension;
                                 }else{
                                     $fieldValue = '';
@@ -376,7 +397,19 @@ class CDataForm extends CWidgs
                                         unset($recordsAssoc[$field]);
                                     }else{
                                         $fieldValue = CHash::create($encryptAlgorithm, $fieldValue, $encryptSalt);
-                                    }							
+                                    }
+                                }
+							}elseif($fieldType == 'textbox'){
+                                $fieldEncryption = (bool)self::keyAt('encryption.enabled', $fieldInfo, false);
+                                if($fieldEncryption){
+                                    $encryptAlgorithm = self::keyAt('encryption.encryptAlgorithm', $fieldInfo, '');
+                                    $encryptKey = self::keyAt('encryption.encryptKey', $fieldInfo, '');
+                                    if(empty($fieldValue)){
+										$fieldValue = '';
+                                        unset($recordsAssoc[$field]);
+                                    }else{
+                                        $fieldValue = CHash::encrypt($fieldValue, $encryptKey, $encryptAlgorithm);
+                                    }
                                 }
 							}elseif($fieldType == 'select' && in_array($viewType, array('checkboxes', 'dropdownlist'))){
 								$multiple = (bool)self::keyAt('multiple', $fieldInfo, false);
@@ -432,9 +465,14 @@ class CDataForm extends CWidgs
 							$records->saveTranslations(array('key'=>$keyTo, 'value'=>$keyFromValue, 'fields'=>$translationParams));
 						}
 						
+						// Prepare custom messages
+						if($operationType == 'add'){
+							$msg = !empty($customMessages['insert']['success']) ? $customMessages['insert']['success'] : 'The adding operation has been successfully completed!';
+						}else{
+							$msg = !empty($customMessages['update']['success']) ? $customMessages['update']['success'] : 'The updating operation has been successfully completed!';
+						}
 						$msgType = 'success';
-						$msg = A::t($msgSource, ($operationType == 'add') ? 'The adding operation has been successfully completed!' : 'The updating operation has been successfully completed!');						
-						
+
 						// Get last inserted ID
 						if($operationType == 'add') $primaryKey = $objModel->getPrimaryKey();
 						
@@ -453,25 +491,28 @@ class CDataForm extends CWidgs
 						
 						// Redirect to success URL
 						if(!empty($successUrl)){
-							
 							if(!empty($alertItemName)){
-								$message = ($operationType == 'add') ?
-									A::t($msgSource, 'New {item_type} has been successfully added!', array('{item_type}'=>$alertItemName)) :
-									A::t($msgSource, 'The {item_type} has been successfully updated!', array('{item_type}'=>$alertItemName));
-							}else{
-								$message = ($operationType == 'add') ?
-									A::t($msgSource, 'The adding operation has been successfully completed!') :
-									A::t($msgSource, 'The updating operation has been successfully completed!');
+								if($operationType == 'add'){
+									if(!empty($customMessages['insert'])){
+										$msg = str_ireplace('{item_type}', $alertItemName, $msg);
+									}else{
+										$msg = A::t($msgSource, 'New {item_type} has been successfully added!', array('{item_type}'=>$alertItemName));
+									}
+								}else{
+									if(!empty($customMessages['update'])){
+										$msg = str_ireplace('{item_type}', $alertItemName, $msg);
+									}else{
+										$msg = A::t($msgSource, 'The {item_type} has been successfully updated!', array('{item_type}'=>$alertItemName));
+									}
+								}
 							}
-							
+
 							// Create flash alert
 							if($alertType == 'flash'){
-								A::app()->getSession()->setFlash('alert', $message);
-								A::app()->getSession()->setFlash('alertType', 'success');
-							}else{
-								$msg = $message;
-							}						
-							
+								A::app()->getSession()->setFlash('alertType', $msgType);
+								A::app()->getSession()->setFlash('alert', $msg);
+							}
+
                             if($cRequest->isPostExists('btnUpdateClose')){
                                 header('location: '.$baseUrl.$successUrl);
                                 exit;
@@ -485,7 +526,7 @@ class CDataForm extends CWidgs
 						}
 						
 						// Refresh data
-						$records = $objModel->findByPk($primaryKey);
+						$records = $objModel->findByPk($primaryKey);						
 						if($records) $recordsAssoc = $records->getFieldsAsArray();
 					}else{
 						if(APPHP_MODE == 'demo'){
@@ -496,8 +537,13 @@ class CDataForm extends CWidgs
                             $msg = $records->getErrorMessage();
                             $msgType = 'error';					
                         }else{
-                            $msg = A::t($msgSource, ($operationType == 'add') ? 'The error occurred while adding new record! To get more information please turn on debug mode.' : 'The error occurred while updating this record! To get more information please turn on debug mode.');
-                            $msgType = 'error';					
+							// Prepare messages
+							if($operationType == 'add'){
+								$msg = !empty($customMessages['insert']['success']) ? $customMessages['insert']['success'] : 'The error occurred while adding new record! To get more information please turn on debug mode.';
+							}else{
+								$msg = !empty($customMessages['update']['success']) ? $customMessages['update']['success'] : 'The error occurred while updating this record! To get more information please turn on debug mode.';
+							}
+                            $msgType = 'error';
                         }
 					}
 				}				
@@ -512,8 +558,15 @@ class CDataForm extends CWidgs
 			}
 
 			if(!empty($msg)){
+				A::app()->getSession()->setFlash('alertType', $msgType);
+				A::app()->getSession()->setFlash('alert', $msg);
+				// Create flash alert
+				if($alertType == 'flash'){
+					$msgType = A::app()->getSession()->getFlash('alertType');
+					$msg = A::app()->getSession()->getFlash('alert');
+				}
 				$output .= CWidget::create('CMessage', array($msgType, $msg, array('button'=>true)));
-			}			
+			}
 		}
 
 		// -----------------------------------------------------------
@@ -527,7 +580,7 @@ class CDataForm extends CWidgs
 			$formViewParams['method'] = $method;
 			$formViewParams['htmlOptions'] = $htmlOptions;
 			$formViewParams['requiredFieldsAlert'] = $requiredFieldsAlert;
-			$formViewParams['fieldSets'] = $fieldSets;			
+			$formViewParams['fieldSetSets'] = $fieldSets;
 			$formViewParams['fieldWrapper'] = array('tag'=>$fieldWrapperTag, 'class'=>$fieldWrapperClass);
 			
 			$formViewParams['fields'] = array();
@@ -536,15 +589,20 @@ class CDataForm extends CWidgs
 			// Remove disabled fields
 			foreach($fields as $field => $fieldInfo){
 				if(preg_match('/separator/i', $field) && is_array($fieldInfo)){
-					foreach($fieldInfo as $iField => $iFieldInfo){
-						if(self::keyAt('disabled', $iFieldInfo, false) === true) unset($fields[$field][$iField]);
+					if(self::keyAt('separatorInfo.disabled', $fieldInfo, '') == true){
+						// Unset disabled section
+						unset($fields[$field]);
+					}else{
+						foreach ($fieldInfo as $iField => $iFieldInfo) {
+							if (self::keyAt('disabled', $iFieldInfo, false) === true) unset($fields[$field][$iField]);
+						}
 					}
 				}else{
 					if(self::keyAt('disabled', $fieldInfo, false) === true) unset($fields[$field]);
 				}				
 			}
 
-			// Draw fields
+		// Draw fields
 			foreach($fields as $field => $fieldInfo){
 				if(preg_match('/separator/i', $field) && is_array($fieldInfo)){
 					// [27.03.2015] - removed - because doesn't draw LEGEND tag
@@ -603,7 +661,7 @@ class CDataForm extends CWidgs
             $formViewParams['events'] = array('focus'=>array('field'=>$errorField));
 			$formViewParams['buttons'] = $buttons;
             $formViewParams['buttonsPosition'] = $buttonsPosition;			
-			$output .= CWidget::create('CFormView', $formViewParams);			
+			$output .= CWidget::create('CFormView', $formViewParams);
 		}			
 
 		if($return) return $output;
@@ -664,14 +722,27 @@ class CDataForm extends CWidgs
 					$callbackParams = self::keyAt('callback.params', $fieldInfo, array());
 					if(!empty($callbackFunction)){
 						if(is_callable($callbackFunction)){
-							// Calling a function
-							// For PHP_VERSION | phpversion() >= 5.3.0 you may use
-							// $fieldValue = $callbackFunction($fieldValue, $callbackParams);
-							$fieldInfo['value'] = call_user_func($callbackFunction, $fieldValue, $callbackParams);
+							// Call a function
+							$fieldInfo['value'] = $callbackFunction($fieldValue, $callbackParams);
+							/// DEPRECATED 01.12.2018 - for PHP_VERSION | phpversion() < 5.3.0
+							/// $fieldInfo['value'] = call_user_func($callbackFunction, $fieldValue, $callbackParams);
 						}
 					}else{
 						$fieldInfo['value'] = $fieldValue;
 					}
+				}elseif($fieldType == 'textbox'){
+					$fieldEncryption = (bool)self::keyAt('encryption.enabled', $fieldInfo, false);
+					$fieldEncryptionLevel = (bool)self::keyAt('encryption.encryptionLevel', $fieldInfo, '');
+					if($fieldEncryption){
+						$encryptAlgorithm = self::keyAt('encryption.encryptAlgorithm', $fieldInfo, '');
+						$encryptKey = self::keyAt('encryption.encryptKey', $fieldInfo, '');
+						if(empty($fieldValue)){
+							$fieldValue = '';
+						}else{
+							$fieldValue = CHash::decrypt($fieldValue, $encryptKey, $encryptAlgorithm);
+						}
+					}
+					$fieldInfo['value'] = $fieldValue;
 				}else{
 					$fieldInfo['value'] = $fieldValue;
 				}								

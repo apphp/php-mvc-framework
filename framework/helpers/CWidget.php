@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
@@ -30,14 +30,22 @@ class CWidget
         if(!class_exists($className)){
             CDebug::addMessage('warnings', 'missing-helper', A::t('core', 'Cannot find widget class: {class}', array('{class}'=>$className)));    
         }else{			
-            // For PHP_VERSION | phpversion() >= 5.3.0 you may use
-            // $result = $className::init($params);			
-			if(strtolower($className) == 'cmessage'){
-				$result = call_user_func_array($className.'::init', $params);
+			// Init
+			if(strtolower($className) == 'cmessage') {
+			 	$type = isset($params[0]) ? $params[0] : '';
+			 	$text = isset($params[1]) ? $params[1] : '';
+			 	$init_params = isset($params[2]) ? $params[2] : array();
+			 	$result = $className::init($type, $text, $init_params);
 			}else{
-				// Params is assosiative array
-				$result = call_user_func($className.'::init', $params);
+				$result = $className::init($params);
 			}
+			/// DEPRECATED 01.12.2018 - for PHP_VERSION | phpversion() < 5.3.0
+			// if(strtolower($className) == 'cmessage'){
+			//	 $result = call_user_func_array($className.'::init', $params);
+			// }else{
+			//	 // Params is assosiative array
+			//	 $result = call_user_func($className.'::init', $params);
+			// }
 			return $result;
 		}
     }

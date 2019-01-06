@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * IMPORTANT:
@@ -122,11 +122,12 @@ class CDatabase extends PDO
 					echo $output;
 					exit(1);
 				}
+				
 				$this->_dbDriver = CConfig::get('db.driver');
 				$this->_dbName = CConfig::get('db.database');
 				$this->_dbPrefix = CConfig::get('db.prefix');
 				
-				$this->_cache = (CConfig::get('cache.enable')) ? true : false;
+				$this->_cache = CConfig::get('cache.enable') ? true : false;
 				$this->_cacheType = in_array(CConfig::get('cache.type'), array('auto', 'manual')) ? CConfig::get('cache.type') : 'auto';
 				$this->_cacheLifetime = CConfig::get('cache.lifetime', 0); /* in minutes */
 				$this->_cacheDir = CConfig::get('cache.path'); /* protected/tmp/cache/ */
@@ -188,13 +189,13 @@ class CDatabase extends PDO
 
 		try{
             if($this->_isCacheAllowed($cacheId)){
-                $param = !empty($cacheId) ? $cacheId : (is_array($params) ? implode('|',$params) : '');
+				$cacheFile = !empty($cacheId) ? $cacheId : $sql.(is_array($params) ? implode('|',$params) : '');
                 $cacheContent = CCache::getContent(
-                    $this->_cacheDir.md5($sql.$param).'.cch',
+                    $this->_cacheDir.md5($cacheFile).'.cch',
                     $this->_cacheLifetime
                 );
             }
-
+			
             if(!$cacheContent){                
                 if(is_array($params)){
                     foreach($params as $key => $value){
@@ -224,7 +225,7 @@ class CDatabase extends PDO
 			$finishTime = $this->_formattedMicrotime();
 			$sqlTotalTime = round((float)$finishTime - (float)$startTime, 5);	
 			CDebug::addSqlTime($sqlTotalTime);
-			CDebug::addMessage('queries', ++self::$count.'. select | '.$sqlTotalTime.' '.A::t('core', 'sec').'. | <i>'.A::t('core', 'total').': '.(($result) ? count($result) : '0 (<b>'.($error ? 'error' : 'empty').'</b>)').'</i>', $this->_query);
+			CDebug::addMessage('queries', ++self::$count.'. select | '.$sqlTotalTime.' '.A::t('core', 'sec').'. | <i>'.A::t('core', 'total').': '.(($result) ? count($result) : '0 (<b>'.($error ? 'error' : 'empty').'</b>)').($cacheContent ? ' <b>[cached]</b>' : '').'</i>', $this->_query);
 		}
 		
 		return $result;
@@ -250,15 +251,25 @@ class CDatabase extends PDO
         ksort($data);
         
         $fieldNames = $this->_quotes(implode($this->_backQuote.', '.$this->_backQuote, array_keys($data)));
-        $fieldValues = ':'.implode(', :', array_keys($data));
         
+		$fieldValues = '';
+        if(is_array($data)){
+            foreach($data as $key => $value){
+				// Regular fields: :last_name,
+				// Encrypted fields: AES_ENCRYPT(:last_name, "key"),
+				// Use str_replace('('.$key.',', '(:'.$key.',', ... for encrypted fields
+				$fieldValues .= (is_array($value) ? str_replace('('.$key.',', '(:'.$key.',', $value['param_key']) : ':'.$key).',';
+			}			
+			$fieldValues = rtrim($fieldValues, ',');
+		}
+
         $sql = 'INSERT INTO '.$this->_quotes($this->_dbPrefix.$table).' ('.$fieldNames.') VALUES ('.$fieldValues.')';
         $sth = $this->prepare($sql);
         
         if(is_array($data)){
             foreach($data as $key => $value){
                 list($key, $param) = $this->_prepareParams($key);
-                $sth->bindValue(':'.$key, $value, $param);
+                $sth->bindValue(':'.$key, (is_array($value) ? $value['param_value'] : $value), $param);
             }
         }
         
@@ -290,11 +301,12 @@ class CDatabase extends PDO
      * @param string $data an associative array
      * @param string $where the WHERE clause of query
      * @param array $params
+	 * @param bool $forceUpdate	used to force update on Demo mode
      * @param boolean
      */
-    public function update($table, $data, $where = '1', $params = array())
+    public function update($table, $data, $where = '1', $params = array(), $forceUpdate = false)
     {
-        if(APPHP_MODE == 'demo'){
+		if(APPHP_MODE == 'demo' && !$forceUpdate){
 			self::$_errorMessage = A::t('core', 'This operation is blocked in Demo Mode!');
 			return false;
 		} 
@@ -308,7 +320,10 @@ class CDatabase extends PDO
         $fieldDetails = NULL;
         if(is_array($data)){
             foreach($data as $key => $value){
-                $fieldDetails .= $this->_quotes($key).' = :'.$key.',';
+				// Regular fields: `last_name` = :last_name,
+				// Encrypted fields: `last_name` = AES_ENCRYPT(:last_name, "key"),
+				// Use str_replace('('.$key.',', '(:'.$key.',', ... for encrypted fields
+				$fieldDetails .= $this->_quotes($key).' = '.(is_array($value) ? str_replace('('.$key.',', '(:'.$key.',', $value['param_key']) : ':'.$key).',';
             }            
         }
         $fieldDetails = rtrim($fieldDetails, ',');
@@ -318,7 +333,7 @@ class CDatabase extends PDO
         if(is_array($data)){
             foreach($data as $key => $value){
                 list($key, $param) = $this->_prepareParams($key);
-                $sth->bindValue(':'.$key, $value, $param);
+                $sth->bindValue(':'.$key, (is_array($value) ? $value['param_value'] : $value), $param);
             }
         }
         if(is_array($params)){
@@ -687,7 +702,7 @@ class CDatabase extends PDO
 			$finishTime = $this->_formattedMicrotime();
 			$sqlTotalTime = round((float)$finishTime - (float)$startTime, 5);			
 			CDebug::addSqlTime($sqlTotalTime);
-			CDebug::addMessage('queries', ++self::$count.'. query | '.$sqlTotalTime.' '.A::t('core', 'sec').'. | <i>'.A::t('core', 'total').': '.(($result) ? count($result) : '0 (<b>error</b>)').'</i>', $this->_query);
+			CDebug::addMessage('queries', ++self::$count.'. query | '.$sqlTotalTime.' '.A::t('core', 'sec').'. | <i>'.A::t('core', 'total').': '.(($result) ? count($result) : '0 (<b>error</b>)').($cacheContent ? ' <b>[cached]</b>' : '').'</i>', $this->_query);
 		}
 		
 		return $result;
@@ -701,7 +716,7 @@ class CDatabase extends PDO
 		$version = A::t('core', 'Unknown');
 		if(self::$_instance != null && !empty($this->_dbName)){
 			$version = @self::getAttribute(PDO::ATTR_SERVER_VERSION);
-			if(empty($version)){
+			if(empty($version) && empty(self::$_error)){
 				$version = $this->query('select version()')->fetchColumn();
 			}
 			// Clean version number from alphabetic characters
@@ -784,7 +799,7 @@ class CDatabase extends PDO
     {
         self::$_error = true;
         self::$_errorMessage = $errorMessage;
-        CDebug::addMessage('errors', $debugMessage, $errorMessage);
+        CDebug::addMessage('errors', $debugMessage, $errorMessage, 'session');
     }
     
     /**
@@ -855,8 +870,16 @@ class CDatabase extends PDO
             }else{
                 $keys[] = '/[?]/';
             }
+			
+			if(is_array($value) && isset($value['param_key'])){
+				// Show ecrypted fields
+				$params[$key] = str_replace($key, $value['param_value'], $value['param_key']);
+			}else{
+				// Show regular fields
+				$params[$key] = "'$value'";
+			}
         }
-    
+		
         return preg_replace($keys, $params, $sql, 1, $count);
     }
     

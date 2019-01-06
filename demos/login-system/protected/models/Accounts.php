@@ -24,11 +24,13 @@ class Accounts extends CModel
     
     public function save($username, $password)
     {
+		$salt = CConfig::get('password.encryption') && (CConfig::get('password.encryptSalt')) ? CHash::salt() : '';
         $result = $this->_db->update(
             'accounts',
             array(
-                'username' => $username,
-                'password' => ((CConfig::get('password.encryption')) ? CHash::create(CConfig::get('password.encryptAlgorithm'), $password, CConfig::get('password.hashKey')) : $password)
+                'username' 	=> $username,
+                'salt'		=> $salt,
+                'password' 	=> (CConfig::get('password.encryption') ? CHash::create(CConfig::get('password.encryptAlgorithm'), $password, $salt) : $password)
             ),
             'id = '.(int)CAuth::getLoggedId()
         );

@@ -12,13 +12,16 @@
 
 Every application, built on ApPHP Framework can run in debug mode, as determined by the value of
 the constant <a href="index.php?page=application-modes" target="_parent">APPHP_MODE</a>. By default,
-this constant value equals 'production' mode. To run in debug mode, define this constant as 'debug'
-before including the <code>Apphp.php</code> file. Remember, that running the application in debug
-mode is less efficient because it keeps many internal logs, but on other other hand, debug mode
+this constant value equals '<code>production</code>' mode. To run in debug mode, define this constant as
+'<code>debug</code>' before including the <code>Apphp.php</code> file. Remember, that running the application
+in debug mode is less efficient because it keeps many internal logs, but on other other hand, debug mode
 is also more helpful during the development stage because it provides useful debugging information
 that will help you easy find and handle errors when occur.
 
-<br><br>
+<pre name="dlhl" class="php">
+defined('APPHP_MODE') or define('APPHP_MODE', 'debug');</pre>
+
+<br>
 <img src="images/debug_panel.png" alt="ApPHP MVC Framework - debug panel" class="illustration">
 
 <br><br>

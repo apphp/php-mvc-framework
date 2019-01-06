@@ -1,8 +1,8 @@
 <?php
 
 return array(
-    // module classes
+    // Module classes
     'classes' => array(
-        'Setup'
+		'Modules\Setup\Controllers\Setup'
     )
 );

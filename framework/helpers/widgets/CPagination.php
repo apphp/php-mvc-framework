@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
@@ -56,9 +56,9 @@ class CPagination extends CWidgs
         // Link type: 0 - standard, 1 - SEO
         $linkType 			= (int)self::params('linkType', 1);
         // justNumbers - 1 2 3 
-        // fullNumbers - « previous 1 2 3 next »
-        // olderNewer - « newer older »
-        // prevNext -  « previous next »
+        // fullNumbers - ï¿½ previous 1 2 3 next ï¿½
+        // olderNewer - ï¿½ newer older ï¿½
+        // prevNext -  ï¿½ previous next ï¿½
 		$paginationType 	= self::params('paginationType');
         $paginationType 	= (in_array(strtolower($paginationType), array('prevnext', 'oldernewer', 'fullnumbers', 'justnumbers'))) ? strtolower($paginationType) : 'fullnumbers';
 		$showEmptyLinks 	= (bool)self::params('showEmptyLinks', true);

@@ -30,13 +30,30 @@ Example of acceptable controller class:<br>
 <pre name="dlhl" class="php">&lt;?php
 class AccountController extends CController
 {
+    // Default constructor
     public function __construct()
-	{
+    {
         parent::__construct();
+    }
+    
+    // Used to define access rules to controller
+    // This method should be overridden
+    protected function _accessRules()
+    {
+        return array(
+            //array('allow', 'actions' => array('*'), 'ips' => array('127.0.0.1')),
+            //array('deny', 'actions' => array('*'), 'ips' => array('127.0.0.2'))
+        );
     }
     
     // Default action
     public function indexAction()
+    {
+        $this->redirect('account/manage');
+    }
+
+    // Manage action
+    public function manageAction()
     {
         ...
     }
@@ -130,9 +147,9 @@ class PostsController extends CController
         $category = A::app()->getRequest()->getQuery('category');
         $language = A::app()->getRequest()->getQuery('language');
 		
-		// Short format
-		$category = A::app()->request()->post('category');
-		$language = A::app()->request()->get('language');
+        // Short format
+        $category = A::app()->request()->post('category');
+        $language = A::app()->request()->get('language');
 		
         // Other code starts here ...
     }
@@ -143,6 +160,9 @@ Now using the action parameter feature, we can achieve this task in a more pleas
 <pre name="dlhl" class="php">&lt;?php
 class PostsController extends CController
 {
+    /**
+    * URL: post/action/category/1/language/en
+    */
     public function actionCreate($category, $language='en')
     {
         $category = (int)$category;

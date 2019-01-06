@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED (static):			PRIVATE (static):
@@ -19,8 +19,10 @@
  * decode
  * css
  * cssFile
+ * cssFiles
  * script
  * scriptFile
+ * scriptFiles
  * form
  * openForm
  * closeForm
@@ -43,6 +45,8 @@
  * submitButton
  * resetButton
  * image
+ * video
+ * audio
  * button
  * convertFileSize
  * convertImageDimensions
@@ -171,12 +175,14 @@ class CHtml
 	 * Encloses the passed CSS content with a CSS tag
 	 * @param string $text
 	 * @param string $media
+	 * @param bool $newLine
 	 * @return string the CSS tag
 	 */
-	public static function css($text, $media = '')
+	public static function css($text, $media = '', $newLine = true)
 	{
 		if($media !== '') $media = ' media="'.$media.'"';
-		return "<style type=\"text/css\"{$media}>\n/*<![CDATA[*/\n{$text}\n/*]]>*/\n</style>";
+		$newLine = (($newLine) ? "\n" : '');
+		return "<style type=\"text/css\"{$media}>".$newLine."/*<![CDATA[*/\n{$text}\n/*]]>*/".$newLine."</style>";
 	}
 
 	/**
@@ -188,10 +194,36 @@ class CHtml
 	 */
 	public static function cssFile($url, $media = '', $newLine = true)
 	{
-		if($media !== '') $media=' media="'.$media.'"';
+		if($media !== '') $media = ' media="'.$media.'"';
 		return '<link rel="stylesheet" type="text/css" href="'.self::encode($url).'"'.$media.' />'.(($newLine) ? "\n" : '');
 	}
 
+	/**
+	 * Links to required CSS files
+	 * @param array $urls				Usage: array('url1', 'url2' => array('media'=>'print'))
+	 * @param string $path
+	 * @param bool $newLine
+	 * @return string - HTML tag
+	 */
+	public static function cssFiles($urls = array(), $path = '', $newLine = true)
+	{
+		$output = '';
+		
+		if(!is_array($urls)){
+			return $output;
+		}
+		
+		foreach($urls as $key => $val){
+			if(empty($val)) continue;
+			$path = !empty($path) ? trim($path, '/').'/' : '';
+			$href = is_array($val) ? $key : $val;
+			$media = (is_array($val) && !empty($val['media'])) ? ' media="'.$val['media'].'"' : '';
+			$output .= '<link rel="stylesheet" type="text/css" href="'.$path.self::encode($href).'"'.$media.' />'.(($newLine) ? "\n" : '');
+		}
+		
+		return $output;
+	}
+	
 	/**
 	 * Encloses the passed JavaScript within a Script tag
 	 * @param string $text 
@@ -225,6 +257,30 @@ class CHtml
 		if($include){
 			return '<script type="text/javascript" src="'.self::encode($url).'"></script>'.(($newLine) ? "\n" : '');	
 		}
+	}
+	
+	/**
+	 * Links to required JavaScript files
+	 * @param array $urls				Usage: array('url1', 'url2' => array('media'=>'print'))
+	 * @param string $path
+	 * @param bool $newLine
+	 * @return string - HTML tag
+	 */
+	public static function scriptFiles($urls = array(), $path = '', $newLine = true)
+	{
+		$output = '';
+		
+		if(!is_array($urls)){
+			return $output;
+		}
+		
+		foreach($urls as $key => $val){
+			$path = !empty($path) ? trim($path, '/').'/' : '';
+			$href = is_array($val) ? $key : $val;
+			$output .= '<script type="text/javascript" src="'.$path.self::encode($href).'"></script>'.(($newLine) ? "\n" : '');
+		}
+		
+		return $output;
 	}
 	
 	/**
@@ -807,6 +863,73 @@ class CHtml
 		return self::tag('img', $htmlOptions);
 	}
 
+	/**
+	 * Generates an video tag
+	 * @param string $src 
+	 * @param array $options
+	 * Ex.: array('width'=>'560', 'height'=>'350', 'autoplay'=>true, 'allowfullscreen'=>true, 'controls'=>true)
+	 * @return string 
+	 */
+	public static function video($src, $options = array())
+	{
+		$videoHtml = '';
+		
+		$srcParts = explode('/', $src);
+		$videoId = array_pop($srcParts); 
+		
+		$htmlOptions = array();
+		$width = !empty($options['width']) ? $options['width'] : '560';
+		$htmlOptions['width'] = $width;
+		$height = !empty($options['height']) ? $options['height'] : '315';
+		$htmlOptions['height'] = $height;
+		
+		if(preg_match('/(youtube\.|youtu\.)/i', $src)){
+			$autoplayParam = !empty($options['autoplay']) ? '?autoplay=1' : '';
+			$htmlOptions['frameborder'] = '0';
+			$htmlOptions['allow'] = 'encrypted-media'.(!empty($autoplayParam) ? ' autoplay' : '');
+			$htmlOptions['allowfullscreen'] = !empty($options['allowfullscreen']) ? 'allowfullscreen' : null;			
+			$htmlOptions['src'] = 'https://www.youtube.com/embed/'.$videoId.$autoplayParam;
+			$videoHtml = self::openTag('iframe', $htmlOptions).self::closeTag('iframe');
+		}elseif(preg_match('/vimeo\./i', $src)){
+			$autoplayParam = !empty($options['autoplay']) ? '?autoplay=1' : '';
+			$htmlOptions['frameborder'] = '0';
+			$htmlOptions['webkitallowfullscreen'] = !empty($options['webkitallowfullscreen']) ? 'webkitallowfullscreen' : null;
+			$htmlOptions['mozallowfullscreen'] = !empty($options['mozallowfullscreen']) ? 'mozallowfullscreen' : null;			
+			$htmlOptions['src'] = 'https://player.vimeo.com/video/'.$videoId.$autoplayParam;
+			$videoHtml = self::openTag('iframe', $htmlOptions).self::closeTag('iframe');
+		}else{
+			$htmlOptions['autoplay'] = !empty($options['autoplay']) ? ' autoplay' : null;
+			$htmlOptions['controls'] = !empty($options['controls']) ? ' controls' : null;
+			$videoHtml = self::openTag('video', $htmlOptions);
+			$videoHtml = self::tag('source', array('src'=>$src, 'type'=>'video/mp4'));
+			$videoHtml .= self::closeTag('video');
+		}
+		
+		if(!empty($htmlOptions)){
+			$videoHtml = self::openTag('iframe', $htmlOptions, false, false).self::closeTag('iframe');
+		}
+		
+		return $videoHtml;
+	}
+
+	/**
+	 * Generates an audio tag
+	 * @param string $src 
+	 * @param array $options
+	 * Ex.: array('autoplay'=>true, 'controls'=>true)
+	 * @return string 
+	 */
+	public static function audio($src, $options = array())
+	{
+		$htmlOptions = array();
+		$htmlOptions['autoplay'] = !empty($options['autoplay']) ? ' autoplay' : null;
+		$htmlOptions['controls'] = !empty($options['controls']) ? ' controls' : null;
+		
+		$videoHtml = self::openTag('audio', $htmlOptions);
+		$videoHtml = self::tag('source', array('src'=>$src, 'type'=>'audio/mpeg'));
+		$videoHtml .= self::closeTag('audio');
+	}
+
     /**
      * Returns a file size in bytes from the given string
      * @param mixed $fileSize
@@ -843,7 +966,7 @@ class CHtml
 
 	/**
 	 * Renders escaped hex string
-	 * Ex. for link: '<a href="'.escapeHex($string).'">...</a>'
+	 * Ex. for link: '<a href="'.CHtml::escapeHex($string).'">...</a>'
 	 * @param string $string
 	 */
     public static function escapeHex($string)
@@ -857,7 +980,7 @@ class CHtml
     
 	/**
 	 * Renders escaped hex entity string
-	 * Ex. for text: '<a href="...">'.escapeHexEntity($string).'</a>'
+	 * Ex. for text: '<a href="...">'.CHtml::escapeHexEntity($string).'</a>'
 	 * @param string $string
 	 */
     public static function escapeHexEntity($string)

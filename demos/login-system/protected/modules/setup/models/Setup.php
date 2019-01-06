@@ -1,4 +1,24 @@
 <?php
+/**
+ * Setup model
+ *
+ * PUBLIC:                 	PROTECTED:                 	PRIVATE:
+ * ---------------         	---------------				---------------
+ * __construct
+ * doBeginTransaction
+ * doRollBack
+ * doCommit
+ * install
+ *
+ */
+
+namespace Modules\Setup\Models;
+
+// Framework
+use \A,
+	\CModel,
+	\CDatabase;
+
 
 class Setup extends CModel
 {
@@ -46,7 +66,7 @@ class Setup extends CModel
     {
         if(empty($sqlDump)){
             $this->_error = true;
-            $this->_errorMessage = 'No SQL statements found! Please check your data file.';
+            $this->_errorMessage = A::t('setup', 'No SQL statements found! Please check your data file.');
             return false;
         }else{
             /* begin a transaction, turning off autocommit */

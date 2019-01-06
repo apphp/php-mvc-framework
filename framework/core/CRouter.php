@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/ 
  *
  * USAGE:
@@ -55,7 +55,9 @@
 class CRouter
 {
 	/**	@var string */
-	private $_path; 
+	private $_path;
+	/**	@var string */
+	private $_backendPath;
 	/**	@var string */
 	private $_controller; 
 	/**	@var string */
@@ -77,7 +79,9 @@ class CRouter
 	{
 		$urlFormat = CConfig::get('urlManager.urlFormat');
 		$rules = (array)CConfig::get('urlManager.rules');
-		
+		// Get backend directory
+		$backendDirectory = CConfig::get('defaultBackendDirectory');
+
 		$request = isset($_GET['url']) ? $_GET['url'] : '';
 		$standardCheck = true;
 		
@@ -111,6 +115,14 @@ class CRouter
 	
 		if($standardCheck){			
 			$split = explode('/', trim($request, '/'));
+
+			// We call to backend controller, so remove backend dir value from URL
+			if(!empty($backendDirectory) && !empty($split[0]) && $backendDirectory == $split[0]){
+				$this->_backendPath = $backendDirectory;
+				CDebug::addMessage('params', 'backend_path', $backendDirectory);
+				unset($split[0]);
+			}
+
 			if($split){
 				foreach($split as $index => $part){
 					if(!$this->_controller){
@@ -154,19 +166,19 @@ class CRouter
 	 */
 	public function route()
 	{
-        $appDir = APPHP_PATH.DS.'protected'.DS.'controllers'.DS;
-        $file = $this->_controller.'Controller.php';
-		$errorClass = '';
+		$additionalDir = !empty($this->_backendPath) ? $this->_backendPath.DS : '';
 		// Get default error controller
-		$errorController = CConfig::get('defaultErrorController', 'Error');
-		$errorController = preg_replace('/controller/i', '', $errorController);
+		$errorController = preg_replace('/controller/i', '', CConfig::get('defaultErrorController', 'Error'));
+		$appDir = APPHP_PATH.DS.'protected'.DS.'controllers'.DS.$additionalDir;
+		$file = $this->_controller.'Controller.php';
+		$errorClass = '';
 
 		if(is_file($appDir.$file)){
 			// Framework Controller
 			$class = $this->_controller.'Controller';
         }else{
 			$modulePath = A::app()->mapAppModule($this->_controller);
-            $moduleDir = APPHP_PATH.DS.'protected'.DS.$modulePath.'controllers'.DS;
+			$moduleDir = APPHP_PATH.DS.'protected'.DS.$modulePath.'controllers'.DS.$additionalDir;
 			$classWithNamespace = A::app()->mapAppModuleClass($this->_controller);
             if(!empty($classWithNamespace)){
 				// Module Controller with namespace (new syntax in framework >= v0.8.0)
@@ -185,7 +197,9 @@ class CRouter
                 A::app()->setResponseCode('404');
             	CDebug::addMessage('errors', 'controller', A::t('core', 'Router: unable to resolve the request "{controller}".', array('{controller}' => $this->_controller)));
             }
-        } 
+        }
+		A::app()->setBackendPath((!empty($this->_backendPath) ? $this->_backendPath.DS : ''));
+		A::app()->view->setBackendPath((!empty($this->_backendPath) ? $this->_backendPath.DS : ''));
 		A::app()->view->setController(($class == $errorController ? 'Error' : $this->_controller));
 		$controller = new $class();
 
@@ -215,7 +229,8 @@ class CRouter
 		A::app()->view->setAction(($action == 'errorAction' ? 'error' : $this->_action));
         
 		// Call controller::action + pass parameters
-		call_user_func_array(array($controller, $action), self::getParams());		 
+		// old code - call_user_func_array(array($controller, $action), self::getParams());
+		$controller->execute($action, self::getParams());
 
 		CDebug::addMessage('params', 'running_controller', (!empty($errorClass) ? $errorClass : $class));
 		CDebug::addMessage('params', 'running_action', $action);		

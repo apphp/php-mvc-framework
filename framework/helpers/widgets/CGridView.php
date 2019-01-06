@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE (static):		
@@ -45,14 +45,18 @@ class CGridView extends CWidgs
      *   - 'sourceField'=>'' - used to show data from another field
      *   - 'callback'=>array('class'=>'className', 'function'=>'functionName', 'params'=>$functionParams)
      *      callback of closure function that is called when item created (available for labels only), $record - all current record
-     *      <  5.3.0 function functionName($record, $params){ return record['field_name']; }
-     *      >= 5.3.0 $functionName = function($record, $params){ return record['field_name']; }
+     *      PHP_VERSION >= 5.3.0 $functionName = function($record, $params){ return record['field_name']; }
      *      Ex.: function callbackFunction($record, $params){...}
+     *   - 'trigger'=>array('trigger_key'=>'field name', 'trigger_operation'=>'!=', 'trigger_value'=>'0', 'success_value'=>'0', 'wrong_value'=>'0'),
+     *   	trigger is used for changing field valut depending on simple condition
+     *   	Ex.: 'trigger'=>array('trigger_key'=>'is_active', 'trigger_operation'=>'==', 'trigger_value'=>'1', 'success_value'=>A::t('app', 'Active), 'wrong_value'=>''),
      *   - select classes: 'class'=>'chosen-select-filter' or 'class'=>'chosen-select'
+     *   - Encryption for standard label or html fields: 'encryption'=>array('enabled'=>CConfig::get('text.encryption'), 'encryptAlgorithm'=>CConfig::get('text.encryptAlgorithm'), 'encryptKey'=>CConfig::get('text.encryptKey'))
      *   
      *   *** SORTING:
      *   - 'sortType'=>'string|numeric' - defines soritng type ('string' is default)
      *   - 'sortBy'=>'' - defines field to perform sorting by
+     *   - 'changeOrder'=>true - allowd to change rows order from main view by clicking of arrows
      *   
      *   *** FILTERING:
      *   - to perform search by few fields define them comma separated: 'field1,field2' => array(...)
@@ -91,7 +95,7 @@ class CGridView extends CWidgs
      *    	 'field_1' 	=> array('title'=>'Field 1', 'type'=>'textbox', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'', 'maxLength'=>'', 'htmlOptions'=>array()),
      *    	 'field_2' 	=> array('title'=>'Field 2', 'type'=>'textbox', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'', 'maxLength'=>'', 'autocomplete'=>array('enable'=>true, 'ajaxHandler'=>'path/to/handler/file', 'minLength'=>3, 'returnId'=>true), 'htmlOptions'=>array()),
      *    	 'field_3' 	=> array('title'=>'Field 3', 'type'=>'enum', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'', 'source'=>array('0'=>'No', '1'=>'Yes'), 'emptyOption'=>true, 'emptyValue'=>'', 'htmlOptions'=>array('class'=>'chosen-select-filter')),
-     *    	 'field_4' 	=> array('title'=>'Field 4', 'type'=>'datetime', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'80px', 'maxLength'=>'', 'format'=>'', 'htmlOptions'=>array()),
+     *    	 'field_4' 	=> array('title'=>'Field 5', 'type'=>'datetime', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'80px', 'maxLength'=>'', 'format'=>'', 'htmlOptions'=>array(), 'viewType'=>'datetime|date|time'),
      *    ),
 	 *    'fields'	=> array(
 	 *       'field_1' => array('title'=>'Field 1', 'type'=>'index', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>false),
@@ -100,9 +104,9 @@ class CGridView extends CWidgs
 	 *       'field_4' => array('title'=>'Field 4', 'type'=>'datetime', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'format'=>''),
 	 *       'field_5' => array('title'=>'Field 5', 'type'=>'enum', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerTooltip'=>'', 'headerClass'=>'center', 'isSortable'=>true, 'source'=>array('0'=>'No', '1'=>'Yes')),
 	 *       'field_6' => array('title'=>'Field 6', 'type'=>'image', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerTooltip'=>'', 'headerClass'=>'center', 'isSortable'=>false, 'imagePath'=>'images/flags/', 'defaultImage'=>'', 'imageWidth'=>'16px', 'imageHeight'=>'16px', 'alt'=>'', 'showImageInfo'=>true),
-	 *       'field_7' => array('title'=>'Field 7', 'type'=>'label', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'stripTags'=>false, 'case'=>'', 'maxLength'=>'', 'showTooltip'=>true, 'callback'=>array('function'=>$functionName, 'params'=>$functionParams)),
-	 *       'field_8' => array('title'=>'Field 8', 'type'=>'html', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'stripTags'=>false, 'case'=>'', 'maxLength'=>'', 'showTooltip'=>true, 'callback'=>array('function'=>$functionName, 'params'=>$functionParams)),
-	 *       'field_9' => array('title'=>'Field 9', 'type'=>'link', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerTooltip'=>'', 'headerClass'=>'center', 'isSortable'=>false, 'linkUrl'=>'path/to/param/{field_name}', 'linkText'=>'{field_name}|free text', 'definedValues'=>array(), 'htmlOptions'=>array()),
+	 *       'field_7' => array('title'=>'Field 7', 'type'=>'label', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>true, 'changeOrder'=>false, 'definedValues'=>array(), 'stripTags'=>false, 'case'=>'', 'maxLength'=>'', 'showTooltip'=>true, 'callback'=>array('function'=>$functionName, 'params'=>$functionParams), 'trigger'=>array('trigger_key'=>'', 'trigger_operation'=>'!=', 'trigger_value'=>'', 'success_value'=>'', 'wrong_value'=>'')),
+	 *       'field_8' => array('title'=>'Field 8', 'type'=>'html', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'stripTags'=>false, 'case'=>'', 'maxLength'=>'', 'showTooltip'=>true, 'callback'=>array('function'=>$functionName, 'params'=>$functionParams), 'trigger'=>array('trigger_key'=>'', 'trigger_operation'=>'!=', 'trigger_value'=>'', 'success_value'=>'', 'wrong_value'=>'')),
+	 *       'field_9' => array('title'=>'Field 9', 'type'=>'link', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerTooltip'=>'', 'headerClass'=>'center', 'isSortable'=>false, 'linkUrl'=>'path/to/param/{field_name}/page/{page}', 'linkText'=>'{field_name}|free text', 'definedValues'=>array(), 'htmlOptions'=>array()),
 	 *       'field_10' => array('title'=>'Field 10', 'type'=>'evaluation', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerTooltip'=>'', 'headerClass'=>'center', 'isSortable'=>false, 'minValue'=>1, 'maxValue'=>5, 'tooltip'=>A::t('app', 'Value'), 'counts'=>array('fieldName'=>'', 'title'=>A::t('app', 'Evaluations')), 'definedValues'=>array(), 'htmlOptions'=>array()),
 	 *       'field_11' => array('title'=>'Field 11', 'type'=>'template', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>false, 'sortBy'=>'', 'html'=>'{category_id}', 'fields'=>array('category_id'=>array('default'=>'', 'prefix'=>'', 'postfix'=>'', 'source'=>array()))),
 	 *    ),
@@ -146,6 +150,7 @@ class CGridView extends CWidgs
 		$onDeleteRecord 	= false;
 		
 		$baseUrl = A::app()->getRequest()->getBaseUrl();		
+		$page = A::app()->getRequest()->getQuery('page', 'integer', 1);
 
 		// Get pure model name
 		$namespace = explode('\\', $model);
@@ -298,8 +303,8 @@ class CGridView extends CWidgs
                     }
 					
 					$output .= !empty($title) ? $title.': ' : '';
-					switch($type){
-	
+					
+					switch($type){	
 						case 'enum':
 							$source = isset($fValue['source']) ? $fValue['source'] : array();
 							$emptyOption = isset($fValue['emptyOption']) ? (bool)$fValue['emptyOption'] : false;
@@ -319,38 +324,74 @@ class CGridView extends CWidgs
 							}
 							$output .= '&nbsp;'.self::NL;
 							break;
-	
-						case 'datetime':
-							$format = isset($fieldInfo['format']) ? $fieldInfo['format'] : 'yy-mm-dd';
-							$htmlOptions['maxlength'] = $maxLength;
-							$htmlOptions['style'] = $width;
+
+                        case 'datetime':
+						case 'datetimepicker':
+                            $format = !empty($fValue['format']) ? $fValue['format'] : 'yy-mm-dd';
+                            $viewType = !empty($fValue['viewType']) ? $fValue['viewType'] : 'date';
+
+                            $htmlOptions['maxlength'] = $maxLength;
+                            $htmlOptions['style'] = $width;
                             if($filterMegaMenu && !empty($title)){
                                 $htmlOptions['class'] = !empty($htmlOptions['class']) ? $htmlOptions['class'] : 'form-control';
                             }
-							$output .= CHtml::textField($fName, $fieldValue, $htmlOptions);
-							A::app()->getClientScript()->registerCssFile('assets/vendors/jquery/jquery-ui.min.css');
-							// UI:
-							//		dateFormat: dd/mm/yy | d M, y | mm/dd/yy  | yy-mm-dd 
-							// Bootstrap:
-							// 		dateFormat: dd/mm/yyyy | d M, y | mm/dd/yyyy  | yyyy-mm-dd
-							//		autoclose: true,
-							A::app()->getClientScript()->registerScript(
-								'datepicker_'.self::$_pickerCount++,
-								'jQuery("#'.$fId.'").datepicker({
-									showOn: "button",
-									buttonImage: "assets/vendors/jquery/images/calendar.png",
-									buttonImageOnly: true,
-									showWeek: false,
-									firstDay: 1,
-									autoclose: true,
-									format: "'.($format == 'yy-mm-dd' ? 'yyyy-mm-dd' : $format).'",
-									dateFormat: "'.$format.'",
-									changeMonth: true,
-									changeYear: true,
-									appendText : ""
-								});'
-							);
-							break;
+                            $output .= CHtml::textField($fName, $fieldValue, $htmlOptions);
+                            A::app()->getClientScript()->registerCssFile('assets/vendors/jquery/jquery-ui.min.css');
+                            A::app()->getClientScript()->registerCssFile('assets/vendors/datetimepicker/jquery-ui-timepicker-addon.css');
+
+                            // It's better if it was alredy added in template file
+                            // A::app()->getClientScript()->registerScriptFile('assets/vendors/jquery/jquery-ui.min.js', 2);
+                            A::app()->getClientScript()->registerScriptFile('assets/vendors/datetimepicker/jquery-ui-timepicker-addon.js', 2);
+                            A::app()->getClientScript()->registerScriptFile('assets/vendors/datetimepicker/i18n/jquery-ui-timepicker-addon-i18n.min.js', 2);
+                            A::app()->getClientScript()->registerScriptFile('assets/vendors/datetimepicker/jquery-ui-sliderAccess.js', 2);
+
+                            // UI:
+                            //		dateFormat: dd/mm/yy | d M, y | mm/dd/yy  | yy-mm-dd
+                            // Bootstrap:
+                            // 		dateFormat: dd/mm/yyyy | d M, y | mm/dd/yyyy  | yyyy-mm-dd
+                            //		autoclose: true,
+                            if($viewType == 'datetime' || $viewType == 'date'){
+                                A::app()->getClientScript()->registerScript(
+                                    'datetimepicker_'.self::$_pickerCount++,
+                                    'jQuery("#'.$fId.'").datetimepicker({
+                                        showOn: "button",
+                                        buttonImage: "assets/vendors/jquery/images/calendar.png",
+                                        buttonImageOnly: true,
+                                        showWeek: false,
+                                        firstDay: 1,
+                                        autoclose: true,						
+                                        format: "'.($format == 'yy-mm-dd' ? 'yyyy-mm-dd' : $format).'",
+                                        dateFormat: "'.$format.'",
+                                        changeMonth: true,
+                                        changeYear: true,							
+                                        hourMin: 0,
+                                        hourMax: 23,
+                                        isRTL: '.(A::app()->getLanguage('direction') == 'rtl' ? 'true' : 'false').',
+                                        showTimepicker: '.($viewType == 'datetime' ? 'true' : 'false').',
+                                        '.($viewType == 'datetime' ? 'timeInput: true,' : '').'
+                                        '.($viewType == 'datetime' ? 'timeFormat: "hh:mm",' : '').'
+                                        appendText : ""
+                                    });'
+                                );
+                            }elseif($viewType = 'time'){
+                                A::app()->getClientScript()->registerScript(
+                                    'timepicker'.self::$_pickerCount++,
+                                    'jQuery("#'.$fId.'").timepicker({
+                                        showOn: "button",
+                                        buttonImage: "assets/vendors/jquery/images/calendar.png",
+                                        buttonImageOnly: true,
+                                        autoclose: true,						
+                                        hourMin: 0,
+                                        hourMax: 23,
+                                        isRTL: '.(A::app()->getLanguage('direction') == 'rtl' ? 'true' : 'false').',
+                                        showTimepicker: '.($viewType = 'datetime' ? 'true' : '').',
+                                        timeInput: true,
+                                        timeFormat: "hh:mm",
+                                        appendText : ""
+                                    });'
+                                );
+                            }
+                            break;
 	
 						case 'textbox':
 						default:						
@@ -552,6 +593,44 @@ class CGridView extends CWidgs
             return '';
         }
 		
+		// Replacing rows
+		// ---------------------------------------
+		$act = A::app()->getRequest()->getQuery('act', 'alpha', '');
+		if($act == 'replace'){
+			$replaceField = A::app()->getRequest()->getQuery('replace_field', 'dbfield', '');
+			if(isset($fields[$replaceField])){
+				$replaceIds = A::app()->getRequest()->getQuery('replace_ids', 'dbfield', '');
+				$replaceIdsParts = explode('-', $replaceIds);
+				$id1 = ! empty($replaceIdsParts[0]) ? (int)$replaceIdsParts[0] : 0;
+				$id2 = ! empty($replaceIdsParts[1]) ? (int)$replaceIdsParts[1] : 0;
+				$record1 = $objModel->findByPk($id1);
+				if($record1){
+					$val1 = $record1->$replaceField;
+					$val2 = '';
+					$record2 = $objModel->findByPk($id2);
+					if($record2){
+						$val2 = $record2->$replaceField;
+					}
+					if($val1 != '' && $val2 != ''){
+						$objModel->updateByPk($id1, array($replaceField=>$val2));
+						$objModel->updateByPk($id2, array($replaceField=>$val1));
+						A::app()->getSession()->setFlash('alert', A::t('core', 'The changing order operation has been successfully completed!'));
+						A::app()->getSession()->setFlash('alertType', 'success');
+						
+						// Add sorting and custom parameters to URL
+						$searchActionPath = $actionPath;
+						$separateSymbol = preg_match('/\?/', $searchActionPath) ? '&' : '?';
+						$searchActionPath .= self::_additionalParams($passParameters, $linkType, $separateSymbol);
+						$separateSymbol = preg_match('/\?/', $searchActionPath) ? '&' : '?';
+						$searchActionPath .= self::_customParams($customParameters, $linkType, $separateSymbol);
+						
+						header('location: '.$baseUrl.$searchActionPath);
+						exit;
+					}
+				}
+			}
+		}
+		
 		if($pagination){			
 			$currentPage = A::app()->getRequest()->getQuery('page', 'integer', 1);
 			$totalRecords = self::_countAllRecords($objModel, array('condition'=>$whereClause, 'group'=>$groupBy));
@@ -648,11 +727,13 @@ class CGridView extends CWidgs
 			for($i = 0; $i < $totalPageRecords; $i++){
 				$output .= CHtml::openTag('tr', array('id'=>'tr'.$modelName.'_'.self::$_rowCount++)).self::NL;
 				$id = (isset($records[$i]['id'])) ? $records[$i]['id'] : '';
+				$prevId = (isset($records[$i-1]['id'])) ? $records[$i-1]['id'] : '';
+				$nextId = (isset($records[$i+1]['id'])) ? $records[$i+1]['id'] : '';
 				
 				// ----------------------------------------------
 				// Display columns in each row
 				// ----------------------------------------------
-				foreach($fields as $key => $val){					
+				foreach($fields as $key => $val){
 
 					// Check if we want to use another field as a "source field"
 					$sourceField = self::keyAt('sourceField', $val, '');
@@ -674,6 +755,7 @@ class CGridView extends CWidgs
 					$fieldValueOriginal = $fieldValue;
 					$aggregateFunction 	= self::keyAt('aggregate.function', $val, '');
 					$aggregateFunction 	= in_array(strtolower($aggregateFunction), array('sum', 'avg')) ? strtolower($aggregateFunction) : '';
+					$changeOrder 		= (bool)self::keyAt('changeOrder', $val, false);
 					
 					$fieldOutput = '';
 					switch($type){
@@ -691,7 +773,7 @@ class CGridView extends CWidgs
 							break;
 						
                         case 'decimal':
-							$decimalPoints = (int)self::keyAt('decimalPoints', $val, '');
+							$decimalPoints = (int)self::keyAt('decimalPoints', $val, 0);
                             if($format === 'european'){
 								// 1,222.33 => '1.222,33'
 								$fieldValue = str_replace(',', '', $fieldValue);
@@ -756,10 +838,15 @@ class CGridView extends CWidgs
 							// Replace for linkURL
                             if(preg_match_all('/{(.*?)}/i', $linkUrl, $matches)){
                                 if(isset($matches[1]) && is_array($matches[1])){
-                                    foreach($matches[1] as $kKey => $kVal){
-                                        $kValValue = (isset($records[$i][$kVal])) ? $records[$i][$kVal] : ''; 
-                                        $linkUrl = str_ireplace('{'.$kVal.'}', $kValValue, $linkUrl);
-                                    }                                
+                                    foreach($matches[1] as $kKey => $kVal){										
+										if($kVal == 'page' && $pagination){
+											$currentPage = A::app()->getRequest()->getQuery('page', 'integer', 1);
+											$linkUrl = str_ireplace('{'.$kVal.'}', $currentPage, $linkUrl);
+										}else{
+											$kValValue = (isset($records[$i][$kVal])) ? $records[$i][$kVal] : ''; 
+											$linkUrl = str_ireplace('{'.$kVal.'}', $kValValue, $linkUrl);
+										}
+                                    }
                                 }
                             }
 							
@@ -781,8 +868,7 @@ class CGridView extends CWidgs
 							$fieldOutput .= CHtml::link($linkText, $linkUrl, $htmlOptions);
 							break;
 						
-						case 'evaluation':
-							
+						case 'evaluation':							
 							$minValue = self::keyAt('minValue', $val, 1);
 							$maxValue = self::keyAt('maxValue', $val, 5);
 							
@@ -800,7 +886,7 @@ class CGridView extends CWidgs
 							$fieldOutput .= CHtml::tag('label', array('class'=>'stars tooltip-link', 'title'=>$titleText), '<label style="width:'.$size.'px;"></label>');
 							break;
 
-						case 'template':
+						case 'template':							
 							$htmlCode = self::keyAt('html', $val, '');
 							$templateFields = self::keyAt('fields', $val, array());
 							$templateSources = self::keyAt('sources', $val, array());
@@ -838,25 +924,67 @@ class CGridView extends CWidgs
 						
 						case 'html':
 						case 'label':
-						default:
+						default:							
+							$fieldEncryption = (bool)self::keyAt('encryption.enabled', $val, false);
+							if($fieldEncryption){
+								$encryptAlgorithm = self::keyAt('encryption.encryptAlgorithm', $val, '');
+								$encryptKey = self::keyAt('encryption.encryptKey', $val, '');
+								if(empty($fieldValue)){
+									$fieldValue = '';
+								}else{
+									$fieldValue = CHash::decrypt($fieldValue, $encryptKey, $encryptAlgorithm);
+								}
+							}
+							
+							// Trigger
+							$triggerKey = self::keyAt('trigger.trigger_key', $val);
+							$triggerOperation = self::keyAt('trigger.trigger_operation', $val);
+							$triggerValue = self::keyAt('trigger.trigger_value', $val);
+							$successValue = self::keyAt('trigger.success_value', $val);
+							$wrongValue = self::keyAt('trigger.wrong_value', $val);							
+							if(!empty($triggerKey)){
+								if(isset($records[$i][$triggerKey])){
+									switch($triggerOperation){
+										case '>':
+											$fieldValue = ($records[$i][$triggerKey] > $triggerValue) ? $successValue : $wrongValue;
+											break;
+										case '>=':
+											$fieldValue = ($records[$i][$triggerKey] >= $triggerValue) ? $successValue : $wrongValue;
+											break;
+										case '<':
+											$fieldValue = ($records[$i][$triggerKey] < $triggerValue) ? $successValue : $wrongValue;
+											break;
+										case '<=':
+											$fieldValue = ($records[$i][$triggerKey] <= $triggerValue) ? $successValue : $wrongValue;
+											break;
+										case '!=':
+											$fieldValue = ($records[$i][$triggerKey] != $triggerValue) ? $successValue : $wrongValue;
+											break;
+										default:
+											$fieldValue = ($records[$i][$triggerKey] == $triggerValue) ? $successValue : $wrongValue;
+											break;
+									}
+								}
+							}
+								
 							// Call of closure function on item creating event
 							$callbackClass = self::keyAt('callback.class', $val);
 							$callbackFunction = self::keyAt('callback.function', $val);
 							$callbackParams = self::keyAt('callback.params', $val, array());
                             if(!empty($callbackFunction)){
                                 if(!empty($callbackClass) && class_exists($callbackClass)){
-                                    // Calling a method class
+                                    // Call a class method
                                     $callbackObject = new $callbackClass();
                                     if(method_exists($callbackObject, $callbackFunction) && is_callable(array($callbackObject, $callbackFunction))){
-                                        // For PHP_VERSION | phpversion() >= 5.3.0 you may use
-                                        // $fieldValue = $callbackObject::$callbackFunction($records[$i], $callbackParams);
-                                        $fieldValue = call_user_func(array($callbackObject, $callbackFunction), $records[$i], $callbackParams);
+                                        $fieldValue = $callbackObject::$callbackFunction($records[$i], $callbackParams);
+                                        /// DEPRECATED 01.12.2018 - for PHP_VERSION | phpversion() < 5.3.0
+										/// $fieldValue = call_user_func(array($callbackObject, $callbackFunction), $records[$i], $callbackParams);
                                     }
                                 }elseif(is_callable($callbackFunction)){
-                                    // Calling a function
-                                    // For PHP_VERSION | phpversion() >= 5.3.0 you may use
-                                    // $fieldValue = $callbackFunction($records[$i], $callbackParams);
-                                    $fieldValue = call_user_func($callbackFunction, $records[$i], $callbackParams);
+                                    // Call a function
+                                    $fieldValue = $callbackFunction($records[$i], $callbackParams);
+									/// DEPRECATED 01.12.2018 - for PHP_VERSION | phpversion() < 5.3.0
+                                    /// $fieldValue = call_user_func($callbackFunction, $records[$i], $callbackParams);
                                 }
 							}
 
@@ -893,7 +1021,22 @@ class CGridView extends CWidgs
 								}
 							}
 							
-							$fieldOutput .= $fieldValue;
+							$changeOrderLink = '';
+                            if($changeOrder){
+								$changeOrderUrl = $baseUrl.$actionPath;
+								$changeOrderUrl .= !empty($sortUrl) ? '?'.$sortUrl : '';
+								$changeOrderUrl .= !empty($filterUrl) ? (empty($sortUrl) ? '?' : '&').$filterUrl : '';
+								$changeOrderUrl .= (empty($sortUrl) && empty($filterUrl) ? '?' : '&');
+								
+								if($i > 0){
+									$changeOrderLink = ' <a style="text-decoration:none;" href="'.$changeOrderUrl.'act=replace&replace_field='.$key.'&replace_ids='.$id.'-'.$prevId.(!empty($page) ? '&page='.$page : '').'" title="'.A::te('core', 'Move Up').'" onclick="javascript:void()">&#9650;</a>';
+								}
+								if($i < $totalPageRecords - 1){
+									$changeOrderLink .= '<a style="text-decoration:none;" href="'.$changeOrderUrl.'act=replace&replace_field='.$key.'&replace_ids='.$id.'-'.$nextId.(!empty($page) ? '&page='.$page : '').'" title="'.A::te('core', 'Move Down').'" onclick="javascript:void()">&#9660;</a>';
+								}
+                            }
+							
+							$fieldOutput .= $fieldValue.$changeOrderLink;
 							break;
 					}
 					

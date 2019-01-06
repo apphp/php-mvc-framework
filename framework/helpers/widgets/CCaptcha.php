@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
@@ -39,6 +39,7 @@ class CCaptcha extends CWidgs
 		$type 			= self::params('type', 'math');
 		$required 		= (bool)self::params('required', true);
         $name 			= self::params('name', 'captchaResult');
+		$value 			= self::params('value', '');
         $id             = self::params('id', 'captcha_validation');
         $return 		= (bool)self::params('return', true);
 
@@ -58,7 +59,7 @@ class CCaptcha extends CWidgs
             
         $output .= CHtml::openTag('div', array('class'=>'captcha'));
         $output .= CHtml::tag('label', array(), $requiredMark.A::t('core', 'How much it will be').'<br><span class="captcha-match">'.$firstDigit.' '.$operator.' '.$secondDigit.' = ?</span>').self::NL;
-        $output .= CHtml::textField($id, '', array('class'=>'captcha-result', 'autocomplete'=>'off', 'data-required'=>($required ? 'true' : 'false'), 'maxlength'=>'20')).self::NL;
+        $output .= CHtml::textField($id, $value, array('class'=>'captcha-result', 'autocomplete'=>'off', 'data-required'=>($required ? 'true' : 'false'), 'maxlength'=>'20')).self::NL;
         $output .= CHtml::closeTag('div').self::NL;
 		
         if($return) return $output;

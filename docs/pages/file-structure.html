@@ -7,6 +7,17 @@ Below the File Structure for standard application:
         <b>assets/</b> <span class="description">directory where placed all asset files</span>
         <ul>
             <li class="folder-protected">
+                <b>minified/</b> <span class="description">directory for storing minified files</span><br>
+                <ul>
+                    <li class="folder-protected">
+                        <b>css/</b> <span class="description">CSS minified files</span><br>
+                    </li>
+                    <li class="folder-protected">
+                        <b>js/</b> <span class="description">JS minified files</span><br>
+                    </li>
+                </ul>
+            </li>
+            <li class="folder-protected">
                 <b>modules/</b> <span class="description">directory for storing application modules</span><br>
             </li>
             <li class="folder-protected">
@@ -127,23 +138,43 @@ Below the File Structure for standard application:
 <code>templates/.htaccess</code> - htaccess file denies access to all PHP files in templates directory <a class="hashlink" href="#htaccess-templates">¶</a>
 <pre name="dlhl" class="php">
 &lt;FILES ~ "\.php$"&gt;
-Order allow,deny  
-Deny from all  
+order allow,deny  
+deny from all  
 &lt;/FILES&gt;</pre>
 
 <a name="htaccess-main"></a><br>
 <code>.htaccess</code> - htaccess file converts all requests into url parameter and perform following directives <a class="hashlink" href="#htaccess-main">¶</a>
-<pre name="dlhl" class="php">
-RewriteEngine On
+<pre name="dlhl" class="php"># Rewrite URL rules
+&lt;IfModule mod_rewrite.c&gt;
+    RewriteEngine On
+    
+    # Exclude images from rewriting rules
+    RewriteCond %{REQUEST_URI} !(\.gif|\.jpg|\.jpeg|\.png|\.bmp)$ [NC]
+    # Exclude fonts from rewriting rules
+    RewriteCond %{REQUEST_URI} !(\.eot|\.woff|\.woff2|\.svg)$ [NC]
+    # Exclude css files from rewriting rules
+    RewriteCond %{REQUEST_URI} !(\.css)$ [NC] 
+    # Exclude Javascript files from rewriting rules
+    RewriteCond %{REQUEST_URI} !(\.js)$ [NC]
 
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-l
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-l
+    
+    # Rewrite all other URLs to index.php/URL
+    RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+&lt;/IfModule&gt;
 
-# Rewrite all other URLs to index.php/URL
-RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+# Error document
+&lt;IfModule !mod_rewrite.c&gt;
+    ErrorDocument 404 index.php
+&lt;/IfModule&gt;
 
-# Recommended directive to disable directory browsing
+&lt;Limit PUT DELETE&gt;
+    order deny,allow
+    deny from all
+&lt;/Limit&gt;
+
 Options All -Indexes</pre>
 
 <a name="index-main"></a><br>

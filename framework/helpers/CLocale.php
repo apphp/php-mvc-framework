@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
@@ -14,6 +14,7 @@
  * getDateTimeFormats
  * getDateFormats
  * getTimeFormats
+ * getShortTimeFormats
  * 
  */	  
 
@@ -53,7 +54,9 @@ class CLocale
 		'h:i A' 		=> array('preview' => '[ h:i A ]', 				'converted_format' => '%h:%i %A'),
 		'g:i a' 		=> array('preview' => '[ g:i a ]', 				'converted_format' => '%g:%i %a'),
 		'g:i A' 		=> array('preview' => '[ g:i A ]', 				'converted_format' => '%g:%i %A'),
-		
+	);
+
+	protected static $_arrShortTimeFormats = array(
 		'H:i' 			=> array('preview' => '[ H:i ]', 				'converted_format' => '%H:%i'),
 		'h:i' 			=> array('preview' => '[ h:i ]', 				'converted_format' => '%h:%i'),
 		'g:i' 			=> array('preview' => '[ g:i ]', 				'converted_format' => '%g:%i'),
@@ -128,7 +131,7 @@ class CLocale
 			$dayParts 	= explode(' ', $day);
 			$day 		= isset($day[0]) ? $dayParts[0] : '';
 	
-			$convertedFormat = isset($dateFormat['converted_format']) ? $dateFormat['converted_format'] : '';		
+			$convertedFormat = isset($dateFormat['converted_format']) ? $dateFormat['converted_format'] : '';
 		}elseif(isset(self::$_arrTimeFormats[$format])){
 			$dateFormat = self::$_arrTimeFormats[$format];
 			
@@ -147,6 +150,22 @@ class CLocale
 			
 			$amPm		= ($hour24 < 12) ? A::t('i18n', 'amName') : A::t('i18n', 'pmName');
 			
+			$convertedFormat = isset($dateFormat['converted_format']) ? $dateFormat['converted_format'] : '';
+		}elseif(isset(self::$_arrShortTimeFormats[$format])){
+			$dateFormat = self::$_arrShortTimeFormats[$format];
+
+			if(strlen($date) > 5){
+				$parts 	= explode(' ', $date);
+				$timeParts	= isset($parts[1]) ? explode(':', $parts[1]) : array();
+			}else{
+				$timeParts	= explode(':', $date);
+			}
+
+			$hour 		= isset($timeParts[0]) ? $timeParts[0] : '';
+			$hour24 	= $hour;
+			$hour12 	= ($hour >= 13 ? $hour - 12 : $hour);
+			$minute 	= isset($timeParts[1]) ? $timeParts[1] : '';
+
 			$convertedFormat = isset($dateFormat['converted_format']) ? $dateFormat['converted_format'] : '';
 		}else{
 			$result = date($format, strtotime($date));
@@ -342,6 +361,20 @@ class CLocale
 		}
 		
 		return $result;	
-	}	
+	}
 
+	/**
+	 * Returns array of short time formats supported by system
+	 * @return array
+	 */
+	public static function getShortTimeFormats()
+	{
+		$result = array();
+
+		foreach(self::$_arrShortTimeFormats as $key => $timeFormat){
+			$result[$key] = $timeFormat['preview'];
+		}
+
+		return $result;
+	}
 }

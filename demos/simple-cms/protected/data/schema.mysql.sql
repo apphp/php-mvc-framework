@@ -1,17 +1,43 @@
 
+DROP TABLE IF EXISTS `<DB_PREFIX>modules`;
+CREATE TABLE IF NOT EXISTS `<DB_PREFIX>modules` (
+  `id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `code` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `class_code` varchar(20) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `name` varchar(40) CHARACTER SET latin1 NOT NULL,
+  `description` varchar(255) CHARACTER SET latin1 NOT NULL,
+  `version` varchar(5) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `icon` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `show_on_dashboard` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `show_in_menu` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `is_installed` tinyint(1) NOT NULL DEFAULT '0',
+  `is_system` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `is_active` tinyint(1) NOT NULL DEFAULT '0',
+  `installed_at` datetime NULL DEFAULT NULL,
+  `updated_at` datetime NULL DEFAULT NULL,
+  `has_test_data` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '0 - no, 1 - yes',
+  `sort_order` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;
+
+
 DROP TABLE IF EXISTS `<DB_PREFIX>settings`;
 CREATE TABLE IF NOT EXISTS `<DB_PREFIX>settings` (
   `id` int(11) unsigned NOT NULL,
+  `ssl_mode` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '0 - no, 1 - entire site, 2 - admin area, 3 - user area, 4 - payment modules',
   `site_name` varchar(100) NOT NULL,
   `slogan` varchar(250) NOT NULL,
   `footer` varchar(250) NOT NULL,
   `metatag_title` varchar(250) DEFAULT NULL,
   `metatag_keywords` varchar(250) DEFAULT NULL,
-  `metatag_description` varchar(250) DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  `metatag_description` varchar(250) DEFAULT NULL,
+  `is_offline` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `offline_message` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `time_zone` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0'
+  ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-INSERT INTO `<DB_PREFIX>settings` (`id`, `site_name`, `slogan`, `footer`, `metatag_title`, `metatag_keywords`, `metatag_description`) VALUES
-(1, 'Simple CMS', 'your slogan here...', 'ApPHP Simple CMS &copy;', 'Simple CMS', 'apphp framework, cms, apphp', 'ApPHP SimpleCMS - Content Management System');
+INSERT INTO `<DB_PREFIX>settings` (`id`, `ssl_mode`, `site_name`, `slogan`, `footer`, `metatag_title`, `metatag_keywords`, `metatag_description`, `is_offline`, `offline_message`, `time_zone`) VALUES
+(1, 0, 'Simple CMS', 'your slogan here...', 'ApPHP Simple CMS &copy;', 'Simple CMS', 'apphp framework, cms, apphp', 'ApPHP SimpleCMS - Content Management System', '0', '', '');
 
 
 DROP TABLE IF EXISTS `<DB_PREFIX>pages`;
@@ -53,7 +79,7 @@ CREATE TABLE IF NOT EXISTS `<DB_PREFIX>admins` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(25) CHARACTER SET latin1 NOT NULL,
   `password` varchar(64) CHARACTER SET latin1 NOT NULL,
-  `salt` varchar(40) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `salt` varchar(64) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `display_name` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `first_name` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
   `last_name` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
@@ -67,4 +93,4 @@ CREATE TABLE IF NOT EXISTS `<DB_PREFIX>admins` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
 
 INSERT INTO `<DB_PREFIX>admins` (`id`, `username`, `password`, `salt`, `display_name`, `first_name`, `last_name`, `email`, `role`, `created_at`, `updated_at`, `last_visited_at`, `is_active`) VALUES
-(1, '<USERNAME>', '<PASSWORD>', '', '', '', '', '<EMAIL>', 'owner', '<CREATED_AT>', NULL, NULL, 1);
+(1, '<USERNAME>', '<PASSWORD>', '<SALT>', '', '', '', '<EMAIL>', 'owner', '<CREATED_AT>', NULL, NULL, 1);

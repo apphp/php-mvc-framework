@@ -23,7 +23,7 @@
 Database manipulation classes representes the "Model" layer as it defined in MVC. ApPHP framework contains
 core class called Model for the implementation of database models. Description classes for entities used
 in applications must extend this class. Model class files must be located in subdirectory 
-<code>protected/models/</code> inside the application directory. There are some table names that reserved for system needs:
+<code>protected/models/</code> inside the application directory. There are some table names that were reserved for system needs:
 table names that end with <code>_translations</code>, <code>_description</code> or <code>site_info</code>.
 <br /><br />
 
@@ -149,13 +149,13 @@ queryRow, queryColumn, or queryScalar.
 
 <pre name="dlhl" class="php">
 $accounts = CDatabase::init()->createCommand()
-    ->select('username, password')
+    ->select('*')
     ->from(CConfig::get('db.prefix').'accounts')
     ->order('id ASC')
     ->queryAll();
      
 $account = CDatabase::init()->createCommand()
-    ->select('username, password')
+    ->select('id, username, password')
     ->from(CConfig::get('db.prefix').'accounts')
     ->where('id=:id', array(':id'=>1))
     ->queryRow();
@@ -301,7 +301,7 @@ $page->save();
 </pre>
 
 If you defined the table's primary key as auto-incremental, the AR instance will contain an
-updated primary key adter sucessfull insertion. In the example above, the <code>id</code>
+updated primary key adter successfull insertion. In the example above, the <code>id</code>
 property will reflect the primary key value of the newly inserted post, even though we never
 change it explicitly.    
 <br><br>

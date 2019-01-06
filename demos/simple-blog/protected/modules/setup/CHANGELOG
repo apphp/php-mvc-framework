@@ -1,10 +1,18 @@
+Version 0.0.6 - 
+----------------------------
+- Enh: minor changes in view "ready" 
+- Bug: fixed issue with Magic Quotes in SetupController
+- Enh: added copying directories while setup
+- Enh: added possibility to ignore error on instalaltion
+-
+
 Version 0.0.5 - 
 ----------------------------
 - New: added new placeholder for SQL dump - <CREATED_AT>
 - New: added moving files for modules installation
 - New: added rollback copying to destination folders failed for modules
 - Bug: fixed issue with 'safe_mode' parameter in phpinfo()
--
+- Enh: added possibility to copy vocabulary file for all languages
 
 Version 0.0.4 - 05.06.2013
 ----------------------------
@@ -27,3 +35,4 @@ Version 0.0.2
 
 Version 0.0.1
 ----------------------------
+Initial release

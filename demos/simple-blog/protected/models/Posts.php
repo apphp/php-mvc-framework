@@ -52,7 +52,7 @@ class Posts extends CActiveRecord
 	protected function _afterDelete($pk = '')
 	{
         // use category ID saved on beforeDelete to call _updatePostsCount()
-        $this->updatePostsCount($this->category_id);
+        $this->_updatePostsCount($this->category_id);
 	}
     
     private function _updatePostsCount($pKey)

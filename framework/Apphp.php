@@ -5,14 +5,14 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC:					PROTECTED:					    PRIVATE:		
  * ----------               ----------                      ----------
  * __construct              _onBeginRequest                 _autoload
  * run                      _onEndRequest					_runApp
- * init (static)			_registerCoreComponents
+ * init (static)			_registerCoreComponents			
  * app (static)				_setComponent
  * powered (static)			_registerAppComponents
  * version (static)			_registerAppHelpers
@@ -50,6 +50,7 @@
  * setCurrency
  * getCurrency
  * isSetup
+ * errorHandler
  * 
  */
 
@@ -66,7 +67,7 @@ class A
 	
 
 	/** @var string */
-	private static $_frameworkVersion = '1.1.5';	
+	private static $_frameworkVersion = '1.2.2';
 	/** @var string */
 	private static $_phpVersion;
 	/** @var object */
@@ -87,13 +88,13 @@ class A
         'CRouter'       => 'core/CRouter.php',
         'CView'         => 'core/CView.php',
         
-        'CActiveRecord' => array('5.3.0'=>'db/CActiveRecord.php'),
+        'CActiveRecord' => array('5.4.0'=>'db/CActiveRecord.php'),
         'CDatabase'     => 'db/CDatabase.php',
         'CDbCommand'    => 'db/CDbCommand.php',
     );
     /** @var array */
     private static $_coreComponents = array(
-		'component'    	=> array('class' => 'CComponent', 		'path' => array('5.3.0'=>'components/CComponent.php')),
+		'component'    	=> array('class' => 'CComponent', 		'path' => array('5.4.0'=>'components/CComponent.php')),
         'clientScript'	=> array('class' => 'CClientScript', 	'path' => 'components/CClientScript.php'),
         'dbSession' 	=> array('class' => 'CDbHttpSession', 	'path' => 'components/CDbHttpSession.php'),
         'request'   	=> array('class' => 'CHttpRequest', 	'path' => 'components/CHttpRequest.php'),
@@ -129,6 +130,7 @@ class A
 		'COauth'        => 'helpers/COauth.php',
 		'CPdf'          => 'helpers/CPdf.php',
 		'CRss'          => 'helpers/CRss.php',
+		'CSessionCache' => 'helpers/CSessionCache.php',
 		'CSoap'         => 'helpers/CSoap.php',
         'CString'       => 'helpers/CString.php',
         'CTime'         => 'helpers/CTime.php',
@@ -153,7 +155,7 @@ class A
 	);
 	/** @var array */
 	private static $_appModules = array(
-		'setup' => array('classes' => array('Setup'))
+		'setup' => array('classes' => array('Modules\Setup\Controllers\Setup'))
 	);
 	/** @var array */	
 	private $_components = array(); 
@@ -167,7 +169,8 @@ class A
 	private $_language = null;
 	/** @var string */
 	private $_currency = null;
-
+	/** @var string */
+	private $_backendPath = '';
 
     /**
      * Class constructor
@@ -175,7 +178,9 @@ class A
      */
     public function __construct($configDir)
     {
-    	spl_autoload_register(array($this, '_autoload'));        
+		// Set autoload register method
+    	spl_autoload_register(array($this, '_autoload'));
+		
         // Include interfaces
         require(dirname(__FILE__).DS.'core'.DS.'interfaces.php');    
         
@@ -252,6 +257,11 @@ class A
             // Save configuration array in config class
             CConfig::load($arrConfig);
         }
+
+		// Set error handler method
+		if(CConfig::get('exceptionHandling.enable') && CConfig::get('exceptionHandling.level') === 'global'){
+			set_error_handler(array($this, 'errorHandler'));
+		}
     }	
  
     /**
@@ -460,9 +470,14 @@ class A
             if(isset(self::$_classMap[$pureClassType])){                
                 $classCoreDir = APPHP_PATH.DS.'protected'.DS.self::$_classMap[$pureClassType];    
                 $classFile = $classCoreDir.DS.$className.'.php';
-                
-				if(is_file($classFile)){
-                    include($classFile);
+				// Get backend directory
+				$backendClassFile = $classCoreDir.DS.$this->_backendPath.$className.'.php';
+
+				if(!empty($this->_backendPath) && is_file($backendClassFile)){
+					// First of all check if this controller is a backend controller
+					include($backendClassFile);
+				}elseif(is_file($classFile)) {
+					include($classFile);
                 }else{
 					// Look for class if namespacing is used (from v0.8.0)
 					$namespace = explode('\\', $className);
@@ -504,7 +519,10 @@ class A
 		// Global test for database
 		if(CConfig::get('db.driver') != ''){
 			$db = CDatabase::init();
-			if(!CAuth::isGuest()) $db->cacheOff();
+			if(CConfig::get('cache.enable') && !CAuth::isGuest()){
+				$db->cacheOff();
+				CDebug::addMessage('warnings', 'cache-off', A::t('core', 'Cache is On, but currently turned off because you are logged in'));
+			}
 		}
    
 		// Register application components
@@ -537,10 +555,10 @@ class A
     	if($component === null){
             unset($this->_components[$id]);		
     	}else{
-            // For PHP_VERSION | phpversion() >= 5.3.0 you may use
-            // $this->_components[$id] = $component::init();
-            if($callback = call_user_func_array($component.'::init', array())){
-                $this->_components[$id] = $callback;    
+            // For PHP_VERSION | phpversion() < 5.4.0 you may use
+			/// if($callback = call_user_func_array($component.'::init', array())){
+            if($callback = $component::init()){
+                $this->_components[$id] = $callback;
             }elseif(!in_array($component, array('CComponent'))){
                 CDebug::addMessage('warnings', 'missing-components', $component);    
             }            
@@ -985,6 +1003,16 @@ class A
     }
 
 	/**
+	 * Set backend path
+	 * @param string
+	 * @return string
+	 */
+	public function setBackendPath($backendPath = '')
+	{
+		$this->_backendPath = $backendPath;
+	}
+
+	/**
 	 * Returns current status (if setup or not)
 	 * @return bool
 	 */
@@ -992,6 +1020,37 @@ class A
 	{
 		return $this->_setup;
 	} 	
+
+    /**
+     * Errors handler
+     * @param str $className
+     * @return void
+     */
+    public function errorHandler($errno, $errstr, $errfile, $errline, array $errcontext)
+    {
+		// Error was suppressed with the @-operator
+		if (0 === error_reporting()) {
+			return false;
+		}
+		
+		switch($errno){
+			case E_ERROR:
+			case E_USER_ERROR:
+				throw new ErrorException($errstr, $errno);
+				break;
+			case E_NOTICE:
+			case E_USER_NOTICE:
+				CDebug::addMessage('warnings', 'notice-warnings', 'Notice: '.$errstr.PHP_EOL.CDebug::prepareBacktrace(), '');
+				break;
+			case E_WARNING:
+			case E_USER_WARNING:
+				CDebug::addMessage('warnings', 'warnings-messages', 'Warning: '.$errstr.PHP_EOL.CDebug::prepareBacktrace(), '');
+				break;
+			default:
+				CDebug::addMessage('warnings', 'errors-messages', 'Unknown Error: '.$errstr.PHP_EOL.CDebug::prepareBacktrace(), '');
+				break;
+		}
+	}
 
     /**
      * Registers the framework core components
@@ -1028,12 +1087,15 @@ class A
     /**
      * Registers application components
      * @see _setComponent
+	 * @return bool
      */
     protected function _registerAppComponents()
     {
-    	if(!is_array(CConfig::get('components'))) return false;
+		$components = CConfig::get('components');
+		if(!is_array($components)) return false;
+
 		$arrSetComponents = array();
-        foreach(CConfig::get('components') as $id => $component){
+        foreach($components as $id => $component){
             $enable = isset($component['enable']) ? (bool)$component['enable'] : false;
             $class = isset($component['class']) ? $component['class'] : '';
             $module = isset($component['module']) ? $component['module'] : '';
@@ -1049,31 +1111,39 @@ class A
             foreach($arrSetComponents as $id => $className){
                 $this->_setComponent($id, $className);
             }
-        }		
+        }
+		return true;
     }
 	
     /**
      * Registers application helpers
+	 * @return bool
      */
 	protected function _registerAppHelpers()
 	{
-		if(!is_array(CConfig::get('helpers'))) return false;
-		foreach(CConfig::get('helpers') as $id => $module){
+		$helpers = CConfig::get('helpers');
+		if(!is_array($helpers)) return false;
+
+		foreach($helpers as $id => $module){
             $enable = isset($module['enable']) ? (bool)$module['enable'] : false;
             $class = isset($module['class']) ? $module['class'] : '';
             if($enable && $class){
                 self::$_appHelpers[$class] = (!empty($module) ? 'modules/'.$module.'/' : '').'helpers/'.$class.'.php';
             }
 		}
+		return true;
 	}
 
     /**
      * Registers application modules
+	 * @return bool
      */
     protected function _registerAppModules()
     {
-     	if(!is_array(CConfig::get('modules'))) return false;
-        foreach(CConfig::get('modules') as $id => $module){
+		$modules = CConfig::get('modules');
+     	if(!is_array($modules)) return false;
+     	
+        foreach($modules as $id => $module){
             $enable = isset($module['enable']) ? (bool)$module['enable'] : false;
             if($enable){
                 $moduleName = strtolower($id);
@@ -1084,6 +1154,7 @@ class A
                 }
             }
         }
+		return true;
     }
     
 }

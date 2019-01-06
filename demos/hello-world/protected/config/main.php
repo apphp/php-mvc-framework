@@ -3,7 +3,7 @@
 return array(
     // application data
     'name'=>'Hello World',
-    'version'=>'0.0.1',
+    'version'=>'1.0.2',
 
     'defaultTemplate' => '',
 	

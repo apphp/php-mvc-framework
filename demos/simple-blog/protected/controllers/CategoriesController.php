@@ -91,7 +91,7 @@ class CategoriesController extends CController
     	
         $this->_view->setMetaTags('title', 'Categories | '.$this->_view->blogName);        
     	$this->_view->activeLink = 'edit_category';
-        $msgType = '';
+        $msgType = $msgText = '';
 
     	if(!empty($msg)){
             if($msg == 'delete_success'){

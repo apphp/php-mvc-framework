@@ -1,14 +1,12 @@
 <?php
 /**
  * CComponent is the base class for all components.
- * Compatible with PHP v5.3.0 or higher.
  *
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/
- * @version PHP 5.3.0 or higer
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ----------               ----------                  ---------- 
@@ -37,7 +35,6 @@ class CComponent
 	 * We use this method to avoid calling model($className = __CLASS__) in derived class
 	 * @param string $method
 	 * @param array $args
-	 * @version PHP 5.3.0 or higher
 	 * @return mixed
 	 */
 	public static function __callStatic($method, $args)

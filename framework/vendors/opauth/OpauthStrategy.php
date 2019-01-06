@@ -81,12 +81,11 @@ class OpauthStrategy{
 		/**
 		 * Additional helpful values
 		 */
-		$this->strategy['path_to_strategy'] = $this->env['path'].$this->strategy['strategy_url_name'].'/';
+		$this->strategy['path_to_strategy'] = $this->env['path'].$this->strategy['strategy_url_name'].'/cb/';
 		$this->strategy['complete_url_to_strategy'] = $this->env['host'].$this->strategy['path_to_strategy'];
-		
 
 		$dictionary = array_merge($this->env, $this->strategy);
-		foreach ($this->strategy as $key=>$value){
+		foreach($this->strategy as $key=>$value){
 			$this->strategy[$key] = $this->envReplace($value, $dictionary);
 		}
 	}
@@ -159,7 +158,7 @@ class OpauthStrategy{
 	 * 
 	 */
 	private function shipToCallback($data, $transport = null){
-		if (empty($transport)) $transport = $this->env['callback_transport'];
+		if(empty($transport)) $transport = $this->env['callback_transport'];
 		
 		switch($transport){
 			case 'get':
@@ -170,10 +169,13 @@ class OpauthStrategy{
 				break;
 			case 'session':
 			default:
-				if (!isset($_SESSION)){
+				if(!isset($_SESSION)){
 					session_start();
 				}
+
+				if(isset($_SESSION['opauth'])) unset($_SESSION['opauth']);
 				$_SESSION['opauth'] = $data;
+
 				$this->redirect($this->env['callback_url']);
 		}
 	}
@@ -185,7 +187,7 @@ class OpauthStrategy{
 	 * @param string $defaultAction If an action is not defined in a strategy, calls $defaultAction
 	 */
 	public function callAction($action, $defaultAction = 'request'){
-		if (method_exists($this, $action)) return $this->{$action}();
+		if(method_exists($this, $action)) return $this->{$action}();
 		else return $this->{$defaultAction}();
 	}
 	
@@ -197,13 +199,13 @@ class OpauthStrategy{
 	 * @return mixed The loaded value
 	 */
 	protected function expects($key, $not = null){
-		if (!array_key_exists($key, $this->strategy)){
+		if(!array_key_exists($key, $this->strategy)){
 			throw new Exception($this->name." config parameter for \"$key\" expected.");
 			exit();
 		}
 		
 		$value = $this->strategy[$key];
-		if (empty($value) || $value == $not){
+		if(empty($value) || $value == $not){
 			throw new Exception($this->name." config parameter for \"$key\" expected.");
 			exit();
 		}
@@ -219,7 +221,7 @@ class OpauthStrategy{
 	 * @return mixed The loaded value
 	 */
 	protected function optional($key, $default = null){
-		if (!array_key_exists($key, $this->strategy)){
+		if(!array_key_exists($key, $this->strategy)){
 			$this->strategy[$key] = $default;
 			return $default;
 		}
@@ -234,7 +236,7 @@ class OpauthStrategy{
 	 * @return string Resulting signature
 	 */
 	protected function sign($timestamp = null){
-		if (is_null($timestamp)) $timestamp = date('c');
+		if(is_null($timestamp)) $timestamp = date('c');
 		
 		$input = sha1(print_r($this->auth, true));
 		$hash = $this->hash($input, $timestamp, $this->env['security_iteration'], $this->env['security_salt']);
@@ -254,8 +256,8 @@ class OpauthStrategy{
 		$from = explode('.', $profile_path);
 		
 		$base = $profile;
-		foreach ($from as $element){
-			if (is_array($base) && array_key_exists($element, $base)) $base = $base[$element];
+		foreach($from as $element){
+			if(is_array($base) && array_key_exists($element, $base)) $base = $base[$element];
 			else return false;
 		}
 		$value = $base;
@@ -263,7 +265,7 @@ class OpauthStrategy{
 		$to = explode('.', $auth_path);
 		
 		$auth = &$this->auth;
-		foreach ($to as $element){
+		foreach($to as $element){
 			$auth = &$auth[$element];
 		}
 		$auth = $value;
@@ -290,7 +292,7 @@ class OpauthStrategy{
 	 */
 	public static function hash($input, $timestamp, $iteration, $salt){
 		$iteration = intval($iteration);
-		if ($iteration <= 0) return false;
+		if($iteration <= 0) return false;
 		
 		for ($i = 0; $i < $iteration; ++$i) $input = base_convert(sha1($input.$salt.$timestamp), 16, 36);
 		return $input;	
@@ -363,7 +365,7 @@ class OpauthStrategy{
 	 * @return string Content resulted from request, without headers
 	 */
 	public static function serverPost($url, $data, $options = array(), &$responseHeaders = null){
-		if (!is_array($options)) $options = array();
+		if(!is_array($options)) $options = array();
 
 		$query = http_build_query($data, '', '&');
 
@@ -395,7 +397,7 @@ class OpauthStrategy{
 	 */
 	public static function httpRequest($url, $options = null, &$responseHeaders = null){
 		$context = null;
-		if (!empty($options) && is_array($options)){
+		if(!empty($options) && is_array($options)){
 			$context = stream_context_create($options);
 		}
 
@@ -423,7 +425,7 @@ class OpauthStrategy{
 		$arr = array();
 		$_arr = is_object($obj) ? get_object_vars($obj) : $obj;
 		
-		foreach ($_arr as $key => $val){
+		foreach($_arr as $key => $val){
 			$val = (is_array($val) || is_object($val)) ? self::recursiveGetObjectVars($val) : $val;
 			
 			// Transform boolean into 1 or 0 to make it safe across all Opauth HTTP transports
@@ -447,7 +449,7 @@ class OpauthStrategy{
 	public static function flattenArray($array, $prefix = null, $results = array()){
 		//if (is_null($prefix)) $prefix = 'array';
 
-		foreach ($array as $key => $val){
+		foreach($array as $key => $val){
 			$name = (empty($prefix)) ? $key : $prefix."[$key]";
 			
 			if (is_array($val)){
@@ -469,8 +471,8 @@ class OpauthStrategy{
 	 * @return string String substitued with value from dictionary, if applicable
 	 */
 	public static function envReplace($value, $dictionary){
-		if (is_string($value) && preg_match_all('/{([A-Za-z0-9-_]+)}/', $value, $matches)){
-			foreach ($matches[1] as $key){
+		if(is_string($value) && preg_match_all('/{([A-Za-z0-9-_]+)}/', $value, $matches)){
+			foreach($matches[1] as $key){
 				if (array_key_exists($key, $dictionary)){
 					$value = str_replace('{'.$key.'}', $dictionary[$key], $value);
 				}

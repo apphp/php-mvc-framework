@@ -1,11 +1,11 @@
 <?php
 /**
- * CCache is a helper class that provides a set of helper methods for caching mechanism 
+ * CCache is a helper class that provides a set of helper methods for file caching mechanism
  *
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
@@ -76,8 +76,8 @@ class CCache
     {
         if(!empty(self::$_cacheFile)){
             // Remove oldest file if the limit of cache is reached        
-            if(CFile::getDirectoryFilesNumber($cacheDir) >= self::CACHE_LIMIT){
-                CFile::removeDirectoryOldestFile($cacheDir);
+            if(CFile::getDirectoryFilesCount($cacheDir, '.cch') >= self::CACHE_LIMIT){
+                CFile::removeDirectoryOldestFile($cacheDir, 0, array('index.html'));
             }
             
             // Save the content to the cache file
@@ -86,7 +86,7 @@ class CCache
     }
  
     /**
-     * Checks if cache exists and valid and retirn it's content
+     * Checks if cache exists and valid and return it's content
      * @param string $cacheFile
      * @param integer $cacheLifetime
      * @return mixed

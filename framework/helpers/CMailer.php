@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/ 
  *
  * USAGE:
@@ -60,7 +60,7 @@ class CMailer
 	 * @param string $subject
 	 * @param string $message
 	 * @param array $params
-	 * @param array $attachments
+	 * @param array $attachments	Must be a relative path to this file or absolute path to file. e.x.: array('images/flags/en.gif', 'test.zip')
 	 * @return boolean
 	 */
     public static function send($to, $subject, $message, $params = '', $attachments = array())
@@ -70,7 +70,7 @@ class CMailer
 		}elseif(!strcasecmp(self::$_mailer, 'phpMailer')){
 			$result = self::phpMailer($to, $subject, $message, $params, $attachments);
 		}else{
-			$result = self::phpMail($to, $subject, $message, $params);
+			$result = self::phpMail($to, $subject, $message, $params, $attachments);
 		}
 		
 		// Write to error log
@@ -80,7 +80,8 @@ class CMailer
 			}
 		}
 		
-		if(class_exists('MailingLog')){
+		$settings = Bootstrap::init()->getSettings();
+		if($settings->mailing_log && class_exists('MailingLog')){
 			$mailingLog = new MailingLog();
 			$mailingLog->email_from = isset($params['from']) ? $params['from'] : '';
 			$mailingLog->email_to = $to;
@@ -110,28 +111,51 @@ class CMailer
 	 * @param string $subject
 	 * @param string $message
 	 * @param array $params
+	 * @param array $attachments	Must be a relative path to this file or absolute path to file
 	 * @return boolean
 	 */
-    public static function phpMail($to, $subject, $message, $params = '')
+    public static function phpMail($to, $subject, $message, $params = array(), $attachments = array())
     {
 		$charset = 'UTF-8';
 		$xMailer = 'PHP-EMAIL-HELPER'; // 'APPHP-EMAIL-HELPER';
+		$eol = "\r\n";
+		// A random hash will be necessary to send mixed content
+		$separator = md5(time());
+		 
         $from = isset($params['from']) ? $params['from'] : '';
         $fromName = isset($params['from_name']) ? $params['from_name'] : '';
         $fromHeader = ($fromName) ? $fromName.' <'.$from.'>' : $from;
 		$emailType = 'text/'.(CConfig::get('email.isHtml') ? 'html' : 'plain');
+		
+		// Add headers
+		$headers = 'From: '.$fromHeader.$eol.
+				   'Reply-To: '.$from.$eol.
+				   'Return-Path: '.$from.$eol.
+				   'MIME-Version: 1.0'.$eol.
+				   'Content-Type: '.$emailType.'; charset='.$charset.$eol.				   
+				   'X-Mailer: '.$xMailer.'/'.phpversion();
+        
+		// Message body
         if(CConfig::get('email.isHtml')) $message = nl2br($message);
+
+		// Add attachments
+		if(!empty($attachments)){
+			$attachments = (array)$attachments;
+			foreach($attachments as $attachment){
+				$content = file_get_contents($attachment);
+				$message .= '--'.$separator.$eol;
+				$message .= 'Content-Type: application/octet-stream; name="'.$attachment.'"'.$eol.$eol;
+				$message .= 'Content-Transfer-Encoding: base64'.$eol;
+				$message .= 'Content-Disposition: attachment'.$eol;
+				$message .= 'Content-Disposition: attachment; filename="'.$attachment.'"'.$eol.$eol;
+				$message .= $content.$eol.$eol;
+				$message .= '--'.$separator.'--';
+			}
+		}
 
 		// Don't use additional parameters id there safe mode is enabled
         $additionalParameters = ini_get('safe_mode') ? '' : '-f '.$from;
 
-		$headers = 'From: '.$fromHeader."\r\n".
-				   'Reply-To: '.$from."\r\n".
-				   'Return-Path: '.$from."\r\n".
-				   'MIME-Version: 1.0'."\r\n".
-				   'Content-Type: '.$emailType.'; charset='.$charset."\r\n".				   
-				   'X-Mailer: '.$xMailer.'/'.phpversion();
-        
 		$result = @mail($to, $subject, $message, $headers, $additionalParameters);
 
 		if(!$result){
@@ -153,7 +177,7 @@ class CMailer
 	 * @param array $attachments	Must be a relative path to this file or absolute path to file
 	 * @return boolean
 	 */
-    public static function smtpMailer($to, $subject, $message, $params = '', $attachments = array())
+    public static function smtpMailer($to, $subject, $message, $params = array(), $attachments = array())
     {
 		$from = isset($params['from']) ? $params['from'] : '';
         $fromName = isset($params['from_name']) ? $params['from_name'] : '';
@@ -179,13 +203,13 @@ class CMailer
 		$mail->Username   = self::$_smtpUsername;
 		$mail->Password   = self::$_smtpPassword;
 
-		// Set "from" parameters
+		// Set 'from' parameters
 		// Ex.: $mail->setFrom($mail_from, 'First Last');
 		// Ex.: $mail->addReplyTo($mail_to, 'First Last');
 		$mail->setFrom($from, $fromName);    
 		$mail->addReplyTo($from, $fromName); 
 		
-		// Add "to" addresses
+		// Add 'to' addresses
 		// Ex.: $mail->addAddress($mail_to, 'John Doe'); 	
 		$recipients = explode(',', $to);
 		foreach($recipients as $key){
@@ -197,7 +221,7 @@ class CMailer
 		if(CConfig::get('email.isHtml')) $mail->msgHTML(nl2br($message));
 		
 		// Add attachments
-		// Ex.: $mail->AddAttachment("images/test_file.gif");      
+		// Ex.: $mail->AddAttachment('images/test_file.gif');      
 		if(!empty($attachments)){
 			$attachments = (array)$attachments;
 			foreach($attachments as $attachment){
@@ -225,7 +249,7 @@ class CMailer
 	 * @param array $attachments	Must be a relative path to this file or absolute path to file
 	 * @return boolean
 	 */
-    public static function phpMailer($to, $subject, $message, $params = '', $attachments = array())
+    public static function phpMailer($to, $subject, $message, $params = array(), $attachments = array())
     {
 		$from = isset($params['from']) ? $params['from'] : '';
         $fromName = isset($params['from_name']) ? $params['from_name'] : '';
@@ -251,7 +275,7 @@ class CMailer
 		if(CConfig::get('email.isHtml')) $mail->msgHTML(nl2br($message));
 
 		// Add attachments
-		// Ex.: $mail->addAttachment("images/test_file.gif");      
+		// Ex.: $mail->addAttachment('images/test_file.gif');      
 		if(!empty($attachments)){
 			$attachments = (array)$attachments;
 			foreach($attachments as $attachment){

@@ -2,14 +2,12 @@
 /**
  * CActiveRecord base class for classes that represent relational data.
  * It implements the Active Record design pattern.
- * Compatible with PHP v5.3.0 or higher.
  *
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/
- * @version PHP 5.3.0 or higher
  *
  * NOTES:
  * 	if(isset($this->_columns[$index])){...}
@@ -21,15 +19,15 @@
  * ---------------         	---------------            	---------------
  * __construct              _relations                  _parentModel (static)
  * __set                    _customFields               _createObjectFromTable
- * __get                    _beforeSave					_getRelations
- * __unset                  _afterSave 					_getCustomFields
- * __callStatic				_beforeDelete               _addCustomFields
- *                          _afterDelete				_removeCustomFields     
- * init (static)										_prepareLimit	
+ * __get                    _encryptedFields			_getRelations
+ * __unset                  _beforeSave					_getCustomFields
+ * __callStatic				_afterSave               	_addCustomFields
+ *                          _beforeDelete				_removeCustomFields     
+ * init (static)			_afterDelete				_prepareLimit	
  * set                      							_tableName
- * get
- * resultArray
- * isColumnExists
+ * get													_isEncryptedField
+ * resultArray											_getEncryptedFields
+ * isColumnExists										_getEncryptedField
  * setSpecialField
  * getSpecialField
  * getError                                             
@@ -200,7 +198,6 @@ abstract class CActiveRecord extends CModel
 	 * We use this method to avoid calling model($className = __CLASS__) in derived class
 	 * @param string $method
 	 * @param array $args
-	 * @version PHP 5.3.0 or higher
 	 * @return mixed
 	 */
 	public static function __callStatic($method, $args)
@@ -559,6 +556,7 @@ abstract class CActiveRecord extends CModel
         $orderBy = !empty($order) ? ' ORDER BY '.$order : '';
         $relations = $this->_getRelations();
         $customFields = $this->_getCustomFields();
+		$encryptedField = $this->_getEncryptedFields();
 		$limits = $this->_prepareLimit('1');
 		
 		$sql = 'SELECT
@@ -566,6 +564,7 @@ abstract class CActiveRecord extends CModel
 					'.$this->_tableName().'.*
 					'.$relations['fields'].'
 					'.$customFields.'
+					'.$encryptedField.'
 				FROM '.$this->_tableName().'
 					'.$relations['tables'].'
 				'.$whereClause.'
@@ -612,6 +611,7 @@ abstract class CActiveRecord extends CModel
         $orderBy = !empty($order) ? ' ORDER BY '.$order : '';
         $relations = $this->_getRelations();
         $customFields = $this->_getCustomFields();
+		$encryptedField = $this->_getEncryptedFields();
 		$limits = $this->_prepareLimit('1');
 		
 		$sql = 'SELECT
@@ -619,6 +619,7 @@ abstract class CActiveRecord extends CModel
 					'.$this->_tableName().'.*                    
 					'.$relations['fields'].'
 					'.$customFields.'
+					'.$encryptedField.'
 				FROM '.$this->_tableName().'
 					'.$relations['tables'].'
 				WHERE '.$this->_tableName().'.'.$this->_primaryKey.' = '.(int)$pk.'
@@ -669,7 +670,8 @@ abstract class CActiveRecord extends CModel
         
         $relations = $this->_getRelations();
         $customFields = $this->_getCustomFields();
-    
+		$encryptedField = $this->_getEncryptedFields();
+		
         $attributes_clause = '';
         foreach($attributes as $key => $value){
             $attributes_clause .= ' AND '.$key." = '".$value."'";
@@ -682,6 +684,7 @@ abstract class CActiveRecord extends CModel
 					'.$customFields.'
 				FROM '.$this->_tableName().'
 					'.$relations['tables'].'
+					'.$encryptedField.'
 				WHERE 1 = 1
 					'.$attributes_clause.'
 					'.$whereClause.'
@@ -735,12 +738,14 @@ abstract class CActiveRecord extends CModel
         
         $relations = $this->_getRelations();
         $customFields = $this->_getCustomFields();
+		$encryptedField = $this->_getEncryptedFields();
         
 		$sql = 'SELECT
 					'.$limits['before'].'
 					'.$selectList.'
 					'.$relations['fields'].'
 					'.$customFields.'
+					'.$encryptedField.'
 				FROM '.$this->_tableName().'
 					'.$relations['tables'].'
 				'.$whereClause.'
@@ -770,9 +775,10 @@ abstract class CActiveRecord extends CModel
 
     /**
      * Save data
+	 * @param bool $forceSave
      * @return boolean
      */
-    public function save()
+	public function save($forceSave = false)
     {
         $data = array();        
         $this->_removeCustomFields();
@@ -784,13 +790,18 @@ abstract class CActiveRecord extends CModel
                     //$value = $this->$column;
                     //if(array_search($this->_columnTypes[$column], array('int', 'float', 'decimal'))){
                     //    $value = filter_var($value, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
-                    //}                    
-                    $data[$column] = $this->$column;
+                    //}
+					if($this->_isEncryptedField($column)){
+						$encryptedField = $this->_getEncryptedField($column);
+						$data[$column] = array('param_key'=>$encryptedField['encrypt'].'('.$column.',"'.$encryptedField['key'].'")', 'param_value'=>$this->$column);	
+					}else{
+						$data[$column] = $this->$column;	
+					}
                 }
             }
             
             if($this->_pkValue > 0){
-                $result = $this->_db->update($this->_table, $data, $this->_primaryKey.' = :primary_key', array(':primary_key'=>(int)$this->_pkValue));
+                $result = $this->_db->update($this->_table, $data, $this->_primaryKey.' = :primary_key', array(':primary_key'=>(int)$this->_pkValue), $forceSave);
 				$this->_isNewRecord = false;
             }else{
                 $result = $this->_db->insert($this->_table, $data);
@@ -1193,14 +1204,25 @@ abstract class CActiveRecord extends CModel
 	/**
      * Used to define custom fields
 	 * This method should be overridden
-	 * Usage: 'CONCAT(last_name, " ", first_name)' => 'fullname'
+	 * Usage: 'CONCAT('.CConfig::get('db.prefix').$this->_table.'.last_name, " ", '.CConfig::get('db.prefix').$this->_table.'.first_name)' => 'fullname'
 	 *        '(SELECT COUNT(*) FROM '.CConfig::get('db.prefix').$this->_tableTranslation.')' => 'records_count'
 	 */
 	protected function _customFields()
 	{
 		return array();
 	}
-
+	
+	/**
+     * Used to define encrypted fields
+	 * This method should be overridden
+	 * Usage: 'field_name_1' => array('encrypt'=>'AES_ENCRYPT', 'decrypt'=>'AES_DECRYPT', 'key'=>'encryptKey')
+	 *        'field_name_2' => array('encrypt'=>'AES_ENCRYPT', 'decrypt'=>'AES_DECRYPT', 'key'=>CConfig::get('text.encryptKey'))
+	 */
+	protected function _encryptedFields()
+	{
+		return array();
+	}
+	
 	/**
 	 * This method is invoked before saving a record (after validation, if any)
 	 * You may override this method
@@ -1374,4 +1396,43 @@ abstract class CActiveRecord extends CModel
 		return $this->_backQuote.$this->_dbPrefix.$table.$this->_backQuote;
 	}
 	
+	/**
+	 * Checks if a given field is encrypted field
+	 * @param string $column
+	 * @return bool
+	 */
+	private function _isEncryptedField($column = '')
+	{
+		$encryptedFields = $this->_encryptedFields();		
+		return isset($encryptedFields[$column]) ? true : false;
+	}
+	
+	/**
+	 * Prepares encrypted fields for query
+	 * @return string 
+	 */
+	private function _getEncryptedFields()
+	{
+        $result = '';
+        $fields = $this->_encryptedFields();
+        if(is_array($fields)){
+            foreach($fields as $key => $val){
+				$encryptedField = $this->_getEncryptedField($key);
+				$result .= ', '.$encryptedField['decrypt'].'('.$key.',"'.$encryptedField['key'].'") as '.$key;
+            }
+        }
+        
+        return $result;
+    }
+
+	/**
+	 * Returns encrypted field info
+	 * @param string $column
+	 * @return array
+	 */
+	private function _getEncryptedField($column = '')
+	{
+		$encryptedFields = $this->_encryptedFields();
+        return isset($encryptedFields[$column]) ? $encryptedFields[$column] : array();
+    }
 }

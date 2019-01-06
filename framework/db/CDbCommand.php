@@ -5,19 +5,19 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * Starting from version 1.0.0, CDbCommand can be used as a query builder
  * <pre>
  * $accounts = CDatabase::init()->createCommand()
- *     ->select('username, password')
+ *     ->select('*')
  *     ->from(CConfig::get('db.prefix').'accounts')
  *     ->order('id ASC')
  *     ->queryAll();
  *     
  * $account = CDatabase::init()->createCommand()
- *     ->select('username, password')
+ *     ->select('id, username, password')
  *     ->from(CConfig::get('db.prefix').'accounts')
  *     ->where('id=:id', array(':id'=>1))
  *     ->queryRow();
@@ -107,7 +107,7 @@ class CDbCommand
 
 	/**
 	 * Cleans up the command for building a new query
-	 * @return this command instance
+	 * @return CDbCommand command instance
 	 */
 	public function reset()
 	{
@@ -128,7 +128,7 @@ class CDbCommand
 	
 	/**
 	 * Defines SQL statement to be executed
-	 * @return this command instance
+	 * @return CDbCommand command instance
 	 */
 	public function setText($value)
 	{
@@ -255,7 +255,7 @@ class CDbCommand
 	 * Sets SELECT part of the query
 	 * @param mixed $columns The columns to be selected (default '*' - all columns, or as array (e.g. array('id', 'name') )
 	 * @param string $option additional option that should be usaed, for example: SQL_CALC_FOUND_ROWS
-	 * @return this command instance
+	 * @return CDbCommand command instance
 	 */
 	public function select($columns = '*', $option = '')
 	{
@@ -301,7 +301,7 @@ class CDbCommand
 	/**
 	 * Sets a SELECT part of the query with the DISTINCT flag turned ON
 	 * @param mixed $columns
-	 * @return this command instance
+	 * @return CDbCommand command instance
 	 */
 	public function selectDistinct($columns = '*')
 	{
@@ -312,7 +312,7 @@ class CDbCommand
 	/**
 	 * Sets a FROM part of the query
 	 * @param mixed string|array
-	 * @return this command instance
+	 * @return CDbCommand command instance
 	 */
 	public function from($tables)
 	{
@@ -732,7 +732,7 @@ class CDbCommand
 			}
 			
 			foreach($values as $i => $value){
-				$values[$i] = is_string($value) ? $this->_db->_quotes($value) : (string)$value;
+				$values[$i] = is_string($value) ? $this->_quotes($value) : (string)$value;
 			}
 			
 			return $column.' '.$operator.' ('.implode(', ', $values).')';
@@ -752,7 +752,7 @@ class CDbCommand
 			
 			$expressions = array();
 			foreach($values as $value){
-				$expressions[] = $column.' '.$operator.' '.$this->_db->_quotes($value);
+				$expressions[] = $column.' '.$operator.' '.$this->_quotes($value);
 			}
 			
 			return implode($andor,$expressions);

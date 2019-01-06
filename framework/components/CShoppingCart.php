@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
@@ -20,6 +20,8 @@
  * totalItems
  * contents
  * getItem
+ * itemExists
+ * itemExistsByProductId
  * hasOptions
  * productOptions
  * 
@@ -84,6 +86,7 @@ class CShoppingCart extends CComponent
 	 *         'qty'     => 1,
 	 *         'price'   => 29.90,
 	 *         'name'    => 'T-Shirt',
+	 *         'image'   => 'images/product.png',
 	 *         'options' => array('Size' => 'L', 'Color' => 'Red')
 	 *      );
 	 * @param array $items
@@ -101,12 +104,12 @@ class CShoppingCart extends CComponent
 		// If it's not found, we will assume it's a multi-dimensional array.	
 		$saveCart = false;
 		if(isset($items['id']))	{
-			if (($rowId = $this->_insert($items))){
+			if(($rowId = $this->_insert($items))){
 				$saveCart = true;
 			}
 		}else{
-			foreach ($items as $val){
-				if (is_array($val) && isset($val['id'])){
+			foreach($items as $val){
+				if(is_array($val) && isset($val['id'])){
 					if($this->_insert($val)){
 						$saveCart = true;
 					}
@@ -115,7 +118,7 @@ class CShoppingCart extends CComponent
 		}
 		
 		// Save the shopping cart data if insertion action was successful
-		if ($saveCart === true){
+		if($saveCart === true){
 			$this->_saveCart();
 			return isset($rowId) ? $rowId : true;
 		}
@@ -128,6 +131,7 @@ class CShoppingCart extends CComponent
 	 * Ex.: $data = array(
 	 *         'rowid' => 'b99ccdf16028f015540f341130b6d8ec',
 	 *         'qty'   => 3
+	 *         ...
 	 *      );
 	 * @param array $items
 	 * @return bool
@@ -135,7 +139,7 @@ class CShoppingCart extends CComponent
 	public function update($items = array())
 	{
 		// Is any data passed?
-		if (!is_array($items) || count($items) === 0){
+		if(!is_array($items) || count($items) === 0){
 			return false;
 		}
 	
@@ -242,6 +246,39 @@ class CShoppingCart extends CComponent
 	}
 	
 	/**
+	 * Checks if cart item exists by row ID
+	 * @param string $rowId
+	 * @return bool
+	 */
+	public function itemExists($rowId)
+	{
+		return (in_array($rowId, array('total_items', 'cart_total'), true) || !isset($this->_cartContent[$rowId]))
+			? false
+			: true;
+	}
+
+	/**
+	 * Checks if cart item exists
+	 * @param string $productId
+	 * @param int $returnType		0 - bool, 1 - rowId
+	 * @return bool|string
+	 */
+	public function itemExistsByProductId($productId = null, $returnType = 0)
+	{
+		$return = false;
+		
+		foreach($this->_cartContent as $key => $val){
+			// Check if product with such ID exists
+			if($val['id'] == $productId){
+				$return = ($returnType == 1) ? $key : true;
+				break;
+			}
+		}
+		
+		return $return;	
+	}
+
+	/**
 	 * Returns true value if the rowId that passed to this function correlates to an item that has options associated with it
 	 * @param string $rowId
 	 * @return bool
@@ -270,13 +307,13 @@ class CShoppingCart extends CComponent
 	protected function _insert($item = array())
 	{
 		// Check if any cart data was passed
-		if (!is_array($item) || count($item) === 0){
+		if(!is_array($item) || count($item) === 0){
 			CDebug::addMessage('errors', 'cart_empty_data', A::t('core', 'The {method} method expects to be passed an array containing data.', array('{method}'=>'CShoppingCart::insert()')));
 			return false;
 		}
 	
 		// Does the $item array contain an id, quantity, price, and name? These are required parameters.
-		if (!isset($item['id'], $item['qty'], $item['price'], $item['name'])){
+		if(!isset($item['id'], $item['qty'], $item['price'], $item['name'])){
 			CDebug::addMessage('errors', 'cart_missing_params', A::t('core', 'The cart array must contain a product ID, quantity, price, and name.'));
 			return false;
 		}
@@ -299,7 +336,7 @@ class CShoppingCart extends CComponent
 	
 		// Validate the product name. It can only be alpha-numeric, dashes, underscores, colons or periods.
 		// Note: These can be user-specified by setting the $this->_productNameRules variable.
-		if ($this->_productNameSafe && !preg_match('/^['.$this->_productNameRules.']+$/i'.($this->_utf8Enabled ? 'u' : ''), $item['name'])){
+		if($this->_productNameSafe && !preg_match('/^['.$this->_productNameRules.']+$/i'.($this->_utf8Enabled ? 'u' : ''), $item['name'])){
 			CDebug::addMessage('errors', 'cart_wrong_product_name', A::t('core', 'An invalid name was submitted as the product name: {item}. The name can only contain alpha-numeric characters, dashes, underscores, colons and spaces.', array('{item}'=>$item['name'])));
 			return false;
 		}
@@ -338,7 +375,7 @@ class CShoppingCart extends CComponent
 	protected function _update($items = array())
 	{
 		// Without these array indexes there is nothing we can do
-		if (!isset($items['rowid'], $this->_cartContent[$items['rowid']])){
+		if(!isset($items['rowid'], $this->_cartContent[$items['rowid']])){
 			return false;
 		}
 	
@@ -356,7 +393,7 @@ class CShoppingCart extends CComponent
 		// Find updatable keys
 		$keys = array_intersect(array_keys($this->_cartContent[$items['rowid']]), array_keys($items));
 		// If a price was passed, make sure it contains a valid data	
-		if (isset($items['price'])){	
+		if(isset($items['price'])){	
 			$items['price'] = (float)$items['price'];
 		}
 	
@@ -376,9 +413,9 @@ class CShoppingCart extends CComponent
 	{
 		// Add the individual prices and set the cart sub-total
 		$this->_cartContent['total_items'] = $this->_cartContent['cart_total'] = 0;
-		foreach ($this->_cartContent as $key => $val){
+		foreach($this->_cartContent as $key => $val){
 			// We make sure the array contains the proper indexes
-			if (!is_array($val) || !isset($val['price'], $val['qty'])){
+			if(!is_array($val) || !isset($val['price'], $val['qty'])){
 				continue;
 			}
 

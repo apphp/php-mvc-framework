@@ -51,8 +51,8 @@ class LinkedInStrategy extends OpauthStrategy{
 			'state' => sha1(time())
 		);
 
-		foreach ($this->optionals as $key){
-			if (!empty($this->strategy[$key])) {
+		foreach($this->optionals as $key){
+			if(!empty($this->strategy[$key])){
 				$params[$key] = $this->strategy[$key];
 			}
 		}
@@ -64,7 +64,7 @@ class LinkedInStrategy extends OpauthStrategy{
 	 * Internal callback, after OAuth
 	 */
 	public function oauth2callback(){
-		if (array_key_exists('code', $_GET) && !empty($_GET['code'])){
+		if(array_key_exists('code', $_GET) && !empty($_GET['code'])){
 			$code = $_GET['code'];
 			$url = 'https://www.linkedin.com/uas/oauth2/accessToken';
 
@@ -79,7 +79,7 @@ class LinkedInStrategy extends OpauthStrategy{
 
 			$results = json_decode($response);
 
-			if (!empty($results) && !empty($results->access_token)){
+			if(!empty($results) && !empty($results->access_token)){
 				$profile = $this->getProfile($results->access_token);
 
 				$this->auth = array(
@@ -135,19 +135,19 @@ class LinkedInStrategy extends OpauthStrategy{
 	 * @return array Parsed JSON results
 	 */
 	private function getProfile($access_token){
-		if (empty($this->strategy['profile_fields'])) {
+		if(empty($this->strategy['profile_fields'])){
 			$this->strategy['profile_fields'] = array('id', 'first-name', 'last-name', 'maiden-name', 'formatted-name', 'headline', 'industry', 'summary', 'email-address', 'picture-url', 'location:(name)', 'public-profile-url', 'site-standard-profile-request');
 		}
 
-		if (is_array($this->strategy['profile_fields'])) {
+		if(is_array($this->strategy['profile_fields'])){
 			$fields = '(' . implode(',', $this->strategy['profile_fields']) . ')';
-		} else {
+		}else{
 			$fields = '(' . $this->strategy['profile_fields'] . ')';
 		}
 
 		$userinfo = $this->serverGet('https://api.linkedin.com/v1/people/~:' . $fields, array('oauth2_access_token' => $access_token), null, $headers);
 
-		if (!empty($userinfo)){
+		if(!empty($userinfo)){
 			return $this->recursiveGetObjectVars(simplexml_load_string($userinfo));
 		}
 		else{

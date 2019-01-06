@@ -23,10 +23,10 @@
 	<script type="text/javascript" src="js/highlight/helpers.js"></script>
 	<?php
 		if(in_array($page, array('templates', 'layouts', 'modules-structure', 'knowledge-base', 'shopping-cart'))){
-			echo '<script type="text/javascript" src="js/highlight/lang-xml.js"></script>';
+			echo '<script type="text/javascript" src="js/highlight/lang-xml.js"></script>'."\r\n";
 		}
 		if(in_array($page, array('modules-creating', 'session-custom-storage', 'knowledge-base'))){
-            echo '<script type="text/javascript" src="js/highlight/lang-sql.js"></script>';
+            echo '<script type="text/javascript" src="js/highlight/lang-sql.js"></script>'."\r\n";
         }
 	?>
 	<script type="text/javascript" src="js/highlight/lang-php.js"></script>	
@@ -49,7 +49,7 @@
 				</li>				
 			</ul>
 			<ul class="menu" style="float:right">
-				<li><a href="../index.html">&laquo; Index</a></li>
+				<li class="active"><a href="../index.html">&laquo; Back to Site</a></li>
 			</ul>           
         </nav>
     </header>

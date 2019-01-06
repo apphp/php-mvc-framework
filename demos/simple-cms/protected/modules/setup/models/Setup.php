@@ -1,35 +1,72 @@
 <?php
+/**
+ * Setup model
+ *
+ * PUBLIC:                 	PROTECTED:                 	PRIVATE:
+ * ---------------         	---------------				---------------
+ * __construct
+ * doBeginTransaction
+ * doRollBack
+ * doCommit
+ * install
+ *
+ */
+
+namespace Modules\Setup\Models;
+
+// Framework
+use \A,
+	\CModel,
+	\CDatabase;
+
 
 class Setup extends CModel
 {
+
     public function __construct($params = array())
     {
         parent::__construct($params);
     }
     
+	/**
+	 * Begins transaction
+	 */
     public function doBeginTransaction()
     {
         /* begin a transaction, turning off autocommit */
         $this->_db->beginTransaction();
     }
     
+	/**
+	 * Executes rollback
+	 */
     public function doRollBack()
     {
         /* recognize mistake and roll back changes */
         $this->_db->rollBack();
     }
 
+	/**
+	 * Executes commit 
+	 */
     public function doCommit()
     {
         /* commit the changes */
         $this->_db->commit();            
     }
     
-    public function install($sqlDump = '', $transaction = true)
+	/**
+	 * Executes installation of given SQL
+	 * @param string $sqlDump
+	 * @param bool $transaction
+	 * @param bool $ignoreErrors
+	 * @return bool
+	 */
+    public function install($sqlDump = '', $transaction = true, $ignoreErrors = false)
     {
         if(empty($sqlDump)){
             $this->_error = true;
-            $this->_errorMessage = 'No SQL statements found! Please check your data file.';
+            $this->_errorMessage = A::t('setup', 'No SQL statements found! Please check your data file.');
             return false;
         }else{
             /* begin a transaction, turning off autocommit */
@@ -45,9 +82,11 @@ class Setup extends CModel
                             if(CDatabase::getError()){
                                 $this->_error = true;
                                 $this->_errorMessage = CDatabase::getErrorMessage();
-                                /* recognize mistake and roll back changes */
-                                if($transaction) $this->_db->rollBack();                                
-                                return false;
+                                if(!$ignoreErrors){
+                                    /* recognize mistake and roll back changes */
+                                    if($transaction) $this->_db->rollBack();                                
+                                    return false;
+                                }
                             }
                         }
                         $query = '';

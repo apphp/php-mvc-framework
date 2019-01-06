@@ -3,22 +3,33 @@
 return array(
     // application data
     'name' => 'Simple Blog',
-    'version' => '1.0.1',
+    'version' => '1.0.2',
     
     // installation settings
     'installationKey' => '<INSTALLATION_KEY>',
 
-    // Password keys settings (for database passwords only - don't change it)
-    // md5, sha1, sha256, whirlpool, etc
-	'password' => array(
+    // Password keys settings (for database passwords only)
+    // Remember: changing these settings after installation may lead to unstable work of application
+    // encryptAlgorithm - md5, sha1 (not recommended), sha256, whirlpool, etc
+    'password' => array(
         'encryption' => true,
         'encryptAlgorithm' => 'sha256',
-		'encryptSalt' => true,
-		'hashKey' => 'apphp_framework',    
+        'encryptSalt' => true,
+        'hashKey' => 'apphp_directy_login_system',
     ),
-    
+
+    // Text encryption settings (for database text fields only)
+    // Remember: changing these settings after installation may lead to unstable work of application
+    // Encryption level - PHP or DB
+    // encryptAlgorithm - PHP: aes-256-cbc DB: AES
+    'text' => array(
+        'encryption' => true,
+        'encryptAlgorithm' => 'aes-256-cbc',
+        'encryptKey' => 'apphp_directy_cmf',
+    ),
+
     // Default email settings
-	'email' => array(
+    'email' => array(
         'mailer' => 'smtpMailer', /* phpMail | phpMailer | smtpMailer */
         'from' => 'info@email.me',
         'fromName' => '', /* John Smith */
@@ -32,20 +43,29 @@ return array(
             'password' => '',
         ),
     ),
-    
+
     // Validations
-	// Define array of 'excluded' controllers, ex.: array('PaymentProviders', 'Checkout')
-	// Token type: 'session', 'cookie' or 'multipages'
+    // Define array of 'excluded' controllers, ex.: array('PaymentProviders', 'Checkout')
+    // Token type: 'session', 'cookie' or 'multipages'
     'validation' => array(
-		'csrf' => array('enable' => true, 'exclude' => array('PaymentProviders'), 'tokenType' => 'session'),
-        'bruteforce' => array('enable' => true, 'badLogins' => 5, 'redirectDelay' => 3)
+        'csrf' => array('enable' => false, 'exclude' => array('PaymentProviders'), 'tokenType' => 'session'),
+        'bruteforce' => array('enable' => true, 'badLogins' => 5, 'badRestores' => 5, 'redirectDelay' => 3)
+    ),
+
+    // Exception handling
+    // Define exceptions exceptions in application
+    'exceptionHandling' => array(
+        'enable' => true,
+        'level' => 'global'
     ),
 
     // Output compression
-	'compression' => array(
-		'gzip' => array('enable' => true),
-		'html' => array('enable' => false),
-	),
+    'compression' => array(
+        'gzip' => array('enable' => false),
+        'html' => array('enable' => false),
+        'css' => array('enable' => false, 'path' => 'assets/minified/css/', 'minify' => true),
+        'js' => array('enable' => false, 'path' => 'assets/minified/js/', 'minify' => true),
+    ),
 
     // Session settings
     'session' => array(
@@ -53,70 +73,79 @@ return array(
         'cacheLimiter' => '',		/* to prevent 'Web Page expired' message for POST request use "private,must-revalidate" */
         'lifetime' => 24,			/* session timeout in minutes, default: 24 min = 1440 sec */
     ),
-    
+
     // Cookies settings
     'cookies' => array(
-        'domain' => '', 
-        'path' => '/' 
+        'domain' => '',
+        'path' => '/'
     ),
 
-    // Cache settings 
+    // Cache settings
     'cache' => array(
         'enable' => false,
-		'type' => 'auto', 			/* 'auto' or 'manual' */
+        'type' => 'auto', 			/* 'auto' or 'manual' */
         'lifetime' => 20,  			/* in minutes */
         'path' => 'protected/tmp/cache/'
     ),
 
-    // Logger settings 
+    // Logger settings
     'log' => array(
-		'enable' => false, 
+        'enable' => false,
         'path' => 'protected/tmp/logs/',
-		'fileExtension' => 'php', 	
+        'fileExtension' => 'php',
         'dateFormat' => 'Y-m-d H:i:s',
         'threshold' => 1,
-		'filePermissions' => 0644,
-		'lifetime' => 30			/* in days */
+        'filePermissions' => 0644,
+        'lifetime' => 30			/* in days */
     ),
 
-    // RSS Feed settings 
+    // RSS Feed settings
     'rss' => array(
         'path' => 'feeds/'
     ),
 
     // Datetime settings
     'defaultTimeZone' => 'UTC',
-    
-    // Template default settings  
-	'template' => array(
-		'default' => 'default'			
-	),
-	
-	// Layout default settings  
-	'layouts' => array(
-		'enable' => false, 
-		'default' => 'default'
-	),
-	
-    // Application default settings
-	'defaultErrorController' => 'Error', /* may be overridden by module settings */
-	'defaultController' => 'Index',		 /* may be overridden by module settings */
-    'defaultAction' => 'index',			 /* may be overridden by module settings */
-	
-	// Application payment complete page (controller/action - may be overridden by module settings)
-	'paymentCompletePage' => '',
-    
-    // Application components
-    'components' => array(
-		'Bootstrap' => array('enable' => true, 'class' => 'Bootstrap'),
-		'BlogHelper' => array('enable' => true, 'class' => 'BlogHelper'),
-		'BlogMenu' => array('enable' => true, 'class' => 'BlogMenu'),
+
+    // Template default settings
+    'template' => array(
+        'default' => 'default'
     ),
 
-	// Widget settings
-	'widgets' => array(
-		'paramKeysSensitive' => true
+	// Layout default settings
+	'layouts' => array(
+		'enable' => false,
+		'default' => 'default'
 	),
+
+    // Layout default settings
+    'layouts' => array(
+    'enable' => array('frontend' => false, 'backend' => false),
+    'default' => 'default'
+    ),
+
+    // Application default settings
+    'defaultBackendDirectory' => 'backoffice',	/* default backoffice directory */
+    'defaultErrorController' => 'Error',		/* may be overridden by module settings */
+    'defaultController' => 'Index',				/* may be overridden by module settings */
+    'defaultAction' => 'index',					/* may be overridden by module settings */
+
+    // Application Backend settings
+    'restoreAdminPassword' => array(
+        'enable' => true,
+        'recoveryType' => 'direct'			/* 'direct' - send new password directly, 'recovery' - send link to recovery page */
+    ),
+
+    // Application components
+    'components' => array(
+        'Bootstrap' => array('enable' => true, 'class' => 'Bootstrap'),
+        'BlogMenu' => array('enable' => true, 'class' => 'BlogMenu'),
+    ),
+
+    // Widget settings
+    'widgets' => array(
+        'paramKeysSensitive' => true
+    ),
 
     // Application helpers
     'helpers' => array(
@@ -132,6 +161,18 @@ return array(
     'urlManager' => array(
         'urlFormat' => 'shortPath',  /* get | path | shortPath */
         'rules' => array(
+            // Required by payments module. If you remove these rules - make sure you define full path URL for pyment providers
+            //'paymentProviders/handlePayment/provider/([a-zA-Z0-9\_]+)/handler/([a-zA-Z0-9\_]+)/module/([a-zA-Z0-9\_]+)[\/]?$' => 'paymentProviders/handlePayment/provider/{$0}/handler/{$1}/module/{$2}',
+            'paymentProviders/handlePayment/([a-zA-Z0-9\_]+)/([a-zA-Z0-9\_]+)/([a-zA-Z0-9\_]+)[\/]?$' => 'paymentProviders/handlePayment/provider/{$0}/handler/{$1}/module/{$2}',
+            //'paymentProviders/handlePayment/provider/([a-zA-Z0-9\_]+)/handler/([a-zA-Z0-9\_]+)[\/]?$' => 'paymentProviders/handlePayment/provider/{$0}/handler/{$1}',
+            'paymentProviders/handlePayment/([a-zA-Z0-9\_]+)/([a-zA-Z0-9\_]+)[\/]?$' => 'paymentProviders/handlePayment/provider/{$0}/handler/{$1}',
+            //'paymentProviders/handlePayment/provider/([a-zA-Z0-9\_]+)[\/]?$' => 'paymentProviders/handlePayment/provider/{$0}',
+            'paymentProviders/handlePayment/([a-zA-Z0-9\_]+)[\/]?$' => 'paymentProviders/handlePayment/provider/{$0}',
+            // Required by dynamic pages, if you want to use user-friendly URLs
+            //'controller/action/value1/value2' => 'controller/action/param1/value1/param2/value2',
+            //'sitepages/show/example-page-1' => 'sitepages/show/name/about-us',
+            //'value1' => 'controller/action/param1/value1',
+            //'about-us' => 'sitepages/show/name/about-us',
         ),
     ),
     

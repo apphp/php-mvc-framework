@@ -7,14 +7,18 @@ The following updating instructions are cumulative. That is, if you want to upda
 from version A to version C and there is version B between A and C, you need to
 following the instructions for both A and B.
 
-General update intructions
+General update instructions
 ---------------------------
 - Make a backup.
 - Replace 'framework' directory with the new one or point SVN to a fresh release and update.
 - Check if everything is OK, if not - revert from backup and post issues to ApPHP issue tracker.
 
 
-Updating from 1.0.3 to 
+Updating from 1.1.5 to 1.2.2
+------------------------------
+- general update instructions
+
+Updating from 1.0.3 to 1.1.5
 ------------------------------
 - changed format for 'layouts' in config file
 
@@ -52,7 +56,7 @@ Updating from 0.3.4 to 0.4.4
 
 Updating from 0.2.4 to 0.3.4
 ------------------------------
-- setting default time zone removed from A class and placed into CLocalTime component. Ex.: A::app()->getLocalTime()->setTimeZone('UTC');	
+- setting default time zone removed from A class and placed into CLocalTime component. Ex.: A::app()->getLocalTime()->setTimeZone('UTC');
 - changed syntax for all widgets. Ex.: from CWidget::gridView(...) to CWidget::create('CGridView', ...)
 - rename all framework files that used by the code with prefix "C", ex: Model -> CModel, Controller -> CController, etc.
 - in widgets: CFormView, CFormValidation and CGridView attribute 'label'=>'' renamed into 'title'=>''

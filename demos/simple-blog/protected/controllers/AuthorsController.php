@@ -107,7 +107,8 @@ class AuthorsController extends CController
                 unset($author->password);
                 unset($author->avatar_file);
                 if($this->_view->password != ''){
-                    $author->password = ((CConfig::get('password.encryption')) ? CHash::create(CConfig::get('password.encryptAlgorithm'), $this->_view->password, CConfig::get('password.hashKey')) : $this->_view->password);
+                    $salt = CConfig::get('password.encryption') && (CConfig::get('password.encryptSalt')) ? CHash::salt() : '';
+                    $author->password = (CConfig::get('password.encryption') ? CHash::create(CConfig::get('password.encryptAlgorithm'), $this->_view->password, $salt) : $this->_view->password);
                 }
                 if($this->_view->avatarFile != ''){
                     $author->avatar_file = $this->_view->avatarFile;

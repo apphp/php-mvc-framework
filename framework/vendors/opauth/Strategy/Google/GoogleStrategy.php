@@ -50,8 +50,8 @@ class GoogleStrategy extends OpauthStrategy{
 			'scope' => $this->strategy['scope']
 		);
 
-		foreach ($this->optionals as $key){
-			if (!empty($this->strategy[$key])) $params[$key] = $this->strategy[$key];
+		foreach($this->optionals as $key){
+			if(!empty($this->strategy[$key])) $params[$key] = $this->strategy[$key];
 		}
 		
 		$this->clientGet($url, $params);
@@ -75,7 +75,7 @@ class GoogleStrategy extends OpauthStrategy{
 			
 			$results = json_decode($response);
 			
-			if (!empty($results) && !empty($results->access_token)){
+			if(!empty($results) && !empty($results->access_token)){
 				$userinfo = $this->userinfo($results->access_token);
 				
 				$this->auth = array(
@@ -98,8 +98,7 @@ class GoogleStrategy extends OpauthStrategy{
 				if (!empty($userinfo->link)) $this->auth['info']['urls']['google'] = $userinfo->link;
 				
 				$this->callback();
-			}
-			else{
+			}else{
 				$error = array(
 					'provider' => 'Google',
 					'code' => 'access_token_error',
@@ -132,10 +131,9 @@ class GoogleStrategy extends OpauthStrategy{
 	 */
 	private function userinfo($access_token){
 		$userinfo = $this->serverGet('https://www.googleapis.com/oauth2/v1/userinfo', array('access_token' => $access_token), null, $headers);
-		if (!empty($userinfo)){
+		if(!empty($userinfo)){
 			return json_decode($userinfo);
-		}
-		else{
+		}else{
 			$error = array(
 				'provider' => 'Google',
 				'code' => 'userinfo_error',

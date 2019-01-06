@@ -24,7 +24,7 @@ class FacebookStrategy extends OpauthStrategy{
      * eg. array('scope' => 'email');
      */
     public $defaults = array(
-        'redirect_uri' => '{complete_url_to_strategy}int_callback'
+        'redirect_uri' => '{complete_url_to_strategy}oauth2callback'
     );
 
     /**
@@ -37,11 +37,11 @@ class FacebookStrategy extends OpauthStrategy{
             'redirect_uri' => $this->strategy['redirect_uri']
         );
 
-        if (!empty($this->strategy['scope'])) $params['scope'] = $this->strategy['scope'];
-        if (!empty($this->strategy['state'])) $params['state'] = $this->strategy['state'];
-        if (!empty($this->strategy['response_type'])) $params['response_type'] = $this->strategy['response_type'];
-        if (!empty($this->strategy['display'])) $params['display'] = $this->strategy['display'];
-        if (!empty($this->strategy['auth_type'])) $params['auth_type'] = $this->strategy['auth_type'];
+        if(!empty($this->strategy['scope'])) $params['scope'] = $this->strategy['scope'];
+        if(!empty($this->strategy['state'])) $params['state'] = $this->strategy['state'];
+        if(!empty($this->strategy['response_type'])) $params['response_type'] = $this->strategy['response_type'];
+        if(!empty($this->strategy['display'])) $params['display'] = $this->strategy['display'];
+        if(!empty($this->strategy['auth_type'])) $params['auth_type'] = $this->strategy['auth_type'];
 
         $this->clientGet($url, $params);
     }
@@ -49,8 +49,8 @@ class FacebookStrategy extends OpauthStrategy{
     /**
      * Internal callback, after Facebook's OAuth
      */
-    public function int_callback(){
-        if (array_key_exists('code', $_GET) && !empty($_GET['code'])){
+    public function oauth2callback(){
+        if(array_key_exists('code', $_GET) && !empty($_GET['code'])){
             $url = 'https://graph.facebook.com/oauth/access_token';
             $params = array(
                 'client_id' =>$this->strategy['app_id'],
@@ -62,7 +62,7 @@ class FacebookStrategy extends OpauthStrategy{
 
             $results = (array)json_decode($response);
 
-            if (!empty($results) && !empty($results['access_token'])){
+            if(!empty($results) && !empty($results['access_token'])){
                 $me = $this->me($results['access_token']);
 
                 $this->auth = array(
@@ -79,13 +79,13 @@ class FacebookStrategy extends OpauthStrategy{
                     'raw' => $me
                 );
 
-                if (!empty($me->email)) $this->auth['info']['email'] = $me->email;
-                if (!empty($me->username)) $this->auth['info']['nickname'] = $me->username;
-                if (!empty($me->first_name)) $this->auth['info']['first_name'] = $me->first_name;
-                if (!empty($me->last_name)) $this->auth['info']['last_name'] = $me->last_name;
-                if (!empty($me->location)) $this->auth['info']['location'] = $me->location->name;
-                if (!empty($me->link)) $this->auth['info']['urls']['facebook'] = $me->link;
-                if (!empty($me->website)) $this->auth['info']['urls']['website'] = $me->website;
+                if(!empty($me->email)) $this->auth['info']['email'] = $me->email;
+                if(!empty($me->username)) $this->auth['info']['nickname'] = $me->username;
+                if(!empty($me->first_name)) $this->auth['info']['first_name'] = $me->first_name;
+                if(!empty($me->last_name)) $this->auth['info']['last_name'] = $me->last_name;
+                if(!empty($me->location)) $this->auth['info']['location'] = $me->location->name;
+                if(!empty($me->link)) $this->auth['info']['urls']['facebook'] = $me->link;
+                if(!empty($me->website)) $this->auth['info']['urls']['website'] = $me->website;
 
                 /**
                  * Missing optional info values
@@ -126,12 +126,12 @@ class FacebookStrategy extends OpauthStrategy{
      */
     private function me($access_token){
         $params = array('access_token'=>$access_token);
-        if (!empty($this->strategy['fields'])) $params['fields'] = $this->strategy['fields'];
+        if(!empty($this->strategy['fields'])) $params['fields'] = $this->strategy['fields'];
         $me = $this->serverGet('https://graph.facebook.com/me', $params, null);
-        if (!empty($me)){
+		$headers = null;
+        if(!empty($me)){
             return json_decode($me);
-        }
-        else{
+        }else{
             $error = array(
                 'provider' => 'Facebook',
                 'code' => 'me_error',

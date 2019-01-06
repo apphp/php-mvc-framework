@@ -5,12 +5,14 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
  * substr
+ * strToLower
+ * strToUpper
  * quote
  * length
  * seoString
@@ -29,6 +31,7 @@ class CString
      * @param int $length
      * @param bool $encoding
      * @param bool $dots
+	 * @return string
      */
     public static function substr($string, $length = 0, $encoding = '', $dots = false)
     {
@@ -54,8 +57,28 @@ class CString
         
         return $output;
     }
-    
-	/**	
+
+	/**
+	 * Make a string lowercase
+	 * @param mixed $string
+	 * @return string
+	 */
+	public static function strToLower($string = '')
+	{
+		return function_exists('mb_strtolower') ? mb_strtolower($string) : strtolower($string);
+	}
+
+	/**
+	 * Make a string uppercase
+	 * @param mixed $string
+	 * @return string
+	 */
+	public static function strToUpper($string = '')
+	{
+		return function_exists('mb_strtoupper') ? mb_strtoupper($string) : strtoupper($string);
+	}
+
+	/**
 	 * Quotes a string for use (ex.: in a query)
 	 * @param string $string
 	 * @return string

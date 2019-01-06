@@ -5,12 +5,13 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/ 
  * 
  * PUBLIC:                 	PROTECTED:                 	PRIVATE:
  * ---------------         	---------------            	---------------
- * __construct                                          _getCalledClass
+ * __construct              _accessRules                _getCalledClass
+ * execute					_filtersAccessControl
  * testAction
  * errorAction
  * redirect
@@ -21,6 +22,7 @@ class CController
 {
 	/** @var string */		
     protected $_view;
+	protected $_action;
 
 	/**
 	 * Class constructor
@@ -29,10 +31,33 @@ class CController
 	function __construct()
 	{
 		$this->_view = A::app()->view;
+		$this->_action = '';
 	}
     
 	/**
+	 * Runs action
+	 * @param string $action
+	 * @param array $params
+	 * @return void
+	 */
+	final public function execute($action = '', $params = array())
+	{
+		if(!empty($action)){
+			$this->_action = $action;
+			$rules = $this->_accessRules();
+			if($this->_filtersAccessControl($rules)){
+			   call_user_func_array(array($this, $action), $params);
+			}else{
+				// TODO add warning in Debug panel
+			}
+		}else{
+			$this->redirect('error/index');
+		}
+	}
+	
+	/**
 	 * Renders test action
+	 * @return void
 	 */
 	public function testAction()
 	{
@@ -50,6 +75,7 @@ class CController
 
 	/**
 	 * Renders error 404 view
+	 * @return void
 	 */
 	public function errorAction()
 	{
@@ -71,17 +97,18 @@ class CController
 	 * @param string $path			Redirect path
 	 * @param int $code				HTTP Response status code
 	 * @param bool $isDirectUrl
+	 * @return void
 	 */
     public function redirect($path, $isDirectUrl = false, $code = '')
 	{
 		if(APPHP_MODE == 'test') return true;
-        
+
 		if(!$isDirectUrl){
 			$paramsParts = explode('/', $path);
 			$calledController = str_replace('controller', '', strtolower($this->_getCalledClass()));
 			$params = '';
 			$baseUrl = A::app()->getRequest()->getBaseUrl();
-			
+
 			// Set controller and action according to given parameters
 			if(!empty($path)){
 				$parts = count($paramsParts);
@@ -128,6 +155,117 @@ class CController
     }
  
 	/**
+     * Used to define access rules to controller
+	 * This method should be overridden
+	 * @return array
+	 * 
+	 * @usage
+	 * 	return array(
+	 * 		array('allow',
+	 * 			'actions' => array('*'),
+	 * 			'ips' => array('127.0.0.1'),
+	 * 		),
+	 *		array('deny',
+	 * 			'actions' => array('index','view', 'create', 'update', 'manage'),
+	 * 			'ips' => array('*')
+	 * 		),
+	 * );
+	 * 
+	 */
+	protected function _accessRules()
+	{
+		return array();
+	}
+	
+	/**
+	 * Applies rules to action
+	 * Hint: deny actions have priority on allow actions
+	 * @param array $rules
+	 * @return bool
+	 */
+	protected function _filtersAccessControl($rules = array())
+	{
+		$allowed = !empty($rules[0]) ? $rules[0] : array();
+		$denied = !empty($rules[1]) ? $rules[1] : array();
+		$current_ip = A::app()->getRequest()->getUserHostAddress();
+		$return = true;
+		
+		if(empty($allowed) && empty($denied)){
+			return $return;
+		}
+		
+		if($allowed){
+			$actions = !empty($allowed['actions']) ? (array)$allowed['actions'] : array();
+			$ips = !empty($allowed['ips']) ? (array)$allowed['ips'] : array();
+			
+			$access = $this->_filterAccessControl('allowed', $actions, $ips, $current_ip);
+			if($access !== null){
+				$return = $access;
+			}
+		}
+		
+		if($denied){			
+			$actions = !empty($denied['actions']) ? (array)$denied['actions'] : array();
+			$ips = !empty($denied['ips']) ? (array)$denied['ips'] : array();
+			
+			$access = $this->_filterAccessControl('denied', $actions, $ips, $current_ip);
+			if($access !== null){
+				$return = $access;
+				if(!$access){
+					CDebug::addMessage('warnings', 'access-denied', A::t('core', 'Access to {controller}::{action}() denied for this IP: {ip address}', array('{controller}' => get_class($this), '{action}' => $this->_action, '{ip address}' => $current_ip)));
+				}
+			}
+		}
+		
+		return $return;
+	}
+
+	/**
+	 * Applies rule 
+	 * @param string $type
+	 * @param array $actions
+	 * @param array $ips
+	 * @return bool
+	 */
+	protected function _filterAccessControl($type, $actions, $ips, $current_ip)
+	{
+		$return = null;
+		
+		if(!empty($actions)){
+			$return = ($type == 'denied' ? true : false);
+			
+			// Check if action is defined
+			foreach($actions as $action){
+				// Action found - now check it
+				if($action === '*' || (str_ireplace('Action', '', $this->_action) === $action)){						
+					$return = ($type == 'denied' ? false : true);
+					
+					if(!empty($ips)){
+						$return = ($type == 'denied' ? true : false);
+						
+						// Check if IP address is denied
+						foreach($ips as $ip){							
+							if($type == 'denied'){
+								if($ip !== '*' && $current_ip === $ip){
+									$return = false;
+									break(2);
+								}
+							}else{
+								if($ip === '*' || $current_ip === $ip){
+									$return = true;
+									break(2);									
+								}
+							}							
+						}
+					}
+				}
+			}
+		}
+		
+		return $return;
+	}
+	
+ 	/**
 	 * Returns the name of called class
 	 * @return string|bool
 	 */
@@ -175,5 +313,6 @@ class CController
 		}
 		return false;
 	}	
-    
+ 
+   
 }

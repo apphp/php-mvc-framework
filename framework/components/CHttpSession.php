@@ -5,15 +5,16 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2018 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC:					PROTECTED:					PRIVATE:		
  * ----------               ----------                  ---------- 
  * __construct                                          _setCookieMode 
  * init (static)										
- * set                                                  
+ * set
  * get
+ * getAll
  * remove
  * removeAll
  * isExists
@@ -99,12 +100,22 @@ class CHttpSession extends CComponent
 	 * Returns session variable 
 	 * @param string $name
 	 * @param mixed $default
+	 * @return mixed
 	 */
 	public function get($name, $default = '')
 	{
 		return isset($_SESSION[$this->_prefix.$name]) ? $_SESSION[$this->_prefix.$name] : $default;
 	}
-    
+	
+	/**
+	 * Returns all session variables
+	 * @return mixed
+	 */
+	public function getAll()
+	{
+		return isset($_SESSION) ? $_SESSION : null;
+	}
+	
 	/**
 	 * Removes session variable 
 	 * @param string $name

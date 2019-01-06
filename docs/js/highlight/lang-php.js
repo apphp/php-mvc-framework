@@ -28,7 +28,6 @@
 (function(){
 
 	var builtins = [
-        "define",
         "defined",
         "dirname",        
         "run",
@@ -246,7 +245,22 @@
 		"order",
 		"where",
 		"queryRow",
-		"queryAll",		
+		"queryAll",
+		"request",
+		"post",
+		"deny",
+		"allow",		
+		"all",
+		"All",
+		"RewriteCond",
+		"RewriteEngine",
+		"RewriteRule",
+		"Options",
+		"ErrorDocument",
+		"IfModule",
+		"Limit",
+		"FILES",
+		"_accessRules"
 	];
 
 	var BUILTINS = {};
@@ -290,6 +304,10 @@
 		"endif",
 		"try",
 		"catch",
+		"mod_rewrite",
+		"404",
+		"or",
+        "define",
 	];
 
 	var KEYWORDS = {};
