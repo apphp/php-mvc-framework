@@ -53,7 +53,7 @@ jobs:
           composer --version
           phpunit --version
     
-      - name: Runt PHPUnit tests
+      - name: Runt PHPUnit tests 
         run: composer tests
 
       #- name: Test some packages if they are installed
