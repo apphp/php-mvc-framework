@@ -298,14 +298,14 @@ class CHttpSession extends CComponent
 	private function _setCookieMode($value = '')
 	{
 		if ($value === 'none') {
-			ini_set('session.use_cookies', '0');
-			ini_set('session.use_only_cookies', '0');
+			@ini_set('session.use_cookies', '0');
+			@ini_set('session.use_only_cookies', '0');
 		} elseif ($value === 'allow') {
-			ini_set('session.use_cookies', '1');
-			ini_set('session.use_only_cookies', '0');
+			@ini_set('session.use_cookies', '1');
+			@ini_set('session.use_only_cookies', '0');
 		} elseif ($value === 'only') {
-			ini_set('session.use_cookies', '1');
-			ini_set('session.use_only_cookies', '1');
+			@ini_set('session.use_cookies', '1');
+			@ini_set('session.use_only_cookies', '1');
 		} else {
 			CDebug::addMessage('warnings', 'session_cookie_mode', A::t('core', 'HttpSession.cookieMode can only be "none", "allow" or "only".'));
 		}
