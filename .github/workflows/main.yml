@@ -48,7 +48,7 @@ jobs:
       - name: Test some packages if they are installed
         run: | 
           aws --version
-          zip --v
+          #zip --v
       
       
       
