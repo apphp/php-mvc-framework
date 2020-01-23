@@ -16,7 +16,7 @@ General update instructions
 
 Updating from 1.1.5 to 1.2.2
 ------------------------------
-- general update instructions
+- changed format for 'cache' in config file
 
 Updating from 1.0.3 to 1.1.5
 ------------------------------
@@ -56,7 +56,7 @@ Updating from 0.3.4 to 0.4.4
 
 Updating from 0.2.4 to 0.3.4
 ------------------------------
-- setting default time zone removed from A class and placed into CLocalTime component. Ex.: A::app()->getLocalTime()->setTimeZone('UTC');
+- setting default time zone removed from A class and placed into CLocalTime component. Ex.: A::app()->getLocalTime()->setTimeZone('UTC');	
 - changed syntax for all widgets. Ex.: from CWidget::gridView(...) to CWidget::create('CGridView', ...)
 - rename all framework files that used by the code with prefix "C", ex: Model -> CModel, Controller -> CController, etc.
 - in widgets: CFormView, CFormValidation and CGridView attribute 'label'=>'' renamed into 'title'=>''

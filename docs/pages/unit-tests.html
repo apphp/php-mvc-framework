@@ -27,24 +27,23 @@
     <li>
         Make sure you added following to <strong>composer.json</strong> file:
 <pre>
-
-        "scripts": {
-        "tests-result": "phpunit --colors=always --log-junit test-results.xml",
-        "tests": "phpunit --colors=always",
-        "test": "phpunit --colors=always --filter"
-        }
+"scripts": {
+    "tests-result": "phpunit --colors=always --log-junit test-results.xml",
+    "tests": "phpunit --colors=always",
+    "test": "phpunit --colors=always --filter"
+}
 </pre>
 
     </li>
     <li>
         Install composer on your server.
         <a class="external" href="https://getcomposer.org" target="_blank" rel="noopener noreferrer">https://getcomposer.org</a>
+        <br><br>
     </li>
     <li>
         After Composer is installed, install PHPUnit by<br>
         <pre>composer require phpunit/phpunit --dev</pre>
         <br><br>
-
         you may also remove it and re-install:<br>
 <pre>composer remove phpunit/phpunit --dev
 composer update

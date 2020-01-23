@@ -1,14 +1,35 @@
-Version 1.2.2 -  01 Jan, 2019
+Version 1.3.x -
+----------------------------
+- New: added CRecordEntity to ORM model
+- New: added phpunit tests
+- Enh: added possibility to use create() and update() methods in CActiveRecord
+- Enh: changes in components CHttpRequest
+- Enh: minor changes in database migrations
+- Enh: added possibility to define order for CSS and JS registration files
+- Enh: changes in helpers CValidator, CRss, CDebug, CHash, CGeoLocation, CConfig, CHtml
+- Enh: in CDataForm and CFormView added new type of validation: "regex"
+- Enh: code syntax changed according to new code convention
+- Enh: added possibility to define lazy loading (by default) for components
+- Enh: added possibility for lazy loading of core components via config
+- Enh: fixed wrong path of log file in CLogger component
+- Bug: fixed PHP7 syntax requirements in TCPDF vendor, CValidator helper
+- Bug: fixed overwriting existing vars in View rendeting
+
+Version 1.2.2 - 01 Jan, 2019
 ----------------------------
 - New: added possibility to define Captcha fields in CDataForm widget
 - New: added possibility to define access permissions to controller actions via _accessRules() method
 - New: added possibility to minify CSS and JS files via config file
+- New: added Arabic language to i18n
+- New: added possibility for new type of cache - data cache, changes in config file
+- New: added new helper CClass
+- Enh: minimum requirements for PHP is defined as 5.4.0
 - Enh: allowed creating and removing cache files by cache ID
-- Enh: changes in helpers CFile, CDataForm, CHttpRequest, CValidator, CLocalTime
+- Enh: changes in components CHttpRequest
+- Enh: changes in helpers CFile, CDataForm, CValidator, CLocalTime
 - Enh: added possibility to add watermark for uploaded images with CImage::addWatermark() in CDataForm
 - Enh: added possibility to remove whole section in FormView by using 'disabled'=>true
 - Enh: minimum requirements for PHP is defined as 5.4.0
-- New: added Arabic language to i18n
 - Bug: fixed error on witting to file in CFile helper
 - Bug: fixed warning on double call of CView::renderContent()
 

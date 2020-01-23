@@ -11,6 +11,7 @@ You will see the following files and directories:
     demos/              demo applications
     docs/               documentation
     framework/          framework source files
+    tests/              PHPUnit tests
     utils/              some utilities
         requirements/   requirements checker
         tests/          tests
