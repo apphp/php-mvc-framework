@@ -45,13 +45,13 @@ jobs:
           composer --version
           phpunit --version
 
-      #- name: Install PHPUnit
-      #  run: composer require phpunit/phpunit ^7
+      - name: Install PHPUnit
+        run: composer require phpunit/phpunit ^7
 
-      #- name: Check again some packages if they are installed
-      #  run: | 
-      #    composer --version
-      #    phpunit --version
+      - name: Check again some packages if they are installed
+        run: | 
+          composer --version
+          phpunit --version
     
       - name: Runt PHPUnit tests
         run: composer tests
