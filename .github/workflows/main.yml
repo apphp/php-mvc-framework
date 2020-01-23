@@ -17,12 +17,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Git clone my repo  
-      uses: actions/checkout@v1
-    
-    - name: List current folder
-      run: ls -la
-
     - name: Run testing
       run: echo Testing is running...
     
@@ -36,19 +30,27 @@ jobs:
     needs: [my-testing]
     
     steps:
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
-      
       - name: Print env variables
         run: | 
           echo "Pack Name: ${{ env.DEPLOY_PACKAGE_NAME }}"
           
-      - name: Test some packages if they are installed
+      - name: Git clone my repo  
+        uses: actions/checkout@v1
+
+      - name: List current folder
+        run: ls -la
+    
+      - name: Check some packages if they are installed
         run: | 
-          aws --version
-          #zip --v
+          composer --version
+
+      - name: Runt PHPUnit tests
+        run: composer tests
+
+      #- name: Test some packages if they are installed
+      #  run: | 
+      #    @aws --version
+      #    #zip --v
       
       
       
