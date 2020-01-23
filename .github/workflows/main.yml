@@ -1,6 +1,16 @@
-name: Basics
+#-----------------------------------------
+# Basic Deploy
+#-----------------------------------------
+name: Basic Deploy
+env:
+  APP_NAME: APPHP MVC FRAMEWORK
+  DEPLOY_PACKAGE_NAME: "apphp-deploy-${{ github.sha }}"
 
-on: [push]   
+#  [push]   
+on:
+  push:
+    branches: 
+      - master
 
 jobs:
   my-testing:
@@ -8,10 +18,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
+    #- uses: actions/checkout@v1
+    
     - name: Run a one-line script
       run: echo Hello, world!
+    
     - name: Run a multi-line script
       run: |
         echo Add other actions to build,
         echo test, and deploy your project.
+    
+    - name: Print env variables
+      run: | 
+        echo "App Name: ${{ env.APP_NAME }}"
+        echo "Pack Name: ${{ env.DEPLOY_PACKAGE_NAME }}"
+      
