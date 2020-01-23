@@ -163,7 +163,7 @@ class A
 		'setup' => array('classes' => array('Modules\Setup\Controllers\Setup')),
 	);
 	/** @var bool */
-	private $_coreComponentsLazyLoading = false;
+	private $_coreComponentsLazyLoading = true;
 	/** @var array */
 	private $_components = array();
 	/** @var array */
@@ -266,7 +266,7 @@ class A
 		}
 		
 		// Set components loading type
-		if (CConfig::exists('coreComponentsLazyLoading') && CConfig::get('coreComponentsLazyLoading') === false) {
+		if (APPHP_MODE == 'hidden' || (CConfig::exists('coreComponentsLazyLoading') && CConfig::get('coreComponentsLazyLoading') === false)) {
 			$this->_coreComponentsLazyLoading = false;
 		}
 		
