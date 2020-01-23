@@ -163,7 +163,7 @@ class A
 		'setup' => array('classes' => array('Modules\Setup\Controllers\Setup')),
 	);
 	/** @var bool */
-	private $_coreComponentsLazyLoading = true;
+	private $_coreComponentsLazyLoading = false;
 	/** @var array */
 	private $_components = array();
 	/** @var array */
