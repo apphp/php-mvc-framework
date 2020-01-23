@@ -1,14 +1,14 @@
 <article>
-    <h1>Pages</h1>
-
-	<?php echo $actionMessage; ?>
+	<h1>Pages</h1>
 	
+	<?= $actionMessage; ?>
+
 	<p>
-	<?php 
-    if(empty($pages)){
-    	echo 'No pages in this menu. Use "New Page" menu to add pages.';
-    }else{
-    	echo '<table class="table-records">
+		<?php
+		if (empty($pages)) {
+			echo 'No pages in this menu. Use "New Page" menu to add pages.';
+		} else {
+			echo '<table class="table-records">
             <thead>
             <tr>
                 <th align="left">Page Header</th>
@@ -20,35 +20,35 @@
             </tr>
             </thead>
             <tbody>';
-
-    	foreach($pages as $page){
-        ?> 
-            <tr>
-                <td align="left" style="cursor:pointer;" onclick="window.location.href='pages/edit/id/<?php echo $page['id'] ?>'" title="Click to edit"><?php echo $page['link_text']?></td>
-                <td align="center"><?php echo (!empty($page['menu_name'])) ? $page['menu_name'] : 'N/A'; ?></td>
-                <td align="center"><?php echo CLocale::date('M j, Y, g:i a', $page['created_at']); ?></td>
-				<td align="center"><?php echo ($page['is_homepage'] == '1') ? '<span style="color:#009900;">Yes</span>' : 'No'; ?></td>
-                <td align="center"><?php echo $page['id'] ?></td>					
-				<td align="center">
-                    <a href="pages/edit/id/<?php echo $page['id'] ?>">Edit</a> |
-                    <a href="pages/delete/id/<?php echo $page['id'] ?>" onclick="if(!confirm('Are you sure you want to delete this page?')) return false;">Delete</a>
-                </td>
-            </tr>
-        <?php 
-    	}
-        echo '</tbody>';
-    	echo '</table>';
-
-        echo CWidget::create('CPagination', array(
-            'actionPath'   => 'pages/index',
-            'currentPage'  => $currentPage,
-            'pageSize'     => $pageSize,
-            'totalRecords' => $totalRecords
-        ));    
-        
-	}    
-    
-    
-	?>
+			
+			foreach ($pages as $page) {
+				?>
+				<tr>
+					<td align="left" style="cursor:pointer;" onclick="window.location.href='pages/edit/id/<?= $page['id'] ?>'" title="Click to edit"><?= $page['link_text'] ?></td>
+					<td align="center"><?= (!empty($page['menu_name'])) ? $page['menu_name'] : 'N/A'; ?></td>
+					<td align="center"><?= CLocale::date('M j, Y, g:i a', $page['created_at']); ?></td>
+					<td align="center"><?= ($page['is_homepage'] == '1') ? '<span style="color:#009900;">Yes</span>' : 'No'; ?></td>
+					<td align="center"><?= $page['id'] ?></td>
+					<td align="center">
+						<a href="pages/edit/id/<?= $page['id'] ?>">Edit</a> |
+						<a href="pages/delete/id/<?= $page['id'] ?>" onclick="if(!confirm('Are you sure you want to delete this page?')) return false;">Delete</a>
+					</td>
+				</tr>
+				<?php
+			}
+			echo '</tbody>';
+			echo '</table>';
+			
+			echo CWidget::create('CPagination', array(
+				'actionPath' => 'pages/index',
+				'currentPage' => $currentPage,
+				'pageSize' => $pageSize,
+				'totalRecords' => $totalRecords,
+			));
+			
+		}
+		
+		
+		?>
 	</p>
 </article>

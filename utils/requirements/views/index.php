@@ -55,7 +55,7 @@
 			</table>
 
 			<div id="footer">
-				<?php echo $server_info; ?>
+				<?= $server_info; ?>
 			</div>
 		</aside>
 		<article class="central">
@@ -70,13 +70,13 @@
 			</tr>
 			<?php foreach($requirements as $requirement){ ?>
 			<tr>
-				<td><?php echo $requirement[0]; ?></td>
-				<td><?php echo $requirement[2]; ?></td>
-				<td class="<?php echo $requirement[3] ? 'passed' : ($requirement[1] ? 'failed' : 'warning'); ?>">
-					<?php echo $requirement[3] ? 'Passed' : ($requirement[1] ? 'Failed' : 'Warning'); ?>
+				<td><?= $requirement[0]; ?></td>
+				<td><?= $requirement[2]; ?></td>
+				<td class="<?= $requirement[3] ? 'passed' : ($requirement[1] ? 'failed' : 'warning'); ?>">
+					<?= $requirement[3] ? 'Passed' : ($requirement[1] ? 'Failed' : 'Warning'); ?>
 				</td>
-				<td><?php echo $requirement[4]; ?></td>
-				<td><?php echo $requirement[5]; ?></td>
+				<td><?= $requirement[4]; ?></td>
+				<td><?= $requirement[5]; ?></td>
 			</tr>
 			<?php } ?>
 			</table>		

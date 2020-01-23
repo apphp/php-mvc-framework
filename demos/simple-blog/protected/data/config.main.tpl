@@ -4,7 +4,10 @@ return array(
     // application data
     'name' => 'Simple Blog',
     'version' => '1.0.2',
-    
+
+    // Directy CMF data
+    'directy_cmf_version' => '',
+
     // installation settings
     'installationKey' => '<INSTALLATION_KEY>',
 
@@ -120,8 +123,8 @@ return array(
 
     // Layout default settings
     'layouts' => array(
-    'enable' => array('frontend' => false, 'backend' => false),
-    'default' => 'default'
+        'enable' => array('frontend' => false, 'backend' => false),
+        'default' => 'default'
     ),
 
     // Application default settings
@@ -140,6 +143,17 @@ return array(
     'components' => array(
         'Bootstrap' => array('enable' => true, 'class' => 'Bootstrap'),
         'BlogMenu' => array('enable' => true, 'class' => 'BlogMenu'),
+    ),
+
+    // Logger settings
+    'log' => array(
+        'enable' => false,
+        'path' => 'protected/tmp/logs/',
+        'fileExtension' => 'php',
+        'dateFormat' => 'Y-m-d H:i:s',
+        'threshold' => 1,
+        'filePermissions' => 0644,
+        'lifetime' => 30			/* in days */
     ),
 
     // Widget settings
@@ -169,10 +183,10 @@ return array(
             //'paymentProviders/handlePayment/provider/([a-zA-Z0-9\_]+)[\/]?$' => 'paymentProviders/handlePayment/provider/{$0}',
             'paymentProviders/handlePayment/([a-zA-Z0-9\_]+)[\/]?$' => 'paymentProviders/handlePayment/provider/{$0}',
             // Required by dynamic pages, if you want to use user-friendly URLs
-            //'controller/action/value1/value2' => 'controller/action/param1/value1/param2/value2',
-            //'sitepages/show/example-page-1' => 'sitepages/show/name/about-us',
-            //'value1' => 'controller/action/param1/value1',
-            //'about-us' => 'sitepages/show/name/about-us',
+            //'controller/action/value1/value2' => 'controllerName/action/param1/value1/param2/value2',
+            //'sitepages/show/example-page-1' => 'sitePages/show/name/about-us',
+            //'value1' => 'controllerName/action/param1/value1',
+            //'about-us' => 'sitePages/show/name/about-us',
         ),
     ),
     

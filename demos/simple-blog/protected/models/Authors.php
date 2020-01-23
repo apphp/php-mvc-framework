@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Authors
  *
@@ -11,17 +12,18 @@
  * model
  *
  */
+
 class Authors extends CActiveRecord
 {
-
-    /** @var string */    
-    protected $_table = 'authors';
-
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
+	
+	/** @var string */
+	protected $_table = 'authors';
+	
+	public function __construct()
+	{
+		parent::__construct();
+	}
+	
 	/**
 	 * Returns the static model of the specified AR class
 	 */
@@ -29,5 +31,5 @@ class Authors extends CActiveRecord
 	{
 		return parent::model(__CLASS__);
 	}
- 
+	
 }

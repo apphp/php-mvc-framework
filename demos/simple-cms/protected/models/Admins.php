@@ -1,11 +1,12 @@
 <?php
+
 /**
  * Admins
  *
  * PUBLIC:                 PROTECTED                  PRIVATE
  * -----------             ------------------         ------------------
  * __construct             _customFields
- * 
+ *
  *
  * STATIC:
  * ---------------------------------------------------------------
@@ -14,15 +15,15 @@
  */
 class Admins extends CActiveRecord
 {
-
-    /** @var string */    
-    protected $_table = 'admins';
-
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
+	
+	/** @var string */
+	protected $_table = 'admins';
+	
+	public function __construct()
+	{
+		parent::__construct();
+	}
+	
 	/**
 	 * Returns the static model of the specified AR class
 	 */
@@ -32,15 +33,15 @@ class Admins extends CActiveRecord
 	}
 	
 	/**
-     * Used to define custom fields
+	 * Used to define custom fields
 	 * This method should be overridden
 	 */
 	protected function _customFields()
 	{
 		return array(
-			'CONCAT(first_name, " ", last_name)' => 'fullname'
+			'CONCAT(first_name, " ", last_name)' => 'fullname',
 		);
 	}
 	
- 
+	
 }

@@ -9,7 +9,9 @@ $prepare_data = array(
 		'AbcdZxc'	=> true,
 		'123abc'	=> false,
 		12345		=> false,
-		"-*.,/"		=> false
+		"-*.,/"		=> false,
+		'zxbcde-'	=> array('expected'=>true, 'allowed'=>'-'),
+		'zxbcdef-'	=> array('expected'=>false, 'allowed'=>array('=','_'))
 	),
 	'isNumeric' => array(
 		'12345'		=> true,
@@ -24,14 +26,20 @@ $prepare_data = array(
 		0			=> true
 	),
 	'isEmail' => array(
-		'me@email.com'				=> true,
+		'me@example.com'			=> true,
 		'me.email'					=> false,
 		'email@email@.com'			=> false,
 		'com.email@me'				=> false,
 		'me.email@.com'				=> false,
-		'me.email@email.com'		=> true,
+		'me.email@example.com'		=> true,
 		'me.email.me@email.info'	=> true,
 		'me.e_mail99@email.info'	=> true,
 		'me.e_*mail@email.info'		=> false
 	),
+	'validateRegex' => array(
+		'abcDef'					=> array('expected'=>true, 'pattern'=>'^[a-zA-Z]+$'),
+		'abcDef-'					=> array('expected'=>true, 'pattern'=>'^[a-zA-Z\-]+$'),
+		'abcDef34-'					=> array('expected'=>true, 'pattern'=>'^[a-zA-Z0-9\-]+$'),
+		'abcDef34_' 				=> array('expected'=>false, 'pattern'=>'^[a-zA-Z\-]+$'),
+	)
 );

@@ -1,7 +1,7 @@
 <?php
-	A::app()->view->setMetaTags('title', A::t('setup', 'General'));
-	
-    $this->_activeMenu = $this->_controller.'/'.$this->_action;
+A::app()->view->setMetaTags('title', A::t('setup', 'General'));
+
+$this->_activeMenu = $this->_controller . '/' . $this->_action;
 ?>
 
 <h1><?= A::t('setup', 'General'); ?></h1>
@@ -10,17 +10,17 @@
 <?= $actionMessage; ?>
 <br>
 <?php
-    echo CWidget::create('CFormView', array(
-        'action'=>'setup/index',
-        'method'=>'post',
-        'htmlOptions'=>array(
-            'name'=>'frmSetup',
-        ),
-        'fields'=>$formFields,
-        'buttons'=>array(
-            'submit'=>array('type'=>'submit', 'value'=>A::t('setup', 'Next'), 'htmlOptions'=>array('name'=>''))
-        ),
-        'return'=>true,
-    ));     
+echo CWidget::create('CFormView', array(
+	'action' => 'setup/index',
+	'method' => 'post',
+	'htmlOptions' => array(
+		'name' => 'frmSetup',
+	),
+	'fields' => $formFields,
+	'buttons' => array(
+		'submit' => array('type' => 'submit', 'value' => A::t('setup', 'Next'), 'htmlOptions' => array('name' => '')),
+	),
+	'return' => true,
+));
 ?>
 <br>

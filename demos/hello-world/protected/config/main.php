@@ -4,7 +4,7 @@ return array(
     // application data
     'name'=>'Hello World',
     'version'=>'1.0.2',
-
+	
     'defaultTemplate' => '',
 	
 	'defaultErrorController' => 'Error',

@@ -2,7 +2,7 @@
 /**
  * Bootstrap - bootstrap component class for application
  *
- * PUBLIC:         			PRIVATE:
+ * PUBLIC:                 	PRIVATE:
  * -----------              ------------------
  * __construct
  * init (static)
@@ -19,70 +19,70 @@
 
 class Bootstrap extends CComponent
 {
-    
-    private $_settings;
-
+	
+	private $_settings;
+	
 	/**
 	 * Class default constructor
 	 */
 	function __construct()
 	{
-        $this->_settings = Settings::model()->findByPk(1);
+		$this->_settings = Settings::model()->findByPk(1);
 		
 		// Check if site is offline
-		if($this->_settings->is_offline){
-            if(CAuth::isLoggedInAsAdmin() || stripos(A::app()->getRequest()->getRequestUri(), 'backend/login')){
-                // Allow viewing
-            }else{
-                $siteInfo = SiteInfo::model()->find('language_code = :lang', array(':lang'=>A::app()->getLanguage()));
-                A::app()->view->sitePhone = $siteInfo ? $siteInfo->site_phone : '';
-                A::app()->view->siteFax = $siteInfo ? $siteInfo->site_fax : '';
-                A::app()->view->siteEmail = $siteInfo ? $siteInfo->site_email : '';
+		if ($this->_settings->is_offline) {
+			if (CAuth::isLoggedInAsAdmin() || stripos(A::app()->getRequest()->getRequestUri(), 'backend/login')) {
+				// Allow viewing
+			} else {
+				$siteInfo = SiteInfo::model()->find('language_code = :lang', array(':lang' => A::app()->getLanguage()));
+				A::app()->view->sitePhone = $siteInfo ? $siteInfo->site_phone : '';
+				A::app()->view->siteFax = $siteInfo ? $siteInfo->site_fax : '';
+				A::app()->view->siteEmail = $siteInfo ? $siteInfo->site_email : '';
 				A::app()->view->siteAddress = $siteInfo ? $siteInfo->site_address : '';
-                A::app()->view->siteTitle = $siteInfo ? $siteInfo->header : '';
-                A::app()->view->slogan = $siteInfo ? $siteInfo->slogan : '';
-                A::app()->view->footer = $siteInfo ? $siteInfo->footer : '';
-                A::app()->view->offlineMessage = $this->_settings->offline_message;
-                A::app()->view->renderContent('offline');
-                exit;                
-            }
-		}		
-        
-        A::app()->attachEventHandler('_onBeginRequest', array($this, 'setTimeZone'));
+				A::app()->view->siteTitle = $siteInfo ? $siteInfo->header : '';
+				A::app()->view->slogan = $siteInfo ? $siteInfo->slogan : '';
+				A::app()->view->footer = $siteInfo ? $siteInfo->footer : '';
+				A::app()->view->offlineMessage = $this->_settings->offline_message;
+				A::app()->view->renderContent('offline');
+				exit;
+			}
+		}
+		
+		A::app()->attachEventHandler('_onBeginRequest', array($this, 'setTimeZone'));
 		//A::app()->attachEventHandler('_onBeginRequest', array($this, 'setWebsiteInfo'));
 		//A::app()->attachEventHandler('_onBeginRequest', array($this, 'setDefaultLanguage'));
 		//A::app()->attachEventHandler('_onBeginRequest', array($this, 'setDefaultCurrency'));
-        A::app()->attachEventHandler('_onBeginRequest', array($this, 'setSslMode'));
+		A::app()->attachEventHandler('_onBeginRequest', array($this, 'setSslMode'));
 		A::app()->attachEventHandler('_onBeginRequest', array($this, 'setCron'));
 		
 		A::app()->attachEventHandler('_onEndRequest', array($this, 'setLastVisitedPage'));
 	}
-
+	
 	/**
-     *	Returns the instance of object
-     *	@return current class
-     */
+	 *    Returns the instance of object
+	 * @return current class
+	 */
 	public static function init()
 	{
 		return parent::init(__CLASS__);
 	}
-
+	
 	/**
 	 * Sets timezone according to database settings
-	 */	
+	 */
 	public function setTimeZone()
 	{
-		if($this->_settings->time_zone != ''){
+		if ($this->_settings->time_zone != '') {
 			$timeZone = $this->_settings->time_zone;
-		}else{
+		} else {
 			$timeZone = CConfig::get('defaultTimeZone', 'UTC');
 		}
 		A::app()->getLocalTime()->setTimeZone($timeZone);
 	}
-    
+	
 	/**
 	 * Sets site info
-	 */	
+	 */
 	public function setWebsiteInfo()
 	{
 		//Website::setInfo();
@@ -91,7 +91,7 @@ class Bootstrap extends CComponent
 	/**
 	 * Sets default language
 	 * @param bool $force
-	 */	
+	 */
 	public function setDefaultLanguage($force = false)
 	{
 //        if(A::app()->getLanguage('', false) == '' || $force){
@@ -107,10 +107,10 @@ class Bootstrap extends CComponent
 //            }			
 //        }
 	}
-
+	
 	/**
 	 * Sets default currency
-	 */	
+	 */
 	public function setDefaultCurrency()
 	{
 //		if(A::app()->getSession()->get('currency_code') == ''){
@@ -126,33 +126,33 @@ class Bootstrap extends CComponent
 //			}
 //		}
 	}
-
+	
 	/**
 	 * Sets (forces) ssl mode (if requred)
-	 */	
+	 */
 	public function setSslMode()
 	{
-        $sslEnabled = false;
-        
-        if($this->_settings->ssl_mode == 1){
-            $sslEnabled = true; 
-        }elseif($this->_settings->ssl_mode == 2 && CAuth::isLoggedInAsAdmin()){
-            $sslEnabled = true; 
-        }elseif($this->_settings->ssl_mode == 3 && CAuth::isLoggedInAs('user','customer','client')){
-            $sslEnabled = true;            
-        //}elseif($this->_settings->ssl_mode == 4){
-        //$sslEnabled = true; 
-        }
-
-        if($sslEnabled && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == 'off')){
-            header('location: https://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
-            exit;
-        }        
-    }
+		$sslEnabled = false;
+		
+		if ($this->_settings->ssl_mode == 1) {
+			$sslEnabled = true;
+		} elseif ($this->_settings->ssl_mode == 2 && CAuth::isLoggedInAsAdmin()) {
+			$sslEnabled = true;
+		} elseif ($this->_settings->ssl_mode == 3 && CAuth::isLoggedInAs('user', 'customer', 'client')) {
+			$sslEnabled = true;
+			//}elseif($this->_settings->ssl_mode == 4){
+			//$sslEnabled = true;
+		}
+		
+		if ($sslEnabled && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == 'off')) {
+			header('location: https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+			exit;
+		}
+	}
 	
 	/**
 	 * Sets cron job
-	 */	
+	 */
 	public function setCron()
 	{
 		// Un-comment if 'non-batch' cron job type is used
@@ -162,24 +162,25 @@ class Bootstrap extends CComponent
 	
 	/**
 	 * Sets last visited page
-	 */	
+	 */
 	public function setLastVisitedPage()
 	{
 		//Website::setLastVisitedPage();
 	}
 	
- 	/**
+	/**
 	 * Returns site settings
 	 * Helps to prevent multiple call of Settings::model()->findByPk(1);
-	 */	
+	 * @param string $param
+	 */
 	public function getSettings($param = '')
 	{
-        $settings = $this->_settings->getFieldsAsArray();
-		if($param !== ''){
-            return isset($settings[$param]) ? $settings[$param] : '';
-        }else{
-            return $this->_settings;
-        }
-    }   
-
+		$settings = $this->_settings->getFieldsAsArray();
+		if ($param !== '') {
+			return isset($settings[$param]) ? $settings[$param] : '';
+		} else {
+			return $this->_settings;
+		}
+	}
+	
 }

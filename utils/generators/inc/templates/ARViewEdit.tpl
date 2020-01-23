@@ -8,12 +8,12 @@
     );    
 ?>
 
-<h1><?php echo A::t('[MODULE_CODE]', '[MODEL_NAME] Management')?></h1>	
+<h1><?= A::t('[MODULE_CODE]', '[MODEL_NAME] Management')?></h1>
 
 <div class="bloc">
-	<?php echo $tabs; ?>
+	<?= $tabs; ?>
 		
-	<div class="sub-title"><?php echo A::t('[MODULE_CODE]', 'Edit New [MODEL_NAME]'); ?></div>
+	<div class="sub-title"><?= A::t('[MODULE_CODE]', 'Edit New [MODEL_NAME]'); ?></div>
     <div class="content">
 	<?php
 		echo CWidget::create('CDataForm', array(

@@ -11,7 +11,7 @@
     <base href="<?= A::app()->getRequest()->getBaseUrl(); ?>" />
     <link rel="shortcut icon" href="templates/setup/images/favicon.ico" />     
     <?= CHtml::cssFile("templates/setup/css/main.css"); ?>
-	<?= CHtml::scriptFile('http://code.jquery.com/jquery-1.8.3.min.js'); ?>
+	<?= CHtml::scriptFile('https://code.jquery.com/jquery-1.11.3.min.js'); ?>
 </head>
 <body>  
 <div id="container">

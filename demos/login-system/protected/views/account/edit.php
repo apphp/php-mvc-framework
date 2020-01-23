@@ -2,7 +2,7 @@
     $this->_activeMenu = 'account/edit';
 ?>
 
-<?php echo $actionMessage; ?>
+<?= $actionMessage; ?>
 
 <fieldset>
     <legend>Edit My Account</legend>

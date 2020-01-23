@@ -6,31 +6,31 @@ class PageController extends CController
 	
 	public function __construct()
 	{
-        parent::__construct();
+		parent::__construct();
 		
 		$this->_view->setMetaTags('title', 'Sample application - Simple Login System :: Index');
 		$this->_view->setMetaTags('keywords', 'apphp framework, simple login system, apphp');
 		$this->_view->setMetaTags('description', 'This is a simple login system, consists from the few pages and protected area.');
-    }
+	}
 	
 	public function indexAction()
 	{
 		$this->redirect('index/index');
-    }
-
+	}
+	
 	public function errorAction()
 	{
-        $this->_view->header = 'Error 404';
-        $this->_view->text = CDebug::getMessage('errors', 'action').'<br>Please check carefully the URL you\'ve typed.';		
-        $this->_view->render('error/index');        
-    }
-    
+		$this->_view->header = 'Error 404';
+		$this->_view->text = CDebug::getMessage('errors', 'action') . '<br>Please check carefully the URL you\'ve typed.';
+		$this->_view->render('error/index');
+	}
+	
 	public function publicAction($id = 0)
 	{
-		$id = (CValidator::isDigit($id) && CValidator::validateMaxLength($id, 1)) ? $id : 0;		
+		$id = (CValidator::isDigit($id) && CValidator::validateMaxLength($id, 1)) ? $id : 0;
 		$this->_view->id = $id;
-        $this->_view->header = 'Page'.$id;
-		if($id === '1'){
+		$this->_view->header = 'Page' . $id;
+		if ($id === '1') {
 			$this->_view->setMetaTags('title', 'Page 1 :: Simple Login System :: Index');
 			$this->_view->text = '
 				Mauris quis nisl sit amet augue adipiscing consectetur. Praesent lacus augue,
@@ -44,7 +44,7 @@ class PageController extends CController
 				malesuada ac eu magna. Mauris ornare vestibulum congue. In scelerisque orci vel velit condimentum
 				hendrerit.
 			';
-		}else{
+		} else {
 			$this->_view->setMetaTags('title', 'Page 2 :: Simple Login System :: Index');
 			$this->_view->text = '
 				Ut varius bibendum urna ac convallis. Sed non porta elit. Cum sociis natoque penatibus et magnis
@@ -64,17 +64,17 @@ class PageController extends CController
 			';
 		}
 		
-        $this->_view->render('page/index');		
-    }
+		$this->_view->render('page/index');
+	}
 	
 	public function dashboardAction()
 	{
-        // block access to this controller for not-logged users
-		if(!CAuth::isLoggedIn()){
+		// block access to this controller for not-logged users
+		if (!CAuth::isLoggedIn()) {
 			$this->redirect('index/index');
-		}	
-
-		$this->_view->render('page/dashboard');		
-	}	
-
+		}
+		
+		$this->_view->render('page/dashboard');
+	}
+	
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Menus
  *
@@ -13,15 +14,15 @@
  */
 class Menus extends CActiveRecord
 {
-    
-    /** @var string */    
-    protected $_table = 'menus';
-    
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
+	
+	/** @var string */
+	protected $_table = 'menus';
+	
+	public function __construct()
+	{
+		parent::__construct();
+	}
+	
 	/**
 	 * Returns the static model of the specified AR class
 	 */
@@ -29,5 +30,5 @@ class Menus extends CActiveRecord
 	{
 		return parent::model(__CLASS__);
 	}
-
+	
 }

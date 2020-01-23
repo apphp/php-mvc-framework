@@ -7,10 +7,10 @@
     );    
 ?>
 
-<h1><?php echo A::t('[MODULE_CODE]', '[MODEL_NAME] Management'); ?></h1>
+<h1><?= A::t('[MODULE_CODE]', '[MODEL_NAME] Management'); ?></h1>
 
 <div class="bloc">
-    <?php echo $tabs; ?>
+    <?= $tabs; ?>
 
     <div class="content">
     <?php 

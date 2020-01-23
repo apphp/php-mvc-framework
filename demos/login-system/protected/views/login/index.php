@@ -9,8 +9,8 @@
         echo CWidget::create('CMessage', array('info', 'To access the demo account enter<br>Username: <b>admin</b><br>Password: <b>test</b>'));
     }
 ?>
-
-<?php echo $actionMessage; ?>
+	
+<?= $actionMessage; ?>
 
 <fieldset>
     <legend>Login</legend>

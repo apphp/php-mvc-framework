@@ -1,4 +1,4 @@
 <article>
-	<h1><?php echo $mainHeader; ?></h1>
-	<p><?php echo $mainText; ?></p>
+	<h1><?= $mainHeader; ?></h1>
+	<p><?= $mainText; ?></p>
 </article>
