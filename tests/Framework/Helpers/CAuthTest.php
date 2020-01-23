@@ -27,21 +27,21 @@ class CAuthTestTest extends TestCase
 		self::assertEquals(true, CAuth::isLoggedIn());
 	}
 	
-	/**
-	 * Test for CAuth::isLoggedInAs
-	 */
-	public function testIsLoggedInAs(): void
-	{
-		A::app()->getSession()->set('loggedId', 0);
-		self::assertEquals(false, CAuth::isLoggedInAs());
-
-		A::app()->getSession()->set('loggedId', 1);
-		self::assertEquals(false, CAuth::isLoggedInAs('user'));
-		
-		A::app()->getSession()->set('loggedRole', 'user');
-		self::assertEquals(true, CAuth::isLoggedInAs('user'));
-		self::assertEquals(false, CAuth::isLoggedInAs('customer'));
-	}
+//	/**
+//	 * Test for CAuth::isLoggedInAs
+//	 */
+//	public function testIsLoggedInAs(): void
+//	{
+//		A::app()->getSession()->set('loggedId', 0);
+//		self::assertEquals(false, CAuth::isLoggedInAs());
+//
+//		A::app()->getSession()->set('loggedId', 1);
+//		self::assertEquals(false, CAuth::isLoggedInAs('user'));
+//
+//		A::app()->getSession()->set('loggedRole', 'user');
+//		self::assertEquals(true, CAuth::isLoggedInAs('user'));
+//		self::assertEquals(false, CAuth::isLoggedInAs('customer'));
+//	}
 
 	//isLoggedInAsAdmin
 	//isGuest()

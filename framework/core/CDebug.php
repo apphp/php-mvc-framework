@@ -75,6 +75,8 @@ class CDebug
 	 */
 	public static function d($param, $terminate = false, $useDbug = true)
 	{
+		if (APPHP_MODE != 'debug') return false;
+		
 		self::dump($param, $terminate, $useDbug);
 	}
 	
@@ -87,6 +89,8 @@ class CDebug
 	 */
 	public static function dump($param, $terminate = false, $useDbug = true)
 	{
+		if (APPHP_MODE != 'debug') return false;
+		
 		if ($terminate) {
 			@header('content-type: text/html; charset=utf-8');
 			echo '<!DOCTYPE html><html><head><meta charset="UTF-8" /></head><body>';
@@ -115,6 +119,8 @@ class CDebug
 	 */
 	public static function c($val, $key = '')
 	{
+		if (APPHP_MODE != 'debug') return false;
+		
 		self::console($val, $key);
 	}
 	
@@ -126,6 +132,8 @@ class CDebug
 	 */
 	public static function console($val, $key = '')
 	{
+		if (APPHP_MODE != 'debug') return false;
+		
 		self::addMessage('console', $key, $val);
 	}
 	
@@ -138,6 +146,8 @@ class CDebug
 	 */
 	public static function write($val = '', $key = '', $storeType = '')
 	{
+		if (APPHP_MODE != 'debug') return false;
+		
 		if ($key == '') $key = 'console-write-' . CHash::getRandomString(4);
 		self::addMessage('general', $key, $val, $storeType);
 	}
@@ -149,6 +159,8 @@ class CDebug
 	 */
 	public static function prepareBacktrace($traceData = array())
 	{
+		if (APPHP_MODE != 'debug') return '';
+		
 		$stack = '';
 		$i = 0;
 		
@@ -183,6 +195,8 @@ class CDebug
 	 */
 	public static function backtrace($message = '', $traceData = array(), $formatted = true)
 	{
+		if (APPHP_MODE != 'debug') return '';
+		
 		if (APPHP_MODE == 'debug') {
 			$stack = self::prepareBacktrace($traceData);
 		} else {
@@ -266,11 +280,11 @@ class CDebug
 		
 		// Store message in session
 		if ($storeType == 'session') {
-//			$objSession = A::app()->getSession();
-//			if (!empty($objSession)) {
-//				$objSession->set('debug-' . $type, $val);
-//			}
-//			return false;
+			$objSession = A::app()->getSession();
+			if (!empty($objSession)) {
+				$objSession->set('debug-' . $type, $val);
+			}
+			return false;
 		}
 
 		if ($type == 'general') self::$_arrGeneral[$key][] = CFilter::sanitize('string', $val);
@@ -305,8 +319,9 @@ class CDebug
 	 */
 	public static function getMessage($type = 'params', $key = '')
 	{
-		$output = '';
+		if (APPHP_MODE != 'debug') return '';
 		
+		$output = '';
 		if ($type == 'errors') $output = isset(self::$_arrErrors[$key]) ? self::$_arrErrors[$key] : '';
 		
 		return $output;

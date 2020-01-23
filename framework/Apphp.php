@@ -498,7 +498,6 @@ class A
 						include($classFile);
 					} else {
 						CDebug::addMessage('errors', 'missing-model', A::t('core', 'Unable to find class "{class}".', array('{class}' => $className)), 'session');
-						
 						// [04.04.2015] This is not a core class - don't redirect to Error controller, just show error in debug panel
 						//A::app()->getSession()->setFlash('error500', A::t('core', 'Unable to find class "{class}".', array('{class}'=>$className)));
 						//header('location: '.$this->getRequest()->getBaseUrl().'error/index/code/500');
