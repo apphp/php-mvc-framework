@@ -13,21 +13,21 @@ on:
       - master
 
 jobs:
-  my-testing:
-    runs-on: ubuntu-latest
+#  my-testing:
+#    runs-on: ubuntu-latest
 
-    steps:
-    - name: Run testing
-      run: echo Testing is running...
-    
-    - name: Print env variables
-      run: | 
-        echo "App Name: ${{ env.APP_NAME }}"
+#    steps:
+#    - name: Run testing
+#      run: echo Testing is running...
+#    
+#    - name: Print env variables
+#      run: | 
+#        echo "App Name: ${{ env.APP_NAME }}"
    
 
   my-deploy:
     runs-on: ubuntu-latest
-    needs: [my-testing]
+ #   needs: [my-testing]
     
     steps:
       - name: Print env variables
@@ -46,10 +46,15 @@ jobs:
           phpunit --version
 
       - name: Install PHPUnit
-        run: composer require phpunit/phpunit --dev
+        run: composer require phpunit/phpunit ^7
 
-      - name: Runt PHPUnit tests
-        run: composer tests
+      - name: Check again some packages if they are installed
+        run: | 
+          composer --version
+          phpunit --version
+    
+      #- name: Runt PHPUnit tests
+      #  run: composer tests
 
       #- name: Test some packages if they are installed
       #  run: | 
