@@ -43,6 +43,10 @@ jobs:
       - name: Check some packages if they are installed
         run: | 
           composer --version
+          phpunit --version
+
+      - name: Install PHPUnit
+        run: composer require phpunit/phpunit --dev
 
       - name: Runt PHPUnit tests
         run: composer tests
