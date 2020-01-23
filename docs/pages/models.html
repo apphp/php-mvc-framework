@@ -20,7 +20,7 @@
 
 <a name="general"></a>
 <h3>General Info <a class="hashlink" href="#general">¶</a></h3>  
-Database manipulation classes representes the "Model" layer as it defined in MVC. ApPHP framework contains
+Database manipulation classes represents the "Model" layer as it defined in MVC. ApPHP framework contains
 core class called Model for the implementation of database models. Description classes for entities used
 in applications must extend this class. Model class files must be located in subdirectory 
 <code>protected/models/</code> inside the application directory. There are some table names that were reserved for system needs:
@@ -171,6 +171,7 @@ Although PDO can handle virtually any database-related task, chances are that we
 more than 90% of our time in writing some SQL statements which perform the common CRUD
 (create, read, update and delete) operations. It is also difficult to maintain a code, when
 it mixed with SQL statements. To solve these problems, we can use Active Records.
+As a part of Active Record design pattern, we also use <a href="index.php?page=entities">Entities</a>.
 <br /><br />
 
 <h4>Defining AR Class</h4>
@@ -299,16 +300,40 @@ $page->content = 'page body content';
 $page->date_created = date('Y-m-d');
 $page->save();
 </pre>
+If entity is used you have to create it firstly and then pass as argument to the <code>save()</code> method:
+<pre name="dlhl" class="php">
+// Create new entity
+$page = new PageEntity();
+// Fill all data
+$page->header = 'Something';
+// other changes...
+// Create model, false - used to avoid filling all fields in ORM
+$pages = Pages::model(false);
+$page->save($page)
+</pre>
 
 If you defined the table's primary key as auto-incremental, the AR instance will contain an
 updated primary key adter successfull insertion. In the example above, the <code>id</code>
-property will reflect the primary key value of the newly inserted post, even though we never
+property will reflect the primary key value of the newly inserted page, even though we never
 change it explicitly.    
 <br><br>
 
 If a column is defined with some pre-defined default value (e.g. 'pending', 1 or NULL) in the table
 schema, the corresponding property in the AR instance will automatically get such value after
 the instance is created.
+<br><br>
+
+Another way to insert new rows is to use <code>create</code> method.
+Here the example:
+<pre name="dlhl" class="php">
+$page = new Pages();
+$data = array(
+    'title' => 'New page',
+    'content' => 'page body content',
+    'date_created' => date('Y-m-d')
+);
+$page->create($data);
+</pre>
 <br><br>
 
 <a name="updating_record"></a>
@@ -324,11 +349,24 @@ calling <code>save()</code> would update the existing row in the table.
 Here the example:    
 <pre name="dlhl" class="php">
 $page = Pages::model()->findByPk(12);
-$page->title = 'New page name';
+$page->title = 'Updated page name';
 $page->content = 'changed content of page body';
 $page->date_updated = date('Y-m-d');
 $page->save();
 </pre>
+If entity is used you have to create it firstly and then pass as argument to the <code>save()</code> method:
+<pre name="dlhl" class="php">
+// Create new entity with specified ID
+$page = new PageEntity($this->pageId);
+// Change data
+$page->header = 'Something updated';
+// other changes...
+// $page->setGuarded(array('author_id', 'page_datetime'));
+// Create model, false - used to avoid filling all fields in ORM
+$pages = Pages::model(false);
+$pages->save($page);
+</pre>
+
 
 You may also use following methods:
 <pre name="dlhl" class="php">
@@ -339,7 +377,20 @@ $result = Accounts::model()->updateAll(array('password'=>$password), 'is_active 
 </pre>
 <br>
 
-<br>
+Another way to update rows is to use <code>update</code> method.
+Here the example:
+<pre name="dlhl" class="php">
+$page = new Pages();
+$id = 12;
+$data = array(
+    'title' => 'Updated page name',
+    'content' => 'changed content of page body',
+    'date_updated' => date('Y-m-d')
+);
+$page->update($id, $data);
+</pre>
+<br><br>
+
 
 <a name="deleting_record"></a>
 <h4>Deleting Record</h4>
@@ -348,7 +399,7 @@ We can delete a row of data if an AR instance has been populated with this row. 
 the AR instance remains unchanged, but the corresponding row in the database table is removed.
 For example:
 <pre name="dlhl" class="php">
-// Assuming there is a post whose ID is 12
+// Assuming there is a page those ID is 12
 $page = Pages::model()->findByPk(12);
 // Deletes this row from the database table
 $page->delete();

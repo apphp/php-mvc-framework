@@ -22,11 +22,11 @@
 	<script type="text/javascript" src="js/highlight/highlight.js"></script>
 	<script type="text/javascript" src="js/highlight/helpers.js"></script>
 	<?php
-		if(in_array($page, array('templates', 'layouts', 'modules-structure', 'knowledge-base', 'shopping-cart'))){
-			echo '<script type="text/javascript" src="js/highlight/lang-xml.js"></script>'."\r\n";
+		if(in_array($page, array('templates', 'layouts', 'modules-structure', 'knowledge-base', 'shopping-cart', 'database-migration'))){
+			echo '<script type="text/javascript" src="js/highlight/lang-xml.js"></script>'.PHP_EOL;
 		}
-		if(in_array($page, array('modules-creating', 'session-custom-storage', 'knowledge-base'))){
-            echo '<script type="text/javascript" src="js/highlight/lang-sql.js"></script>'."\r\n";
+		if(in_array($page, array('modules-creating', 'session-custom-storage', 'knowledge-base', 'database-migration'))){
+            echo '<script type="text/javascript" src="js/highlight/lang-sql.js"></script>'.PHP_EOL;
         }
 	?>
 	<script type="text/javascript" src="js/highlight/lang-php.js"></script>	
@@ -36,7 +36,7 @@
     <header>
         <nav>
             <ul class="menu">
-				<li class="active"><a href="index.php">ApPHP Framework Guide 1.1</a></li>
+				<li class="active"><a href="index.php">ApPHP Framework Guide 1.2</a></li>
 				<li><a href="../utils/requirements/index.php">Requirements</a></li>				
 				<li><a href="../utils/tests/index.php">Tests</a></li>
                 <li><a href="../utils/generators/index.php">Code Generators</a></li>
@@ -56,6 +56,7 @@
     <section>
 		<aside>
 			<?php @include_once('inc/menu.inc.php'); ?>
+			<br><br><br><br>
 		</aside>
 		
 		<article class="central">		

@@ -25,6 +25,7 @@
 <ul>
 	<li><a href="#enable-debug-mode">How to turn "On" debug mode?</a></li>
 	<li><a href="#enable-error-logging">How to enable error logging?</a></li>
+	<li><a href="#measure-execution-time">How to measure execution time of small code snippets?</a></li>
 </ul>
 <br>
 
@@ -87,14 +88,14 @@ public function addAction($menuId = 0)
 <ol>
 	<li>Create directory named <code>helpers</code> in <code>protected/</code> directory of your application.</li>
 	<li>Copy into this directory a required helper class from the framework directory.</li>
-	<li>Change the code of this class according to yuor needs.</li>
+	<li>Change the code of this class according to your needs.</li>
 </ol>
 
 There is also another solution:
 <ol>
 	<li>Create directory named <code>helpers</code> in <code>protected/</code> directory of your application.</li>
 	<li>Copy into this directory a required helper class from the framework directory.</li>
-	<li>Rename an original helper class in directory <code>helpers</code> of yuor application without prefix <code>"C"</code>, for example: <code>CHtml</code> > <code>Html</code>.</li>
+	<li>Rename an original helper class in directory <code>helpers</code> of your application without prefix <code>"C"</code>, for example: <code>CHtml</code> > <code>Html</code>.</li>
 	<li>Create an empty class with original helper name and extend it from the class created on the previous step.</li>
 	<li>In the new class override only the method you need. When new update of ApPHP framework will be released simply replace the code of the class created on step 3.</li>
 	<li>Add to extended class constructor with <code>parent::__construct();</code></li>
@@ -181,7 +182,7 @@ If you want to change it go to <code>framework/core/CRouter.php</code>, find the
 private $_defaultAction = 'index';
 </pre>
 
-and re-declare action value according to yuor needs.
+and re-declare action value according to your needs.
 Remeber: these changes will affect all controllers in the project.
 <br><br>
 <br><br>
@@ -208,9 +209,9 @@ echo CLocale::date('F j Y, g:ia', strtotime($dateTime), true);
 // Call mobile detect componenet
 $detect = A::app()->getMobileDetect();
 // Test if this is a mobile device
-if($detect->isMobile()) echo 'You work on a mobile device!';
-if($detect->isTablet()) echo 'You work on a tablet device!';
-if(!$detect->isMobile() && !$detect->isTablet()) echo 'You work on desktop!';
+if ($detect->isMobile()) echo 'You work on a mobile device!';
+if ($detect->isTablet()) echo 'You work on a tablet device!';
+if (!$detect->isMobile() && !$detect->isTablet()) echo 'You work on desktop!';
 </pre>
 <br><br>
 
@@ -283,7 +284,7 @@ return array(
 <p><b>Q: How to allow search in module?</b></p>
 <p><b>A:</b> To allow search in module yuo have to perform following:</p>
 
-1. Add to yuor module SQL command that adds this module to <code>search_categories</code> table:
+1. Add to your module SQL command that adds this module to <code>search_categories</code> table:
 <br>
 <pre name="dlhl" class="sql">
 // Example for module News, where callback class is model "News" and callback method is "search"
@@ -305,7 +306,7 @@ public function search($keywords = '', $itemsCount = 10)
 {
     $result = array();
     
-    if($keywords !== ''){
+    if ($keywords !== '') {
         
         $limit = !empty($itemsCount) ? '0, '.(int)$itemsCount : '';
         $condition = CConfig::get('db.prefix').$this->_table.'.is_published = 1 AND '.
@@ -317,7 +318,7 @@ public function search($keywords = '', $itemsCount = 10)
         
         // Prepare news result
         $news = $this->findAll(array('condition'=>$condition, 'limit' => $limit), array(':keywords'=>'%'.$keywords.'%'));
-        foreach($news as $key => $val){
+        foreach ($news as $key => $val) {
             $result[0][] = array(
                 'date'    => $val['created_at'],
                 'title'   => $val['news_header'],
@@ -372,11 +373,36 @@ CLog::addMessage('info', 'Info description');
 
 Example of usage:
 <pre name="dlhl" class="php">
-try{
+try {
    // Your code here...		
-}catch(Exception $e){
-   CLog::addMessage('debug', 'Exception caught: ',  $e->getMessage(), "\n");
+} catch(Exception $e) {
+   CLog::addMessage('debug', 'Exception caught: ' . $e->getMessage() . "\n");
 }
+</pre>
+
+<br><br>
+
+
+<a name="measure-execution-time"></a>
+<p><b>Q: How to measure execution time of small code snippets?</b></p>
+<p><b>A:</b> To measure execution time of small code snippets you may use a following example of code:</a>
+</p>
+
+<pre name="dlhl" class="php">
+// Catch start time
+$startTime = CTime::getMicrotime();
+
+// Your code here...
+
+// Catch end time
+$endTime = CTime::getMicrotime();
+// Calculate running time
+$totalRunningTime = round((float)$endTime - (float)$startTime, 5);
+
+// Show in debug console
+CDebug::console('Total running time: ' . $totalRunningTime);
+// Show on the screen
+echo 'Total running time: ' . $totalRunningTime;
 </pre>
 
 <br><br>

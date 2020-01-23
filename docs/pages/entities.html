@@ -1,0 +1,106 @@
+<h1>Development - Entities</h1>
+<ul>
+    <li><a href="#general">General Info</a></li>
+    <li><a href="#filling_data">Filling data</a></li>
+    <li><a href="#fillable_and_guarded">Fillable and Guarded fields</a></li>
+</ul>
+<br />
+
+
+<a name="general"></a>
+<h3>General Info <a class="hashlink" href="#general">¶</a></h3>
+
+Every Active Record model extends a base class (CModel with all the database logic), which has a lot of overhead and dramatically
+slows down your application with thousands and thousands of records.
+<br /><br />
+
+Model entities don't extend any class, they are just regular PHP classes with properties and getters and setters.
+Generally the properties are protected or private, so they only can be accessed through getters and setters.
+<br /><br />
+
+Entities are objects with identity. Their identity has a conceptual meaning inside the model they are related.
+In an application each post has a unique ID. You can uniquely identify each post by that ID.
+<br /><br />
+
+You may use entities to work with database table records.
+<br /><br />
+
+Here an example of how to create entity and save it's data in database.
+<pre name="dlhl" class="php">
+// Create new entity
+$post = new PostEntity();
+$post->header = $this->_view->header;
+$post->category_id = $this->_view->categoryId;
+$post->post_text = $this->_view->postText;
+$post->metatag_title = $this->_view->metaTagTitle;
+$post->metatag_keywords = $this->_view->metaTagKeywords;
+$post->metatag_description = $this->_view->metaTagDescription;
+
+// Manipulation with entity's data here...
+
+// Create model
+$posts = Posts::model();
+
+// Create new post
+if ($posts->save($post)) {
+    $msg = 'Post has been successfully created!';
+    $msgType = 'success';
+} else {
+    $msg = 'An error occurred while creating a post! Please re-enter.';
+    $msgType = 'error';
+}
+</pre>
+<br>
+
+<a name="filling_data"></a>
+<h3>Filling Data <a class="hashlink" href="#general">¶</a></h3>
+You may also create entity and fill it with data from model
+<pre name="dlhl" class="php">
+// Create model
+$posts = Posts::model()->findByPk($this->_view->postId);
+
+// Create entity and fill it from the model
+$post = new PostEntity($this->_view->postId);
+$post->fillFromArray($posts->getFieldsAsArray());
+
+// Show entity
+// CDebug::d($post->allowedColumns(),1);
+
+// Manipulation with entity's data here...
+
+// Update the post
+if ($posts->save($post)) {
+    $msg = 'Post has been successfully updated!';
+    $msgType = 'success';
+} else {
+    $msg = 'An error occurred while updating a post! Please re-enter.';
+    $msgType = 'error';
+}
+</pre>
+<br>
+
+<a name="fillable_and_guarded"></a>
+<h3>Fillable and Guarded fields <a class="hashlink" href="#general">¶</a></h3>
+You may specify either a fillable or guarded attribute on the entity, as a protect against mass-assignment by default.
+The mass assignment may be a method of causing an array of information which will be saved to the required model directly.
+In general, you do not have to save data on your model on one by one basis, however rather in a very single method.
+<br><br>
+Using entities is one of the best facts in our Framework, but when using a model, it has variables, and one of them is "fillable".
+You can define those fields which can be created/ filled by mass-assignment by use of fillable.
+<br><br>
+Guarded is that the reverse of fillable. If fillable specifies that fields to be mass assigned, guarded specifies that
+fields don't seem to be mass assignable.
+
+<pre name="dlhl" class="php">
+/** @var - by default all fields are fillable */
+protected $_fillable = array();
+/** @var - by default no field is guarded */
+protected $_guarded = array();
+//protected $_guarded = array('post_datetime', 'author_id');
+</pre>
+
+You may also set guarded fields "on the fly", when you may use a different fields specified as "guarded" depending
+on "insert" or "update" mode.
+<pre name="dlhl" class="php">
+$post->setGuarded(array('author_id', 'post_datetime'));
+</pre>

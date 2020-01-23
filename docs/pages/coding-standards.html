@@ -49,7 +49,7 @@ For more details click <a href="index.php?page=routing" target="_top">here</a>.
 We always use <code>&lt;?php ?&gt;</code> to delimit PHP code, not the shorthand, <code>&lt;? ?&gt;</code>.
 This is required because it's the most portable way to include PHP code on differing operating systems,
 projects and set-ups. There is only one exclusion from this rule, when you may use shorthand tags: is that using of
-short syntax for output as: <code>&lt;?= $var; ?&gt;</code> instead of <code>&lt;?php echo $var; ?&gt;</code>
+short syntax for output as: <code>&lt;?= $var; ?&gt;</code> instead of <code>&lt;?= $var; ?&gt;</code>
 <br><br>
 The <code>?&gt;</code> at the end of code files is purposely omitted. The reasons for this is we want to remove
 the possibility for unwanted whitespace at the end of files which can cause "header already sent" errors,
@@ -93,20 +93,20 @@ $welcome = "Hello {$firstName} {$lastName}!";
 </pre>
 
 <b>String Concatenation</b><br>
-Strings must be concatenated using the "." operator only. Adding a space before and after the "." is optional:
+Strings must be concatenated using the "." operator only. Adding a space before and after the "." is very desirable, but not required:
 <pre name="dlhl" class="php">
 $company = 'ApPHP'.' - '.'web solutions';
 $company = 'ApPHP' . ' - ' . 'web solutions';
 </pre>
 
-When you concatinate long strings with the "." operator, it is encouraged to break the statement into
+When you concatenate long strings with the "." operator, it is encouraged to break the statement into
 multiple lines to improve the readability. In these cases operator "." must be is aligned under the "="
 operator:     
 <pre name="dlhl" class="php">
 $sql = "SELECT `id`, `first_name`, `last_name` "
-     ."FROM `people` "
-     ."WHERE `is_active` = 1 "
-     ."ORDER BY `last_name` ASC";
+     . "FROM `people` "
+     . "WHERE `is_active` = 1 "
+     . "ORDER BY `last_name` ASC";
 </pre>
 <br><br>
 
@@ -213,16 +213,16 @@ class TheSampleClass
 <a name="control-statements"></a>
 <h3>Control Statements <a class="hashlink" href="#control-statements">¶</a></h3>
 These statements include <code>if</code>, <code>for</code>, <code>while</code>, <code>switch</code>, etc.<br>        
-Putting a space before and after the control statement in brackets is desirable, but not required.<br>
-Separating the operators by spaces within the brackets is desirable, but not required.<br>
+Putting a space before and after the control statement in brackets is very desirable, but not required.<br>
+Separating the operators by spaces within the brackets is very desirable, but not required.<br>
 Always indent with four spaces. <br>
 Here is an example of <code>if</code> statement, since it is the most complicated of them: <br>        
 <pre name="dlhl" class="php">
-if($x == $y){
+if ($x == $y) {
     $a = $b;
-}elseif($x == $z){
+} elseif ($x == $z) {
     $a = $c;
-}else{
+} else {
     $a = $d;
 }    
 </pre>

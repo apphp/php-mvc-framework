@@ -11,7 +11,7 @@
 
 <a name="general"></a>
 <h3>General Info <a class="hashlink" href="#general">¶</a></h3>
-The "Controller" layer, as it defined in MVC representes two thinner layers in a framework: controllers and actions.
+The "Controller" layer, as it defined in MVC represents two thinner layers in a framework: controllers and actions.
 (The "Controller" layer also includes the main dispatcher script and the request routing system, though they are not directly
 involved in application development.)
 <br><br>
@@ -197,6 +197,8 @@ $this->_view->render('view', true);
 /* sample 4 partial rendering with returned content - for some specific methods (2nd parameter $isPartial = true, 3rd parameter $return = true) */
 $result = $this->_view->render('view', true, true);
 </pre>
+<a href="index.php?page=views#rendering">Read more...</a>
+<br><br>
 
 
 Example of an action class showing how data received from the model are passed to the view file:

@@ -30,7 +30,7 @@ ApPHP Framework provides you few ways to protect passwords for system users:
 <br>
 
 Here the example of password settings for your application defined in <code>config/main.php</code> file:
-<pre name="dlhl" class="php">&lt;?php
+<pre name="dlhl" class="php">
 // md5, sha1, sha256, whirlpool, etc
 'password' => array(
     'encryption' => true,
@@ -76,13 +76,13 @@ submitted via the POST request.
 
 By default, the CSRF prevention is disabled. To enable it, configure the CHttpRequest framework
 component as follows:
-<pre name="dlhl" class="php">&lt;?php
+<pre name="dlhl" class="php">
 private $_csrfValidation = true;
 </pre>
 
 or define in your application <code>config/main.php</code> file as follows:
 
-<pre name="dlhl" class="php">&lt;?php
+<pre name="dlhl" class="php">
 // Validations
 // Define array of 'excluded' controllers, ex.: array('PaymentProviders', 'Checkout')
 // Token type: 'session', 'cookie' or 'multipages'
@@ -95,14 +95,14 @@ AJAX. If you are utilizing JavaScript file in your application, then parameter
 <code>APPHP_CSRF_TOKEN:token_value</code> must be added to all your POST requests.
 
 It's automatically added to your FORM, when you use following in your code:
-<pre name="dlhl" class="php">&lt;?php
+<pre name="dlhl" class="php">
 CHtml::openForm('WebForms/submit', 'post', array('name'=>'form-contact'));
 </pre>
 
 For the cases when you work with controller that doesn't create token in form,
 but processes it anyway, you may create token explicitly. Below the example
 for such definition.
-<pre name="dlhl" class="php">&lt;?php
+<pre name="dlhl" class="php">
 public function insertAction()
 {
     Website::prepareBackendAction('insert', 'news', 'news/manage');
@@ -148,7 +148,7 @@ login page for defined time could make a search algorithm not effective.
 <br><br>
 By default, the Brute-Force prevention is disabled. To enable it, or define in your
 application <code>config/main.php</code> file as follows:
-<pre name="dlhl" class="php">&lt;?php
+<pre name="dlhl" class="php">
 // Validation
 'validation' => array(
     'bruteforce' => array('enable' => true, 'badLogins' => 5, 'redirectDelay' => 3),

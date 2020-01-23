@@ -26,14 +26,14 @@ Variant 4 (You may specify a custom format "shortPath" for URL by creating speci
 'urlManager' => array(
     'urlFormat' => 'shortPath',  /* get | path | shortPath */
     'rules' => array(
-        /* direct comparison */ 
-        'controller/action/value1/value2' => 'controller/action/param1/value1/param2/value2',
+        /* Direct comparison */
+        'controller/action/value1/value2' => 'controllerName/action/param1/value1/param2/value2',
 
-        /* advanced template comparison: two or more parameters */ 
+        /* Advanced template comparison: two or more parameters */
         'pages/view/(.*?)/(.*?)/(.*)' => 'pages/view/id/{$0}/param2/{$1}/param3/{$2}',
         'pages/view/(.*?)/(.*)' => 'pages/view/id/{$0}/param2/{$1}',
 
-        /* simple template comparison */ 
+        /* Simple template comparison */
         'page/vew/id/(.*[0-9])+' => 'index/page/id/{$0}',
         'page/vew/id/(.*[0-9])+/(.*?)' => 'index/page/id/{$0}',
         'page/vew/(.*[0-9])+' => 'index/page/id/{$0}',

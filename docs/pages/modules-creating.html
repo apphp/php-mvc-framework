@@ -450,9 +450,9 @@ Remember that this is only a sample code for view files, more examples available
         array('label'=>A::t('[MODULE_CODE]', '[CONTROLLER_NAME] Management'), 'url'=>'[MODULE_CODE]/manage'),
     );    
 ?&gt;
-&lt;h1&gt;&lt;?php echo A::t('[MODULE_CODE]', '[CONTROLLER_NAME] Management'); ?&gt;&lt;/h1&gt;
+&lt;h1&gt;&lt;?= A::t('[MODULE_CODE]', '[CONTROLLER_NAME] Management'); ?&gt;&lt;/h1&gt;
 &lt;div class="bloc"&gt;
-    &lt;?php echo $tabs; ?&gt;
+    &lt;?= $tabs; ?&gt;
 
     &lt;div class="content"&gt;
     &lt;?php 

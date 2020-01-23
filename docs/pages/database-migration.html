@@ -1,0 +1,99 @@
+<h1>Database Migration</h1>
+
+<p>During the process of developing and maintaining a database-driven application, the structure of the database being used
+evolves just like the source code does.</p>
+
+<p>For example, during the development of an application, a new table or tables may be found necessary; after the application
+is deployed to production, it may be discovered that an index should be created to improve the query performance, new
+fields need to be added; and so on.</p>
+
+<p>Because a database structure change often requires some source code changes, ApPHP Framework supports the so-called
+database migration feature that allows you to keep track of database changes in terms of database migrations which are
+version-controlled together with the source code.</p>
+
+<p>Currently ApPHP Framework supports only manually created migrations.</p>
+<br>
+
+The following steps show how database migration can be used by a team during development:
+<ol>
+	<li>Developer 1 adds migration changes (e.g. creates a new table, changes a column definition, etc.).</li>
+	<li>Developer 1 commits the new migration into the source control system (e.g. Git, Mercurial, etc.).</li>
+	<li>Developer 2 updates his repository from the source control system and receives the new migration.</li>
+	<li>Developer 2 applies the migration to his local development database, thereby synchronizing his database
+		to reflect the changes that Developer 1 has made.</li>
+</ol>
+
+<p>
+	ApPHP Framework recommend to yse migrations by creating SQL files with following naming:
+</p>
+<br>
+
+<p>For standard Directy CMF (already supported):</p>
+<ol>
+	<li>schema.mysql.sql</li>
+	<li>schema.update.mysql.sql</li>
+</ol>
+
+<p>For standard Directy CMF modules (already supported):</p>
+<ol>
+	<li>install.mysql.sql</li>
+	<li>uninstall.mysql.sql</li>
+	<li>update.002.mysql.sql</li>
+	<li>update.003.mysql.sql</li>
+	<li>update.004.mysql.sql</li>
+</ol>
+<br>
+
+<p>Example of migration update file:</p>
+
+<pre name="dlhl" class="sql">
+UPDATE `&lt;DB_PREFIX&gt;modules` SET `version` = '0.0.3', `updated_at` = '&lt;CURRENT_DATETIME&gt;' WHERE `code` = 'cms';
+
+
+INSERT INTO `&lt;DB_PREFIX&gt;module_settings`
+(`id`, `module_code`, `property_group`, `property_key`, `property_value`, `name`, `is_required`) VALUES
+(NULL, 'cms', '', 'page_link_format', 'pages/view/id/ID', 'Page Link Format', 0);
+
+
+ALTER TABLE `&lt;DB_PREFIX&gt;cms_pages` DROP `tag_title`;
+ALTER TABLE `&lt;DB_PREFIX&gt;cms_pages` DROP `tag_keywords`;
+ALTER TABLE `&lt;DB_PREFIX&gt;cms_pages` DROP `tag_description`;
+
+ALTER TABLE `&lt;DB_PREFIX&gt;cms_page_translations` ADD `tag_title` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL AFTER  `id`;
+ALTER TABLE `&lt;DB_PREFIX&gt;cms_page_translations` ADD `tag_keywords` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL AFTER  `tag_title`;
+ALTER TABLE `&lt;DB_PREFIX&gt;cms_page_translations` ADD `tag_description` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL AFTER  `tag_keywords`;
+</pre>
+<br>
+
+<p>When you install Directy CMF module with migrations, the system will take the install.mysql.sql file and run it.</p>
+<p>When you remove Directy CMF module with migrations, the system will take the uninstall.mysql.sql file and run it.</p>
+<p>
+	When you update Directy CMF module with migrations, the system will check current version of installed module run
+	migrations that have version number greater, than current version of installed module.
+	<br><br>
+	For example, the current version of installed CMS module is 0.0.2, you uploaded new version of this module to your server
+	and rum update procedure. The system will take all migrations, that have version number greater, than 0.0.2 and run all
+	them consistently: 0.0.3, 0.0.4 etc.
+	<br><br>
+</p>
+
+<p>
+	Remember, that your module XML description file must have version information and description of all migration files
+	in following format.
+</p>
+
+<pre name="dlhl" class="xml">
+&lt;version&gt;0.0.4&lt;/version&gt;
+...
+&lt;data&gt;
+    &lt;install&gt;install.mysql.sql&lt;/install&gt;
+    &lt;update&gt;
+        &lt;filename&gt;update.002.mysql.sql&lt;/filename&gt;
+        &lt;filename&gt;update.003.mysql.sql&lt;/filename&gt;
+        &lt;filename&gt;update.004.mysql.sql&lt;/filename&gt;
+    &lt;/update&gt;
+    &lt;uninstall&gt;uninstall.mysql.sql&lt;/uninstall&gt;
+&lt;/data&gt;
+</pre>
+
+<br><br><br>

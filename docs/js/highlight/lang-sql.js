@@ -28,11 +28,13 @@
 (function(){
 
 	var builtins = [
-        "DB_PREFIX",
+        //"DB_PREFIX",
         "modules",
         "module_settings",
         "privileges",
         "role_privileges",
+        "cms_pages",
+        "cms_page_translations",
 	];
 
 	var BUILTINS = {};
@@ -66,7 +68,14 @@
         "varchar",
         "text",
         "CREATE",
-	];
+		"ALTER",
+        "VARCHAR",
+        "ADD",
+		"CHARACTER",
+        "SET",
+		"AFTER",
+        "TEXT",
+    ];
 
 	var KEYWORDS = {};
 	for (var i = keywords.length; --i >= 0;)

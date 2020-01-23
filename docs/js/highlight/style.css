@@ -10,6 +10,7 @@
 }
 
 .DlHighlight pre { margin: 0; padding: 0; }
+pre.DlHighlight { white-space: pre-wrap; }
 
 .DlHighlight .string { color: #333399; }
 .DlHighlight .string .before, .DlHighlight .string .after { color: #333399; }

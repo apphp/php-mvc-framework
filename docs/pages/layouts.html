@@ -78,21 +78,21 @@ The common structure of the template directory with layouts looks like following
 </ul>
 <br>
 
-Example of default.php file:
+Example of default.php file (template):
 <pre name="dlhl" class="xml">
 &lt;!doctype html&gt;
 &lt;html&gt;
 &lt;head&gt;
     &lt;meta charset="UTF-8" /&gt;
-    &lt;meta name="keywords" content="&lt;?php echo CHtml::encode($this-&gt;_pageKeywords); ?&gt;" /&gt;
-    &lt;meta name="description" content="&lt;?php echo CHtml::encode($this-&gt;_pageDescription); ?&gt;" /&gt;
-    &lt;title&gt;&lt;?php echo CHtml::encode($this-&gt;_pageTitle); ?&gt;&lt;/title&gt;    
+    &lt;meta name="keywords" content="&lt;?= CHtml::encode($this-&gt;_pageKeywords); ?&gt;" /&gt;
+    &lt;meta name="description" content="&lt;?= CHtml::encode($this-&gt;_pageDescription); ?&gt;" /&gt;
+    &lt;title&gt;&lt;?= CHtml::encode($this-&gt;_pageTitle); ?&gt;&lt;/title&gt;
     
-    &lt;base href="&lt;?php echo A::app()-&gt;getRequest()-&gt;getBaseUrl(); ?&gt;" /&gt;
+    &lt;base href="&lt;?= A::app()-&gt;getRequest()-&gt;getBaseUrl(); ?&gt;" /&gt;
     
-    &lt;?php echo CHtml::cssFile("templates/default/css/main.css"); ?&gt;
-    &lt;?php echo CHtml::scriptFile('//code.jquery.com/jquery-1.8.3.min.js'); ?&gt;
-    &lt;?php echo CHtml::scriptFile('templates/default/js/main.js'); ?&gt;
+    &lt;?= CHtml::cssFile("templates/default/css/main.css"); ?&gt;
+    &lt;?= CHtml::scriptFile('//code.jquery.com/jquery-1.11.3.min.js'); ?&gt;
+    &lt;?= CHtml::scriptFile('templates/default/js/main.js'); ?&gt;
 &lt;/head&gt;
 &lt;body&gt;
     &lt;header&gt;
@@ -105,8 +105,8 @@ Example of default.php file:
         &lt;?= A::app()->view->getLayoutContent(); ?&gt;
     &lt;/section&gt;
     &lt;footer&gt;
-        &lt;p class="copyright"&gt;Copyright &copy; &lt;?php echo date('Y'); ?&gt; Your Site&lt;/p&gt;
-        &lt;p class="powered"&gt;&lt;?php echo A::powered(); ?&gt;&lt;/p&gt;
+        &lt;p class="copyright"&gt;Copyright &copy; &lt;?= date('Y'); ?&gt; Your Site&lt;/p&gt;
+        &lt;p class="powered"&gt;&lt;?= A::powered(); ?&gt;&lt;/p&gt;
     &lt;/footer>    
 &lt;/body&gt;
 &lt;/html&gt;        

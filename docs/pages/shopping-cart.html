@@ -5,9 +5,9 @@
 	<li><a href="#initializing">Initializing the Shopping Cart Component</a></li>
 	<li><a href="#adding-item-to-cart">Adding an Item to The Cart</a></li>
 	<li><a href="#adding-multiple-items-to-cart">Adding Multiple Items to The Cart</a></li>
-	<li><a href="#updating-item-in-cart">Updating The Cart</a_></li>
+	<li><a href="#updating-item-in-cart">Updating The Cart</a></li>
 	<li><a href="#displaying-the-cart">Displaying the Cart</a></li>
-	<li><a href="#function-reference">Function Reference</li>
+	<li><a href="#function-reference">Function Reference</a></li>
 </ul>
 <br />
 
@@ -164,28 +164,28 @@ $i = 1;
 ?>
 &lt;?php foreach ($shoppingCart->contents() as $items): ?>
     &lt;tr>
-        &lt;td>&lt;?php echo CHtml::textField($i.'[qty]', $items['qty'], array('maxlength'=>'3')); ?>&lt;/td>
+        &lt;td>&lt;?= CHtml::textField($i.'[qty]', $items['qty'], array('maxlength'=>'3')); ?>&lt;/td>
         &lt;td>
-        &lt;?php echo $items['name']; ?>
+        &lt;?= $items['name']; ?>
 
             &lt;?php if ($shoppingCart->hasOptions($items['rowid']) == true): ?>
                 &lt;p>
                     &lt;?php foreach ($shoppingCart->productOptions($items['rowid']) as $optionName => $optionValue): ?>
-                        &lt;strong>&lt;?php echo $optionValue; ?>:&lt;/strong> &lt;?php echo $optionValue; ?>&lt;br />
+                        &lt;strong>&lt;?= $optionValue; ?>:&lt;/strong> &lt;?= $optionValue; ?>&lt;br />
                     &lt;?php endforeach; ?>
                 &lt;/p>
             &lt;?php endif; ?>
 
         &lt;/td>
-        &lt;td style="text-align:right">&lt;?php echo CNumber::format($items['price']); ?>&lt;/td>
-        &lt;td style="text-align:right">$&lt;?php echo CNumber::format($items['subtotal']); ?>&lt;/td>
+        &lt;td style="text-align:right">&lt;?= CNumber::format($items['price']); ?>&lt;/td>
+        &lt;td style="text-align:right">$&lt;?= CNumber::format($items['subtotal']); ?>&lt;/td>
     &lt;/tr>
 &lt;?php $i++; ?>
 &lt;?php endforeach; ?>
 &lt;tr>
   &lt;td colspan="2"> &lt;/td>
   &lt;td class="right">&lt;strong>Total&lt;/strong>&lt;/td>
-  &lt;td class="right">$&lt;?php echo CNumber::format($shoppingCart->total()); ?>&lt;/td>
+  &lt;td class="right">&lt;?= CNumber::format($shoppingCart->total()); ?>&lt;/td>
 &lt;/tr>
 &lt;/table>
 </pre>

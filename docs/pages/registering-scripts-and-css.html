@@ -1,0 +1,143 @@
+<h1>Registering Scripts and CSS files</h1>
+
+<ul>
+	<li><a href="#general">General</a></li>
+	<li><a href="#registering_scripts">Registering JS scripts</a></li>
+	<li><a href="#registering_script_codes">Registering JS codes</a></li>
+	<li><a href="#registering_css">Registering CSS files</a></li>
+	<li><a href="#registering_css_codes">Registering CSS codes</a></li>
+</ul>
+<br />
+
+
+<a name="general"></a>
+<h3>General <a class="hashlink" href="#general">¶</a></h3>
+<p>
+	Why do we need to register scripts and css files?
+	You can add script tags in your HTML document (view file, template or directly in output code).
+<pre name="dlhl" class="html">
+&lt;script type="text/javascript" src="myscripts.js"&gt;&lt;/script&gt;
+</pre>
+	You may do this using <code>CHtml</code> helper, like it's described in the sample below:
+<pre name="dlhl" class="php">
+// Include CSS file
+echo CHtml::cssFile("templates/setup/css/main.css");
+
+// Include CSS files
+echo CHtml::cssFiles(
+    array(
+        'bootstrap.min.css' => array('media'=>'all'),
+        'theme.css',
+        'font-awesome.min.css',
+        'custom.css',
+        (A::app()->getLanguage('direction') == 'rtl' ? 'custom.rtl.css' : '')
+    ),
+    'templates/default/css/'
+);
+
+// Include JS file
+echo CHtml::scriptFile('assets/vendors/jquery/jquery.js');
+
+// Include JS files
+echo CHtml::scriptFiles(
+    array(
+        'bootstrap.min.js',
+        'jquery.flexslider-min.js',
+    ),
+    'templates/default/js/',
+);
+</pre>
+
+	So when all code will be rendered to the browser, it will handle this tag as required.
+	But what to do, if you need to place this tag in HEAD section of your webpage or somewhere in the BODY or footer?
+	Or what to do, if you need to take all script files and minify them by placing in one global file?
+	You may also don't know where exactly to include script file or it may be done only while running your PHP code.
+	Also, you may need to have all files in one place to allow framework to run the <a href="index.php?page=configuration-files"><i>minify</i></a> feature.
+	That's why we need to use registering feature.
+	<br><br>
+	Registering feature allows you to tell to framework to collect script files or CSS files while running the code and
+	include them using HTML tags in specific places of you HTML document (according to your directives).
+	Let see how it's possible.
+</p>
+
+<a name="registering_scripts"></a>
+<h3>Registering JS Scripts <a class="hashlink" href="#registering_scripts">¶</a></h3>
+<p>
+	To register script use the following code. The second and third parameters define script position
+	(in the &lt;head&gt;, at the beginning of the &lt;body&gt; etc.) and script level
+	(the order of script file in the defined section).
+</p>
+<pre name="dlhl" class="php">
+// Register single JS file. By default script will be rendered in the &lt;head&gt; section of the page
+A::app()->getClientScript()->registerScriptFile('assets/vendors/tinymce/tiny_mce.js');
+// Register multiple JS files
+A::app()->getClientScript()->registerScriptFiles(
+    array(
+        'bootstrap.min.js',
+        'jquery.flexslider-min.js',
+        'jquery.easing.js',
+    	'theme-core.js'
+    ),
+    'templates/default/js/',
+    2
+);
+</pre>
+<p></p>
+
+<a name="registering_script_codes"></a>
+<h3>Registering JS Codes <a class="hashlink" href="#registering_script_codes">¶</a></h3>
+<p>
+	To register script code use the following code. The first parameter represents a code identifier,
+	the second - the code itself, and the third - code position: in the &lt;head&gt;, at the beginning of the &lt;body&gt; etc.
+</p>
+<pre name="dlhl" class="php">
+A::app()->getClientScript()->registerScript(
+    $formName,
+    '$("select#language").change(function(){
+        $("form[name='.$formName.']").attr("action","news/edit");
+        $("form[name='.$formName.']").submit();
+    });
+    $(".intro-delete").click(function(){
+        $("input[name=act]").val("delete-intro");
+        $("form[name='.$formName.']").submit();
+    });'.
+    (($errorField != '') ? 'document.forms["'.$formName.'"].'.$errorField.'.focus();' : ''),
+    5
+);
+</pre>
+<p></p>
+
+
+
+<a name="registering_css"></a>
+<h3>Registering CSS files <a class="hashlink" href="#registering_css">¶</a></h3>
+<p>
+	To register CSS file use the following code.
+</p>
+<pre name="dlhl" class="php">
+// Register single CSS files
+A::app()->getClientScript()->registerCssFile('assets/vendors/timepicker/jquery.timepicker.min.css'); ?>
+// Register multiple CSS files
+A::app()->getClientScript()->registerCssFiles(
+    array(
+        'bootstrap.min.css',
+        'theme.css',
+        'font-awesome.min.css',
+        'custom.css',
+        (A::app()->getLanguage('direction') == 'rtl' ? 'custom.rtl.css' : '')
+    ),
+    'templates/default/css/'
+);
+</pre>
+
+<a name="registering_css_codes"></a>
+<h3>Registering CSS codes <a class="hashlink" href="#registering_css_codes">¶</a></h3>
+<p>
+	To register CSS codes use the following code.
+</p>
+<pre name="dlhl" class="php">
+A::app()->getClientScript()->registerCss(
+    'news-edit',
+    'img.intro-image {width:82px;} a.intro-delete {margin-left:100px; margin-top:10px; display: inline-block;}'
+);
+</pre>

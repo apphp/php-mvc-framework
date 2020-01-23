@@ -5,8 +5,8 @@
 	<li>
 		<a href="index.php?page=configuration-files#Application"><span>Application configuration files</span></a>	
 		<ul>
-			<li><a href="index.php?page=configuration-files#Main.php"><span>Main.php</a></li>
-			<li><a href="index.php?page=configuration-files#Db.php"><span>Db.php</a></li>
+			<li><a href="index.php?page=configuration-files#Main.php"><span>Main.php</span></a></li>
+            <li><a href="index.php?page=configuration-files#Db.php"><span>Db.php</span></a></li>
 		</ul>
 	</li>
 	<li><a href="index.php?page=configuration-files#Examples"><span>Examples of usage</span></a></li>
@@ -58,6 +58,9 @@ return array(
     'name'=>'Login System',
     'version'=>'0.0.1',
 
+    // Directy CMF data
+    'directy_cmf_version' => '3.0.2',
+
     // Installation settings
     'installationKey' => 'YOUR_INSTALLATION_KEY',
 
@@ -70,7 +73,13 @@ return array(
         'hashKey' => 'YOUR_HASH_PASSWORD_KEY',    
     ),
     
-    // Default email settings 
+	// Password restore settings
+    'restoreAdminPassword' => array(
+        'enable' => true,
+        'recoveryType' => 'direct' /* 'direct' - send new password directly, 'recovery' - send a link to recovery page */
+    ),
+
+    // Default email settings
     'email' => array(
         'mailer' => 'smtpMailer', /* phpMail | phpMailer | smtpMailer */
         'from' => 'info@email.me',
@@ -103,8 +112,8 @@ return array(
     'compression' => array(
         'gzip' => array('enable' => true),
         'html' => array('enable' => false),
-        'css' => array('enable' => false, 'path' => 'assets/minified/css/', 'minify' => true),
-        'js' => array('enable' => false, 'path' => 'assets/minified/js/', 'minify' => true),
+        'css' => array('enable' => false, 'path' => 'assets/minified/css/', 'minify' => array('frontend'=>true, 'backend'=>false)),
+        'js' => array('enable' => false, 'path' => 'assets/minified/js/', 'minify' => array('frontend'=>true, 'backend'=>false)),
     ),
 
     // Session settings
@@ -159,12 +168,16 @@ return array(
     ),
     
     // Default settings (optional, if defined - will be used as application default settings)
-    'defaultErrorController' => 'Error', /* may be overridden by module settings */
-    'defaultController' => 'Index',		 /* may be overridden by module settings */
-    'defaultAction' => 'index',			 /* may be overridden by module settings */
+    'defaultBackendDirectory' => 'backend',	/* default backend directory - don't change after installation */
+    'defaultErrorController' => 'Error',        /* may be overridden by module settings */
+    'defaultController' => 'Index',             /* may be overridden by module settings */
+    'defaultAction' => 'index',                 /* may be overridden by module settings */
     
     // Application payment complete page (controller/action - may be overridden by module settings)
     'paymentCompletePage' => '',
+
+    // Core components loading
+    'coreComponentsLazyLoading' => true,
 
     // Application components
     'components' => array(
@@ -193,7 +206,7 @@ return array(
     'urlManager' => array(
         'urlFormat' => 'shortPath',  /* get | path | shortPath */
         'rules' => array(
-            //'controller/action/value1/value2' => 'controller/action/param1/value1/param2/value2',
+            //'controller/action/value1/value2' => 'controllerName/action/param1/value1/param2/value2',
         ),
     ),    
 );
@@ -207,7 +220,9 @@ Below the list of all parameters that can be used in file <code>main.php</code>:
     <li><b>password.encryption</b>: specifies whether to use password encryption or not</li>
     <li><b>password.encryptAlgorithm</b>: encryption algorithm</li>
     <li><b>password.encryptSalt</b>: specifies whether to use "salt" for passwords encryption</li>
-    <li><b>password.hashKey</b>: password hash key (used to encrypt passwords in database)</li>                
+    <li><b>password.hashKey</b>: password hash key (used to encrypt passwords in database)</li>
+    <li><b>restoreAdminPassword.enable</b>: whether to enable restore admin password</li>
+    <li><b>restoreAdminPassword.recoveryType</b>: admin reatore password recovery type</li>
     <li><b>email.mailer</b>: specifies mailer type</li>
     <li><b>email.from</b>: specifies email address used as "from" email</li>
     <li><b>email.fromName</b>: specifies email sender name used as "fromName &lt;from&gt;"</li>
@@ -215,19 +230,35 @@ Below the list of all parameters that can be used in file <code>main.php</code>:
     <li><b>email.smtp</b>: defines SMTP connection parameters</li>
     <li><b>validation.csrf</b>: specifies whether to allow CSRF validation</li>
     <li><b>validation.bruteforce</b>: specifies whether to allow bruteforce validation</li>
+    <li><b>exceptionHandling.enable</b>: specifies whether to exceptions handling</li>
+    <li><b>exceptionHandling.level</b>: exceptions handling level</li>
+    <li><b>compression.gzip</b>: gzip compression configuration</li>
+    <li><b>compression.html</b>: html compression configuration</li>
+    <li><b>compression.css</b>: css compression configuration</li>
+    <li><b>compression.js</b>: js compression configuration</li>
     <li><b><a href="index.php?page=session-custom-storage">session.customStorage</a></b>: defines whether to use a custom storage</li>
     <li><b>session.cacheLimiter</b>: defines cache limiter value for session</li>
+    <li><b>session.lifetime</b>: defines session lifetime</li>
     <li><b>cookies.domain</b>: defines domain that the cookie is available to</li>
     <li><b>cookies.path</b>: defines path on the server where the cookie will be available on</li>
-    <li><b><a href="index.php?page=database-request-caching">cache.enable</a></b>: enables cache</li>
-    <li><b>cache.lifetime</b>: defines a lifetime of cache in minutes</li>
-    <li><b>cache.path</b>: defines a path to cache files</li>
+    <li><b><a href="index.php?page=data-caching">cache.data.enable</a></b>: enables data cache</li>
+    <li><b><a href="index.php?page=database-request-caching">cache.db.enable</a></b>: enables db cache</li>
+    <li><b>cache.db.type</b>: defines a cache type</li>
+    <li><b>cache.db.lifetime</b>: defines a lifetime of cache in minutes</li>
+    <li><b>cache.db.path</b>: defines a path to cache files</li>
+    <li><b>log</b>: defines a logging configuration</li>
+    <li><b>rss</b>: defines RSS feed settings</li>
     <li><b>defaultTimeZone</b>: defines default timezone for application</li>
     <li><b>template.default</b>: specifies default template for application</li>
+    <li><b>layouts.enable</b>: specifies whether to allow layouts for application</li>
+    <li><b>layouts.default</b>: specifies default layout for application</li>
     <li><b>defaultErrorController</b>: specifies default error controller</li>
     <li><b>defaultController</b>: specifies default controller</li>
     <li><b>defaultAction</b>: specifies default action</li>
+    <li><b>paymentCompletePage</b>: specifies application payment complete page</li>
+    <li><b>coreComponentsLazyLoading</b>: specifies core components lazy loading</li>
     <li><b>components</b>: specifies allowed application components</li>
+    <li><b>widgets</b>: specifies widgets settings</li>
     <li><b>modules</b>: specifies allowed application modules</li>
     <li><b>urlManager</b>: defines rules for URL routing</li>        
 </ul>

@@ -1,0 +1,58 @@
+<h1>Unit Testing</h1>
+
+<ul>
+    <li><a href="index.php?page=unit-tests#general"><span>General</span></a></li>
+    <li><a href="index.php?page=unit-tests#installation"><span>Installation and usage</span></a></li>
+</ul>
+<br />
+
+
+<a name="general"></a>
+<p>
+    Because the ApPHP Framework testing is built on top of PHPUnit, we strongly recommended that you go through the PHPUnit documentation
+    first to get the basic understanding on how to write a unit test.
+
+    We summarize in the following the basic principles of writing a unit test in ApPHP.
+</p>
+
+.........
+
+
+<a name="installation"></a>
+<p>
+    To install and run Unit test you have to perform following actions:
+</p>
+
+<ol>
+    <li>
+        Make sure you added following to <strong>composer.json</strong> file:
+<pre>
+
+        "scripts": {
+        "tests-result": "phpunit --colors=always --log-junit test-results.xml",
+        "tests": "phpunit --colors=always",
+        "test": "phpunit --colors=always --filter"
+        }
+</pre>
+
+    </li>
+    <li>
+        Install composer on your server.
+        <a class="external" href="https://getcomposer.org" target="_blank" rel="noopener noreferrer">https://getcomposer.org</a>
+    </li>
+    <li>
+        After Composer is installed, install PHPUnit by<br>
+        <pre>composer require phpunit/phpunit --dev</pre>
+        <br><br>
+
+        you may also remove it and re-install:<br>
+<pre>composer remove phpunit/phpunit --dev
+composer update
+</pre>
+
+    </li>
+    <li>
+        Run tests by....
+    </li>
+</ol>
+

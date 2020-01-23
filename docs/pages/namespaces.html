@@ -1,0 +1,259 @@
+<h1>Development - Namespaces</h1>
+
+<ul>
+	<li><a href="#general">General</a></li>
+	<li><a href="#namespaced_classes">Namespaced Classes</a></li>
+	<li><a href="#namespaced_controllers">Namespaced Controllers</a></li>
+	<li><a href="#namespaced_models">Namespaced Models</a></li>
+	<li><a href="#namespaced_components">Namespaced Components</a></li>
+	<li><a href="#namespaces_in_view_files">Using namespaces in view files</a></li>
+	<li><a href="#namespaces_in_widgets">Using namespaces in widgets</a></li>
+	<li><a href="#namespaces_in_config_files">Using namespaces in config files for modules</a></li>
+</ul>
+<br />
+
+<a name="general"></a>
+<h3>General <a class="hashlink" href="#general">¶</a></h3>
+<p>
+A namespace refers to a logical grouping of some class names so that they can be differentiated from other class names even
+if their names are the same. Do not confuse path alias with namespace, because a path alias is merely a convenient way of
+naming a file or directory and it doesn't related to a namespace.
+</p>
+
+<div class="msg_important">
+	NOTE:<br>
+	Because PHP prior to 5.3.0 does not support namespace intrinsically, you cannot create instances of two classes who
+	have the same name but with different definitions. For this reason, all ApPHP Framework classes are prefixed with a
+	letter 'C' (meaning 'class') so that they can be differentiated from user-defined classes.
+	It is recommended that the prefix 'C' be reserved for ApPHP Framework use only, and user-defined classes be prefixed with other letters.
+	<br><br>
+	ApPHP Framework minimum requirements from v1.2.0 is PHP 5.4
+</div>
+
+
+<a name="namespaced_classes"></a>
+<h3>Namespaced Classes <a class="hashlink" href="#namespaced_classes">¶</a></h3>
+
+<p>
+	A namespaced class refers to a class declared within a non-global namespace. For example, the <code>application\modules\blog\models\Posts</code>
+	class is declared within the namespace <code>application\modules\blog\models\</code>. Using namespaced classes requires PHP 5.3.0 or above.
+</p>
+
+<p>
+	From version 0.8.0 it is possible to use a namespaced class without including it explicitly. For example, we can create
+	a new instance of <code>application\modules\blog\models\Posts</code> without including the corresponding class file explicitly.
+	This is made possible with the enhanced ApPHP Framework class autoloading mechanism.
+</p>
+
+<p>
+	In order to be able to autoload a namespaced class, the namespace must be named in a way similar to naming a path alias.
+	For example, the class <code>application\modules\blog\models\Posts</code> must be stored in a file that stored in the same path in the system.
+</p>
+<br>
+
+
+<a name="namespaced_controllers"></a>
+<h3>Namespaced Controllers <a class="hashlink" href="#namespaced_controllers">¶</a></h3>
+
+<p>
+	By default ApPHP Framework uses controllers from the global namespace. These classes are located under <code>protected/controllers/</code>.
+	The same rules are used for Directy CMF controllers. But for modules namespaces are used by default.
+	<br><br>
+	Here the example:
+
+<pre name="dlhl" class="php">
+namespace Modules\News\Controllers;
+
+// Modules
+use \Modules\News\Components\NewsComponent,
+    \Modules\News\Models\News,
+    \Modules\News\Models\NewsSubscribers;
+
+// Framework
+use \A,
+    \CAuth,
+    \CConfig,
+    \CController,
+    \CDatabase,
+    \CWidget;
+
+// Directy
+use \LocalTime,
+    \Modules,
+    \Website,
+    \ModulesSettings;
+
+class NewsController extends CController
+{
+    // ...
+
+    // Example usage global class:
+    $msg = A::t('core', 'Cache is On, but currently turned off because you are logged in'));
+
+    // Example 1 of usage:
+    $this->_view->tabs = NewsComponent::prepareTab('news');
+
+    // Example 2 of usage:
+    $this->_view->tabs = \Modules\News\Components\NewsComponent::prepareTab('news');
+}
+</pre>
+</p>
+<br>
+
+
+<a name="namespaced_models"></a>
+<h3>Namespaced Models <a class="hashlink" href="#namespaced_models">¶</a></h3>
+
+<p>
+	Models are also used from the global namespace by default. These classes are located under <code>protected/models/</code>.
+	But for modules namespaces are used by default.
+	<br><br>
+	Here the example:
+
+<pre name="dlhl" class="php">
+namespace Modules\News\Models;
+
+// Framework
+use \A,
+    \CActiveRecord,
+    \CModel,
+    \CDatabase,
+    \CConfig,
+    \CHtml;
+
+// Directy
+use \Website;
+
+class News extends CActiveRecord
+{
+    // ...
+
+    $link = Website::prepareLinkByFormat('news', 'news_link_format', 1, 'Header');
+}
+</pre>
+</p>
+<br>
+
+
+<a name="namespaced_components"></a>
+<h3>Namespaced Components <a class="hashlink" href="#namespaced_components">¶</a></h3>
+
+<p>
+	Components are also used from the global namespace by default. These classes are located under <code>protected/components/</code>.
+	But for modules namespaces are used by default.
+	<br><br>
+	Here the example:
+
+<pre name="dlhl" class="php">
+namespace Modules\News\Components;
+
+// Framework
+use \A,
+    \CActiveRecord,
+    \CModel,
+    \CDatabase,
+    \CConfig,
+    \CHtml;
+
+// Directy
+use \Website;
+
+class NewsComponent extends CComponent
+{
+    // ...
+
+    $link = Website::prepareLinkByFormat('news', 'news_link_format', 1, 'Header');
+}
+</pre>
+</p>
+<br>
+
+
+<a name="namespaces_in_view_files"></a>
+<h3>Using namespaces in view files <a class="hashlink" href="#namespaces_in_view_files">¶</a></h3>
+
+<p>
+	In View files we have to specify namespaces explicitly.
+	<br><br>
+	Here the example:
+
+<pre name="dlhl" class="php">
+// Global namespace
+Website::setMetaTags(array('title'=>$newsHeader));
+
+// Local namespace
+Modules\News\Components\NewsComponent::drawLatestNewsBlock(array(
+    'title'=>'', 'showThumb'=>false, 'newsCount'=>3)
+);
+</pre>
+</p>
+<br>
+
+
+<a name="namespaces_in_widgets"></a>
+<h3>Using namespaces in widgets in view files <a class="hashlink" href="#namespaces_in_widgets">¶</a></h3>
+
+<p>
+	For widgets in View files we have to specify namespaces explicitly.
+	<br><br>
+	Here the example:
+
+<pre name="dlhl" class="php">
+CWidget::create('CDataForm', array(
+    'model'         => '\Modules\News\Models\NewsSubscribers',
+    'primaryKey'    => $id,
+    'operationType' => 'edit',
+    'action'        => 'newsSubscribers/edit/id/'.$id,
+    'successUrl'    => 'newsSubscribers/manage',
+    'cancelUrl'     => 'newsSubscribers/manage',
+    'method'        => 'post',
+    'htmlOptions'   => array(
+        'id'   => $formName,
+        'name' => $formName,
+        'autoGenerateId' => true
+    ),
+    'requiredFieldsAlert' => true,
+    'fields'    => $fields,
+    'buttons'   => array(
+        'submitUpdateClose'=>array('type'=>'submit', 'value'=>A::t('app', 'Update & Close'), 'htmlOptions'=>array('name'=>'btnUpdateClose')),
+        'submitUpdate'=>array('type'=>'submit', 'value'=>A::t('app', 'Update'), 'htmlOptions'=>array('name'=>'btnUpdate')),
+        'cancel' => array('type'=>'button', 'value'=>A::t('news', 'Cancel'), 'htmlOptions'=>array('name'=>'', 'class'=>'button white')),
+    ),
+    'buttonsPosition' => 'bottom',
+    'events' => array(
+        'focus' => array('field' => $errorField)
+    ),
+    'messagesSource'    => 'core',
+    'showAllErrors'     => false,
+    'alerts'            => array('type'=>'flash', 'itemName'=>A::t('news', 'Subscriber')),
+    'return'            => false
+));
+</pre>
+</p>
+<br>
+
+
+<a name="namespaces_in_config_files"></a>
+<h3>Using namespaces in config files for modules <a class="hashlink" href="#namespaces_in_config_files">¶</a></h3>
+<p>
+	If you use namespaces for moudle, you have to define classes in special format in configuration files.
+	<br>
+	For example (main.php file):
+
+<pre name="dlhl" class="php">
+return array(
+    // Module classes
+    'classes' => array(
+        'Modules\News\Components\NewsComponent',
+        'Modules\News\Controllers\News',
+        'Modules\News\Controllers\NewsSubscribers',
+    ),
+    // Management links
+    'managementLinks' => array(
+        A::t('news', 'News') => 'news/manage',
+        A::t('news', 'Subscribers') => 'newsSubscribers/manage'
+    ),
+);
+</pre>
+</p>
+<br>
