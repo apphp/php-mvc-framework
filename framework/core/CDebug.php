@@ -266,11 +266,11 @@ class CDebug
 		
 		// Store message in session
 		if ($storeType == 'session') {
-			$objSession = A::app()->getSession();
-			if (!empty($objSession)) {
-				$objSession->set('debug-' . $type, $val);
-			}
-			return false;
+//			$objSession = A::app()->getSession();
+//			if (!empty($objSession)) {
+//				$objSession->set('debug-' . $type, $val);
+//			}
+//			return false;
 		}
 
 		if ($type == 'general') self::$_arrGeneral[$key][] = CFilter::sanitize('string', $val);
