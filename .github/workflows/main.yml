@@ -26,7 +26,7 @@ jobs:
    
 
   my-deploy:
-    runs-on: linux
+    runs-on: windows
  #   needs: [my-testing]
     
     steps:
