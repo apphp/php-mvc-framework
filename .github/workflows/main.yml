@@ -32,4 +32,9 @@ jobs:
       run: | 
         echo "App Name: ${{ env.APP_NAME }}"
         echo "Pack Name: ${{ env.DEPLOY_PACKAGE_NAME }}"
+    
+    - name: List current folder
+      run: ls -la
+      
+        
       
