@@ -46,7 +46,7 @@ class CGridView extends CWidgs
      *   - 'callback'=>array('class'=>'className', 'function'=>'functionName', 'params'=>$functionParams)
      *      callback of closure function that is called when item created (available for labels only), $record - all current record
      *      PHP_VERSION >= 5.3.0 $functionName = function($record, $params){ return record['field_name']; }
-     *      Ex.: function callbackFunction($record, $params){...}
+     *      Ex.: function callbackFunction($record, $params){...} - passed a whole record
      *   - 'trigger'=>array('trigger_key'=>'field name', 'trigger_operation'=>'!=', 'trigger_value'=>'0', 'success_value'=>'0', 'wrong_value'=>'0'),
      *   	trigger is used for changing field valut depending on simple condition
      *   	Ex.: 'trigger'=>array('trigger_key'=>'is_active', 'trigger_operation'=>'==', 'trigger_value'=>'1', 'success_value'=>A::t('app', 'Active), 'wrong_value'=>''),
@@ -117,54 +117,54 @@ class CGridView extends CWidgs
 	 *    'return'=>true,
      *  ));
     */
-    public static function init($params = array())
-    {
+	public static function init($params = array())
+	{
 		parent::init($params);
 		
-        $output 	   		= '';
-        $model 		   		= self::params('model', '');
-		$modelName			= $model;
-		$relationType		= self::params('relationType', '');
-		$actionPath    		= self::params('actionPath', '');
-		$condition 	   		= self::params('condition', '');
-		$groupBy			= self::params('groupBy', '');
-		$limit				= self::params('limit', '');
-		$defaultOrder  		= self::params('defaultOrder', '');
-		$passParameters 	= (bool)self::params('passParameters', false);
-		$customParameters 	= self::params('customParameters', false);
-        $return 	   		= (bool)self::params('return', true);
-		$fields 	   		= self::params('fields', array());
-		$filters	   		= self::params('filters', array());
-		$actions 	   		= self::params('actions', array());
-		$sortingEnabled 	= (bool)self::params('sorting', false);
-		$filterDiv			= self::params('options.filterDiv', array());
-		$filterForm			= self::params('options.filterForm', array());
-		$filterItemDiv		= self::params('options.filterItemDiv', array());
-		$filterType			= self::params('options.filterType', 'default');
-		$gridWrapper		= self::params('options.gridWrapper', array());
-		$gridTable			= self::params('options.gridTable', array());        
-        $linkType 			= (int)self::params('linkType', 0);	/* Link type: 0 - standard, 1 - SEO */
-		$pagination 		= (bool)self::params('pagination.enable', '');
-		$pageSize 			= abs((int)self::params('pagination.pageSize', '10'));
-		$activeActions 		= is_array($actions) ? count($actions) : 0;
-		$onDeleteRecord 	= false;
+		$output = '';
+		$model = self::params('model', '');
+		$modelName = $model;
+		$relationType = self::params('relationType', '');
+		$actionPath = self::params('actionPath', '');
+		$condition = self::params('condition', '');
+		$groupBy = self::params('groupBy', '');
+		$limit = self::params('limit', '');
+		$defaultOrder = self::params('defaultOrder', '');
+		$passParameters = (bool)self::params('passParameters', false);
+		$customParameters = self::params('customParameters', false);
+		$return = (bool)self::params('return', true);
+		$fields = self::params('fields', array());
+		$filters = self::params('filters', array());
+		$actions = self::params('actions', array());
+		$sortingEnabled = (bool)self::params('sorting', false);
+		$filterDiv = self::params('options.filterDiv', array());
+		$filterForm = self::params('options.filterForm', array());
+		$filterItemDiv = self::params('options.filterItemDiv', array());
+		$filterType = self::params('options.filterType', 'default');
+		$gridWrapper = self::params('options.gridWrapper', array());
+		$gridTable = self::params('options.gridTable', array());
+		$linkType = (int)self::params('linkType', 0);    /* Link type: 0 - standard, 1 - SEO */
+		$pagination = (bool)self::params('pagination.enable', '');
+		$pageSize = abs((int)self::params('pagination.pageSize', '10'));
+		$activeActions = is_array($actions) ? count($actions) : 0;
+		$onDeleteRecord = false;
 		
-		$baseUrl = A::app()->getRequest()->getBaseUrl();		
+		$baseUrl = A::app()->getRequest()->getBaseUrl();
 		$page = A::app()->getRequest()->getQuery('page', 'integer', 1);
-
+		
 		// Get pure model name
 		$namespace = explode('\\', $model);
-		if(count($namespace) > 1){
+		if (count($namespace) > 1) {
 			$modelName = $namespace[count($namespace) - 1];
 		}
-
+		
 		// Remove disabled actions
-		if(is_array($actions)){
-			foreach($actions as $key => $val){
-				if((bool)self::keyAt('disabled', $val) === true){
+		if (is_array($actions)) {
+			foreach ($actions as $key => $val) {
+				if ((bool)self::keyAt('disabled', $val) === true) {
 					unset($actions[$key]);
 				}
-				if((bool)self::keyAt('onDeleteAlert', $val) === true){
+				if ((bool)self::keyAt('onDeleteAlert', $val) === true) {
 					$onDeleteRecord = true;
 				}
 			}
@@ -177,445 +177,461 @@ class CGridView extends CWidgs
 		$sortDir = '';
 		$sortUrl = '';
 		$orderClause = '';
-		if($sortingEnabled){
-			$sortBy = A::app()->getRequest()->getQuery('sort_by', 'dbfield', '');		
-			$sortDir = (strtolower(A::app()->getRequest()->getQuery('sort_dir', 'alpha', '')) == 'desc') ? 'desc' : 'asc';		
+		if ($sortingEnabled) {
+			$sortBy = A::app()->getRequest()->getQuery('sort_by', 'dbfield', '');
+			$sortDir = (strtolower(A::app()->getRequest()->getQuery('sort_dir', 'alpha', '')) == 'desc') ? 'desc' : 'asc';
 		}
 		
-		if($sortingEnabled && !empty($sortBy)){
+		if ($sortingEnabled && !empty($sortBy)) {
 			$sortType = self::_getFieldParam($fields, $sortBy, 'sortType', array('string', 'numeric'));
-			$orderClause = $sortBy.($sortType == 'numeric' ? ' + 0 ' : '').' '.$sortDir;
-		}elseif(is_array($defaultOrder)){
-			foreach($defaultOrder as $oField => $oFieldType){
+			$orderClause = $sortBy . ($sortType == 'numeric' ? ' + 0 ' : '') . ' ' . $sortDir;
+		} elseif (is_array($defaultOrder)) {
+			foreach ($defaultOrder as $oField => $oFieldType) {
 				$sortType = self::_getFieldParam($fields, $oField, 'sortType', array('string', 'numeric'));
-				$orderClause .= (!empty($orderClause) ? ', ' : '').$oField.($sortType == 'numeric' ? ' + 0 ' : '').' '.$oFieldType;
-			}					
+				$orderClause .= (!empty($orderClause) ? ', ' : '') . $oField . ($sortType == 'numeric' ? ' + 0 ' : '') . ' ' . $oFieldType;
+			}
 		}
 		
 		// Prepare filter variables
 		// ---------------------------------------
 		$whereClause = (!empty($condition)) ? $condition : '';
-		$filterUrl = '';		
-		if(is_array($filters) && !empty($filters)){
-            // Boodstrap menu
-            $filterMegaMenu = strtolower($filterType) == 'megamenu' ? true : false;
-            if($filterMegaMenu){
-                $filterCount = 0;
-            }
-
-			// Remove disabled fields
-			foreach($filters as $key => $val){
-                if((bool)self::keyAt('disabled', $val) === true) unset($filters[$key]);
-                if($filterMegaMenu){
-                    if(self::keyAt('visible', $val, true) == true){
-                        $filterCount++;
-                    }
-                }
+		$filterUrl = '';
+		if (is_array($filters) && !empty($filters)) {
+			// Boodstrap menu
+			$filterMegaMenu = strtolower($filterType) == 'megamenu' ? true : false;
+			if ($filterMegaMenu) {
+				$filterCount = 0;
 			}
-
-            if($filterMegaMenu){
-                $filterIterator = 0;
-                $filterOddHalf = false;
-
-                $filterHalf = ceil($filterCount / 4) * 2;
-                // If the left half of the filter 3 element larger than the right half of the filter, move 1 element in the right half of filter
-                if($filterHalf * 2 - $filterCount == 3){
-                    $filterHalf--;
-                    $filterOddHalf = true;
-                }
-                $output .= CHtml::openTag('a', array('href'=>'javascript:void(0);', 'class'=>'search-trigger filtering-button'));
-                $output .= CHtml::tag('i', array('class'=>'fa fa-search'), '');
-                $output .= CHtml::closeTag('a');
-                $output .= CHtml::openTag('div', array('class'=>(!empty($filterDiv['class']) ? $filterDiv['class'] : 'filtering-wrapper'), 'style'=>'display:none;')).self::NL;
-                $output .= CHtml::openTag('div', array('class'=>'filtering-wrapper-inner')).self::NL;
-                $output .= CHtml::openForm($actionPath, 'get', array('id'=>'frmFilter'.$modelName, 'class'=>(!empty($filterForm['class']) ? $filterForm['class'] : null))).self::NL;
-                $output .= CHtml::openTag('div', array('class'=>'row')).self::NL;
-            }else{
-                $output .= CHtml::openTag('div', array('class'=>(!empty($filterDiv['class']) ? $filterDiv['class'] : 'filtering-wrapper'))).self::NL;
-                $output .= CHtml::openForm($actionPath, 'get', array('id'=>'frmFilter'.$modelName)).self::NL;
-            }
-
-            // An array of iterations for the source filter
-            $fArrSourceIter = array();
-			foreach($filters as $fKey => $fValue){
-				$visible           = isset($fValue['visible']) ? $fValue['visible'] : true;
-				$title             = isset($fValue['title']) ? $fValue['title'] : '';
-				$type              = isset($fValue['type']) ? $fValue['type'] : '';
-				$table             = isset($fValue['table']) ? $fValue['table'] : '';
-				$width             = (isset($fValue['width']) && CValidator::isHtmlSize($fValue['width'])) ? 'width:'.$fValue['width'].';' : '';
-				$maxLength         = isset($fValue['maxLength']) && !empty($fValue['maxLength']) ? (int)$fValue['maxLength'] : '255';
-				$fieldOperator     = isset($fValue['operator']) ? $fValue['operator'] : '';
+			
+			// Remove disabled fields
+			foreach ($filters as $key => $val) {
+				if ((bool)self::keyAt('disabled', $val) === true) unset($filters[$key]);
+				if ($filterMegaMenu) {
+					if (self::keyAt('visible', $val, true) == true) {
+						$filterCount++;
+					}
+				}
+			}
+			
+			if ($filterMegaMenu) {
+				$filterIterator = 0;
+				$filterOddHalf = false;
+				
+				$filterHalf = ceil($filterCount / 4) * 2;
+				// If the left half of the filter 3 element larger than the right half of the filter, move 1 element in the right half of filter
+				if ($filterHalf * 2 - $filterCount == 3) {
+					$filterHalf--;
+					$filterOddHalf = true;
+				}
+				$output .= CHtml::openTag('a', array('href' => 'javascript:void(0);', 'class' => 'search-trigger filtering-button'));
+				$output .= CHtml::tag('i', array('class' => 'fa fa-search'), '');
+				$output .= CHtml::closeTag('a');
+				$output .= CHtml::openTag('div', array('class' => (!empty($filterDiv['class']) ? $filterDiv['class'] : 'filtering-wrapper'), 'style' => 'display:none;')) . self::NL;
+				$output .= CHtml::openTag('div', array('class' => 'filtering-wrapper-inner')) . self::NL;
+				$output .= CHtml::openForm($actionPath, 'get', array('id' => 'frmFilter' . $modelName, 'class' => (!empty($filterForm['class']) ? $filterForm['class'] : null))) . self::NL;
+				$output .= CHtml::openTag('div', array('class' => 'row')) . self::NL;
+			} else {
+				$output .= CHtml::openTag('div', array('class' => (!empty($filterDiv['class']) ? $filterDiv['class'] : 'filtering-wrapper'))) . self::NL;
+				$output .= CHtml::openForm($actionPath, 'get', array('id' => 'frmFilter' . $modelName)) . self::NL;
+			}
+			
+			// An array of iterations for the source filter
+			$fArrSourceIter = array();
+			foreach ($filters as $fKey => $fValue) {
+				$visible = isset($fValue['visible']) ? $fValue['visible'] : true;
+				$title = isset($fValue['title']) ? $fValue['title'] : '';
+				$type = isset($fValue['type']) ? $fValue['type'] : '';
+				$table = isset($fValue['table']) ? $fValue['table'] : '';
+				$width = (isset($fValue['width']) && CValidator::isHtmlSize($fValue['width'])) ? 'width:' . $fValue['width'] . ';' : '';
+				$maxLength = isset($fValue['maxLength']) && !empty($fValue['maxLength']) ? (int)$fValue['maxLength'] : '255';
+				$fieldOperator = isset($fValue['operator']) ? $fValue['operator'] : '';
 				$fieldDefaultValue = isset($fValue['default']) ? $fValue['default'] : '';
-				$compareType       = isset($fValue['compareType']) ? $fValue['compareType'] : '';
-				$autocomplete      = isset($fValue['autocomplete']) ? $fValue['autocomplete'] : array();
-				$htmlOptions       = isset($fValue['htmlOptions']) ? $fValue['htmlOptions'] : array();
-				$fId               = !empty($htmlOptions['id']) ? $htmlOptions['id'] : $fKey;
+				$compareType = isset($fValue['compareType']) ? $fValue['compareType'] : '';
+				$autocomplete = isset($fValue['autocomplete']) ? $fValue['autocomplete'] : array();
+				$htmlOptions = isset($fValue['htmlOptions']) ? $fValue['htmlOptions'] : array();
+				$fId = !empty($htmlOptions['id']) ? $htmlOptions['id'] : $fKey;
 				$htmlOptions['id'] = $fId;
 				
-                // Check if we want to use another filter as a "source filter"
-                $sourceFilter = self::keyAt('sourceFilter', $fValue, '');
-                if(!empty($sourceFilter)){
-                    $fIsArray  = true;
-                    $fName     = $sourceFilter.'[]';
-                    $fNameAbbr = $sourceFilter;
-                }else{
-                    $fIsArray = false;
-                    $fName = $fKey;
-                    $fNameAbbr = $fKey;
-                }
-
-                if(A::app()->getRequest()->getQuery('but_filter')){                    
-                    if($fIsArray){
-                        $fieldValue = '';
-                        $arrFieldValue = A::app()->getRequest()->getQuery($fNameAbbr);
-                        $fIter = isset($fArrSourceIter[$sourceFilter]) ? $fArrSourceIter[$sourceFilter] : 0;
-                        if(!empty($arrFieldValue) && is_array($arrFieldValue)){
-                            $fieldValue = isset($arrFieldValue[$fIter]) ? CHtml::decode($arrFieldValue[$fIter]) : '';
-                        }
-                        $fArrSourceIter[$sourceFilter] = ++$fIter;
-                    }else{
-                        $fieldValue = CHtml::decode(A::app()->getRequest()->getQuery($fNameAbbr));
-                    }
-                }else{
-                    $fieldValue = $fieldDefaultValue;
-                }
+				// Check if we want to use another filter as a "source filter"
+				$sourceFilter = self::keyAt('sourceFilter', $fValue, '');
+				if (!empty($sourceFilter)) {
+					$fIsArray = true;
+					$fName = $sourceFilter . '[]';
+					$fNameAbbr = $sourceFilter;
+				} else {
+					$fIsArray = false;
+					$fName = $fKey;
+					$fNameAbbr = $fKey;
+				}
 				
-                if($visible){
-                    if($filterMegaMenu){
-                        $filterNewRow = $filterIterator > $filterHalf && $filterOddHalf
-                            ? $filterIterator % 2 == 1
-                            : $filterIterator % 2 == 0;
-                        if($filterIterator == 0 || $filterIterator == $filterHalf){
-                            $output .= CHtml::openTag('div', array('class'=>'col-md-6 col-sm-6'));
-                            $output .= CHtml::openTag('div', array('class'=>'row'));
-                        }elseif($filterNewRow){
-                            $output .= CHtml::openTag('div', array('class'=>'row'));
-                        }
-
-                        $output .= CHtml::openTag('div', array('class'=>'col-md-6'));
-                    }
-
-					if(!empty($filterItemDiv)){
-						$output .= CHtml::openTag('div', array('class'=>(!empty($filterItemDiv['class']) ? $filterItemDiv['class'] : ''))).self::NL;
+				if (A::app()->getRequest()->getQuery('but_filter')) {
+					if ($fIsArray) {
+						$fieldValue = '';
+						$arrFieldValue = A::app()->getRequest()->getQuery($fNameAbbr);
+						$fIter = isset($fArrSourceIter[$sourceFilter]) ? $fArrSourceIter[$sourceFilter] : 0;
+						if (!empty($arrFieldValue) && is_array($arrFieldValue)) {
+							$fieldValue = isset($arrFieldValue[$fIter]) ? CHtml::decode($arrFieldValue[$fIter]) : '';
+						}
+						$fArrSourceIter[$sourceFilter] = ++$fIter;
+					} else {
+						$fieldValue = CHtml::decode(A::app()->getRequest()->getQuery($fNameAbbr));
 					}
-                    if($filterMegaMenu && !empty($title)){
-                        $output .= CHtml::tag('label', array(), $title);
-                    }
+				} else {
+					$fieldValue = $fieldDefaultValue;
+				}
+				
+				if ($visible) {
+					if ($filterMegaMenu) {
+						$filterNewRow = $filterIterator > $filterHalf && $filterOddHalf
+							? $filterIterator % 2 == 1
+							: $filterIterator % 2 == 0;
+						if ($filterIterator == 0 || $filterIterator == $filterHalf) {
+							$output .= CHtml::openTag('div', array('class' => 'col-md-6 col-sm-6'));
+							$output .= CHtml::openTag('div', array('class' => 'row'));
+						} elseif ($filterNewRow) {
+							$output .= CHtml::openTag('div', array('class' => 'row'));
+						}
+						
+						$output .= CHtml::openTag('div', array('class' => 'col-md-6'));
+					}
 					
-					$output .= !empty($title) ? $title.': ' : '';
+					if (!empty($filterItemDiv)) {
+						$output .= CHtml::openTag('div', array('class' => (!empty($filterItemDiv['class']) ? $filterItemDiv['class'] : ''))) . self::NL;
+					}
+					if ($filterMegaMenu && !empty($title)) {
+						$output .= CHtml::tag('label', array(), $title);
+					}
 					
-					switch($type){	
+					$output .= !empty($title) ? $title . ': ' : '';
+					
+					switch ($type) {
 						case 'enum':
 							$source = isset($fValue['source']) ? $fValue['source'] : array();
 							$emptyOption = isset($fValue['emptyOption']) ? (bool)$fValue['emptyOption'] : false;
 							$emptyValue = !empty($fValue['emptyValue']) ? $fValue['emptyValue'] : '--';
 							$sourceCount = count($source);
-							if($sourceCount >= 1 || !empty($emptyOption)){
-								if($emptyOption){
-									$source = array(''=>$emptyValue) + $source;
+							if ($sourceCount >= 1 || !empty($emptyOption)) {
+								if ($emptyOption) {
+									$source = array('' => $emptyValue) + $source;
 								}
 								$htmlOptions['style'] = $width;
-                                if($filterMegaMenu && !empty($title)){
-                                    $htmlOptions['class'] = !empty($htmlOptions['class']) ? $htmlOptions['class'] : 'form-control selectpicker';
-                                }
-								$output .= (count($source)) ? CHtml::dropDownList($fName, $fieldValue, $source, $htmlOptions) : 'no';	
-							}else{
+								if ($filterMegaMenu && !empty($title)) {
+									$htmlOptions['class'] = !empty($htmlOptions['class']) ? $htmlOptions['class'] : 'form-control selectpicker';
+								}
+								$output .= (count($source)) ? CHtml::dropDownList($fName, $fieldValue, $source, $htmlOptions) : 'no';
+							} else {
 								$output .= A::t('core', 'none');
 							}
-							$output .= '&nbsp;'.self::NL;
+							$output .= '&nbsp;' . self::NL;
 							break;
-
-                        case 'datetime':
+						
+						case 'datetime':
 						case 'datetimepicker':
-                            $format = !empty($fValue['format']) ? $fValue['format'] : 'yy-mm-dd';
-                            $viewType = !empty($fValue['viewType']) ? $fValue['viewType'] : 'date';
-
-                            $htmlOptions['maxlength'] = $maxLength;
-                            $htmlOptions['style'] = $width;
-                            if($filterMegaMenu && !empty($title)){
-                                $htmlOptions['class'] = !empty($htmlOptions['class']) ? $htmlOptions['class'] : 'form-control';
-                            }
-                            $output .= CHtml::textField($fName, $fieldValue, $htmlOptions);
-                            A::app()->getClientScript()->registerCssFile('assets/vendors/jquery/jquery-ui.min.css');
-                            A::app()->getClientScript()->registerCssFile('assets/vendors/datetimepicker/jquery-ui-timepicker-addon.css');
-
-                            // It's better if it was alredy added in template file
-                            // A::app()->getClientScript()->registerScriptFile('assets/vendors/jquery/jquery-ui.min.js', 2);
-                            A::app()->getClientScript()->registerScriptFile('assets/vendors/datetimepicker/jquery-ui-timepicker-addon.js', 2);
-                            A::app()->getClientScript()->registerScriptFile('assets/vendors/datetimepicker/i18n/jquery-ui-timepicker-addon-i18n.min.js', 2);
-                            A::app()->getClientScript()->registerScriptFile('assets/vendors/datetimepicker/jquery-ui-sliderAccess.js', 2);
-
-                            // UI:
-                            //		dateFormat: dd/mm/yy | d M, y | mm/dd/yy  | yy-mm-dd
-                            // Bootstrap:
-                            // 		dateFormat: dd/mm/yyyy | d M, y | mm/dd/yyyy  | yyyy-mm-dd
-                            //		autoclose: true,
-                            if($viewType == 'datetime' || $viewType == 'date'){
-                                A::app()->getClientScript()->registerScript(
-                                    'datetimepicker_'.self::$_pickerCount++,
-                                    'jQuery("#'.$fId.'").datetimepicker({
+							$format = !empty($fValue['format']) ? $fValue['format'] : 'yy-mm-dd';
+							$viewType = !empty($fValue['viewType']) ? $fValue['viewType'] : 'date';
+							
+							$htmlOptions['maxlength'] = $maxLength;
+							$htmlOptions['style'] = $width;
+							if ($filterMegaMenu && !empty($title)) {
+								$htmlOptions['class'] = !empty($htmlOptions['class']) ? $htmlOptions['class'] : 'form-control';
+							}
+							$output .= CHtml::textField($fName, $fieldValue, $htmlOptions);
+							A::app()->getClientScript()->registerCssFile('assets/vendors/jquery/jquery-ui.min.css');
+							A::app()->getClientScript()->registerCssFile('assets/vendors/datetimepicker/jquery-ui-timepicker-addon.css');
+							
+							// It's better if it was alredy added in template file
+							// A::app()->getClientScript()->registerScriptFile('assets/vendors/jquery/jquery-ui.min.js', 2);
+							A::app()->getClientScript()->registerScriptFile('assets/vendors/datetimepicker/jquery-ui-timepicker-addon.js', 2);
+							A::app()->getClientScript()->registerScriptFile('assets/vendors/datetimepicker/i18n/jquery-ui-timepicker-addon-i18n.min.js', 2);
+							A::app()->getClientScript()->registerScriptFile('assets/vendors/datetimepicker/jquery-ui-slideraccess.js', 2);
+							
+							// UI:
+							//		dateFormat: dd/mm/yy | d M, y | mm/dd/yy  | yy-mm-dd
+							// Bootstrap:
+							// 		dateFormat: dd/mm/yyyy | d M, y | mm/dd/yyyy  | yyyy-mm-dd
+							//		autoclose: true,
+							if ($viewType == 'datetime' || $viewType == 'date') {
+								A::app()->getClientScript()->registerScript(
+									'datetimepicker_' . self::$_pickerCount++,
+									'jQuery("#' . $fId . '").datetimepicker({
                                         showOn: "button",
                                         buttonImage: "assets/vendors/jquery/images/calendar.png",
                                         buttonImageOnly: true,
                                         showWeek: false,
                                         firstDay: 1,
                                         autoclose: true,						
-                                        format: "'.($format == 'yy-mm-dd' ? 'yyyy-mm-dd' : $format).'",
-                                        dateFormat: "'.$format.'",
+                                        format: "' . ($format == 'yy-mm-dd' ? 'yyyy-mm-dd' : $format) . '",
+                                        dateFormat: "' . $format . '",
                                         changeMonth: true,
                                         changeYear: true,							
                                         hourMin: 0,
                                         hourMax: 23,
-                                        isRTL: '.(A::app()->getLanguage('direction') == 'rtl' ? 'true' : 'false').',
-                                        showTimepicker: '.($viewType == 'datetime' ? 'true' : 'false').',
-                                        '.($viewType == 'datetime' ? 'timeInput: true,' : '').'
-                                        '.($viewType == 'datetime' ? 'timeFormat: "hh:mm",' : '').'
+                                        isRTL: ' . (A::app()->getLanguage('direction') == 'rtl' ? 'true' : 'false') . ',
+                                        showTimepicker: ' . ($viewType == 'datetime' ? 'true' : 'false') . ',
+                                        ' . ($viewType == 'datetime' ? 'timeInput: true,' : '') . '
+                                        ' . ($viewType == 'datetime' ? 'timeFormat: "hh:mm",' : '') . '
                                         appendText : ""
                                     });'
-                                );
-                            }elseif($viewType = 'time'){
-                                A::app()->getClientScript()->registerScript(
-                                    'timepicker'.self::$_pickerCount++,
-                                    'jQuery("#'.$fId.'").timepicker({
+								);
+							} elseif ($viewType = 'time') {
+								A::app()->getClientScript()->registerScript(
+									'timepicker' . self::$_pickerCount++,
+									'jQuery("#' . $fId . '").timepicker({
                                         showOn: "button",
                                         buttonImage: "assets/vendors/jquery/images/calendar.png",
                                         buttonImageOnly: true,
                                         autoclose: true,						
                                         hourMin: 0,
                                         hourMax: 23,
-                                        isRTL: '.(A::app()->getLanguage('direction') == 'rtl' ? 'true' : 'false').',
-                                        showTimepicker: '.($viewType = 'datetime' ? 'true' : '').',
+                                        isRTL: ' . (A::app()->getLanguage('direction') == 'rtl' ? 'true' : 'false') . ',
+                                        showTimepicker: ' . ($viewType = 'datetime' ? 'true' : '') . ',
                                         timeInput: true,
                                         timeFormat: "hh:mm",
                                         appendText : ""
                                     });'
-                                );
-                            }
-                            break;
-	
+								);
+							}
+							break;
+						
 						case 'textbox':
-						default:						
+						default:
 							$autocompleteEnabled = self::keyAt('enable', $autocomplete);
 							$autocompleteAjaxHandler = self::keyAt('ajaxHandler', $autocomplete, '');
 							$autocompleteMinLength = self::keyAt('minLength', $autocomplete, 1);
 							$autocompleteReturnId = self::keyAt('returnId', $autocomplete, true);
-	
-							if($autocompleteEnabled){
+							
+							if ($autocompleteEnabled) {
 								$cRequest = A::app()->getRequest();
 								
 								A::app()->getClientScript()->registerCssFile('assets/vendors/jquery/jquery-ui.min.css');
 								// Already included in backend default.php
-								if(A::app()->view->getTemplate() != 'backend'){
-									A::app()->getClientScript()->registerScriptFile('assets/vendors/jquery/jquery-ui.min.js', 2);	
-								}							
+								if (A::app()->view->getTemplate() != 'backend') {
+									A::app()->getClientScript()->registerScriptFile('assets/vendors/jquery/jquery-ui.min.js', 2);
+								}
 								
-								$fKeySearch = $autocompleteReturnId ? $fId.'_result' : $fId;
+								$fKeySearch = $autocompleteReturnId ? $fId . '_result' : $fId;
 								A::app()->getClientScript()->registerScript(
-									'autocomplete_'.self::$_autocompleteCount++,
-									'jQuery("#'.$fKeySearch.'").autocomplete({
+									'autocomplete_' . self::$_autocompleteCount++,
+									'jQuery("#' . $fKeySearch . '").autocomplete({
 										source: function(request, response){
 											$.ajax({
-												url: "'.CHtml::encode($autocompleteAjaxHandler).'",
+												url: "' . CHtml::encode($autocompleteAjaxHandler) . '",
 												global: false,
 												type: "POST",
 												data: ({
-													'.$cRequest->getCsrfTokenKey().': "'.$cRequest->getCsrfTokenValue().'",
+													' . $cRequest->getCsrfTokenKey() . ': "' . $cRequest->getCsrfTokenValue() . '",
 													act: "send",
-													search : jQuery("#'.$fKeySearch.'").val()
+													search : jQuery("#' . $fKeySearch . '").val()
 												}),
 												dataType: "json",
 												async: true,
 												error: function(html){
-													'.((APPHP_MODE == 'debug') ? 'alert("AJAX: cannot connect to the server or server response error! Please try again later.");' : '').'
+													' . ((APPHP_MODE == 'debug') ? 'alert("AJAX: cannot connect to the server or server response error! Please try again later.");' : '') . '
 												},
 												success: function(data){
 													if(data.length == 0){
-														response({label: "'.A::te('core', 'No matches found').'"});
+														response({label: "' . A::te('core', 'No matches found') . '"});
 													}else{
 														response($.map(data, function(item){
 															if(item.label !== undefined){
-																return {id: '.($autocompleteReturnId ? 'item.id' : 'item.label').', label: item.label}	
+																return {id: ' . ($autocompleteReturnId ? 'item.id' : 'item.label') . ', label: item.label}
 															}else{
 																// Empty search value if nothing found
-																jQuery("#'.$fId.'").val("");
+																jQuery("#' . $fId . '").val("");
 															}
 														}));
 													}
 												}
 											});
 										},
-										minLength: '.(int)$autocompleteMinLength.',
+										minLength: ' . (int)$autocompleteMinLength . ',
 										select: function(event, ui) {
-											jQuery("#'.$fId.'").val(ui.item.id);
+											jQuery("#' . $fId . '").val(ui.item.id);
 											if(typeof(ui.item.id) == "undefined"){
-												jQuery("#'.$fKeySearch.'").val("");
+												jQuery("#' . $fKeySearch . '").val("");
 												return false;
 											}
 										}
 									});',
 									4
 								);
-	
-								if($autocompleteReturnId){
+								
+								if ($autocompleteReturnId) {
 									// Draw hidden field for real field
-									$output .= CHtml::hiddenField($fName, CHtml::encode($fieldValue), $htmlOptions).self::NL;								
+									$output .= CHtml::hiddenField($fName, CHtml::encode($fieldValue), $htmlOptions) . self::NL;
 								}
 								// Draw textbox
 								$htmlOptions['style'] = $width;
 								$htmlOptions['maxlength'] = $maxLength;
-                                if($filterMegaMenu && !empty($title)){
-                                    $htmlOptions['class'] = !empty($htmlOptions['class']) ? $htmlOptions['class'] : 'form-control';
-                                }
+								if ($filterMegaMenu && !empty($title)) {
+									$htmlOptions['class'] = !empty($htmlOptions['class']) ? $htmlOptions['class'] : 'form-control';
+								}
 								$fieldValueSearch = $cRequest->getQuery($fKeySearch);
-								$output .= CHtml::textField($fKeySearch, CHtml::encode($fieldValueSearch), $htmlOptions).self::NL;
-							}else{
+								$output .= CHtml::textField($fKeySearch, CHtml::encode($fieldValueSearch), $htmlOptions) . self::NL;
+							} else {
 								// Draw textbox
 								$htmlOptions['style'] = $width;
 								$htmlOptions['maxlength'] = $maxLength;
-                                if($filterMegaMenu && !empty($title)){
-                                    $htmlOptions['class'] = !empty($htmlOptions['class']) ? $htmlOptions['class'] : 'form-control';
-                                }
-								$output .= CHtml::textField($fName, CHtml::encode($fieldValue), $htmlOptions).self::NL;
-							}						
+								if ($filterMegaMenu && !empty($title)) {
+									$htmlOptions['class'] = !empty($htmlOptions['class']) ? $htmlOptions['class'] : 'form-control';
+								}
+								$output .= CHtml::textField($fName, CHtml::encode($fieldValue), $htmlOptions) . self::NL;
+							}
 							break;
 					}
-					if(!empty($filterItemDiv)){
-						$output .= CHtml::closeTag('div').self::NL;
+					if (!empty($filterItemDiv)) {
+						$output .= CHtml::closeTag('div') . self::NL;
 					}
-                    if($filterMegaMenu){
-                        $filterEndRow = $filterIterator >= $filterHalf && $filterOddHalf
-                            ? $filterIterator % 2 == 0
-                            : $filterIterator % 2 == 1;
-                        $output .= CHtml::closeTag('div');
-                        if($filterIterator == ($filterHalf - 1) || $filterIterator == ($filterCount - 1)){
-                            $output .= CHtml::closeTag('div');
-                            $output .= CHtml::closeTag('div');
-                        }elseif($filterEndRow){
-                            $output .= CHtml::closeTag('div');
-                        }
-                        $filterIterator++;
-                    }
-                }
+					if ($filterMegaMenu) {
+						$filterEndRow = $filterIterator >= $filterHalf && $filterOddHalf
+							? $filterIterator % 2 == 0
+							: $filterIterator % 2 == 1;
+						$output .= CHtml::closeTag('div');
+						if ($filterIterator == ($filterHalf - 1) || $filterIterator == ($filterCount - 1)) {
+							$output .= CHtml::closeTag('div');
+							$output .= CHtml::closeTag('div');
+						} elseif ($filterEndRow) {
+							$output .= CHtml::closeTag('div');
+						}
+						$filterIterator++;
+					}
+				}
 				
-				if($fieldValue !== ''){
-                    $filterUrl .= (!empty($filterUrl) ? '&' : '').$fName.'='.$fieldValue;
-
+				if ($fieldValue !== '') {
+					$filterUrl .= (!empty($filterUrl) ? '&' : '') . $fName . '=' . $fieldValue;
+					
 					// Check if there is an autocomplete key that must be added to filter string
-					$autocompleteValue = A::app()->getRequest()->getQuery($fId.'_result');
-					if($autocompleteValue != ''){
-						$filterUrl .= (!empty($filterUrl) ? '&' : '').$fId.'_result='.$autocompleteValue;
+					$autocompleteValue = A::app()->getRequest()->getQuery($fId . '_result');
+					if ($autocompleteValue != '') {
+						$filterUrl .= (!empty($filterUrl) ? '&' : '') . $fId . '_result=' . $autocompleteValue;
 					}
-
+					
 					$escapedFieldValue = strip_tags(CString::quote($fieldValue));
 					$quote = ($compareType == 'numeric' || $compareType == 'binary') ? '' : "'";
 					$binary = ($compareType == 'binary') ? 'BINARY ' : '';
 					$whereClauseMiddle = '';
-                    
-                    $fKeyParts = explode(',', $fNameAbbr);
+					
+					$fKeyParts = explode(',', $fNameAbbr);
 					$fKeyPartsCount = count($fKeyParts);
-                    foreach($fKeyParts as $key => $val){
-						if(!empty($table)) $val = $table.'.'.$val;
-                        if($fKeyPartsCount == 1){
-                            $whereClauseMiddle .= !empty($whereClause) ? ' AND ' : '';
-                        }else{
-                            $whereClauseMiddle .= !empty($whereClauseMiddle) ? ' OR ' : '';                            
-                        }
-                        $whereClauseMiddle .= $binary.$val.' ';                        
-                        switch($fieldOperator){
-                            case 'like':
-                                $whereClauseMiddle .= "like ".$quote.$escapedFieldValue.$quote; break;
-                            case 'not like':
-                                $whereClauseMiddle .= "not like ".$quote.$escapedFieldValue.$quote; break;
-                            case '%like':
-                                $whereClauseMiddle .= "like '%".$escapedFieldValue."'"; break;
-                            case 'like%':
-                                $whereClauseMiddle .= "like '".$escapedFieldValue."%'"; break;
-                            case '%like%':
-                                $whereClauseMiddle .= "like '%".$escapedFieldValue."%'"; break;
-                            case '!=':
-                            case '<>':	
-                                $whereClauseMiddle .= "!= ".$quote.$escapedFieldValue.$quote; break;
-                            case '>':	
-                                $whereClauseMiddle .= "> ".$quote.$escapedFieldValue.$quote; break;
-                            case '>=':	
-                                $whereClauseMiddle .= ">= ".$quote.$escapedFieldValue.$quote; break;
-                            case '<':	
-                                $whereClauseMiddle .= "< ".$quote.$escapedFieldValue.$quote; break;
-                            case '<=':	
-                                $whereClauseMiddle .= "<= ".$quote.$escapedFieldValue.$quote; break;
-                            case '=':
-                            default:
-                                $whereClauseMiddle .= "= ".$quote.$escapedFieldValue.$quote; break;
-                        }
-                    }
-                    if($fKeyPartsCount > 1){
-                        $whereClause .= (!empty($whereClause) ? ' AND' : '').' ('.$whereClauseMiddle.')';
-                    }else{
-                        $whereClause .= $whereClauseMiddle;
-                    }                    
-				} 
+					foreach ($fKeyParts as $key => $val) {
+						if (!empty($table)) $val = $table . '.' . $val;
+						if ($fKeyPartsCount == 1) {
+							$whereClauseMiddle .= !empty($whereClause) ? ' AND ' : '';
+						} else {
+							$whereClauseMiddle .= !empty($whereClauseMiddle) ? ' OR ' : '';
+						}
+						$whereClauseMiddle .= $binary . $val . ' ';
+						switch ($fieldOperator) {
+							case 'like':
+								$whereClauseMiddle .= "like " . $quote . $escapedFieldValue . $quote;
+								break;
+							case 'not like':
+								$whereClauseMiddle .= "not like " . $quote . $escapedFieldValue . $quote;
+								break;
+							case '%like':
+								$whereClauseMiddle .= "like '%" . $escapedFieldValue . "'";
+								break;
+							case 'like%':
+								$whereClauseMiddle .= "like '" . $escapedFieldValue . "%'";
+								break;
+							case '%like%':
+								$whereClauseMiddle .= "like '%" . $escapedFieldValue . "%'";
+								break;
+							case '!=':
+							case '<>':
+								$whereClauseMiddle .= "!= " . $quote . $escapedFieldValue . $quote;
+								break;
+							case '>':
+								$whereClauseMiddle .= "> " . $quote . $escapedFieldValue . $quote;
+								break;
+							case '>=':
+								$whereClauseMiddle .= ">= " . $quote . $escapedFieldValue . $quote;
+								break;
+							case '<':
+								$whereClauseMiddle .= "< " . $quote . $escapedFieldValue . $quote;
+								break;
+							case '<=':
+								$whereClauseMiddle .= "<= " . $quote . $escapedFieldValue . $quote;
+								break;
+							case '=':
+							default:
+								$whereClauseMiddle .= "= " . $quote . $escapedFieldValue . $quote;
+								break;
+						}
+					}
+					if ($fKeyPartsCount > 1) {
+						$whereClause .= (!empty($whereClause) ? ' AND' : '') . ' (' . $whereClauseMiddle . ')';
+					} else {
+						$whereClause .= $whereClauseMiddle;
+					}
+				}
 			}
 			
-            if($filterMegaMenu){
-                $output .= CHtml::tag('div', array('class'=>'spacer-20'), '');
-                $output .= CHtml::openTag('div', array('class'=>'col-md-12')).self::NL;
-                if(A::app()->getRequest()->getQuery('but_filter')){
-                    $filterUrl .= (!empty($filterUrl) ? '&' : '').'but_filter=true';
-                    $output .= CHtml::button(A::t('core', 'Cancel'), array('name'=>'', 'class'=>'btn btn-default btn-lg', 'onclick'=>'jQuery(location).attr(\'href\',\''.$baseUrl.$actionPath.'\');')).self::NL;
-                }
-                $output .= CHtml::submitButton(A::t('core', 'Filter'), array('name'=>'but_filter', 'class'=>'btn btn-info btn-lg pull-right')).self::NL;
-                $output .= CHtml::closeTag('div');
-            }else{
-                $output .= CHtml::openTag('div', array('class'=>'buttons-wrapper')).self::NL;
-                if(A::app()->getRequest()->getQuery('but_filter')){
-                    $filterUrl .= (!empty($filterUrl) ? '&' : '').'but_filter=true';
-                    $output .= CHtml::button(A::t('core', 'Cancel'), array('name'=>'', 'class'=>'button white', 'onclick'=>'jQuery(location).attr(\'href\',\''.$baseUrl.$actionPath.'\');')).self::NL;
-                }
-                $output .= CHtml::submitButton(A::t('core', 'Filter'), array('name'=>'but_filter')).self::NL;
-            }
-
-			if($filterMegaMenu) $output .= CHtml::closeTag('div').self::NL;			
-			$output .= CHtml::closeTag('div').self::NL;
-			$output .= CHtml::closeForm().self::NL;
-			if($filterMegaMenu) $output .= CHtml::closeTag('div').self::NL;
-			$output .= CHtml::closeTag('div').self::NL;
+			if ($filterMegaMenu) {
+				$output .= CHtml::tag('div', array('class' => 'spacer-20'), '');
+				$output .= CHtml::openTag('div', array('class' => 'col-md-12')) . self::NL;
+				if (A::app()->getRequest()->getQuery('but_filter')) {
+					$filterUrl .= (!empty($filterUrl) ? '&' : '') . 'but_filter=true';
+					$output .= CHtml::button(A::t('core', 'Cancel'), array('name' => '', 'class' => 'btn btn-default btn-lg', 'onclick' => 'jQuery(location).attr(\'href\',\'' . $baseUrl . $actionPath . '\');')) . self::NL;
+				}
+				$output .= CHtml::submitButton(A::t('core', 'Filter'), array('name' => 'but_filter', 'class' => 'btn btn-info btn-lg pull-right')) . self::NL;
+				$output .= CHtml::closeTag('div');
+			} else {
+				$output .= CHtml::openTag('div', array('class' => 'buttons-wrapper')) . self::NL;
+				if (A::app()->getRequest()->getQuery('but_filter')) {
+					$filterUrl .= (!empty($filterUrl) ? '&' : '') . 'but_filter=true';
+					$output .= CHtml::button(A::t('core', 'Cancel'), array('name' => '', 'class' => 'button white', 'onclick' => 'jQuery(location).attr(\'href\',\'' . $baseUrl . $actionPath . '\');')) . self::NL;
+				}
+				$output .= CHtml::submitButton(A::t('core', 'Filter'), array('name' => 'but_filter')) . self::NL;
+			}
+			
+			if ($filterMegaMenu) $output .= CHtml::closeTag('div') . self::NL;
+			$output .= CHtml::closeTag('div') . self::NL;
+			$output .= CHtml::closeForm() . self::NL;
+			if ($filterMegaMenu) $output .= CHtml::closeTag('div') . self::NL;
+			$output .= CHtml::closeTag('div') . self::NL;
 			$filterUrl = CHtml::encode($filterUrl);
 		}
-
+		
 		// Prepare pagination variables
 		// ---------------------------------------
 		$totalRecords = $totalPageRecords = 0;
 		$currentPage = '';
 		$modelParams = !empty($relationType) ? array($relationType) : array();
-        $objModel = call_user_func_array($model.'::model', $modelParams);
-		if(!$objModel){
-            CDebug::addMessage('errors', 'missing-model', A::t('core', 'Unable to find class "{class}".', array('{class}'=>$model)), 'session');                        
-            return '';
-        }
+		$objModel = call_user_func_array($model . '::model', $modelParams);
+		if (!$objModel) {
+			CDebug::addMessage('errors', 'missing-model', A::t('core', 'Unable to find class "{class}".', array('{class}' => $model)), 'session');
+			return '';
+		}
 		
 		// Replacing rows
 		// ---------------------------------------
 		$act = A::app()->getRequest()->getQuery('act', 'alpha', '');
-		if($act == 'replace'){
+		if ($act == 'replace') {
 			$replaceField = A::app()->getRequest()->getQuery('replace_field', 'dbfield', '');
-			if(isset($fields[$replaceField])){
+			if (isset($fields[$replaceField])) {
 				$replaceIds = A::app()->getRequest()->getQuery('replace_ids', 'dbfield', '');
 				$replaceIdsParts = explode('-', $replaceIds);
-				$id1 = ! empty($replaceIdsParts[0]) ? (int)$replaceIdsParts[0] : 0;
-				$id2 = ! empty($replaceIdsParts[1]) ? (int)$replaceIdsParts[1] : 0;
+				$id1 = !empty($replaceIdsParts[0]) ? (int)$replaceIdsParts[0] : 0;
+				$id2 = !empty($replaceIdsParts[1]) ? (int)$replaceIdsParts[1] : 0;
 				$record1 = $objModel->findByPk($id1);
-				if($record1){
+				if ($record1) {
 					$val1 = $record1->$replaceField;
 					$val2 = '';
 					$record2 = $objModel->findByPk($id2);
-					if($record2){
+					if ($record2) {
 						$val2 = $record2->$replaceField;
 					}
-					if($val1 != '' && $val2 != ''){
-						$objModel->updateByPk($id1, array($replaceField=>$val2));
-						$objModel->updateByPk($id2, array($replaceField=>$val1));
-						A::app()->getSession()->setFlash('alert', A::t('core', 'The changing order operation has been successfully completed!'));
-						A::app()->getSession()->setFlash('alertType', 'success');
+					if ($val1 != '' && $val2 != '') {
+						$objModel->updateByPk($id1, array($replaceField => $val2));
+						$objModel->updateByPk($id2, array($replaceField => $val1));
+						if (APPHP_MODE == 'demo') {
+							A::app()->getSession()->setFlash('alert', A::t('core', 'This operation is blocked in Demo Mode!'));
+							A::app()->getSession()->setFlash('alertType', 'warning');
+						} else {
+							A::app()->getSession()->setFlash('alert', A::t('core', 'The changing order operation has been successfully completed!'));
+							A::app()->getSession()->setFlash('alertType', 'success');
+						}
 						
 						// Add sorting and custom parameters to URL
 						$searchActionPath = $actionPath;
@@ -624,188 +640,188 @@ class CGridView extends CWidgs
 						$separateSymbol = preg_match('/\?/', $searchActionPath) ? '&' : '?';
 						$searchActionPath .= self::_customParams($customParameters, $linkType, $separateSymbol);
 						
-						header('location: '.$baseUrl.$searchActionPath);
+						header('location: ' . $baseUrl . $searchActionPath);
 						exit;
 					}
 				}
 			}
 		}
 		
-		if($pagination){			
+		if ($pagination) {
 			$currentPage = A::app()->getRequest()->getQuery('page', 'integer', 1);
-			$totalRecords = self::_countAllRecords($objModel, array('condition'=>$whereClause, 'group'=>$groupBy));
-			if($currentPage){
-				$records = self::_getAllRecords($objModel, array('condition'=>$whereClause, 'order'=>$orderClause, 'group'=>$groupBy, 'limit'=>(($currentPage - 1) * $pageSize).', '.$pageSize));			
+			$totalRecords = self::_countAllRecords($objModel, array('condition' => $whereClause, 'group' => $groupBy));
+			if ($currentPage) {
+				$records = self::_getAllRecords($objModel, array('condition' => $whereClause, 'order' => $orderClause, 'group' => $groupBy, 'limit' => (($currentPage - 1) * $pageSize) . ', ' . $pageSize));
 				$totalPageRecords = is_array($records) ? count($records) : 0;
 			}
-			if(!$totalPageRecords || !$currentPage){
-				if(A::app()->getRequest()->getQuery('but_filter')){
+			if (!$totalPageRecords || !$currentPage) {
+				if (A::app()->getRequest()->getQuery('but_filter')) {
 					$output .= CWidget::create('CMessage', array('warning', A::t('core', 'No records found or incorrect parameters passed')));
-				}else{
-					$output .= CWidget::create('CMessage', array('warning', A::t('core', 'No records found')));					
+				} else {
+					$output .= CWidget::create('CMessage', array('warning', A::t('core', 'No records found')));
 				}
 			}
-		}else{
-			$records = self::_getAllRecords($objModel, array('condition'=>$whereClause, 'order'=>$orderClause, 'group'=>$groupBy, 'limit'=>$limit));
+		} else {
+			$records = self::_getAllRecords($objModel, array('condition' => $whereClause, 'order' => $orderClause, 'group' => $groupBy, 'limit' => $limit));
 			$totalPageRecords = is_array($records) ? count($records) : 0;
-			if(!$totalPageRecords){
-				$output .= CWidget::create('CMessage', array('error', A::t('core', 'No records found')));
+			if (!$totalPageRecords) {
+				$output .= CWidget::create('CMessage', array('warning', A::t('core', 'No records found')));
 			}
 		}
-
+		
 		// Draw table
 		// ---------------------------------------
-        if($totalPageRecords > 0){			
+		if ($totalPageRecords > 0) {
 			// Remove disabled fields
-			foreach($fields as $key => $val){
-				if((bool)self::keyAt('disabled', $val) === true) unset($fields[$key]);
+			foreach ($fields as $key => $val) {
+				if ((bool)self::keyAt('disabled', $val) === true) unset($fields[$key]);
 			}
 			
 			// ----------------------------------------------
 			// Draw TABLE wrapper
 			// ----------------------------------------------
-			if(!empty($gridWrapper['tag'])){
-				$output .= CHtml::openTag($gridWrapper['tag'], array('class'=>(!empty($gridWrapper['class']) ? $gridWrapper['class'] : null))).self::NL;
-			}			
+			if (!empty($gridWrapper['tag'])) {
+				$output .= CHtml::openTag($gridWrapper['tag'], array('class' => (!empty($gridWrapper['class']) ? $gridWrapper['class'] : null))) . self::NL;
+			}
 			// ----------------------------------------------
 			// Draw <THEAD> rows 
 			// ----------------------------------------------
-            $output .= CHtml::openTag('table', array('class'=>(!empty($gridTable['class']) ? $gridTable['class'] : null))).self::NL;
-            $output .= CHtml::openTag('thead').self::NL;
-            $output .= CHtml::openTag('tr', array('id'=>'tr'.$modelName.'_'.self::$_rowCount++)).self::NL;
-				foreach($fields as $key => $val){
-					
-					// Check if we want to use another field as a "source field"
-					$sourceField = self::keyAt('sourceField', $val, '');
-					if(!empty($sourceField)){
-						$key = $sourceField;
-					}
-					
-					$type 			= self::keyAt('type', $val, '');
-					$title 			= self::keyAt('title', $val, '');
-					$headerClass 	= self::keyAt('headerClass', $val, '');
-					$isSortable 	= (bool)self::keyAt('isSortable', $val, true);
-					$sortField 		= self::keyAt('sortBy', $val, '');
-					$widthAttr 		= self::keyAt('width', $val);
-					$alignAttr 		= self::keyAt('align', $val);
-					$headerTooltip 	= self::keyAt('headerTooltip', $val);
-					
-					// Prepare style attributes
-					$width = (!empty($widthAttr) && CValidator::isHtmlSize($widthAttr)) ? 'width:'.$widthAttr.';' : '';
-					$align = (!empty($alignAttr) && CValidator::isAlignment($alignAttr)) ? 'text-align:'.$alignAttr.';' : '';
-					$style = $width.$align;
-					
-					if($sortingEnabled && $isSortable && ($type != 'template' || ($type == 'template' && !empty($sortField)))){
-						$sortByField = !empty($sortField) ? $sortField : $key;
-						$colSortDir = (($sortBy != $sortByField) ? 'asc' : (($sortDir == 'asc') ? 'desc' : 'asc'));
-						$sortImg = ($sortBy == $sortByField) ? ' '. CHtml::tag('span', array('class'=>'sort-arrow'), (($colSortDir == 'asc') ? '&#9660;' : '&#9650;')) : '';
-						if($sortBy == $sortByField) $sortUrl = 'sort_by='.$sortByField.'&sort_dir='.$sortDir;
-						
-						$separateSymbol = preg_match('/\?/', $actionPath) ? '&' : '?';						
-						$linkUrl = $actionPath.$separateSymbol.'sort_by='.$sortByField.'&sort_dir='.$colSortDir;						
-						$linkUrl .= !empty($currentPage) ? '&page='.$currentPage : '';						
-						$linkUrl .= !empty($filterUrl) ? '&'.$filterUrl : '';						
-						$linkUrl .= self::_customParams($customParameters, $linkType, '&');
-						$title = CHtml::link($title.$sortImg, $linkUrl);
-					}
-					
-					$title .= !empty($headerTooltip) ? ' '.CHtml::link('', false, array('class'=>'tooltip-icon', 'title'=>$headerTooltip)) : '';
-					
-					$output .= CHtml::tag('th', array('class'=>$headerClass, 'style'=>$style), $title).self::NL;
+			$output .= CHtml::openTag('table', array('class' => 'grid-view-table' . (!empty($gridTable['class']) ? ' ' . $gridTable['class'] : ''))) . self::NL;
+			$output .= CHtml::openTag('thead') . self::NL;
+			$output .= CHtml::openTag('tr', array('id' => 'tr' . $modelName . '_' . self::$_rowCount++)) . self::NL;
+			foreach ($fields as $key => $val) {
+				
+				// Check if we want to use another field as a "source field"
+				$sourceField = self::keyAt('sourceField', $val, '');
+				if (!empty($sourceField)) {
+					$key = $sourceField;
 				}
-				if($activeActions > 0){
-					$output .= CHtml::tag('th', array('class'=>'actions'), A::t('core', 'Actions')).self::NL;
+				
+				$type = self::keyAt('type', $val, '');
+				$title = self::keyAt('title', $val, '');
+				$headerClass = self::keyAt('headerClass', $val, '');
+				$isSortable = (bool)self::keyAt('isSortable', $val, true);
+				$sortField = self::keyAt('sortBy', $val, '');
+				$widthAttr = self::keyAt('width', $val);
+				$alignAttr = self::keyAt('align', $val);
+				$headerTooltip = self::keyAt('headerTooltip', $val);
+				
+				// Prepare style attributes
+				$width = (!empty($widthAttr) && CValidator::isHtmlSize($widthAttr)) ? 'width:' . $widthAttr . ';' : '';
+				$align = (!empty($alignAttr) && CValidator::isAlignment($alignAttr)) ? 'text-align:' . $alignAttr . ';' : '';
+				$style = $width . $align;
+				
+				if ($sortingEnabled && $isSortable && ($type != 'template' || ($type == 'template' && !empty($sortField)))) {
+					$sortByField = !empty($sortField) ? $sortField : $key;
+					$colSortDir = (($sortBy != $sortByField) ? 'asc' : (($sortDir == 'asc') ? 'desc' : 'asc'));
+					$sortImg = ($sortBy == $sortByField) ? ' ' . CHtml::tag('span', array('class' => 'sort-arrow'), (($colSortDir == 'asc') ? '&#9660;' : '&#9650;')) : '';
+					if ($sortBy == $sortByField) $sortUrl = 'sort_by=' . $sortByField . '&sort_dir=' . $sortDir;
+					
+					$separateSymbol = preg_match('/\?/', $actionPath) ? '&' : '?';
+					$linkUrl = $actionPath . $separateSymbol . 'sort_by=' . $sortByField . '&sort_dir=' . $colSortDir;
+					$linkUrl .= !empty($currentPage) ? '&page=' . $currentPage : '';
+					$linkUrl .= !empty($filterUrl) ? '&' . $filterUrl : '';
+					$linkUrl .= self::_customParams($customParameters, $linkType, '&');
+					$title = CHtml::link($title . $sortImg, $linkUrl);
 				}
-                $output .= CHtml::closeTag('tr').self::NL;;
-            $output .= CHtml::closeTag('thead').self::NL;
+				
+				$title .= !empty($headerTooltip) ? ' ' . CHtml::link('', false, array('class' => 'tooltip-icon', 'title' => $headerTooltip)) : '';
+				
+				$output .= CHtml::tag('th', array('class' => $headerClass, 'style' => $style), $title) . self::NL;
+			}
+			if ($activeActions > 0) {
+				$output .= CHtml::tag('th', array('class' => 'actions'), A::t('core', 'Actions')) . self::NL;
+			}
+			$output .= CHtml::closeTag('tr') . self::NL;;
+			$output .= CHtml::closeTag('thead') . self::NL;
 			
 			// ----------------------------------------------
 			// Draw <TBODY> rows 
 			// ----------------------------------------------
 			$aggregateRow = array();
-			$output .= CHtml::openTag('tbody').self::NL;
-			for($i = 0; $i < $totalPageRecords; $i++){
-				$output .= CHtml::openTag('tr', array('id'=>'tr'.$modelName.'_'.self::$_rowCount++)).self::NL;
+			$output .= CHtml::openTag('tbody') . self::NL;
+			for ($i = 0; $i < $totalPageRecords; $i++) {
+				$output .= CHtml::openTag('tr', array('id' => 'tr' . $modelName . '_' . self::$_rowCount++)) . self::NL;
 				$id = (isset($records[$i]['id'])) ? $records[$i]['id'] : '';
-				$prevId = (isset($records[$i-1]['id'])) ? $records[$i-1]['id'] : '';
-				$nextId = (isset($records[$i+1]['id'])) ? $records[$i+1]['id'] : '';
+				$prevId = (isset($records[$i - 1]['id'])) ? $records[$i - 1]['id'] : '';
+				$nextId = (isset($records[$i + 1]['id'])) ? $records[$i + 1]['id'] : '';
 				
 				// ----------------------------------------------
 				// Display columns in each row
 				// ----------------------------------------------
-				foreach($fields as $key => $val){
-
+				foreach ($fields as $key => $val) {
+					
 					// Check if we want to use another field as a "source field"
 					$sourceField = self::keyAt('sourceField', $val, '');
-					if(!empty($sourceField)){
+					if (!empty($sourceField)) {
 						$key = $sourceField;
 					}
 					
-					$align				= self::keyAt('align', $val, '');
-					$style 				= (!empty($align) && CValidator::isAlignment($align)) ? 'text-align:'.$align.';' : '';
-					$class 				= self::keyAt('class', $val, '');
-					$type 				= self::keyAt('type', $val, '');
-					$title 				= self::keyAt('title', $val, '');
-					$format 			= self::keyAt('format', $val, '');
-					$definedValues 		= self::keyAt('definedValues', $val, '');
-                    $htmlOptions 		= (array)self::keyAt('htmlOptions', $val, array());
-					$prependCode 		= self::keyAt('prependCode', $val, '');
-					$appendCode 		= self::keyAt('appendCode', $val, '');
-					$fieldValue 		= (isset($records[$i][$key])) ? $records[$i][$key] : ''; /* $key */
+					$align = self::keyAt('align', $val, '');
+					$style = (!empty($align) && CValidator::isAlignment($align)) ? 'text-align:' . $align . ';' : '';
+					$class = self::keyAt('class', $val, '');
+					$type = self::keyAt('type', $val, '');
+					$title = self::keyAt('title', $val, '');
+					$format = self::keyAt('format', $val, '');
+					$definedValues = self::keyAt('definedValues', $val, '');
+					$htmlOptions = (array)self::keyAt('htmlOptions', $val, array());
+					$prependCode = self::keyAt('prependCode', $val, '');
+					$appendCode = self::keyAt('appendCode', $val, '');
+					$fieldValue = (isset($records[$i][$key])) ? $records[$i][$key] : ''; /* $key */
 					$fieldValueOriginal = $fieldValue;
-					$aggregateFunction 	= self::keyAt('aggregate.function', $val, '');
-					$aggregateFunction 	= in_array(strtolower($aggregateFunction), array('sum', 'avg')) ? strtolower($aggregateFunction) : '';
-					$changeOrder 		= (bool)self::keyAt('changeOrder', $val, false);
+					$aggregateFunction = self::keyAt('aggregate.function', $val, '');
+					$aggregateFunction = in_array(strtolower($aggregateFunction), array('sum', 'avg')) ? strtolower($aggregateFunction) : '';
+					$changeOrder = (bool)self::keyAt('changeOrder', $val, false);
 					
 					$fieldOutput = '';
-					switch($type){
+					switch ($type) {
 						case 'concat':
 							$concatFields = self::keyAt('concatFields', $val, '');
 							$concatSeparator = self::keyAt('concatSeparator', $val, '');
 							$concatResult = '';
-							if(is_array($concatFields)){
-								foreach($concatFields as $cfKey){
-									if(!empty($concatResult)) $concatResult .= $concatSeparator;
+							if (is_array($concatFields)) {
+								foreach ($concatFields as $cfKey) {
+									if (!empty($concatResult)) $concatResult .= $concatSeparator;
 									$concatResult .= $records[$i][$cfKey];
 								}
 							}
 							$fieldOutput .= $concatResult;
 							break;
 						
-                        case 'decimal':
+						case 'decimal':
 							$decimalPoints = (int)self::keyAt('decimalPoints', $val, 0);
-                            if($format === 'european'){
+							if ($format === 'european') {
 								// 1,222.33 => '1.222,33'
 								$fieldValue = str_replace(',', '', $fieldValue);
 								$fieldValue = number_format((float)$fieldValue, $decimalPoints, ',', '.');
-                            }else{
+							} else {
 								$fieldValue = number_format((float)$fieldValue, $decimalPoints);
-                            }
-                            $fieldOutput .= $fieldValue;
-                            break;
-						
-                        case 'datetime':
-							if(is_array($definedValues) && isset($definedValues[$fieldValue])){
-								$fieldValue = $definedValues[$fieldValue];
-                            }elseif($format != ''){
-                                $fieldValue = date($format, strtotime($fieldValue));
-                            }
+							}
 							$fieldOutput .= $fieldValue;
-                            break;
+							break;
 						
-                        case 'enum':
+						case 'datetime':
+							if (is_array($definedValues) && isset($definedValues[$fieldValue])) {
+								$fieldValue = $definedValues[$fieldValue];
+							} elseif ($format != '') {
+								$fieldValue = date($format, strtotime($fieldValue));
+							}
+							$fieldOutput .= $fieldValue;
+							break;
+						
+						case 'enum':
 							$source = self::keyAt('source', $val, '');
-							$outputValue = isset($source[$fieldValue]) ? $source[$fieldValue] : '';	
-							if(is_array($definedValues) && isset($definedValues[$outputValue])){
+							$outputValue = isset($source[$fieldValue]) ? $source[$fieldValue] : '';
+							if (is_array($definedValues) && isset($definedValues[$outputValue])) {
 								$fieldOutput .= $definedValues[$outputValue];
-                            }else{
-                                $fieldOutput .= $outputValue;
-                            }
-                            break;
+							} else {
+								$fieldOutput .= $outputValue;
+							}
+							break;
 						
 						case 'index':
-                            $fieldOutput .= ($i+1).'.';
-                            break;
+							$fieldOutput .= ($i + 1) . '.';
+							break;
 						
 						case 'image':
 							$imagePath = self::keyAt('imagePath', $val, '');
@@ -816,10 +832,10 @@ class CGridView extends CWidgs
 							$showImageInfo = (bool)self::keyAt('showImageInfo', $val, true);
 							
 							$htmlOptions = array();
-							if(!empty($imageWidth) && CValidator::isHtmlSize($imageWidth)) $htmlOptions['width'] = $imageWidth;
-							if(!empty($imageHeight) && CValidator::isHtmlSize($imageHeight)) $htmlOptions['height'] = $imageHeight;							
-							if((!$fieldValue || !file_exists($imagePath.$fieldValue)) && !empty($defaultImage)) $fieldValue = $defaultImage;
-							if($showImageInfo){
+							if (!empty($imageWidth) && CValidator::isHtmlSize($imageWidth)) $htmlOptions['width'] = $imageWidth;
+							if (!empty($imageHeight) && CValidator::isHtmlSize($imageHeight)) $htmlOptions['height'] = $imageHeight;
+							if ((!$fieldValue || !file_exists($imagePath . $fieldValue)) && !empty($defaultImage)) $fieldValue = $defaultImage;
+							if ($showImageInfo) {
 								$htmlOptions['title'] = $fieldValue;
 								//$htmlOptions['title'] .= '(';
 								//$htmlOptions['title'] .= CFile::getFileSize($imagePath.$fieldValue, 'kb').' Kb';
@@ -828,72 +844,71 @@ class CGridView extends CWidgs
 								//$htmlOptions['title'] .= ')';
 							}
 							
-							$fieldOutput .= CHtml::image($imagePath.$fieldValue, $alt, $htmlOptions).self::NL;
+							$fieldOutput .= CHtml::image($imagePath . $fieldValue, $alt, $htmlOptions) . self::NL;
 							break;
 						
 						case 'link':
-                            $linkUrl = self::keyAt('linkUrl', $val, '#');
+							$linkUrl = self::keyAt('linkUrl', $val, '#');
 							$linkText = self::keyAt('linkText', $val, '');
 							
 							// Replace for linkURL
-                            if(preg_match_all('/{(.*?)}/i', $linkUrl, $matches)){
-                                if(isset($matches[1]) && is_array($matches[1])){
-                                    foreach($matches[1] as $kKey => $kVal){										
-										if($kVal == 'page' && $pagination){
+							if (preg_match_all('/{(.*?)}/i', $linkUrl, $matches)) {
+								if (isset($matches[1]) && is_array($matches[1])) {
+									foreach ($matches[1] as $kKey => $kVal) {
+										if ($kVal == 'page' && $pagination) {
 											$currentPage = A::app()->getRequest()->getQuery('page', 'integer', 1);
-											$linkUrl = str_ireplace('{'.$kVal.'}', $currentPage, $linkUrl);
-										}else{
-											$kValValue = (isset($records[$i][$kVal])) ? $records[$i][$kVal] : ''; 
-											$linkUrl = str_ireplace('{'.$kVal.'}', $kValValue, $linkUrl);
+											$linkUrl = str_ireplace('{' . $kVal . '}', $currentPage, $linkUrl);
+										} else {
+											$kValValue = (isset($records[$i][$kVal])) ? $records[$i][$kVal] : '';
+											$linkUrl = str_ireplace('{' . $kVal . '}', $kValValue, $linkUrl);
 										}
-                                    }
-                                }
-                            }
+									}
+								}
+							}
 							
 							// Replace for linkText
-                            $fieldValue = (isset($records[$i][$key])) ? $records[$i][$key] : ''; /* $key */							
-							if(is_array($definedValues) && isset($definedValues[$fieldValue])){
+							$fieldValue = (isset($records[$i][$key])) ? $records[$i][$key] : ''; /* $key */
+							if (is_array($definedValues) && isset($definedValues[$fieldValue])) {
 								$linkText = $definedValues[$fieldValue];
-                            }else{
-								if(preg_match_all('/{(.*?)}/i', $linkText, $matches)){
-									if(isset($matches[1]) && is_array($matches[1])){
-										foreach($matches[1] as $kKey => $kVal){
-											$kValValue = (isset($records[$i][$kVal])) ? $records[$i][$kVal] : ''; 
-											$linkText = str_ireplace('{'.$kVal.'}', $kValValue, $linkText);
-										}                                
+							} else {
+								if (preg_match_all('/{(.*?)}/i', $linkText, $matches)) {
+									if (isset($matches[1]) && is_array($matches[1])) {
+										foreach ($matches[1] as $kKey => $kVal) {
+											$kValValue = (isset($records[$i][$kVal])) ? $records[$i][$kVal] : '';
+											$linkText = str_ireplace('{' . $kVal . '}', $kValValue, $linkText);
+										}
 									}
-								}								
+								}
 							}
 							
 							$fieldOutput .= CHtml::link($linkText, $linkUrl, $htmlOptions);
 							break;
 						
-						case 'evaluation':							
+						case 'evaluation':
 							$minValue = self::keyAt('minValue', $val, 1);
 							$maxValue = self::keyAt('maxValue', $val, 5);
-							
 							$size = max(0, (min($maxValue, $fieldValue))) * 16;
 							$tooltip = self::keyAt('tooltip', $val, '');
-							$titleText = CHtml::encode($tooltip).': '.$fieldValue;
+							$titleText = CHtml::encode($tooltip) . ': ' . $fieldValue;
 							
 							$countsField = self::keyAt('counts.fieldName', $val, '');
 							$countsTitle = self::keyAt('counts.title', $val, '');
-							if(!empty($countsField)){
+							if (!empty($countsField)) {
 								$countsValue = !empty($countsField) && isset($records[$i][$countsField]) ? $records[$i][$countsField] : '';
-								$titleText .= ' / '.$countsTitle.': '.$countsValue;
+								$titleText .= ' / ' . $countsTitle . ': ' . $countsValue;
 							}
 							
-							$fieldOutput .= CHtml::tag('label', array('class'=>'stars tooltip-link', 'title'=>$titleText), '<label style="width:'.$size.'px;"></label>');
+							$fieldOutput .= CHtml::tag('label', array('class' => 'stars tooltip-link', 'title' => $titleText), '<label style="width:' . $size . 'px;"></label>');
 							break;
-
-						case 'template':							
+						
+						case 'template':
 							$htmlCode = self::keyAt('html', $val, '');
 							$templateFields = self::keyAt('fields', $val, array());
 							$templateSources = self::keyAt('sources', $val, array());
 							
-							if(is_array($templateFields)){
-								foreach($templateFields as $tfKey => $tfValue){									
-									if(is_array($tfValue)){
+							if (is_array($templateFields)) {
+								foreach ($templateFields as $tfKey => $tfValue) {
+									if (is_array($tfValue)) {
 										$default = isset($tfValue['default']) ? $tfValue['default'] : '';
 										$prefix = isset($tfValue['prefix']) ? $tfValue['prefix'] : '';
 										$postfix = isset($tfValue['postfix']) ? $tfValue['postfix'] : '';
@@ -901,37 +916,37 @@ class CGridView extends CWidgs
 										
 										$templateFieldValue = isset($records[$i][$tfKey]) ? $records[$i][$tfKey] : '';
 										// Check if there is an array with predefined values
-										if(!empty($source) && is_array($source)){
+										if (!empty($source) && is_array($source)) {
 											$templateFieldValue = isset($source[$templateFieldValue]) ? $source[$templateFieldValue] : '';
 										}
-										if(empty($templateFieldValue)) $templateFieldValue = $default;
-										if(!empty($templateFieldValue)) $templateFieldValue = $prefix.$templateFieldValue.$postfix;
+										if (empty($templateFieldValue)) $templateFieldValue = $default;
+										if (!empty($templateFieldValue)) $templateFieldValue = $prefix . $templateFieldValue . $postfix;
 										
-										$htmlCode = str_ireplace('{'.$tfKey.'}', $templateFieldValue, $htmlCode);
-									}else{
+										$htmlCode = str_ireplace('{' . $tfKey . '}', $templateFieldValue, $htmlCode);
+									} else {
 										$templateFieldValue = isset($records[$i][$tfValue]) ? $records[$i][$tfValue] : '';
 										// Check if there is an array with predefined values
-										if(isset($templateSources[$tfValue])){
+										if (isset($templateSources[$tfValue])) {
 											$templateFieldValue = !empty($templateSources[$tfValue][$templateFieldValue]) ? $templateSources[$tfValue][$templateFieldValue] : '';
 										}
-										$htmlCode = str_ireplace('{'.$tfValue.'}', $templateFieldValue, $htmlCode);
+										$htmlCode = str_ireplace('{' . $tfValue . '}', $templateFieldValue, $htmlCode);
 									}
 								}
 							}
 							
-							$fieldOutput .= $htmlCode;							
+							$fieldOutput .= $htmlCode;
 							break;
 						
 						case 'html':
 						case 'label':
-						default:							
+						default:
 							$fieldEncryption = (bool)self::keyAt('encryption.enabled', $val, false);
-							if($fieldEncryption){
+							if ($fieldEncryption) {
 								$encryptAlgorithm = self::keyAt('encryption.encryptAlgorithm', $val, '');
 								$encryptKey = self::keyAt('encryption.encryptKey', $val, '');
-								if(empty($fieldValue)){
+								if (empty($fieldValue)) {
 									$fieldValue = '';
-								}else{
+								} else {
 									$fieldValue = CHash::decrypt($fieldValue, $encryptKey, $encryptAlgorithm);
 								}
 							}
@@ -941,10 +956,10 @@ class CGridView extends CWidgs
 							$triggerOperation = self::keyAt('trigger.trigger_operation', $val);
 							$triggerValue = self::keyAt('trigger.trigger_value', $val);
 							$successValue = self::keyAt('trigger.success_value', $val);
-							$wrongValue = self::keyAt('trigger.wrong_value', $val);							
-							if(!empty($triggerKey)){
-								if(isset($records[$i][$triggerKey])){
-									switch($triggerOperation){
+							$wrongValue = self::keyAt('trigger.wrong_value', $val);
+							if (!empty($triggerKey)) {
+								if (isset($records[$i][$triggerKey])) {
+									switch ($triggerOperation) {
 										case '>':
 											$fieldValue = ($records[$i][$triggerKey] > $triggerValue) ? $successValue : $wrongValue;
 											break;
@@ -966,265 +981,265 @@ class CGridView extends CWidgs
 									}
 								}
 							}
-								
+							
 							// Call of closure function on item creating event
 							$callbackClass = self::keyAt('callback.class', $val);
 							$callbackFunction = self::keyAt('callback.function', $val);
 							$callbackParams = self::keyAt('callback.params', $val, array());
-                            if(!empty($callbackFunction)){
-                                if(!empty($callbackClass) && class_exists($callbackClass)){
-                                    // Call a class method
-                                    $callbackObject = new $callbackClass();
-                                    if(method_exists($callbackObject, $callbackFunction) && is_callable(array($callbackObject, $callbackFunction))){
-                                        $fieldValue = $callbackObject::$callbackFunction($records[$i], $callbackParams);
-                                        /// DEPRECATED 01.12.2018 - for PHP_VERSION | phpversion() < 5.3.0
+							if (!empty($callbackFunction)) {
+								if (CClass::isExists($callbackClass)) {
+									// Call a class method
+									$callbackObject = new $callbackClass();
+									if (CClass::isMethodExists($callbackObject, $callbackFunction) && CClass::isMethodCallable($callbackObject, $callbackFunction)) {
+										$fieldValue = $callbackObject::$callbackFunction($records[$i], $callbackParams);
+										/// DEPRECATED 01.12.2018 - for PHP_VERSION | phpversion() < 5.3.0
 										/// $fieldValue = call_user_func(array($callbackObject, $callbackFunction), $records[$i], $callbackParams);
-                                    }
-                                }elseif(is_callable($callbackFunction)){
-                                    // Call a function
-                                    $fieldValue = $callbackFunction($records[$i], $callbackParams);
+									}
+								} elseif (is_callable($callbackFunction)) {
+									// Call a function
+									$fieldValue = $callbackFunction($records[$i], $callbackParams);
 									/// DEPRECATED 01.12.2018 - for PHP_VERSION | phpversion() < 5.3.0
-                                    /// $fieldValue = call_user_func($callbackFunction, $records[$i], $callbackParams);
-                                }
+									/// $fieldValue = call_user_func($callbackFunction, $records[$i], $callbackParams);
+								}
 							}
-
+							
 							$dataValue = self::keyAt('data', $val, '');
-							if(!empty($dataValue)) $fieldValue = $dataValue;
-							if(is_array($definedValues) && isset($definedValues[$fieldValue])){
+							if (!empty($dataValue)) $fieldValue = $dataValue;
+							if (is_array($definedValues) && isset($definedValues[$fieldValue])) {
 								$fieldValue = $definedValues[$fieldValue];
-                            }elseif($format != '' && $format != 'american' && $format != 'european'){
-                                $fieldValue = date($format, strtotime($fieldValue));
-                            }else{
+							} elseif ($format != '' && $format != 'american' && $format != 'european') {
+								$fieldValue = date($format, strtotime($fieldValue));
+							} else {
 								$stripTags = (bool)self::keyAt('stripTags', $val, false);
-								if($stripTags){
+								if ($stripTags) {
 									$fieldValue = strip_tags($fieldValue);
 								}
 								$case = self::keyAt('case', $val, '');
-								if($case == 'upper'){
+								if ($case == 'upper') {
 									$fieldValue = strtoupper($fieldValue);
-								}elseif($case == 'lower'){
+								} elseif ($case == 'lower') {
 									$fieldValue = strtolower($fieldValue);
-								}elseif($case == 'camel'){
+								} elseif ($case == 'camel') {
 									$fieldValue = ucwords($fieldValue);
-								}elseif($case == 'humanize'){
+								} elseif ($case == 'humanize') {
 									$fieldValue = CString::humanize($fieldValue);
 								}
 								
 								$maxLength = (int)self::keyAt('maxLength', $val, '');
 								$showTooltip = (int)self::keyAt('showTooltip', $val, true);
-								if(!empty($maxLength)){
-									$fieldValue = str_replace(array("\r\n", '&nbsp;', '<br>', '<br />'), array(' '), $fieldValue);
+								if (!empty($maxLength)) {
+									$fieldValue = str_replace(array("\r\n", "\r", "\n", '&nbsp;', '<br>', '<br />'), array(' '), $fieldValue);
 									$fieldValue = $type == 'html' ? $fieldValue : CHtml::encode($fieldValue);
-									$fieldValue = CHtml::tag('span', array('title'=>($showTooltip ? $fieldValue : '')), CString::substr($fieldValue, $maxLength, '', true));
-								}else{
+									$fieldValue = CHtml::tag('span', array('title' => ($showTooltip ? $fieldValue : '')), CString::substr($fieldValue, $maxLength, '', true));
+								} else {
 									$fieldValue = $type == 'html' ? $fieldValue : CHtml::encode($fieldValue);
 								}
 							}
 							
 							$changeOrderLink = '';
-                            if($changeOrder){
-								$changeOrderUrl = $baseUrl.$actionPath;
-								$changeOrderUrl .= !empty($sortUrl) ? '?'.$sortUrl : '';
-								$changeOrderUrl .= !empty($filterUrl) ? (empty($sortUrl) ? '?' : '&').$filterUrl : '';
+							if ($changeOrder) {
+								$changeOrderUrl = $baseUrl . $actionPath;
+								$changeOrderUrl .= !empty($sortUrl) ? '?' . $sortUrl : '';
+								$changeOrderUrl .= !empty($filterUrl) ? (empty($sortUrl) ? '?' : '&') . $filterUrl : '';
 								$changeOrderUrl .= (empty($sortUrl) && empty($filterUrl) ? '?' : '&');
 								
-								if($i > 0){
-									$changeOrderLink = ' <a style="text-decoration:none;" href="'.$changeOrderUrl.'act=replace&replace_field='.$key.'&replace_ids='.$id.'-'.$prevId.(!empty($page) ? '&page='.$page : '').'" title="'.A::te('core', 'Move Up').'" onclick="javascript:void()">&#9650;</a>';
+								if ($i > 0) {
+									$changeOrderLink = ' <a style="text-decoration:none;" href="' . $changeOrderUrl . 'act=replace&replace_field=' . $key . '&replace_ids=' . $id . '-' . $prevId . (!empty($page) ? '&page=' . $page : '') . '" title="' . A::te('core', 'Move Up') . '" onclick="javascript:void()">&#9650;</a>';
 								}
-								if($i < $totalPageRecords - 1){
-									$changeOrderLink .= '<a style="text-decoration:none;" href="'.$changeOrderUrl.'act=replace&replace_field='.$key.'&replace_ids='.$id.'-'.$nextId.(!empty($page) ? '&page='.$page : '').'" title="'.A::te('core', 'Move Down').'" onclick="javascript:void()">&#9660;</a>';
+								if ($i < $totalPageRecords - 1) {
+									$changeOrderLink .= '<a style="text-decoration:none;" href="' . $changeOrderUrl . 'act=replace&replace_field=' . $key . '&replace_ids=' . $id . '-' . $nextId . (!empty($page) ? '&page=' . $page : '') . '" title="' . A::te('core', 'Move Down') . '" onclick="javascript:void()">&#9660;</a>';
 								}
-                            }
+							}
 							
-							$fieldOutput .= $fieldValue.$changeOrderLink;
+							$fieldOutput .= $fieldValue . $changeOrderLink;
 							break;
 					}
 					
 					// Calculate aggregate data
-					if(!empty($aggregateFunction)){
-						switch($aggregateFunction){
+					if (!empty($aggregateFunction)) {
+						switch ($aggregateFunction) {
 							case 'avg':
-								if(!isset($aggregateRow[$key])){
-									$aggregateRow[$key] = array('function'=>A::t('core', 'AVG'), 'result'=>$fieldValueOriginal, 'sum'=>$fieldValueOriginal, 'count'=>1);	
-								}else{
+								if (!isset($aggregateRow[$key])) {
+									$aggregateRow[$key] = array('function' => A::t('core', 'AVG'), 'result' => $fieldValueOriginal, 'sum' => $fieldValueOriginal, 'count' => 1);
+								} else {
 									$aggregateRow[$key]['sum'] += $fieldValueOriginal;
 									$aggregateRow[$key]['count']++;
 									$aggregateRow[$key]['result'] = $aggregateRow[$key]['sum'] / $aggregateRow[$key]['count'];
-								}								
-								break;								
+								}
+								break;
 							case 'sum':
 							default:
-								if(!isset($aggregateRow[$key])){
-									$aggregateRow[$key] = array('function'=>A::t('core', 'SUM'), 'result'=>$fieldValueOriginal);	
-								}else{
+								if (!isset($aggregateRow[$key])) {
+									$aggregateRow[$key] = array('function' => A::t('core', 'SUM'), 'result' => $fieldValueOriginal);
+								} else {
 									$aggregateRow[$key]['result'] += $fieldValueOriginal;
-								}								
+								}
 								break;
-						}						
+						}
 					}
 					
-					$output .= CHtml::openTag('td', array('class'=>$class, 'style'=>$style));                    
+					$output .= CHtml::openTag('td', array('class' => $class, 'style' => $style));
 					$output .= $prependCode;
 					$output .= $fieldOutput;
 					$output .= $appendCode;
-					$output .= CHtml::closeTag('td').self::NL;
+					$output .= CHtml::closeTag('td') . self::NL;
 				}
 				
-				if($activeActions > 0){
-					$output .= CHtml::openTag('td', array('class'=>'actions')).self::NL;
-					foreach($actions as $aKey => $aVal){
-						$htmlOptions = (array)self::keyAt('htmlOptions', $aVal);						
-						$htmlOptions['class'] = (isset($htmlOptions['class']) ? $htmlOptions['class'].' ' : '').'tooltip-link gridview-delete-link';						
+				if ($activeActions > 0) {
+					$output .= CHtml::openTag('td', array('class' => 'actions')) . self::NL;
+					foreach ($actions as $aKey => $aVal) {
+						$htmlOptions = (array)self::keyAt('htmlOptions', $aVal);
+						$htmlOptions['class'] = (isset($htmlOptions['class']) ? $htmlOptions['class'] . ' ' : '') . 'tooltip-link gridview-delete-link';
 						$htmlOptions['data-id'] = $id;
-						if(isset($aVal['title'])){
+						if (isset($aVal['title'])) {
 							$htmlOptions['title'] = $aVal['title'];
 						}
-						if((bool)self::keyAt('onDeleteAlert', $aVal) === true){
+						if ((bool)self::keyAt('onDeleteAlert', $aVal) === true) {
 							$htmlOptions['onclick'] = 'return onDeleteRecord(this);';
 						}
 						$imagePath = self::keyAt('imagePath', $aVal);
 						$linkUrl = str_ireplace('{id}', $id, self::keyAt('link', $aVal, '#'));
 						// Add additional parameters if allowed
-						if($linkUrl != '#'){
+						if ($linkUrl != '#') {
 							$separateSymbol = preg_match('/\?/', $linkUrl) ? '&' : '?';
 							$linkUrl .= self::_additionalParams($passParameters, $linkType, $separateSymbol);
 							$separateSymbol = preg_match('/\?/', $linkUrl) ? '&' : '?';
 							$linkUrl .= self::_customParams($customParameters, $linkType, $separateSymbol);
-						}						
+						}
 						
-						$linkLabel = (!empty($imagePath) ? '<img src="'.$imagePath.'" alt="'.$aKey.'" />' : $aKey);
+						$linkLabel = (!empty($imagePath) ? '<img src="' . $imagePath . '" alt="' . $aKey . '" />' : $aKey);
 						
-						$output .= CHtml::link($linkLabel, $linkUrl, $htmlOptions).self::NL;
+						$output .= CHtml::link($linkLabel, $linkUrl, $htmlOptions) . self::NL;
 					}
-					$output .= CHtml::closeTag('td').self::NL;
+					$output .= CHtml::closeTag('td') . self::NL;
 				}
-				$output .= CHtml::closeTag('tr').self::NL;
+				$output .= CHtml::closeTag('tr') . self::NL;
 			}
-            $output .= CHtml::closeTag('tbody').self::NL;
-                
+			$output .= CHtml::closeTag('tbody') . self::NL;
+			
 			// ----------------------------------------------
 			// Draw <TFOOT> aggregate row
 			// ----------------------------------------------
-			if(!empty($aggregateRow) && is_array($aggregateRow)){
-				$output .= CHtml::openTag('tfoot').self::NL;
-				$output .= CHtml::openTag('tr', array('id'=>'tr'.$modelName.'_'.self::$_rowCount++)).self::NL;
-					foreach($fields as $key => $val){
-						$title = '';
-						$headerClass = self::keyAt('headerClass', $val, '');
-						$prependCode = self::keyAt('prependCode', $val, '');
-						$appendCode = self::keyAt('appendCode', $val, '');
-						
-						$format = self::keyAt('format', $val, '');
-						$decimalPoints = (int)self::keyAt('decimalPoints', $val, 0);
-						$widthAttr = self::keyAt('width', $val);
-						$alignAttr = self::keyAt('align', $val);
-						
-						// Prepare style attributes
-						$width = (!empty($widthAttr) && CValidator::isHtmlSize($widthAttr)) ? 'width:'.$widthAttr.';' : '';
-						$align = (!empty($alignAttr) && CValidator::isAlignment($alignAttr)) ? 'text-align:'.$alignAttr.';' : '';
-						$style = $width.$align;
-						
-						if(isset($aggregateRow[$key])){
-							$aggregateValue = $aggregateRow[$key]['result'];
-                            $aggregateValue = number_format((float)$aggregateValue, $decimalPoints);
-                            if($format === 'european'){
-                                $aggregateValue = str_replace('.', '#', $aggregateValue);
-                                $aggregateValue = str_replace(',', '.', $aggregateValue);
-                                $aggregateValue = str_replace('#', ',', $aggregateValue);
-                            }
-							$title .= $aggregateRow[$key]['function'].': '.$prependCode.$aggregateValue.$appendCode;
+			if (!empty($aggregateRow) && is_array($aggregateRow)) {
+				$output .= CHtml::openTag('tfoot') . self::NL;
+				$output .= CHtml::openTag('tr', array('id' => 'tr' . $modelName . '_' . self::$_rowCount++)) . self::NL;
+				foreach ($fields as $key => $val) {
+					$title = '';
+					$headerClass = self::keyAt('headerClass', $val, '');
+					$prependCode = self::keyAt('prependCode', $val, '');
+					$appendCode = self::keyAt('appendCode', $val, '');
+					
+					$format = self::keyAt('format', $val, '');
+					$decimalPoints = (int)self::keyAt('decimalPoints', $val, 0);
+					$widthAttr = self::keyAt('width', $val);
+					$alignAttr = self::keyAt('align', $val);
+					
+					// Prepare style attributes
+					$width = (!empty($widthAttr) && CValidator::isHtmlSize($widthAttr)) ? 'width:' . $widthAttr . ';' : '';
+					$align = (!empty($alignAttr) && CValidator::isAlignment($alignAttr)) ? 'text-align:' . $alignAttr . ';' : '';
+					$style = $width . $align;
+					
+					if (isset($aggregateRow[$key])) {
+						$aggregateValue = $aggregateRow[$key]['result'];
+						$aggregateValue = number_format((float)$aggregateValue, $decimalPoints);
+						if ($format === 'european') {
+							$aggregateValue = str_replace('.', '#', $aggregateValue);
+							$aggregateValue = str_replace(',', '.', $aggregateValue);
+							$aggregateValue = str_replace('#', ',', $aggregateValue);
 						}
-						
-						$output .= CHtml::tag('td', array('class'=>$headerClass, 'style'=>$style), $title).self::NL;
+						$title .= $aggregateRow[$key]['function'] . ': ' . $prependCode . $aggregateValue . $appendCode;
 					}
-					if($activeActions > 0){
-						$output .= CHtml::tag('td', array(), '').self::NL;
-					}
-					$output .= CHtml::closeTag('tr').self::NL;;
-				$output .= CHtml::closeTag('tfoot').self::NL;
-			}			
+					
+					$output .= CHtml::tag('td', array('class' => $headerClass, 'style' => $style), $title) . self::NL;
+				}
+				if ($activeActions > 0) {
+					$output .= CHtml::tag('td', array(), '') . self::NL;
+				}
+				$output .= CHtml::closeTag('tr') . self::NL;;
+				$output .= CHtml::closeTag('tfoot') . self::NL;
+			}
 			
-			$output .= CHtml::closeTag('table').self::NL;
+			$output .= CHtml::closeTag('table') . self::NL;
 			// ----------------------------------------------
 			// Draw TABLE wrapper
 			// ----------------------------------------------
-			if(!empty($gridWrapper['tag'])){
-				$output .= CHtml::closeTag($gridWrapper['tag']).self::NL;
-			}			
+			if (!empty($gridWrapper['tag'])) {
+				$output .= CHtml::closeTag($gridWrapper['tag']) . self::NL;
+			}
 			
 			// Register script if onDeleteAlert is true
-			if($onDeleteRecord){
+			if ($onDeleteRecord) {
 				A::app()->getClientScript()->registerScript(
 					'delete-record',
-					'function onDeleteRecord(el){return confirm("ID: " + jQuery(el).data("id") + "\n'.A::te('core', 'Are you sure you want to delete this record?').'");}',
+					'function onDeleteRecord(el){return confirm("ID: " + jQuery(el).data("id") + "\n' . A::te('core', 'Are you sure you want to delete this record?') . '");}',
 					2
-				);				
+				);
 			}
-
+			
 			// Draw pagination
-			if($pagination){			
+			if ($pagination) {
 				$paginationUrl = $actionPath;
-				$paginationUrl .= !empty($sortUrl) ? '?'.$sortUrl : '';
-				$paginationUrl .= !empty($filterUrl) ? (empty($sortUrl) ? '?' : '&').$filterUrl : '';				
+				$paginationUrl .= !empty($sortUrl) ? '?' . $sortUrl : '';
+				$paginationUrl .= !empty($filterUrl) ? (empty($sortUrl) ? '?' : '&') . $filterUrl : '';
 				$output .= CWidget::create('CPagination', array(
-					'actionPath'   => $paginationUrl,
-					'currentPage'  => $currentPage,
-					'pageSize'     => $pageSize,
+					'actionPath' => $paginationUrl,
+					'currentPage' => $currentPage,
+					'pageSize' => $pageSize,
 					'totalRecords' => $totalRecords,
 					'linkType' => 0,
-					'paginationType' => 'fullNumbers'
+					'paginationType' => 'fullNumbers',
 				));
 			}
-        }
+		}
 		
-		if($return) return $output;
-        else echo $output;
+		if ($return) return $output;
+		else echo $output;
 	}
-
-    /**
+	
+	/**
 	 * Prepare additional parameters that will be passed
 	 * @param bool $allow
 	 * @param int $linkType
 	 * @param char $separateSymbol
 	 * @return string
-     */
+	 */
 	private static function _additionalParams($allow = false, $linkType = 0, $separateSymbol = '&')
-    {
+	{
 		$output = '';
 		
-		if($allow){
+		if ($allow) {
 			$page = A::app()->getRequest()->getQuery('page', 'integer', 1);
 			$sortBy = A::app()->getRequest()->getQuery('sort_by', 'string');
-			$sortDir = A::app()->getRequest()->getQuery('sort_dir', 'string');				
+			$sortDir = A::app()->getRequest()->getQuery('sort_dir', 'string');
 			
-			if($sortBy){
-				$output .= ($linkType == 1) ? '/sort_by/'.$sortBy : (!empty($output) ? '&' : $separateSymbol).'sort_by='.$sortBy;	
+			if ($sortBy) {
+				$output .= ($linkType == 1) ? '/sort_by/' . $sortBy : (!empty($output) ? '&' : $separateSymbol) . 'sort_by=' . $sortBy;
 			}
-			if($sortDir){
-				$output .= ($linkType == 1) ? '/sort_dir/'.$sortDir : (!empty($output) ? '&' : $separateSymbol).'sort_dir='.$sortDir;	
+			if ($sortDir) {
+				$output .= ($linkType == 1) ? '/sort_dir/' . $sortDir : (!empty($output) ? '&' : $separateSymbol) . 'sort_dir=' . $sortDir;
 			}
-			if($page){
-				$output .= ($linkType == 1) ? '/page/'.$page : (!empty($output) ? '&' : $separateSymbol).'page='.$page;	
+			if ($page) {
+				$output .= ($linkType == 1) ? '/page/' . $page : (!empty($output) ? '&' : $separateSymbol) . 'page=' . $page;
 			}
 		}
 		
 		return $output;
 	}
- 
-    /**
+	
+	/**
 	 * Prepare custom parameters that will be passed
 	 * @param array $params
 	 * @param int $linkType
 	 * @param string $separateSymbol
 	 * @return string
-     */
+	 */
 	private static function _customParams($params, $linkType = 0, $separateSymbol = '&')
-    {
+	{
 		$output = '';
-
-		if(is_array($params)){
-			foreach($params as $key => $val){
-				$output .= ($linkType == 1) ? '/'.$key.'/'.$val : (!empty($output) ? '&' : $separateSymbol).$key.'='.$val;
+		
+		if (is_array($params)) {
+			foreach ($params as $key => $val) {
+				$output .= ($linkType == 1) ? '/' . $key . '/' . $val : (!empty($output) ? '&' : $separateSymbol) . $key . '=' . $val;
 			}
 		}
 		
@@ -1243,17 +1258,17 @@ class CGridView extends CWidgs
 	{
 		$paramValue = '';
 		
-		if(!empty($fields) && is_array($fields)){
-			if(!empty($allowedValues) && is_array($allowedValues)){
-				$paramValue = isset($fields[$field][$attr]) && in_array($fields[$field][$attr], $allowedValues) ? $fields[$field][$attr] : '';				
-			}else{
+		if (!empty($fields) && is_array($fields)) {
+			if (!empty($allowedValues) && is_array($allowedValues)) {
+				$paramValue = isset($fields[$field][$attr]) && in_array($fields[$field][$attr], $allowedValues) ? $fields[$field][$attr] : '';
+			} else {
 				$paramValue = isset($fields[$field][$attr]) ? $fields[$field][$attr] : '';
 			}
 		}
-
+		
 		return $paramValue;
 	}
-
+	
 	/**
 	 * Returns all records from defined SELECT query
 	 * @param object $objModel
@@ -1266,19 +1281,19 @@ class CGridView extends CWidgs
 		$getAllRecords = self::params('getAllRecords', '');
 		$records = array();
 		
-		if(!empty($getAllRecords)){
-			if(method_exists($objModel, $getAllRecords)){
-				$records = $objModel->$getAllRecords($params);	
-			}else{
-				CDebug::addMessage('errors', 'wrong-method', A::t('core', 'Check if this function exists and usable: {function}', array('{function}'=>$model.'->'.$getAllRecords)));
+		if (!empty($getAllRecords)) {
+			if (CClass::isMethodExists($objModel, $getAllRecords)) {
+				$records = $objModel->$getAllRecords($params);
+			} else {
+				CDebug::addMessage('errors', 'wrong-method', A::t('core', 'Check if this function exists and usable: {function}', array('{function}' => $model . '->' . $getAllRecords)));
 			}
-		}else{
+		} else {
 			$records = $objModel->findAll($params);
 		}
 		
 		return $records;
 	}
-
+	
 	/**
 	 * Counts numbner of all records from defined SELECT query
 	 * @param object $objModel
@@ -1292,15 +1307,15 @@ class CGridView extends CWidgs
 		$countAllRecords = self::params('countAllRecords', '');
 		$totalRecords = 0;
 		
-		if(!empty($countAllRecords)){
-			if(method_exists($objModel, $countAllRecords)){
-				$totalRecords = $objModel->$countAllRecords($params);				
-			}else{
-				CDebug::addMessage('errors', 'wrong-method', A::t('core', 'Check if this function exists and usable: {function}', array('{function}'=>$model.'->'.$countAllRecords)));
+		if (!empty($countAllRecords)) {
+			if (CClass::isMethodExists($objModel, $countAllRecords)) {
+				$totalRecords = $objModel->$countAllRecords($params);
+			} else {
+				CDebug::addMessage('errors', 'wrong-method', A::t('core', 'Check if this function exists and usable: {function}', array('{function}' => $model . '->' . $countAllRecords)));
 			}
-		}elseif(!empty($getAllRecords)){
-			CDebug::addMessage('errors', 'wrong-method', A::t('core', 'The {method} method expects to be passed an array containing data.', array('{method}'=>$model.'->???')));
-		}else{
+		} elseif (!empty($getAllRecords)) {
+			CDebug::addMessage('errors', 'wrong-method', A::t('core', 'The {method} method expects to be passed an array containing data.', array('{method}' => $model . '->???')));
+		} else {
 			$totalRecords = $objModel->count($params);
 		}
 		

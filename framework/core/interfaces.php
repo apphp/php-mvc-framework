@@ -9,7 +9,7 @@
  * @license http://www.apphpframework.com/license/
  *
  *
- */	  
+ */
 
 /**
  * IActiveRecord is the interface that must be implemented by model classes

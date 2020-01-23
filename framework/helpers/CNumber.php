@@ -16,61 +16,64 @@
  * percent
  * percentage
  * 
- */	  
+ */
 
 class CNumber
 {
 	
-    /**
-     * Format number to american format (1.000,00 => 1,000.00)
-     * @param mixed $number
-     * @param array $params
-     */
-    public static function americanFormat($number, $params = array())
-    {
-        if(!empty($number)){
+	/**
+	 * Format number to american format (1.000,00 => 1,000.00)
+	 * @param mixed $number
+	 * @param array $params
+	 * @return mixed
+	 */
+	public static function americanFormat($number, $params = array())
+	{
+		if (!empty($number)) {
 			$thousandSeparator = isset($params['thousandSeparator']) ? (bool)$params['thousandSeparator'] : true;
 			$number = str_replace(',', '#', $number);
 			$number = str_replace('.', (($thousandSeparator) ? ',' : ''), $number);
 			$number = str_replace('#', '.', $number);
 		}
-        return $number;
-    }
-
-    /**
-     * Format number to eropean format (1,000.00 => 1.000,00)
-     * @param mixed $number
-     * @param array $params
-     */
-    public static function europeanFormat($number, $params = array())
-    {
-		if(!empty($number)){
+		
+		return $number;
+	}
+	
+	/**
+	 * Format number to eropean format (1,000.00 => 1.000,00)
+	 * @param mixed $number
+	 * @param array $params
+	 */
+	public static function europeanFormat($number, $params = array())
+	{
+		if (!empty($number)) {
 			$number = str_replace('.', '#', $number);
 			$number = str_replace(',', '.', $number);
-			$number = str_replace('#', ',', $number);			
+			$number = str_replace('#', ',', $number);
 		}
-        return $number;
-    }
-
-    /**
-     * Formats a number with grouped thousands
-     * @param mixed $number
-     * @param array $params
-     * @return string
-     */
-    public static function format($number, $format = 'american', $params = array())
-    {
+		
+		return $number;
+	}
+	
+	/**
+	 * Formats a number with grouped thousands
+	 * @param mixed $number
+	 * @param array $params
+	 * @return string
+	 */
+	public static function format($number, $format = 'american', $params = array())
+	{
 		$decimalPoints = isset($params['decimalPoints']) ? $params['decimalPoints'] : 0;
 		
-		if($format === 'european'){
+		if ($format === 'european') {
 			$number = number_format((float)$number, $decimalPoints, ',', '.');
-		}else{
+		} else {
 			$number = number_format((float)$number, $decimalPoints, '.', ',');
 		}
 		
 		return $number;
 	}
-
+	
 	/**
 	 * Formats a number as a pecrcent
 	 * @param float $value
@@ -80,7 +83,7 @@ class CNumber
 	 */
 	function percent($value, $decimalPoints = 2, $sign = '%')
 	{
-		return round((float)$value, $decimalPoints).$sign;
+		return round((float)$value, $decimalPoints) . $sign;
 	}
 	
 	/**
@@ -92,14 +95,14 @@ class CNumber
 	 * @return string
 	 */
 	function percentage($part, $whole, $decimalPoints = 2, $sign = '%')
-	{		
+	{
 		$result = 0;
-	
+		
 		// Prevent division by zero
-		if(!empty($whole)){
+		if (!empty($whole)) {
 			$result = percent(($part / $whole * 100), $decimalPoints, '');
 		}
 		
-		return $result.$sign;
+		return $result . $sign;
 	}
 }

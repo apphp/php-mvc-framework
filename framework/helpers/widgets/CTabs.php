@@ -70,103 +70,103 @@ class CTabs extends CWidgs
      *   'return'=>true,
      *  ));
     */
-    public static function init($params = array())
-    {
+	public static function init($params = array())
+	{
 		parent::init($params);
-
-		// Get param variables
-        $tabs 					= self::params('tabs', array());
-		$tabsWrapper 			= self::params('tabsWrapper', array());
-		$tabsWrapperInner 		= self::params('tabsWrapperInner', array());
-		$tabsWrapperInnerItem 	= self::params('tabsWrapperInnerItem', array());
-		$contentWrapper 		= self::params('contentWrapper', array());
-		$contentWrapperItem 	= self::params('contentWrapperItem', array());
-		$contentMessage 		= self::params('contentMessage', '');
-		$contentAdditional 		= self::params('contentAdditional', '');
-		$firstTabActive 		= self::params('firstTabActive', false);
-		$return 				= self::params('return', true);
-
-        $output = '';
-        $tagName = 'div';
 		
-		$output .= CHtml::openTag($tabsWrapper['tag'], array('class'=>$tabsWrapper['class'])).self::NL;
-		if(!empty($tabsWrapperInner)){
+		// Get param variables
+		$tabs = self::params('tabs', array());
+		$tabsWrapper = self::params('tabsWrapper', array());
+		$tabsWrapperInner = self::params('tabsWrapperInner', array());
+		$tabsWrapperInnerItem = self::params('tabsWrapperInnerItem', array());
+		$contentWrapper = self::params('contentWrapper', array());
+		$contentWrapperItem = self::params('contentWrapperItem', array());
+		$contentMessage = self::params('contentMessage', '');
+		$contentAdditional = self::params('contentAdditional', '');
+		$firstTabActive = self::params('firstTabActive', false);
+		$return = self::params('return', true);
+		
+		$output = '';
+		$tagName = 'div';
+		
+		$output .= CHtml::openTag($tabsWrapper['tag'], array('class' => $tabsWrapper['class'])) . self::NL;
+		if (!empty($tabsWrapperInner)) {
 			$twiTag = isset($tabsWrapperInner['tag']) ? $tabsWrapperInner['tag'] : 'div';
 			$twiClass = isset($tabsWrapperInner['class']) ? $tabsWrapperInner['class'] : '';
-			$twiId = isset($tabsWrapperInner['id']) ? $tabsWrapperInner['id'] : '';			
-			$output .= CHtml::openTag($twiTag, array('class'=>$twiClass, 'id'=>$twiId)).self::NL;	
+			$twiId = isset($tabsWrapperInner['id']) ? $tabsWrapperInner['id'] : '';
+			$output .= CHtml::openTag($twiTag, array('class' => $twiClass, 'id' => $twiId)) . self::NL;
 		}
 		
 		// Set the first tab to be "active" if nothing defined
 		$activeTabExists = false;
-		foreach($tabs as $tab => $tabInfo){
-			if(isset($tabInfo['active']) && $tabInfo['active']){
+		foreach ($tabs as $tab => $tabInfo) {
+			if (isset($tabInfo['active']) && $tabInfo['active']) {
 				$activeTabExists = true;
 				break;
 			}
 		}
-		if(!$activeTabExists && $firstTabActive){
+		if (!$activeTabExists && $firstTabActive) {
 			$firstKey = key($tabs);
 			$tabs[$firstKey]['active'] = true;
 		}
-
-		foreach($tabs as $tab => $tabInfo){
-			if(empty($tabInfo)) continue;
-			if(isset($tabInfo['disabled']) && (bool)$tabInfo['disabled'] === true) continue;
+		
+		foreach ($tabs as $tab => $tabInfo) {
+			if (empty($tabInfo)) continue;
+			if (isset($tabInfo['disabled']) && (bool)$tabInfo['disabled'] === true) continue;
 			
 			$htmlOptions = (isset($tabInfo['htmlOptions']) && is_array($tabInfo['htmlOptions'])) ? $tabInfo['htmlOptions'] : array();
-			if(isset($tabInfo['active']) && $tabInfo['active']){
-				if(!isset($htmlOptions['class'])) $htmlOptions['class'] = 'active';
+			if (isset($tabInfo['active']) && $tabInfo['active']) {
+				if (!isset($htmlOptions['class'])) $htmlOptions['class'] = 'active';
 				else $htmlOptions['class'] .= ' active';
-			}			
-			if(isset($tabInfo['id'])) $htmlOptions['id'] = $tabInfo['id'].'_link';
+			}
+			if (isset($tabInfo['id'])) $htmlOptions['id'] = $tabInfo['id'] . '_link';
 			$href = isset($tabInfo['href']) ? $tabInfo['href'] : '';
 			
-			if(!empty($tabsWrapperInnerItem)){
+			if (!empty($tabsWrapperInnerItem)) {
 				$htmlOptions['role'] = 'tab';
 				$htmlOptions['data-toggle'] = 'tab';
 				$htmlOptions['aria-controls'] = trim($href, '#');
 				$cssClass = '';
-				if(isset($htmlOptions['class'])){
+				if (isset($htmlOptions['class'])) {
 					$cssClass = $htmlOptions['class'];
 					unset($htmlOptions['class']);
 				}
 				
 				$twiiTag = isset($tabsWrapperInnerItem['tag']) ? $tabsWrapperInnerItem['tag'] : 'a';
-				$output .= CHtml::openTag($twiiTag, array('class'=>$cssClass, 'id'=>false));	
+				$output .= CHtml::openTag($twiiTag, array('class' => $cssClass, 'id' => false));
 				$output .= CHtml::link($tab, $href, $htmlOptions);
-				$output .= CHtml::closeTag($twiiTag).self::NL;
-			}else{
-				$output .= CHtml::link($tab, $href, $htmlOptions).self::NL;
+				$output .= CHtml::closeTag($twiiTag) . self::NL;
+			} else {
+				$output .= CHtml::link($tab, $href, $htmlOptions) . self::NL;
 			}
 		}
-		if(!empty($tabsWrapperInner)) $output .= CHtml::closeTag($tabsWrapperInner['tag']).self::NL;       
-		$output .= $contentAdditional; 
-        $output .= CHtml::closeTag($tabsWrapper['tag']).self::NL;
+		if (!empty($tabsWrapperInner)) $output .= CHtml::closeTag($tabsWrapperInner['tag']) . self::NL;
+		$output .= $contentAdditional;
+		$output .= CHtml::closeTag($tabsWrapper['tag']) . self::NL;
 		
 		$output .= $contentMessage;
 		
 		// Show content only if contentWrapper defined as non-empty
-		if(!empty($contentWrapper)){
-			$output .= CHtml::openTag($contentWrapper['tag'], array('class'=>$contentWrapper['class'])).self::NL;
-			foreach($tabs as $tab => $tabInfo){
+		if (!empty($contentWrapper)) {
+			$output .= CHtml::openTag($contentWrapper['tag'], array('class' => $contentWrapper['class'])) . self::NL;
+			foreach ($tabs as $tab => $tabInfo) {
 				$id = isset($tabInfo['id']) ? $tabInfo['id'] : '';
 				$content = isset($tabInfo['content']) ? $tabInfo['content'] : '';
 				$style = isset($contentWrapperItem['style']) ? $contentWrapperItem['style'] : 'display:block;';
 				$class = isset($contentWrapperItem['class']) ? $contentWrapperItem['class'] : '';
 				
-				if(isset($tabInfo['active']) && $tabInfo['active']){
-					if(empty($class)) $class = 'active in';
+				if (isset($tabInfo['active']) && $tabInfo['active']) {
+					if (empty($class)) $class = 'active in';
 					else $class .= ' active in';
-				}			
-
-				$output .= CHtml::tag('div', array('id'=>$id, 'class'=>$class, 'style'=>$style), $content).self::NL;
+				}
+				
+				$output .= CHtml::tag('div', array('id' => $id, 'class' => $class, 'style' => $style), $content) . self::NL;
 			}
-			$output .= CHtml::closeTag($contentWrapper['tag']).self::NL;       	
+			$output .= CHtml::closeTag($contentWrapper['tag']) . self::NL;
 		}
-        
-        if($return) return $output;
-        else echo $output;       		
+		
+		if ($return) return $output;
+		else echo $output;
 	}
 	
 }

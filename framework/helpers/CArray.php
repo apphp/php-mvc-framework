@@ -26,123 +26,144 @@ class CArray
 	 * Usage:
 	 * $array = array(
 	 *  [0] => array(
-     *      'field1' => ..v1
-     *      'field2' => ..v2
-     *      'field3' => ..v3
+     *      'field1' => value01
+     *      'field2' => value02
+     *      'field3' => value03
      *   ),
 	 *  [1] => array(
-     *      'field1' => ..v1
-     *      'field2' => ..v2
-     *      'field3' => ..v3
+     *      'field1' => value11
+     *      'field2' => value12
+     *      'field3' => value13
      *   ));
-     *   
+	 *
+	 *  Result:
+	 * $array = array(
+	 *  ['value01'] => array(
+	 *      'field1' => value01
+	 *      'field2' => value02
+	 *      'field3' => value03
+	 *   ),
+	 *  ['value11'] => array(
+	 *      'field1' => value11
+	 *      'field2' => value12
+	 *      'field3' => value13
+	 *   ));
+	 *
      *  flipByField($array, 'field3');
      *   
 	 * @param array $array 
 	 * @param string $field
-	 * @param string $group - allows to groub elements in more then one
+	 * @param bool $group - allows to group elements in more then one
 	 * @return array
 	 */
 	public static function flipByField($array, $field = '', $group = false)
 	{
-        $return = array();
-        
-        if(is_array($array)){
-            foreach($array as $k => $v){
-                if(isset($v[$field])){
-					if($group){
+		$return = array();
+		
+		if (is_array($array)) {
+			foreach ($array as $k => $v) {
+				if (isset($v[$field])) {
+					if ($group) {
 						$return[$v[$field]][] = $v;
-					}else{
-						$return[$v[$field]] = $v;	
-					}                    
-                }                
-            }            
-        }
-        
-        return $return;        
-    }
-
+					} else {
+						$return[$v[$field]] = $v;
+					}
+				}
+			}
+		}
+		
+		return $return;
+	}
+	
 	/**
-	 * Returns array of uniquie values from specified filed in sub-array
+	 * Returns array of unique values from specified filed in sub-array
 	 *
 	 * Usage:
 	 * $array = array(
 	 *  [0] => array(
-     *      'field1' => ..v1
-     *      'field2' => ..v2
-     *      'field3' => ..v3
-     *   ),
+	 *      'field1' => ..v1
+	 *      'field2' => ..v2
+	 *      'field3' => ..v3
+	 *   ),
 	 *  [1] => array(
-     *      'field1' => ..v1
-     *      'field2' => ..v2
-     *      'field3' => ..v3
-     *   ));     
-     *  uniqueByField($array, 'field3'); 
-     *   
-	 * @param array $array 
+	 *      'field1' => ..v1
+	 *      'field2' => ..v2
+	 *      'field3' => ..v3
+	 *   ));
+	 *
+	 *  uniqueByField($array, 'field3');
+	 *
+	 * @param array $array
 	 * @param string $field
+	 * @param bool $unique
 	 * @return array
 	 */
-	public static function uniqueByField($array, $field = '')
+	public static function uniqueByField($array, $field = '', $unique = false)
 	{
-        $return = array();
-
-        if(is_array($array)){
-            foreach($array as $k => $v){
-				if(isset($v[$field])){
+		$return = array();
+		
+		if (is_array($array)) {
+			foreach ($array as $k => $v) {
+				if (isset($v[$field])) {
 					$return[] = $v[$field];
 				}
 			}
-		}
 			
-		return $return;   
+			if ($unique) {
+				$return = array_unique($return);
+			}
+		}
+		
+		return $return;
 	}
 	
-    /**
+	/**
 	 * Changes the case of all keys in a given array
 	 * @param array $array
 	 * @param int $case
+	 * @return array
 	 */
 	public static function changeKeysCase($array, $case = CASE_LOWER)
-    {
-		$function = ($case == CASE_UPPER) ? 'strtoupper' : 'strtolower';		
+	{
+		$function = ($case == CASE_UPPER) ? 'strtoupper' : 'strtolower';
 		$newArray = array();
-
-        foreach($array as $key => $value) {
-            if(is_array($value)){
+		
+		foreach ($array as $key => $value) {
+			if (is_array($value)) {
 				// $value is an array, handle keys too
-                $newArray[$function($key)] = self::changeKeysCase($value, $case);
-			}elseif(is_string($key)){
-                $newArray[$function($key)] = $value;
-			}else{
+				$newArray[$function($key)] = self::changeKeysCase($value, $case);
+			} elseif (is_string($key)) {
+				$newArray[$function($key)] = $value;
+			} else {
 				// $key is not a string
-				$newArray[$key] = $value; 
+				$newArray[$key] = $value;
 			}
-        }
+		}
 		
 		return $newArray;
-	}	
-
-	/**	
+	}
+	
+	/**
 	 * Convert current object to array
+	 * @param array $obj
 	 * @return array
 	 */
 	public static function toArray($obj = null)
 	{
-		if(is_object($obj)){
+		if (is_object($obj)) {
 			$obj = (array)$obj;
 		}
 		
-		if(is_array($obj)){
+		if (is_array($obj)) {
 			$new = array();
-			foreach($obj as $key => $val){
+			foreach ($obj as $key => $val) {
 				$new[$key] = self::toArray($val);
 			}
-		}else{
+		} else {
 			$new = $obj;
 		}
 		
-		return $new;		
-	}	
+		return $new;
+	}
 	
 }

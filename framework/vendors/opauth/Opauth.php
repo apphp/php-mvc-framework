@@ -71,7 +71,7 @@ class Opauth{
 			'strategy_dir' => dirname(__FILE__).'/Strategy/'
 		), $this->config);
 		
-		if (!class_exists('OpauthStrategy')){
+		if (!class_exists('OpauthStrategy', false)){
 			require $this->env['lib_dir'].'OpauthStrategy.php';
 		}
 		
@@ -270,7 +270,7 @@ class Opauth{
 	 * @return string Class name of the strategy, usually StrategyStrategy
 	 */
 	private function requireStrategy($strategy){
-		if (!class_exists($strategy.'Strategy')){
+		if (!class_exists($strategy.'Strategy', false)){
 			// Include dir where Git repository for strategy is cloned directly without 
 			// specifying a dir name, eg. opauth-facebook
 			$directories = array(

@@ -10,7 +10,7 @@
  *
  * PUBLIC (static):			PROTECTED:					PRIVATE:		
  * ----------               ----------                  ----------
- * isEmpty          
+ * isEmpty					_prepareAllowedChars
  * isAlpha
  * isAlphaBetic
  * isAlphaDash
@@ -33,6 +33,8 @@
  * isIdentityCode
  * isFileName
  * isDate
+ * isTime
+ * isDateTime
  * isDigit
  * isInteger
  * isPositiveInteger
@@ -54,239 +56,242 @@
  * validateMinDate
  * validateMaxDate
  * validateRange
- * 
- */	  
+ * validateRegex
+ *
+ */
 
 class CValidator
 {
-
+	
 	/**
 	 * Checks if a given parameter is empty
-	 * @param mixed $value 
-	 * @param boolean $trim 
+	 * @param mixed $value
+	 * @param boolean $trim
 	 * @return boolean whether the value is empty
 	 */
 	public static function isEmpty($value, $trim = false)
 	{
 		return $value === null || $value === array() || $value === '' || ($trim && trim($value) === '');
 	}
-
+	
 	/**
 	 * Checks if a given parameter is an alphabetic value
-	 * @param mixed $value 
-	 * @return boolean 
+	 * @param mixed $value
+	 * @param mixed $allowing
+	 * @return boolean
 	 */
-    public static function isAlpha($value)
+	public static function isAlpha($value, $allowing = array())
 	{
-        return preg_match('/^[a-zA-Z]+$/', $value);
-    }
-
+		return preg_match('/^[a-zA-Z' . self::_prepareAllowedChars($allowing) . ']+$/', $value);
+	}
+	
 	/**
 	 * Alias for isAlpha
+	 * @param mixed $allowing
 	 * @see isAlpha
 	 */
-    public static function isAlphaBetic($value)
+	public static function isAlphaBetic($value, $allowing = array())
 	{
-		return isAlpha($value);
+		return self::isAlpha($value, $allowing);
 	}
 	
 	/**
 	 * Checks if a given parameter is a alphabetic value or dash
-	 * @param mixed $value 
-	 * @return boolean 
+	 * @param mixed $value
+	 * @param mixed $allowing
+	 * @return boolean
 	 */
-    public static function isAlphaDash($value)
+	public static function isAlphaDash($value, $allowing = array())
 	{
-		return preg_match('/^[a-zA-Z\-]+$/', $value);
+		return preg_match('/^[a-zA-Z\-' . self::_prepareAllowedChars($allowing) . ']+$/', $value);
 	}
-
+	
 	/**
 	 * Checks if a given parameter is a numeric value
 	 * @param mixed $value
 	 * @param int $type 0 - digits only, 1 - with dot or comma
 	 * @return boolean
 	 */
-    public static function isNumeric($value, $type = 0)
+	public static function isNumeric($value, $type = 0)
 	{
-        if($type == 1){
-            // Check also with dot or comma
-            return preg_match('/^[0-9\.,]+$/', $value);
-        }else{
-            return preg_match('/^[0-9]+$/', $value);
-        }
-    }
-
+		if ($type == 1) {
+			// Check also with dot or comma
+			return preg_match('/^[0-9\.,]+$/', $value);
+		} else {
+			return preg_match('/^[0-9]+$/', $value);
+		}
+	}
+	
 	/**
 	 * Checks if a given parameter is a alpha-numeric value
 	 * @param mixed $value
 	 * @return boolean
 	 */
-    public static function isAlphaNumeric($value)
+	public static function isAlphaNumeric($value)
 	{
-        return preg_match('/^[a-zA-Z0-9]+$/', $value);
-    }
+		return preg_match('/^[a-zA-Z0-9]+$/', $value);
+	}
 	
 	/**
 	 * Alias for mixed
 	 * @param mixed $value
 	 * @return boolean
 	 */
-    public static function isAlphaNumericSpaces($value)
+	public static function isAlphaNumericSpaces($value)
 	{
-        return isMixed($value);
-    }
-	    
+		return self::isMixed($value);
+	}
+	
 	/**
 	 * Checks if a given parameter is a variable name in PHP
 	 * @param mixed $value
 	 * @return boolean
 	 */
-    public static function isVariable($value)
+	public static function isVariable($value)
 	{
-        return preg_match('/^[a-zA-Z]+[0-9a-zA-Z_]*$/', $value);
-    }
-
+		return preg_match('/^[a-zA-Z]+[0-9a-zA-Z_]*$/', $value);
+	}
+	
 	/**
 	 * Checks if a given parameter is a zip code
-     * @param mixed $value
-     * @param string $country
+	 * @param mixed $value
+	 * @param string $country
 	 * @return boolean
 	 */
-    public static function isZipCode($value, $countryCode = '')
-    {
-        $zipReg=array(
-            'us'=>"/^\d{5}([\-]?\d{4})?$/",
-            'uk'=>"/^(GIR|[A-Z]\d[A-Z\d]??|[A-Z]{2}\d[A-Z\d]??)[ ]??(\d[A-Z]{2})$/",
-            'de'=>"/\b((?:0[1-46-9]\d{3})|(?:[1-357-9]\d{4})|(?:[4][0-24-9]\d{3})|(?:[6][013-9]\d{3}))\b/",
-            'ca'=>"/^([ABCEGHJKLMNPRSTVXY]\d[ABCEGHJKLMNPRSTVWXYZ])\ {0,1}(\d[ABCEGHJKLMNPRSTVWXYZ]\d)$/",
-            'fr'=>"/^(F-)?((2[A|B])|[0-9]{2})[0-9]{3}$/",
-            'it'=>"/^(V-|I-)?[0-9]{5}$/",
-            'au'=>"/^(0[289][0-9]{2})|([1345689][0-9]{3})|(2[0-8][0-9]{2})|(290[0-9])|(291[0-4])|(7[0-4][0-9]{2})|(7[8-9][0-9]{2})$/",
-            'nl'=>"/^[1-9][0-9]{3}\s?([a-zA-Z]{2})?$/",
-            'es'=>"/^([1-9]{2}|[0-9][1-9]|[1-9][0-9])[0-9]{3}$/",
-            'dk'=>"/^([D-d][K-k])?( |-)?[1-9]{1}[0-9]{3}$/",
-            'se'=>"/^(s-|S-){0,1}[0-9]{3}\s?[0-9]{2}$/",
-            'be'=>"/^[1-9]{1}[0-9]{3}$/"
-        );
+	public static function isZipCode($value, $countryCode = '')
+	{
+		$zipReg = array(
+			'us' => "/^\d{5}([\-]?\d{4})?$/",
+			'uk' => "/^(GIR|[A-Z]\d[A-Z\d]??|[A-Z]{2}\d[A-Z\d]??)[ ]??(\d[A-Z]{2})$/",
+			'de' => "/\b((?:0[1-46-9]\d{3})|(?:[1-357-9]\d{4})|(?:[4][0-24-9]\d{3})|(?:[6][013-9]\d{3}))\b/",
+			'ca' => "/^([ABCEGHJKLMNPRSTVXY]\d[ABCEGHJKLMNPRSTVWXYZ])\ {0,1}(\d[ABCEGHJKLMNPRSTVWXYZ]\d)$/",
+			'fr' => "/^(F-)?((2[A|B])|[0-9]{2})[0-9]{3}$/",
+			'it' => "/^(V-|I-)?[0-9]{5}$/",
+			'au' => "/^(0[289][0-9]{2})|([1345689][0-9]{3})|(2[0-8][0-9]{2})|(290[0-9])|(291[0-4])|(7[0-4][0-9]{2})|(7[8-9][0-9]{2})$/",
+			'nl' => "/^[1-9][0-9]{3}\s?([a-zA-Z]{2})?$/",
+			'es' => "/^([1-9]{2}|[0-9][1-9]|[1-9][0-9])[0-9]{3}$/",
+			'dk' => "/^([D-d][K-k])?( |-)?[1-9]{1}[0-9]{3}$/",
+			'se' => "/^(s-|S-){0,1}[0-9]{3}\s?[0-9]{2}$/",
+			'be' => "/^[1-9]{1}[0-9]{3}$/",
+		);
 		
 		$countryCode = strtolower($countryCode);
-
-        if(!empty($countryCode) && isset($zipReg[$countryCode])){
-            $regExp = $zipReg[$countryCode];
-            $result = preg_match($regExp, $value);
-        }else{
-            $result = preg_match('/^[0-9a-zA-Z\-\s]*$/', $value);
-        }
 		
-        return $result;
-    }
-
+		if (!empty($countryCode) && isset($zipReg[$countryCode])) {
+			$regExp = $zipReg[$countryCode];
+			$result = preg_match($regExp, $value);
+		} else {
+			$result = preg_match('/^[0-9a-zA-Z\-\s]*$/', $value);
+		}
+		
+		return $result;
+	}
+	
 	/**
 	 * Checks if a given parameter is a alpha-numeric value and spaces
 	 * @param mixed $value
 	 * @return boolean
 	 */
-    public static function isMixed($value)
+	public static function isMixed($value)
 	{
-        return preg_match('/^[a-zA-Z0-9\s]+$/', $value);
-    }
+		return preg_match('/^[a-zA-Z0-9\s]+$/', $value);
+	}
 	
 	/**
-	 * Checks if a given parameter is a valid SEO link 
+	 * Checks if a given parameter is a valid SEO link
 	 * @param mixed $value
 	 * @return boolean
 	 */
-    public static function isSeoLink($value)
+	public static function isSeoLink($value)
 	{
-        return preg_match('/^[a-zA-Z0-9\-_]+$/', $value);
-    }
+		return preg_match('/^[a-zA-Z0-9\-_]+$/', $value);
+	}
 	
 	/**
 	 * Checks if a given parameter is a textual value and allowed HTML tags
 	 * @param mixed $value
 	 * @return boolean
 	 */
-    public static function isText($value)
+	public static function isText($value)
 	{
-        if(preg_match("/<[^>]*script*\"?[^>]*>/i", $value) ||
-            preg_match("/<[^>]*object*\"?[^>]*>/i", $value) ||
-            preg_match("/<[^>]*iframe*\"?[^>]*>/i", $value) ||
-            preg_match("/<[^>]*applet*\"?[^>]*>/i", $value) ||
-            preg_match("/<[^>]*meta*\"?[^>]*>/i", $value) ||
-            preg_match("/<[^>]*style*\"?[^>]*>/i", $value) ||
-            preg_match("/<[^>]*form*\"?[^>]*>/i", $value) ||
-            preg_match("/<[^>]*img*\"?[^>]*>/i", $value) ||
-            preg_match("/<[^>]*onmouseover*\"?[^>]*>/i", $value) ||
-            preg_match("/<[^>]*body*\"?[^>]*>/i", $value) ||
-            preg_match("/ftp:\/\//i", $value) || 
-            preg_match("/https:\/\//i", $value) || 
-            preg_match("/http:\/\//i", $value) ||
-			preg_match("/<!--/", $value))
-        {		
-            return false;
-        }	
-        return true; 
-    }
+		if (preg_match("/<[^>]*script*\"?[^>]*>/i", $value) ||
+			preg_match("/<[^>]*object*\"?[^>]*>/i", $value) ||
+			preg_match("/<[^>]*iframe*\"?[^>]*>/i", $value) ||
+			preg_match("/<[^>]*applet*\"?[^>]*>/i", $value) ||
+			preg_match("/<[^>]*meta*\"?[^>]*>/i", $value) ||
+			preg_match("/<[^>]*style*\"?[^>]*>/i", $value) ||
+			preg_match("/<[^>]*form*\"?[^>]*>/i", $value) ||
+			preg_match("/<[^>]*img*\"?[^>]*>/i", $value) ||
+			preg_match("/<[^>]*onmouseover*\"?[^>]*>/i", $value) ||
+			preg_match("/<[^>]*body*\"?[^>]*>/i", $value) ||
+			preg_match("/ftp:\/\//i", $value) ||
+			preg_match("/https:\/\//i", $value) ||
+			preg_match("/http:\/\//i", $value) ||
+			preg_match("/<!--/", $value)) {
+			return false;
+		}
+		return true;
+	}
 	
 	/**
-	 * Checks if a given parameter is a textual utf value 
+	 * Checks if a given parameter is a textual utf value
 	 * @param mixed $value
 	 * @return boolean
 	 */
-    public static function isUtfText($value)
+	public static function isUtfText($value)
 	{
 		return preg_match('/^\w \-\.\:0-9_+$/iu', $value);
 	}
 	
-
+	
 	/**
 	 * Checks if a given parameter is a valid php timezone value
 	 * @param mixed $value
 	 * @return boolean
 	 */
-    public static function isTimeZone($value)
+	public static function isTimeZone($value)
 	{
-        return preg_match('/^[a-zA-Z\/]+$/', $value);
-    }
-
+		return preg_match('/^[a-zA-Z\/]+$/', $value);
+	}
+	
 	/**
 	 * Checks if a given parameter is a phone number
 	 * @param mixed $value
 	 * @return boolean
 	 */
-    public static function isPhone($value)
+	public static function isPhone($value)
 	{
-        return preg_match('/^[+]{0,1}[\d]{3,12}[-| ]{0,1}[\d]{0,6}[-| ]{0,1}[\d]{0,8}$/', $value);
-    }
-
+		return preg_match('/^[+]{0,1}[\d]{3,12}[-| ]{0,1}[\d]{0,6}[-| ]{0,1}[\d]{0,8}$/', $value);
+	}
+	
 	/**
 	 * Checks if a given parameter is a phone number in a free format:
 	 * 7 or 32 digit number, with extensions allowed, delimiters are spaces, dashes or periods
 	 * @param mixed $value
 	 * @return boolean
 	 */
-    public static function isPhoneString($value)
+	public static function isPhoneString($value)
 	{
-        return preg_match('/^[+]?([\d]{0,3})?[-| ]{0,1}[\(\.\-\s]?([\d]{0,3})[\)\.\-\s]?[-| ]{0,1}[\d]{0,6}[-| ]{0,1}[\d]{0,6}[-| ]{0,1}[\d]{0,8}$/', $value);
-    }
-
+		return preg_match('/^[+]?([\d]{0,3})?[-| ]{0,1}[\(\.\-\s]?([\d]{0,3})[\)\.\-\s]?[-| ]{0,1}[\d]{0,6}[-| ]{0,1}[\d]{0,6}[-| ]{0,1}[\d]{0,8}$/', $value);
+	}
+	
 	/**
-	 * Checks if a given parameter is a password 
+	 * Checks if a given parameter is a password
 	 * @param mixed $value
 	 * @return boolean
 	 */
-    public static function isPassword($value)
+	public static function isPassword($value)
 	{
-        return preg_match('/^[a-zA-Z0-9_\.\,\-!@#$%^&*()]{6,20}$/', $value);
-    }
-
+		return preg_match('/^[a-zA-Z0-9_\.\,\-!@#$%^&*()]{6,25}$/', $value);
+	}
+	
 	/**
 	 * Checks if a given parameter is a simple password.
 	 * It checks if it's a most popular password or it consists from the same symbols
 	 * @param mixed $value
 	 * @return boolean
 	 */
-    public static function isSimplePassword($value)
+	public static function isSimplePassword($value)
 	{
 		$passwords = array(
 			'000000',
@@ -316,101 +321,143 @@ class CValidator
 			'admin123',
 			'1q2w3e4r',
 			'2wsx3edc',
-			'apphp123'			
+			'apphp123',
 		);
 		return (in_array($value, $passwords) || preg_match('/^(.)\1*$/', $value)) ? true : false;
-    }
-
+	}
+	
 	/**
 	 * Checks if a given parameter is a username
 	 * @param mixed $value
 	 * @return boolean
 	 */
-    public static function isUsername($value)
+	public static function isUsername($value)
 	{
-		if(preg_match('/^[a-zA-Z0-9_\-]{6,20}$/', $value) && !self::isNumeric($value)){
+		if (preg_match('/^[a-zA-Z0-9_\-]{6,32}$/', $value) && !self::isNumeric($value)) {
 			return true;
 		}
-        return false;
-    }
-
+		return false;
+	}
+	
 	/**
 	 * Checks if a given parameter is an email
 	 * @param mixed $value
 	 * @return boolean
 	 */
-    public static function isEmail($value)
+	public static function isEmail($value)
 	{
-        return preg_match('/^[\w-]+(?:\.[\w-]+)*@(?:[\w-]+\.)+[a-zA-Z]{2,7}$/', $value);
-    }
-
+		return preg_match('/^[\w-]+(?:\.[\w-]+)*@(?:[\w-]+\.)+[a-zA-Z]{2,7}$/', $value);
+	}
+	
 	/**
 	 * Checks if a given parameter is identity code
 	 * @param mixed $value
 	 * @return boolean
 	 */
-    public static function isIdentityCode($value)
+	public static function isIdentityCode($value)
 	{
-	    return preg_match('/^[a-zA-Z0-9_\-]+$/', $value);
-    }
-
+		return preg_match('/^[a-zA-Z0-9_\-]+$/', $value);
+	}
+	
 	/**
 	 * Checks if a given parameter is a file name
 	 * @param mixed $value
 	 * @return boolean
 	 */
-    public static function isFileName($value)
+	public static function isFileName($value)
 	{
-	    return preg_match('/^[a-zA-Z0-9_\-\.]+$/', $value);
-    }
-
+		return preg_match('/^[a-zA-Z0-9_\-\.]+$/', $value);
+	}
+	
+	/**
+	 * Checks if a given parameter is a time value
+	 * @param mixed $value
+	 * @return boolean
+	 */
+	public static function isTime($value)
+	{
+		$hour = (int)substr($value, 0, 2);
+		$minute = (int)substr($value, 3, 2);
+		$second = (int)substr($value, 6, 2);
+		
+		if ($hour < 0 || $hour > 23) return false;
+		if ($minute > 59 || $minute < 0) return false;
+		if ($second > 59 || $second < 0) return false;
+		
+		return true;
+	}
+	
 	/**
 	 * Checks if a given parameter is a date value
 	 * @param mixed $value
 	 * @return boolean
 	 */
-    public static function isDate($value)
+	public static function isDate($value)
 	{
-        $year = (int)substr($value, 0, 4);
-        $month = (int)substr($value, 5, 2);
-        $day = (int)substr($value, 8, 2);
-        if(strtotime($value) == strtotime($year.'-'.$month.'-'.$day)){
-            return checkdate($month, $day, $year);
-        }else{
-            $date = strtotime($value);        
-            return (!empty($date) && self::isInteger($date));            
-        }
-    }
-
+		$year = (int)substr($value, 0, 4);
+		$month = (int)substr($value, 5, 2);
+		$day = (int)substr($value, 8, 2);
+		if (strtotime($value) == strtotime($year . '-' . $month . '-' . $day)) {
+			return checkdate($month, $day, $year);
+		} else {
+			$date = strtotime($value);
+			return (!empty($date) && self::isInteger($date));
+		}
+	}
+	
+	/**
+	 * Checks if a given parameter is a datetime value
+	 * @param mixed $value
+	 * @return boolean
+	 */
+	public static function isDateTime($value)
+	{
+		$year = (int)substr($value, 0, 4);
+		$month = (int)substr($value, 5, 2);
+		$day = (int)substr($value, 8, 2);
+		$hour = (int)substr($value, 11, 2);
+		$minute = (int)substr($value, 14, 2);
+		$second = (int)substr($value, 17, 2);
+		if (strtotime($value) == strtotime($year . '-' . $month . '-' . $day . '-' . $hour . '-' . $minute . '-' . $second)) {
+			if ($hour < 0 || $hour > 23) return false;
+			if ($minute > 59 || $minute < 0) return false;
+			if ($second > 59 || $second < 0) return false;
+			return checkdate($month, $day, $year);
+		} else {
+			$date = strtotime($value);
+			return (!empty($date) && self::isInteger($date));
+		}
+	}
+	
 	/**
 	 * Checks if a given parameter is a digit value
 	 * @param mixed $value
 	 * @return boolean
 	 */
-    public static function isDigit($value)
-    {
+	public static function isDigit($value)
+	{
 		return ctype_digit($value);
-    }
-
+	}
+	
 	/**
 	 * Checks if a given parameter is an integer value
 	 * @param mixed $value
 	 * @return boolean
 	 */
-    public static function isInteger($value)
-    {
+	public static function isInteger($value)
+	{
 		return is_numeric($value) ? intval($value) == $value : false;
-    }
+	}
 	
 	/**
 	 * Checks if a given parameter is a positive integer value
 	 * @param mixed $value
 	 * @return boolean
 	 */
-    public static function isPositiveInteger($value)
-    {
+	public static function isPositiveInteger($value)
+	{
 		return (is_numeric($value) && $value > 0) ? intval($value) == $value : false;
-    }
+	}
 	
 	/**
 	 * Checks if a given parameter is a float value
@@ -418,11 +465,11 @@ class CValidator
 	 * @param string $format
 	 * @return boolean
 	 */
-    public static function isFloat($value, $format = '')
-    {
-        if($format == 'european') $value = CNumber::europeanFormat($value);
+	public static function isFloat($value, $format = '')
+	{
+		if ($format == 'european') $value = CNumber::europeanFormat($value);
 		return is_numeric($value) ? floatval($value) == $value : false;
-    }
+	}
 	
 	/**
 	 * Checks if a given parameter is a percent value
@@ -430,51 +477,51 @@ class CValidator
 	 * @param string $format
 	 * @return boolean
 	 */
-    public static function isPercent($value, $format = '')
-    {
-        if($format == 'european') $value = CNumber::europeanFormat($value);
+	public static function isPercent($value, $format = '')
+	{
+		if ($format == 'european') $value = CNumber::europeanFormat($value);
 		return is_numeric($value) ? ($value >= 0 && $value <= 100) : false;
-    }
-		
+	}
+	
 	/**
 	 * Checks if a given parameter is a HTML size value
 	 * @param mixed $value
 	 * @return boolean
 	 */
-    public static function isHtmlSize($value)    
+	public static function isHtmlSize($value)
 	{
 		return preg_match('/^[0-9]{1,4}[\.]{0,1}[0-9]{0,1}(px|em|pt|%){0,1}$/i', $value) ? true : false;
-    }
+	}
 	
 	/**
 	 * Checks if a given parameter is a valid URL address
 	 * @param mixed $value
 	 * @return boolean
 	 */
-    public static function isUrl($value)    
+	public static function isUrl($value)
 	{
 		return (preg_match('/(http:\/\/|https:\/\/|ftp:\/\/)/i', $value) && filter_var($value, FILTER_VALIDATE_URL)) ? true : false;
-        ///return (!preg_match("/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i", $value)) ? false : true;
-    }
+		///return (!preg_match("/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i", $value)) ? false : true;
+	}
 	
 	/**
 	 * Checks if a given parameter is a valid IP address
 	 * @param mixed $value
 	 * @return boolean
 	 */
-    public static function isIpAddress($value)    
+	public static function isIpAddress($value)
 	{
-        return filter_var($value, FILTER_VALIDATE_IP) ? true : false;
-    }
+		return filter_var($value, FILTER_VALIDATE_IP) ? true : false;
+	}
 	
 	/**
 	 * Checks if a given parameter is a valid domain name
 	 * @param mixed $value
 	 * @return boolean
 	 */
-    public static function isDomainName($value)
+	public static function isDomainName($value)
 	{
-		if(empty($value)){
+		if (empty($value)) {
 			return false;
 		}
 		
@@ -484,49 +531,49 @@ class CValidator
 		$overallLength = preg_match("/^.{1,253}$/", $value);
 		// Length of each label check
 		$labelLength = preg_match("/^[^\.]{1,63}(\.[^\.]{1,63})*$/", $value);
-	
+		
 		return $validChars && $overallLength && $labelLength;
-    }
-
+	}
+	
 	/**
 	 * Checks if a given parameter is an alignment value
 	 * @param mixed $value
 	 * @return boolean
 	 */
-    public static function isAlignment($value)
-    {
+	public static function isAlignment($value)
+	{
 		return in_array($value, array('left', 'right', 'center', 'middle', 'top', 'bottom'));
-    }
+	}
 	
 	/**
-	 * Checks if a given parameter is a hexadecimal color value 
+	 * Checks if a given parameter is a hexadecimal color value
 	 * @param mixed $value
 	 * @return boolean
 	 */
-    public static function isHexColor($value)
-    {
+	public static function isHexColor($value)
+	{
 		return preg_match('/^#([a-f0-9]{6}|[a-f0-9]{3})$/i', $value);
-    }
+	}
 	
 	/**
-	 * Checks if a given parameter is a valid base64 value 
+	 * Checks if a given parameter is a valid base64 value
 	 * @param mixed $value
 	 * @return boolean
 	 */
-    public static function isBase64($value)
-    {
+	public static function isBase64($value)
+	{
 		// Check if there are valid base64 characters
-		if(!preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $value)) return false;
+		if (!preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $value)) return false;
 		
 		// Decode the string in strict mode and check the results
 		$decoded = base64_decode($value, true);
-		if($decoded === false) return false;
+		if ($decoded === false) return false;
 		
 		// Encode the string again
-		if(base64_encode($decoded) != $value) return false;
+		if (base64_encode($decoded) != $value) return false;
 		
 		return true;
-    }
+	}
 	
 	/**
 	 * Checks if a given parameter presents in a given array
@@ -534,16 +581,16 @@ class CValidator
 	 * @param array $array
 	 * @return boolean
 	 */
-    public static function inArray($value, $array = array())
-    {
-		if(!is_array($array)) return false;
-		if(is_array($value)){
+	public static function inArray($value, $array = array())
+	{
+		if (!is_array($array)) return false;
+		if (is_array($value)) {
 			$intersectResult = array_intersect($value, $array);
 			return !empty($intersectResult) ? true : false;
-		}else{
+		} else {
 			return in_array($value, $array);
 		}
-    }	
+	}
 	
 	/**
 	 * Validates the length of the given value
@@ -553,11 +600,11 @@ class CValidator
 	 * @param boolean $encoding
 	 * @return boolean
 	 */
-    public static function validateLength($value, $min, $max, $encoding = true)
+	public static function validateLength($value, $min, $max, $encoding = true)
 	{
-		$strlen = (function_exists('mb_strlen') && $encoding !== false) ? mb_strlen($value, A::app()->charset) : strlen($value);    
-        return ($strlen >= $min && $strlen <= $max);
-    }
+		$strLen = (function_exists('mb_strlen') && $encoding !== false) ? mb_strlen($value, A::app()->charset) : strlen($value);
+		return ($strLen >= $min && $strLen <= $max);
+	}
 	
 	/**
 	 * Validates the minimum length of the given value
@@ -566,11 +613,11 @@ class CValidator
 	 * @param boolean $encoding
 	 * @return boolean
 	 */
-    public static function validateMinLength($value, $min, $encoding = true)
-    {
-		$strlen = (function_exists('mb_strlen') && $encoding !== false) ? mb_strlen($value, A::app()->charset) : strlen($value);    
-        return ($strlen < $min) ? false : true;
-    }
+	public static function validateMinLength($value, $min, $encoding = true)
+	{
+		$strLen = (function_exists('mb_strlen') && $encoding !== false) ? mb_strlen($value, A::app()->charset) : strlen($value);
+		return ($strLen < $min) ? false : true;
+	}
 	
 	/**
 	 * Validates the maximum length of the given value
@@ -579,12 +626,12 @@ class CValidator
 	 * @param boolean $encoding
 	 * @return boolean
 	 */
-    public static function validateMaxLength($value, $max, $encoding = true)
-    {
-		$strlen = (function_exists('mb_strlen') && $encoding !== false) ? mb_strlen($value, A::app()->charset) : strlen($value);    
-        return ($strlen > $max) ? false : true;
-    }
-
+	public static function validateMaxLength($value, $max, $encoding = true)
+	{
+		$strLen = (function_exists('mb_strlen') && $encoding !== false) ? mb_strlen($value, A::app()->charset) : strlen($value);
+		return ($strLen > $max) ? false : true;
+	}
+	
 	/**
 	 * Validates if the given numeric value is grater or equal to specified value
 	 * @param string $value
@@ -592,13 +639,13 @@ class CValidator
 	 * @param string $format
 	 * @return boolean
 	 */
-    public static function validateMin($value, $min, $format = '')
-    {
-        if($format == 'european') $value = CNumber::europeanFormat($value);
-		if(!is_numeric($value)) return false;
-        return ($value >= $min) ? true : false;
-    }
-
+	public static function validateMin($value, $min, $format = '')
+	{
+		if ($format == 'european') $value = CNumber::europeanFormat($value);
+		if (!is_numeric($value)) return false;
+		return ($value >= $min) ? true : false;
+	}
+	
 	/**
 	 * Validates if the given numeric value is less than or equal to specified value
 	 * @param string $value
@@ -606,35 +653,35 @@ class CValidator
 	 * @param string $format
 	 * @return boolean
 	 */
-    public static function validateMax($value, $max, $format = '')
-    {
-        if($format == 'european') $value = CNumber::europeanFormat($value);        
-		if(!is_numeric($value)) return false;
-        return ($value <= $max) ? true : false;
-    }
-
+	public static function validateMax($value, $max, $format = '')
+	{
+		if ($format == 'european') $value = CNumber::europeanFormat($value);
+		if (!is_numeric($value)) return false;
+		return ($value <= $max) ? true : false;
+	}
+	
 	/**
 	 * Validates if the given date value is grater or equal to specified value
 	 * @param string $value
 	 * @param integer $min
 	 * @return boolean
 	 */
-    public static function validateMinDate($value, $min)
-    {
-        return ($value >= $min) ? true : false;
-    }
-
+	public static function validateMinDate($value, $min)
+	{
+		return ($value >= $min) ? true : false;
+	}
+	
 	/**
 	 * Validates if the given date value is less than or equal to specified value
 	 * @param string $value
 	 * @param integer $max
 	 * @return boolean
 	 */
-    public static function validateMaxDate($value, $max)
-    {
-        return ($value <= $max) ? true : false;
-    }
-        
+	public static function validateMaxDate($value, $max)
+	{
+		return ($value <= $max) ? true : false;
+	}
+	
 	/**
 	 * Validates if the given numeric value in a specified range
 	 * @param string $value
@@ -642,10 +689,44 @@ class CValidator
 	 * @param integer $max
 	 * @return boolean
 	 */
-    public static function validateRange($value, $min, $max)
-    {
-		if(!is_numeric($value)) return false;
-        return ($value >= $min && $value <= $max) ? true : false;
-    }
+	public static function validateRange($value, $min, $max)
+	{
+		if (!is_numeric($value)) return false;
+		return ($value >= $min && $value <= $max) ? true : false;
+	}
 	
-}    
+	/**
+	 * Validates if the given numeric value in a specified range
+	 * Ex.: validateRegex($value, '^[a-zA-Z\-]+$')
+	 * @param string $value
+	 * @param string $pattern
+	 * @param string $additional
+	 * @return boolean
+	 */
+	public static function validateRegex($value, $pattern, $additional = '')
+	{
+		if (empty($pattern)) return true;
+		return preg_match('/' . $pattern . '/' . $additional, $value);
+	}
+	
+	/**
+	 * Prepare allowed chars for preg_match check
+	 * @param mixed $value
+	 * @return string
+	 */
+	protected static function _prepareAllowedChars($value = '')
+	{
+		$result = '';
+		if (!empty($value)) {
+			if (is_string($value)) {
+				$value = str_split($value);
+			}
+			if (is_array($value)) {
+				$result = '\\' . implode("\\", $value);
+			}
+		}
+		
+		return $result;
+	}
+	
+}

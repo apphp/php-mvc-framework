@@ -9,26 +9,26 @@
  * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
- * PUBLIC:					PROTECTED:					PRIVATE:		
+ * PUBLIC:                    PROTECTED:                    PRIVATE:
  * ----------               ----------                  ----------
- * __construct              							_detectUri
- * init (static)										_filterUri
- * segment												_explodeSegments
- * rTotalSegments										_uriToAssoc
- * totalSegments										_slashSegment
+ * __construct                                        _detectUri
+ * init (static)                                        _filterUri
+ * segment                                                _explodeSegments
+ * rTotalSegments                                        _uriToAssoc
+ * totalSegments                                        _slashSegment
  * uriString
- * uriToAssoc											
- * assocToUri											
+ * uriToAssoc
+ * assocToUri
  * slashSegment
  * rSlashSegment
  * segmentArray
  * rSegmentArray
- * 
- */	  
+ *
+ */
 
 class CUri extends CComponent
 {
-
+	
 	/** @var array - list of cached URI segments */
 	private $_keyVal = array();
 	/** @var string - current URI string */
@@ -40,7 +40,7 @@ class CUri extends CComponent
 	/** @var array - PCRE character group allowed in URI segments */
 	private $_permittedUriChars = "a-z 0-9~%.:_\-";
 	
-
+	
 	/**
 	 * Class default constructor
 	 */
@@ -48,17 +48,17 @@ class CUri extends CComponent
 	{
 		$this->_uriString = $this->_detectUri();
 		$this->_explodeSegments();
-	}	
-
-    /**
-     *	Returns the instance of object
-     *	@return current class
-     */
+	}
+	
+	/**
+	 * Returns the instance of object
+	 * @return current class
+	 */
 	public static function init()
 	{
 		return parent::init(__CLASS__);
 	}
-
+	
 	/**
 	 * Fetch a URI Segment
 	 * This function returns the URI segment based on the number provided.
@@ -70,7 +70,7 @@ class CUri extends CComponent
 	{
 		return isset($this->_segments[$n]) ? $this->_segments[$n] : $noResult;
 	}
-
+	
 	/**
 	 * Total number of segments
 	 * @return int
@@ -79,7 +79,7 @@ class CUri extends CComponent
 	{
 		return count($this->_segments);
 	}
-
+	
 	/**
 	 * Total number of routed segments
 	 * @return int
@@ -88,16 +88,16 @@ class CUri extends CComponent
 	{
 		return count($this->_rsegments);
 	}
-
+	
 	/**
-	* Fetch the entire URI string
-	* @return string
-	*/
+	 * Fetch the entire URI string
+	 * @return string
+	 */
 	function uriString()
 	{
 		return $this->_uriString;
 	}
-
+	
 	/**
 	 * Generate a key value pair from the URI string
 	 * This function generates and associative array of URI data starting
@@ -113,15 +113,15 @@ class CUri extends CComponent
 	 *            gender => male
 	 *         )
 	 *
-	 * @param int $n 			the starting segment number
-	 * @param array $default 	an array of default values
+	 * @param int $n the starting segment number
+	 * @param array $default an array of default values
 	 * @return array
 	 */
 	public function uriToAssoc($n = 3, $default = array())
 	{
 		return $this->_uriToAssoc($n, $default, 'segment');
 	}
-
+	
 	/**
 	 * Generate a URI string from an associative array
 	 * @param array $array an associative array of key/values
@@ -130,14 +130,14 @@ class CUri extends CComponent
 	public function assocToUri($array)
 	{
 		$temp = array();
-		foreach ((array)$array as $key => $val){
+		foreach ((array)$array as $key => $val) {
 			$temp[] = $key;
 			$temp[] = $val;
 		}
-	
+		
 		return implode('/', $temp);
 	}
-
+	
 	/**
 	 * Fetch a URI Segment and add a trailing slash
 	 * @param int $n
@@ -159,7 +159,7 @@ class CUri extends CComponent
 	{
 		return $this->_slashSegment($n, $where, 'rsegment');
 	}
-
+	
 	/**
 	 * Returns segment array
 	 * @return array
@@ -177,7 +177,7 @@ class CUri extends CComponent
 	{
 		return $this->_rsegments;
 	}
-
+	
 	/**
 	 * Detects the URI
 	 * This function will detect the URI automatically and fix the query string if necessary.
@@ -185,24 +185,24 @@ class CUri extends CComponent
 	 */
 	private function _detectUri()
 	{
-		if(!isset($_SERVER['REQUEST_URI']) || !isset($_SERVER['SCRIPT_NAME'])){
+		if (!isset($_SERVER['REQUEST_URI']) || !isset($_SERVER['SCRIPT_NAME'])) {
 			return '';
 		}
 		
 		$uri = $_SERVER['REQUEST_URI'];
-		if(strpos($uri, $_SERVER['SCRIPT_NAME']) === 0){
+		if (strpos($uri, $_SERVER['SCRIPT_NAME']) === 0) {
 			$uri = substr($uri, strlen($_SERVER['SCRIPT_NAME']));
-		}elseif(strpos($uri, dirname($_SERVER['SCRIPT_NAME'])) === 0){
+		} elseif (strpos($uri, dirname($_SERVER['SCRIPT_NAME'])) === 0) {
 			$uri = substr($uri, strlen(dirname($_SERVER['SCRIPT_NAME'])));
 		}
 		
 		// This section ensures that even on servers that require the URI to be in the query string (Nginx)
 		// a correct URI is found, and also fixes the QUERY_STRING server var.
-		if(strncmp($uri, '?/', 2) === 0){
+		if (strncmp($uri, '?/', 2) === 0) {
 			$uri = substr($uri, 2);
 		}
 		
-		if($uri == '/' || empty($uri)){
+		if ($uri == '/' || empty($uri)) {
 			return '/';
 		}
 		
@@ -219,32 +219,32 @@ class CUri extends CComponent
 	 */
 	private function _filterUri($str)
 	{
-		if($str != '' && $this->_permittedUriChars != ''){
+		if ($str != '' && $this->_permittedUriChars != '') {
 			// preg_quote() in PHP 5.3 escapes -, so the str_replace() and addition of - to preg_quote() is to maintain backwards
 			// compatibility as many are unaware of how characters in the _permittedUriChars will be parsed as a regex pattern
-			if(!preg_match("|^[".str_replace(array('\\-', '\-'), '-', preg_quote($this->_permittedUriChars, '-'))."]+$|i", $str)){
+			if (!preg_match("|^[" . str_replace(array('\\-', '\-'), '-', preg_quote($this->_permittedUriChars, '-')) . "]+$|i", $str)) {
 				CDebug::addMessage('warnings', 'uri-disallowed-characters', A::t('core', 'The URI you submitted has disallowed characters.'));
 			}
 		}
-	
-		// Convert programatic characters to entities
+		
+		// Convert programmatic characters to entities
 		$bad = array('$', '(', ')', '%28', '%29');
 		$good = array('&#36;', '&#40;', '&#41;', '&#40;', '&#41;');
 		
 		return str_replace($bad, $good, $str);
 	}
-
+	
 	/**
 	 * Explode the URI Segments. The individual segments will be stored in the $this->_segments array.
 	 * @return void
 	 */
 	private function _explodeSegments()
 	{
-		foreach(explode("/", preg_replace("|/*(.+?)/*$|", "\\1", $this->_uriString)) as $val){
+		foreach (explode("/", preg_replace("|/*(.+?)/*$|", "\\1", $this->_uriString)) as $val) {
 			// Filter segments for security
 			$val = trim($this->_filterUri($val));
-		
-			if ($val != ''){
+			
+			if ($val != '') {
 				$this->_segments[] = $val;
 			}
 		}
@@ -252,60 +252,60 @@ class CUri extends CComponent
 	
 	/**
 	 * Generate a key value pair from the URI string or Re-routed URI string
-	 * @param int $n    			the starting segment number
-	 * @param array $default   	an array of default values
-	 * @param string $which   	which array we should use
+	 * @param int $n the starting segment number
+	 * @param array $default an array of default values
+	 * @param string $which which array we should use
 	 * @return array
 	 */
 	function _uriToAssoc($n = 3, $default = array(), $which = 'segment')
 	{
-		if ($which == 'segment'){
+		if ($which == 'segment') {
 			$total_segments = 'total_segments';
 			$segment_array = 'segment_array';
-		}else{
+		} else {
 			$total_segments = 'total_rsegments';
 			$segment_array = 'rsegment_array';
 		}
-	
-		if (!is_numeric($n)){
+		
+		if (!is_numeric($n)) {
 			return $default;
 		}
 		
-		if(isset($this->_keyVal[$n])){
+		if (isset($this->_keyVal[$n])) {
 			return $this->_keyVal[$n];
 		}
 		
-		if($this->$total_segments() < $n){
-			if(count($default) == 0){
+		if ($this->$total_segments() < $n) {
+			if (count($default) == 0) {
 				return array();
 			}
 			
 			$retval = array();
-			foreach($default as $val){
+			foreach ($default as $val) {
 				$retval[$val] = FALSE;
 			}
 			return $retval;
 		}
-			
+		
 		$segments = array_slice($this->$segment_array(), ($n - 1));
-			
+		
 		$i = 0;
 		$lastval = '';
-		$retval  = array();
-		foreach($segments as $seg){
-			if ($i % 2){
+		$retval = array();
+		foreach ($segments as $seg) {
+			if ($i % 2) {
 				$retval[$lastval] = $seg;
-			}else{
+			} else {
 				$retval[$seg] = FALSE;
 				$lastval = $seg;
 			}
 			
 			$i++;
 		}
-			
-		if(count($default) > 0){
-			foreach ($default as $val){
-				if (!array_key_exists($val, $retval)){
+		
+		if (count($default) > 0) {
+			foreach ($default as $val) {
+				if (!array_key_exists($val, $retval)) {
 					$retval[$val] = FALSE;
 				}
 			}
@@ -315,7 +315,7 @@ class CUri extends CComponent
 		$this->_keyVal[$n] = $retval;
 		return $retval;
 	}
-
+	
 	/**
 	 * Fetch a URI Segment and add a trailing slash - helper function
 	 * @param int $n
@@ -327,14 +327,14 @@ class CUri extends CComponent
 	{
 		$leading = '/';
 		$trailing = '/';
-	
-		if($where == 'trailing'){
-			$leading    = '';
-		}elseif ($where == 'leading'){
-			$trailing    = '';
+		
+		if ($where == 'trailing') {
+			$leading = '';
+		} elseif ($where == 'leading') {
+			$trailing = '';
 		}
 		
-		return $leading.$this->$which($n).$trailing;
+		return $leading . $this->$which($n) . $trailing;
 	}
-
+	
 }

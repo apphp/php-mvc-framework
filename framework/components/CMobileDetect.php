@@ -8,44 +8,44 @@
  * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
- * PUBLIC:					PROTECTED:					PRIVATE:		
- * ----------               ----------                  ----------
+ * PUBLIC:                  PROTECTED:                    	PRIVATE:
+ * ----------               ----------                  	----------
  * __construct
  * init (static)
  *
  * USAGE:
- * 	->isMobile()
- * 	->isTablet()
- * 
- */	  
+ *    ->isMobile()
+ *    ->isTablet()
+ *
+ */
 
-include(dirname(__FILE__).'/../vendors/mobiledetect/mobile_detect.php');
+include(dirname(__FILE__) . '/../vendors/mobiledetect/mobile_detect.php');
 
 class CMobileDetect extends CComponent
 {
 	/** @var Mobile_detect */
 	static private $_mobileDetect = null;
-
-    
-    /**
+	
+	
+	/**
 	 * Class default constructor
 	 */
 	function __construct()
 	{
-
-    }
-
-    /**
-     *	Returns the instance of object
-     *	@return current class
-     */
+	
+	}
+	
+	/**
+	 *    Returns the instance of object
+	 * @return current class
+	 */
 	public static function init()
 	{
-		if(self::$_mobileDetect == null){
-			self::$_mobileDetect = new Mobile_Detect();	
+		if (self::$_mobileDetect == null) {
+			self::$_mobileDetect = new Mobile_Detect();
 		}
 		
 		return self::$_mobileDetect;
-	}    
-
+	}
+	
 }

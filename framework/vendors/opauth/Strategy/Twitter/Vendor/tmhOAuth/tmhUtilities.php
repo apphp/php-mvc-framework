@@ -258,7 +258,7 @@ class tmhUtilities {
 
     // Reset
     shell_exec('stty ' . $style);
-    echo PHP_EOL;
+    echo "\r\n";
     return $password;
   }
 

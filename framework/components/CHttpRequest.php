@@ -9,12 +9,12 @@
  * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
- * PUBLIC:					PROTECTED:					PRIVATE:		
+ * PUBLIC:                  PROTECTED:                  PRIVATE:
  * ----------               ----------                  ----------
  * __construct              _cleanRequest               _getParam
- * __call					_getProtocolAndHost			_getAll
- * init (static)			_getControllerAndAction
- * stripSlashes											
+ * __call                   _getProtocolAndHost         _getAll
+ * init (static)            _getControllerAndAction
+ * stripSlashes
  * getBasePath
  * getBaseUrl
  * getRequestUri
@@ -27,11 +27,13 @@
  * getQuery
  * setQuery
  * get (alias to getQuery/setQuery)
+ * getAll (alias to getQuery())
  * getPost
  * getPostWith
  * postWith (alias to getPostWith)
  * setPost
  * post (alias to getPost/setPost)
+ * postAll (alias to getPost())
  * getRequest
  * request
  * isAjaxRequest
@@ -53,16 +55,16 @@
  * getPort
  * getSecurePort
  * getUrlContent
- * 
- */	  
+ *
+ */
 
 class CHttpRequest extends CComponent
 {
-
+	
 	/** @var string */
 	private $_baseUrl;
 	/** @var string */
-	private $_hostInfo;	
+	private $_hostInfo;
 	/** @var string */
 	private $_hostName;
 	/** @var string */
@@ -92,7 +94,7 @@ class CHttpRequest extends CComponent
 	 * requires special handling to prevent endless loops on redirection on the same page
 	 */
 	private $_referrerInSession = false;
-		
+	
 	
 	/**
 	 * Class default constructor
@@ -108,7 +110,7 @@ class CHttpRequest extends CComponent
 		$this->_cleanRequest();
 		$this->_baseUrl = $this->setBaseUrl();
 	}
-    
+	
 	/**
 	 * Triggered when invoking inaccessible methods in an object context
 	 * @param string $method
@@ -117,54 +119,60 @@ class CHttpRequest extends CComponent
 	 */
 	public function __call($method, $args)
 	{
-		switch(strtolower($method)){
-
+		switch (strtolower($method)) {
+			
 			case 'get':
 			case 'post':
 			case 'request':
 				
-				if($method == 'get'){
+				if ($method == 'get') {
 					$innerGet = 'getQuery';
 					$innerSet = 'setQuery';
-				}elseif($method == 'post'){
+				} elseif ($method == 'post') {
 					$innerGet = 'getPost';
 					$innerSet = 'setPost';
-				}else{
+				} else {
 					$innerGet = 'getRequest';
 					$innerSet = 'getRequest';
-				}				
+				}
 				
-				if(count($args) == 0){
+				if (count($args) == 0) {
 					return $this->_getAll($method);
-				}elseif(count($args) == 1){
+				} elseif (count($args) == 1) {
 					return $this->$innerGet($args[0]);
-				}elseif(count($args) == 2){
+				} elseif (count($args) == 2) {
 					return $this->$innerSet($args[0], $args[1]);
-				}elseif(count($args) == 3){
+				} elseif (count($args) == 3) {
 					return $this->$innerGet($args[0], $args[1], $args[2]);
-				}elseif(count($args) == 4){
+				} elseif (count($args) == 4) {
 					return $this->$innerGet($args[0], $args[1], $args[2], $args[3]);
 				}
 				
 				break;
 			
+			case 'getAll':
+				return $this->_getAll('get');
+			
+			case 'postAll':
+				return $this->_getAll('post');
+			
 			case 'postWith':
-				if(count($args) == 1){
+				if (count($args) == 1) {
 					return $this->getPostWith($args[0]);
-				}				
-				break;			
+				}
+				break;
 		}
 	}
-
-    /**
-     *	Returns the instance of object
-     *	@return current class
-     */
+	
+	/**
+	 *    Returns the instance of object
+	 * @return current class
+	 */
 	public static function init()
 	{
 		return parent::init(__CLASS__);
-	}    
-
+	}
+	
 	/**
 	 * Strips slashes from data
 	 * @param mixed $data input data to be processed
@@ -172,7 +180,7 @@ class CHttpRequest extends CComponent
 	 */
 	public function stripSlashes(&$data)
 	{
-		return is_array($data) ? array_map(array($this,'stripSlashes'), $data) : stripslashes($data);
+		return is_array($data) ? array_map(array($this, 'stripSlashes'), $data) : stripslashes($data);
 	}
 	
 	/**
@@ -183,7 +191,7 @@ class CHttpRequest extends CComponent
 	{
 		return $this->_baseUrl;
 	}
-    
+	
 	/**
 	 * Gets Request URI
 	 * @return string
@@ -191,8 +199,8 @@ class CHttpRequest extends CComponent
 	public function getRequestUri()
 	{
 		return isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
-	}    
-
+	}
+	
 	/**
 	 * Gets Server Name
 	 * @return string
@@ -201,68 +209,68 @@ class CHttpRequest extends CComponent
 	{
 		return isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : '';
 	}
-
+	
 	/**
 	 * Gets IP address of visitor
-	 * @return string 
+	 * @return string
 	 */
 	public function getUserHostAddress()
 	{
 		return isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1';
 	}
-
-    /**
-     * Returns the schema and host part of the current request URL
-     * The returned URL does not have an ending slash
-     * By default this is determined based on the user request information.
-     * You may explicitly specify it by setting the setHostInfo()[hostInfo]] property.
-     * @return string|null 
-     */
-    public function getHostInfo()
-    {
-        if($this->_hostInfo === null){
-            $secure = $this->isSecureConnection();
-            $http = $secure ? 'https' : 'http';
-            if(isset($_SERVER['HTTP_HOST'])){
-                $this->_hostInfo = $http.'://'.$_SERVER['HTTP_HOST'];
-            }elseif (isset($_SERVER['SERVER_NAME'])){
-                $this->_hostInfo = $http.'://'.$_SERVER['SERVER_NAME'];
-                $port = $secure ? $this->getSecurePort() : $this->getPort();
-                if (($port !== 80 && !$secure) || ($port !== 443 && $secure)) {
-                    $this->_hostInfo .= ':' . $port;
-                }
-            }
-        }
+	
+	/**
+	 * Returns the schema and host part of the current request URL
+	 * The returned URL does not have an ending slash
+	 * By default this is determined based on the user request information.
+	 * You may explicitly specify it by setting the setHostInfo()[hostInfo]] property.
+	 * @return string|null
+	 */
+	public function getHostInfo()
+	{
+		if ($this->_hostInfo === null) {
+			$secure = $this->isSecureConnection();
+			$http = $secure ? 'https' : 'http';
+			if (isset($_SERVER['HTTP_HOST'])) {
+				$this->_hostInfo = $http . '://' . $_SERVER['HTTP_HOST'];
+			} elseif (isset($_SERVER['SERVER_NAME'])) {
+				$this->_hostInfo = $http . '://' . $_SERVER['SERVER_NAME'];
+				$port = $secure ? $this->getSecurePort() : $this->getPort();
+				if (($port !== 80 && !$secure) || ($port !== 443 && $secure)) {
+					$this->_hostInfo .= ':' . $port;
+				}
+			}
+		}
 		
-        return $this->_hostInfo;
-    }
-
-    /**
-     * Returns the host part of the current request URL (ex.: apphp.com)
-     * Value is calculated from current getHostInfo()[hostInfo] property
-     * @return string|null 
-     * @see getHostInfo()
-     * @since 0.9.0
-     */
-    public function getHostName()
-    {
-        if($this->_hostName === null){
-            $this->_hostName = parse_url($this->getHostInfo(), PHP_URL_HOST);
-        }
+		return $this->_hostInfo;
+	}
+	
+	/**
+	 * Returns the host part of the current request URL (ex.: apphp.com)
+	 * Value is calculated from current getHostInfo()[hostInfo] property
+	 * @return string|null
+	 * @see getHostInfo()
+	 * @since 0.9.0
+	 */
+	public function getHostName()
+	{
+		if ($this->_hostName === null) {
+			$this->_hostName = parse_url($this->getHostInfo(), PHP_URL_HOST);
+		}
 		
-        return $this->_hostName;
-    }
-
+		return $this->_hostName;
+	}
+	
 	/**
 	 * Gets a string denoting the user agent being which is accessing the page.
 	 * A typical example is: Mozilla/4.5 [en] (X11; U; Linux 2.2.9 i586).
-	 * @return string 
+	 * @return string
 	 */
 	public function getUserAgent()
 	{
 		return isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
 	}
-
+	
 	/**
 	 * Gets base path
 	 * @return string
@@ -270,7 +278,7 @@ class CHttpRequest extends CComponent
 	public function getBasePath()
 	{
 		return $this->_basePath;
-	}	
+	}
 	
 	/**
 	 * Sets base URL
@@ -280,134 +288,134 @@ class CHttpRequest extends CComponent
 	public function setBaseUrl($useAbsolutePath = true)
 	{
 		$absolutePart = ($useAbsolutePath) ? $this->_getProtocolAndHost() : '';
-
+		
 		$scriptName = basename($_SERVER['SCRIPT_FILENAME']);
-		if(basename($_SERVER['SCRIPT_NAME']) === $scriptName){
+		if (basename($_SERVER['SCRIPT_NAME']) === $scriptName) {
 			$scriptUrl = $_SERVER['SCRIPT_NAME'];
-		}elseif(basename($_SERVER['PHP_SELF']) === $scriptName){
+		} elseif (basename($_SERVER['PHP_SELF']) === $scriptName) {
 			$scriptUrl = $_SERVER['PHP_SELF'];
-		}elseif(isset($_SERVER['ORIG_SCRIPT_NAME']) && basename($_SERVER['ORIG_SCRIPT_NAME']) === $scriptName){
+		} elseif (isset($_SERVER['ORIG_SCRIPT_NAME']) && basename($_SERVER['ORIG_SCRIPT_NAME']) === $scriptName) {
 			$scriptUrl = $_SERVER['ORIG_SCRIPT_NAME'];
-		}elseif(($pos=strpos($_SERVER['PHP_SELF'], '/'.$scriptName)) !== false){
-			$scriptUrl = substr($_SERVER['SCRIPT_NAME'], 0, $pos).'/'.$scriptName;
-		}elseif(isset($_SERVER['DOCUMENT_ROOT']) && strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) === 0){
-			$scriptUrl = str_replace('\\','/',str_replace($_SERVER['DOCUMENT_ROOT'],'',$_SERVER['SCRIPT_FILENAME']));
-		}else{
+		} elseif (($pos = strpos($_SERVER['PHP_SELF'], '/' . $scriptName)) !== false) {
+			$scriptUrl = substr($_SERVER['SCRIPT_NAME'], 0, $pos) . '/' . $scriptName;
+		} elseif (isset($_SERVER['DOCUMENT_ROOT']) && strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) === 0) {
+			$scriptUrl = str_replace('\\', '/', str_replace($_SERVER['DOCUMENT_ROOT'], '', $_SERVER['SCRIPT_FILENAME']));
+		} else {
 			CDebug::addMessage('error', 'entry_script', A::t('core', 'Framework is unable to determine the entry script URL'));
 		}
-
-		$this->_basePath = rtrim(dirname($scriptUrl),'\\/').'/';
 		
-		return $absolutePart.$this->_basePath;
+		$this->_basePath = rtrim(dirname($scriptUrl), '\\/') . '/';
+		
+		return $absolutePart . $this->_basePath;
 	}
-
-    /**
-     *	Returns parameter from global array $_GET
-     *	@param string $name
-     *	@param string|array $filters
-     *	@param string $default
-     *	@param array $allowedValues
-     *	@see CFilter
-     *	@return mixed
-     */
+	
+	/**
+	 *    Returns parameter from global array $_GET
+	 * @param string $name
+	 * @param string|array $filters
+	 * @param string $default
+	 * @param array $allowedValues
+	 * @see CFilter
+	 * @return mixed
+	 */
 	public function getQuery($name = '', $filters = '', $default = '', $allowedValues = array())
 	{
-		if(empty($name)){
+		if (empty($name)) {
 			return $this->_getAll('get');
-		}else{
+		} else {
 			return $this->_getParam('get', $name, $default, $filters, $allowedValues);
 		}
 	}
-    
-    /**
-     *	Sets value to global array $_GET
-     *	@param string $name
-     *	@param string $value
-     *	@return bool
-     */
+	
+	/**
+	 *    Sets value to global array $_GET
+	 * @param string $name
+	 * @param string $value
+	 * @return bool
+	 */
 	public function setQuery($name, $value = '')
 	{
-		if(isset($_GET)){
+		if (isset($_GET)) {
 			$_GET[$name] = $value;
 			return true;
 		}
 		
 		return false;
 	}
-
-    /**
-     *	Returns parameter from global array $_POST
-     *	@param string $name
-     *	@param string|array $filters
-     *	@param string $default
-     *	@param array $allowedValues
-     *	@see CFilter
-     *	@return mixed
-     */
+	
+	/**
+	 *    Returns parameter from global array $_POST
+	 * @param string $name
+	 * @param string|array $filters
+	 * @param string $default
+	 * @param array $allowedValues
+	 * @see CFilter
+	 * @return mixed
+	 */
 	public function getPost($name = '', $filters = '', $default = '', $allowedValues = array())
 	{
-		if(empty($name)){
+		if (empty($name)) {
 			return $this->_getAll('post');
-		}else{
+		} else {
 			return $this->_getParam('post', $name, $default, $filters, $allowedValues);
-		}		
+		}
 	}
-
-    /**
-     *	Returns variables from global array $_POST with certain parameter
-     *	@param string $name
-     *	@param string|array $filters
-     *	@param string $default
-     *	@param array $allowedValues
-     *	@return array
-     */
+	
+	/**
+	 *    Returns variables from global array $_POST with certain parameter
+	 * @param string $name
+	 * @param string|array $filters
+	 * @param string $default
+	 * @param array $allowedValues
+	 * @return array
+	 */
 	public function getPostWith($name, $filters = '', $default = '', $allowedValues = array())
 	{
-        $result = array();
-        if(!isset($_POST) || !is_array($_POST)) return $result;
-
-        foreach($_POST as $key => $val){
-            if(preg_match('/'.$name.'/i', $key)){
-                $result[$key] = $this->_getParam('post', $key, $default, $filters, $allowedValues);
-            }
-        }
+		$result = array();
+		if (!isset($_POST) || !is_array($_POST)) return $result;
 		
-        return $result;
+		foreach ($_POST as $key => $val) {
+			if (preg_match('/' . $name . '/i', $key)) {
+				$result[$key] = $this->_getParam('post', $key, $default, $filters, $allowedValues);
+			}
+		}
+		
+		return $result;
 	}
-
-    /**
-     *	Sets value to global array $_POST
-     *	@param string $name
-     *	@param string $value
-     *	@return bool
-     */
+	
+	/**
+	 *    Sets value to global array $_POST
+	 * @param string $name
+	 * @param string $value
+	 * @return bool
+	 */
 	public function setPost($name, $value = '')
 	{
-		if(isset($_POST)){
+		if (isset($_POST)) {
 			$_POST[$name] = $value;
 			return true;
 		}
 		
 		return false;
 	}
-
-    /**
-     *	Returns parameter from global array $_GET or $_POST
-     *	@param string $name
-     *	@param string|array $filters
-     *	@param string $default
-     *	@param array $allowedValues
-     *	@return mixed
-     */
+	
+	/**
+	 *    Returns parameter from global array $_GET or $_POST
+	 * @param string $name
+	 * @param string|array $filters
+	 * @param string $default
+	 * @param array $allowedValues
+	 * @return mixed
+	 */
 	public function getRequest($name = '', $filters = '', $default = '', $allowedValues = array())
 	{
-		if(empty($name)){
+		if (empty($name)) {
 			return $this->_getAll('request');
-		}else{
+		} else {
 			return $this->_getParam('request', $name, $default, $filters, $allowedValues);
 		}
 	}
-
+	
 	/**
 	 * Returns whether there is an AJAX (XMLHttpRequest) request
 	 * @return boolean
@@ -417,7 +425,7 @@ class CHttpRequest extends CComponent
 	{
 		return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
 	}
-
+	
 	/**
 	 * Returns whether there is a PUT request
 	 * @return boolean
@@ -427,71 +435,71 @@ class CHttpRequest extends CComponent
 	{
 		return isset($_SERVER['REQUEST_METHOD']) && !strcasecmp($_SERVER['REQUEST_METHOD'], 'PUT');
 	}
-
+	
 	/**
 	 * Returns whether there is a DELETE request
-	 * @return boolean 
+	 * @return boolean
 	 * @since 0.6.0
 	 */
 	public function isDeleteRequest()
 	{
 		return isset($_SERVER['REQUEST_METHOD']) && !strcasecmp($_SERVER['REQUEST_METHOD'], 'DELETE');
 	}
-
+	
 	/**
 	 * Returns whether there is a POST request
-	 * @return boolean 
+	 * @return boolean
 	 */
 	public function isPostRequest()
 	{
 		return isset($_SERVER['REQUEST_METHOD']) && !strcasecmp($_SERVER['REQUEST_METHOD'], 'POST');
-	}	
- 
+	}
+	
 	/**
 	 * Returns whether there is a POST variable exists
 	 * @param string $name
-	 * @return boolean 
+	 * @return boolean
 	 */
 	public function isPostExists($name)
 	{
 		return isset($_POST[$name]);
 	}
-
+	
 	/**
 	 * Return if the request is sent via secure channel (https)
 	 * @return boolean
 	 */
 	public function isSecureConnection()
 	{
-        return (isset($_SERVER['HTTPS']) && (strcasecmp($_SERVER['HTTPS'], 'on') === 0 || $_SERVER['HTTPS'] == 1))
-				||
-			   (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strcasecmp($_SERVER['HTTP_X_FORWARDED_PROTO'], 'https') === 0);
+		return (isset($_SERVER['HTTPS']) && (strcasecmp($_SERVER['HTTPS'], 'on') === 0 || $_SERVER['HTTPS'] == 1))
+			||
+			(isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strcasecmp($_SERVER['HTTP_X_FORWARDED_PROTO'], 'https') === 0);
 	}
-
+	
 	/**
 	 * Returns if csrf validation is used
-	 * @return string 
+	 * @return string
 	 */
 	public function getCsrfValidation()
 	{
-		if(!empty($this->_csrfExclude) && is_array($this->_csrfExclude)){
+		if (!empty($this->_csrfExclude) && is_array($this->_csrfExclude)) {
 			// Retrirve current controller
 			// TODO: this is a simplest code, we need to improve it and use URL rules
 			$request = isset($_GET['url']) ? $_GET['url'] : '';
 			$split = explode('/', trim($request, '/'));
 			$controller = !empty($split[0]) ? $split[0] : CConfig::get('defaultController');
 			
-			if(in_array(strtolower($controller), array_map('strtolower', $this->_csrfExclude))){
+			if (in_array(strtolower($controller), array_map('strtolower', $this->_csrfExclude))) {
 				return false;
 			}
 		}
-
+		
 		return $this->_csrfValidation;
 	}
 	
 	/**
 	 * Returns CSRF token key name
-	 * @return string 
+	 * @return string
 	 */
 	public function getCsrfTokenKey()
 	{
@@ -501,7 +509,7 @@ class CHttpRequest extends CComponent
 	/**
 	 * Returns the random token value used to perform CSRF validation
 	 * @param string $formId
-	 * @return string 
+	 * @return string
 	 * @see $this->_csrfValidation()
 	 */
 	public function getCsrfTokenValue($formId = '')
@@ -509,35 +517,35 @@ class CHttpRequest extends CComponent
 		// Check and set token
 		$csrfTokenValue = md5(uniqid(rand(), true));
 		
-		if($this->_csrfTokenType == 'session'){
-			if($this->_csrfTokenValue === null){
+		if ($this->_csrfTokenType == 'session') {
+			if ($this->_csrfTokenValue === null) {
 				$this->_csrfTokenValue = $csrfTokenValue;
 				A::app()->getSession()->set('token', $this->_csrfTokenValue);
 			}
-		}elseif($this->_csrfTokenType == 'cookie'){
-			if($this->_csrfTokenValue === null){
+		} elseif ($this->_csrfTokenType == 'cookie') {
+			if ($this->_csrfTokenValue === null) {
 				$this->_csrfTokenValue = $csrfTokenValue;
 				A::app()->getCookie()->set('token', $this->_csrfTokenValue);
 			}
-		}elseif($this->_csrfTokenType == 'multipages' || $this->_csrfTokenType == 'multiforms'){
-			if($this->_csrfTokenType == 'multipages'){
+		} elseif ($this->_csrfTokenType == 'multipages' || $this->_csrfTokenType == 'multiforms') {
+			if ($this->_csrfTokenType == 'multipages') {
 				// Get page ID
 				$tokenId = $this->_getControllerAndAction();
-			}else{
-				$tokenId = $formId;	
+			} else {
+				$tokenId = $formId;
 			}
-			if(CString::length($tokenId) < 100 && CValidator::isVariable($tokenId)){
-				if($this->_csrfTokenValue === null){
+			if (CString::length($tokenId) < 100 && CValidator::isVariable($tokenId)) {
+				if ($this->_csrfTokenValue === null) {
 					$this->_csrfTokenValue = $csrfTokenValue;
-				}				
+				}
 				// Get array and validate
 				$csrfTokenValues = A::app()->getSession()->get('token');
-				if(empty($csrfTokenValues) || !is_array($csrfTokenValues)){
+				if (empty($csrfTokenValues) || !is_array($csrfTokenValues)) {
 					$csrfTokenValues = array();
-				}				
+				}
 				// Save data
 				$csrfTokenValues[$tokenId] = ($this->_csrfTokenValue !== null) ? $this->_csrfTokenValue : $csrfTokenValue;
-				if(count($csrfTokenValues) > $this->_csrfMaxTokenedPages){
+				if (count($csrfTokenValues) > $this->_csrfMaxTokenedPages) {
 					array_shift($csrfTokenValues);
 				}
 				A::app()->getSession()->set('token', $csrfTokenValues);
@@ -555,69 +563,69 @@ class CHttpRequest extends CComponent
 	public function validateCsrfToken($formId = '')
 	{
 		// Validate only POST requests
-		if($this->isPostRequest()){
+		if ($this->isPostRequest()) {
 			
 			$valid = false;
 			$tokenFromPost = isset($_POST[$this->_csrfTokenKey]) ? $_POST[$this->_csrfTokenKey] : null;
 			
-			if($this->_csrfTokenType == 'session'){
-				if(A::app()->getSession()->isExists('token') && isset($_POST[$this->_csrfTokenKey])){
+			if ($this->_csrfTokenType == 'session') {
+				if (A::app()->getSession()->isExists('token') && isset($_POST[$this->_csrfTokenKey])) {
 					$tokenFromSession = A::app()->getSession()->get('token');
 					$valid = ($tokenFromSession === $tokenFromPost);
 				}
-			}elseif($this->_csrfTokenType == 'cookie'){
-				if(A::app()->getCookie()->isExists('token') && isset($_POST[$this->_csrfTokenKey])){
-					$tokenFromCookie = A::app()->getCookie()->get('token');					
+			} elseif ($this->_csrfTokenType == 'cookie') {
+				if (A::app()->getCookie()->isExists('token') && isset($_POST[$this->_csrfTokenKey])) {
+					$tokenFromCookie = A::app()->getCookie()->get('token');
 					$valid = ($tokenFromCookie === $tokenFromPost);
 				}
-			}elseif($this->_csrfTokenType == 'multipages' || $this->_csrfTokenType == 'multiforms'){
-				if($this->_csrfTokenType == 'multipages'){
+			} elseif ($this->_csrfTokenType == 'multipages' || $this->_csrfTokenType == 'multiforms') {
+				if ($this->_csrfTokenType == 'multipages') {
 					// Get page ID
 					$tokenId = $this->_getControllerAndAction();
-				}else{
-					$tokenId = $formId;	
+				} else {
+					$tokenId = $formId;
 				}
-				if(A::app()->getSession()->isExists('token') && isset($_POST[$this->_csrfTokenKey])){
+				if (A::app()->getSession()->isExists('token') && isset($_POST[$this->_csrfTokenKey])) {
 					$tokenFromSession = A::app()->getSession()->get('token');
 					$tokenFromSession = isset($tokenFromSession[$tokenId]) ? $tokenFromSession[$tokenId] : '';
 					$valid = ($tokenFromSession === $tokenFromPost);
 				}
 			}
 			
-			if(!$valid){
+			if (!$valid) {
 				unset($_POST);
 				A::app()->getSession()->setFlash(
 					'csrfError',
 					CWidget::create('CMessage', array('warning', A::t('core', 'The CSRF token has expired or invalid. Please try to <a href="javascript:csrf_refresh_page()" class="csrf-refresh-page">refresh page</a> and resubmit the form.')))
 				);
 				CDebug::addMessage('warnings', 'csrf_token', A::t('core', 'The CSRF token could not be verified.'), 'session');
-		        A::app()->getClientScript()->registerScript(
-		            'csrfError',
-		            'function csrf_refresh_page(){location.href = location.href + \'?\' + Math.random();}',
+				A::app()->getClientScript()->registerScript(
+					'csrfError',
+					'function csrf_refresh_page(){location.href = location.href + \'?\' + Math.random();}',
 					2
 				);
 			}
 		}
 	}
-
+	
 	/**
 	 * Set GZIP compression handler
 	 */
 	public function setGzipHandler()
 	{
-		if(isset($_SERVER['HTTP_ACCEPT_ENCODING']) && substr_count($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip')){
+		if (isset($_SERVER['HTTP_ACCEPT_ENCODING']) && substr_count($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip')) {
 			// Fix for warning: ob_start() [ref.outcontrol]: output handler 'ob_gzhandler' conflicts with zlib output compression'
-			if(extension_loaded('zlib')){
-				if(ob_get_length()){
+			if (extension_loaded('zlib')) {
+				if (ob_get_length()) {
 					ob_end_clean();
 				}
-			}			
+			}
 			ob_start('ob_gzhandler');
-		}else{
+		} else {
 			ob_start();
-		} 		
+		}
 	}
-
+	
 	/**
 	 * Cleans the request data
 	 * This method removes slashes from request data if get_magic_quotes_gpc() is turned on
@@ -635,10 +643,10 @@ class CHttpRequest extends CComponent
 		//		$_COOKIE = $this->stripSlashes($_COOKIE);
 		//	}
 		//}
-  
-		if($this->getCsrfValidation()) A::app()->attachEventHandler('_onBeginRequest', array($this, 'validateCsrfToken'));
-		if($this->_gzipCompression) A::app()->attachEventHandler('_onBeginRequest', array($this, 'setGzipHandler'));
-		if($this->_referrerInSession) A::app()->attachEventHandler('_onBeginRequest', array($this, 'setHttpReferrer'));
+		
+		if ($this->getCsrfValidation()) A::app()->attachEventHandler('_onBeginRequest', array($this, 'validateCsrfToken'));
+		if ($this->_gzipCompression) A::app()->attachEventHandler('_onBeginRequest', array($this, 'setGzipHandler'));
+		if ($this->_referrerInSession) A::app()->attachEventHandler('_onBeginRequest', array($this, 'setHttpReferrer'));
 	}
 	
 	/**
@@ -653,18 +661,18 @@ class CHttpRequest extends CComponent
 		$httpHost = isset($_SERVER['HTTP_HOST']) ? htmlentities($_SERVER['HTTP_HOST']) : '';
 		$serverProtocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : '';
 		
-		if((isset($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) != 'off')) || strtolower(substr($serverProtocol, 0, 5)) == 'https'){
+		if ((isset($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) != 'off')) || strtolower(substr($serverProtocol, 0, 5)) == 'https') {
 			$protocol = 'https://';
-		}			
+		}
 		
-		if($usePort){
-			$portNumber = $this->getPort();			
-			if($portNumber != '80' && !strpos($httpHost, ':')){
-				$port = ':'.$portNumber;
+		if ($usePort) {
+			$portNumber = $this->getPort();
+			if ($portNumber != '80' && !strpos($httpHost, ':')) {
+				$port = ':' . $portNumber;
 			}
 		}
 		
-		return $protocol.$httpHost.$port;		
+		return $protocol . $httpHost . $port;
 	}
 	
 	/**
@@ -676,154 +684,154 @@ class CHttpRequest extends CComponent
 		$request = isset($_GET['url']) ? $_GET['url'] : '';
 		$split = explode('/', trim($request, '/'));
 		$pageId = isset($split[0]) ? $split[0] : '';
-		$pageId .= isset($split[1]) ? '_'.$split[1] : '';		
+		$pageId .= isset($split[1]) ? '_' . $split[1] : '';
 		
 		return $pageId;
-	}	
-
-    /**
-     *	Returns parameter from global arrays $_GET or $_POST according to the type of request
-     *	@param string $type
-     *	@param string $name
-     *	@param string|array $filters
-     *	@param array $allowedValues
-     *	@param string $default
-     *	@return mixed
-     */
-	private function _getParam($type = 'get', $name = '', $default = '', $filters = '' , $allowedValues = array())
+	}
+	
+	/**
+	 *    Returns parameter from global arrays $_GET or $_POST according to the type of request
+	 * @param string $type
+	 * @param string $name
+	 * @param string|array $filters
+	 * @param array $allowedValues
+	 * @param string $default
+	 * @return mixed
+	 */
+	private function _getParam($type = 'get', $name = '', $default = '', $filters = '', $allowedValues = array())
 	{
 		$value = null;
 		
-		if($type == 'get'){
-			if(isset($_GET[$name])){
+		if ($type == 'get') {
+			if (isset($_GET[$name])) {
 				$value = $_GET[$name];
-			}else{
+			} else {
 				// Check for variant
 				// URL: http://localhost/site/page/contact/param1/aaa/param2/bbb/param3/ccc
 				$request = isset($_GET['url']) ? $_GET['url'] : '';
-				$split = explode('/', trim($request,'/'));
+				$split = explode('/', trim($request, '/'));
 				
-				$temp = array();				
-				foreach($split as $index => $part){
-					if(!$temp || end($temp) !== null){
-						$temp[$part] = null;																
-					}else{						
+				$temp = array();
+				foreach ($split as $index => $part) {
+					if (!$temp || end($temp) !== null) {
+						$temp[$part] = null;
+					} else {
 						$arrayArg = array_keys($temp);
 						$tempEnd = end($arrayArg);
 						$temp[$tempEnd] = $part;
 					}
 				}
 				$temp = array_slice($temp, 1);
-				if(isset($temp[$name])) $value = $temp[$name];
-			}			
-		}elseif($type == 'post' && isset($_POST[$name])){
+				if (isset($temp[$name])) $value = $temp[$name];
+			}
+		} elseif ($type == 'post' && isset($_POST[$name])) {
 			$value = $_POST[$name];
-		}elseif($type == 'request' && (isset($_GET[$name]) || isset($_POST[$name]))){
+		} elseif ($type == 'request' && (isset($_GET[$name]) || isset($_POST[$name]))) {
 			$value = isset($_GET[$name]) ? $_GET[$name] : $_POST[$name];
 		}
 		
-		if($value !== null){
+		if ($value !== null) {
 			// Validate allowed values
-			if(!empty($allowedValues)){
-				if(!is_array($allowedValues)) $allowedValues = array($allowedValues);
-				if(!in_array($value, $allowedValues)){
+			if (!empty($allowedValues)) {
+				if (!is_array($allowedValues)) $allowedValues = array($allowedValues);
+				if (!in_array($value, $allowedValues)) {
 					$value = $default;
 				}
 			}
 			
 			// Filter values
-			if(!empty($filters)){
-				if(!is_array($filters)) $filters = array($filters);
-				foreach($filters as $filter){
+			if (!empty($filters)) {
+				if (!is_array($filters)) $filters = array($filters);
+				foreach ($filters as $filter) {
 					$value = CFilter::sanitize($filter, $value);
 				}
 			}
-		}else{
+		} else {
 			$value = $default;
 		}
 		
 		return $value;
 	}
 	
-    /**
-     *	Returns global arrays: $_GET, $_POST or $_REQUEST according to given type
-     *	@param string $type
-     *	@return array
-     */
+	/**
+	 *    Returns global arrays: $_GET, $_POST or $_REQUEST according to given type
+	 * @param string $type
+	 * @return array
+	 */
 	private function _getAll($type = 'get')
 	{
-		if($type == 'get'){
-			return isset($_GET) ? $_GET : array();	
-		}elseif($type == 'post'){
+		if ($type == 'get') {
+			return isset($_GET) ? $_GET : array();
+		} elseif ($type == 'post') {
 			return isset($_POST) ? $_POST : array();
-		}elseif($type == 'request' && (isset($_GET) || isset($_POST))){
+		} elseif ($type == 'request' && (isset($_GET) || isset($_POST))) {
 			return isset($_GET) ? $_GET : $_POST;
 		}
 		
 		return array();
 	}
-   
+	
 	/**
-	 * Downloads a content as file from browser to user 
-	 * @param string $fileName 
-	 * @param string $content 
-	 * @param string $mimeType 
-	 * @param boolean $terminate 
+	 * Downloads a content as file from browser to user
+	 * @param string $fileName
+	 * @param string $content
+	 * @param string $mimeType
+	 * @param boolean $terminate
 	 */
 	public function downloadContent($fileName, $content, $mimeType = null, $terminate = true)
 	{
-		if($mimeType === null) $mimeType='text/plain';
-
+		if ($mimeType === null) $mimeType = 'text/plain';
+		
 		header('Pragma: public');
 		header('Expires: 0');
 		header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-		header('Content-type: '.$mimeType);
-		if(ob_get_length() === false){
-			header('Content-Length: '.(function_exists('mb_strlen') ? mb_strlen($content,'8bit') : strlen($content)));
+		header('Content-type: ' . $mimeType);
+		if (ob_get_length() === false) {
+			header('Content-Length: ' . (function_exists('mb_strlen') ? mb_strlen($content, '8bit') : strlen($content)));
 		}
-		header('Content-Disposition: attachment; filename="'.$fileName.'"');
+		header('Content-Disposition: attachment; filename="' . $fileName . '"');
 		header('Content-Transfer-Encoding: binary');
 		echo $content;
 		
-        if($terminate) exit(0);
+		if ($terminate) exit(0);
 	}
-	   
+	
 	/**
-	 * Downloads a file from browser to user 
+	 * Downloads a file from browser to user
 	 * @param string $file
-	 * @param string $mimeType 
-	 * @param boolean $terminate 
+	 * @param string $mimeType
+	 * @param boolean $terminate
 	 */
 	public function downloadFile($file, $mimeType = null, $terminate = true)
 	{
-		if($mimeType === null){
+		if ($mimeType === null) {
 			$mimeType = CFile::getMimeType($file);
 		}
 		
 		header('Pragma: public');
 		header('Expires: 0');
 		header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-		header('Content-type: '.$mimeType);
-		header('Content-Length: '.filesize($file));
-		header('Content-Disposition: attachment; filename="'.basename($file).'"');
+		header('Content-type: ' . $mimeType);
+		header('Content-Length: ' . filesize($file));
+		header('Content-Disposition: attachment; filename="' . basename($file) . '"');
 		header('Content-Transfer-Encoding: binary');
 		readfile($file);
 		
-        if($terminate) exit(0);
+		if ($terminate) exit(0);
 	}
-
+	
 	/**
 	 * Returns information about the browser of user
 	 * @param string $key
 	 * @param string $userAgent
-	 * @return array 
+	 * @return array
 	 * @see http://www.php.net/manual/en/function.get-browser.php
 	 */
 	public function getBrowser($key = '', $userAgent = null)
 	{
 		$browser = get_browser($userAgent, true);
 		
-		if(!empty($key)){
+		if (!empty($key)) {
 			return isset($browser[$key]) ? $browser[$key] : '';
 		}
 		
@@ -840,28 +848,28 @@ class CHttpRequest extends CComponent
 		// Save current data as previous referrer
 		A::app()->getSession()->set('http_referrer_previous', A::app()->getSession()->get('http_referrer_current'));
 		// Save current link as referrer
-		$httpReferrerCurrent = $this->_getProtocolAndHost().$this->getRequestUri();
+		$httpReferrerCurrent = $this->_getProtocolAndHost() . $this->getRequestUri();
 		A::app()->getSession()->set('http_referrer_current', $httpReferrerCurrent);
 	}
-	 
+	
 	/**
 	 * Returns the URL referrer, null if not present
-	 */	
+	 */
 	public function getUrlReferrer()
 	{
 		$serverReferrer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
 		$sessionReferrer = A::app()->getSession()->get('http_referrer_previous');
 		
-		if(!empty($serverReferrer)){
+		if (!empty($serverReferrer)) {
 			return $serverReferrer;
-		}elseif(!empty($sessionReferrer)){
+		} elseif (!empty($sessionReferrer)) {
 			return $sessionReferrer;
-		}else{
+		} else {
 			return null;
-		}		
+		}
 	}
-
- 	/**
+	
+	/**
 	 * Returns the port to use for insecure requests
 	 * Defaults to 80 or the port specified by the server (if the current request is insecure)
 	 * @return int
@@ -869,13 +877,13 @@ class CHttpRequest extends CComponent
 	 */
 	public function getPort()
 	{
-		if($this->_port === null){
+		if ($this->_port === null) {
 			$this->_port = !$this->isSecureConnection() && isset($_SERVER['SERVER_PORT']) ? (int)$_SERVER['SERVER_PORT'] : 80;
 		}
 		
 		return $this->_port;
 	}
- 
+	
 	/**
 	 * Returns the port to use for secure requests
 	 * Defaults to 443, or the port specified by the server (if the current request is secure)
@@ -884,7 +892,7 @@ class CHttpRequest extends CComponent
 	 */
 	public function getSecurePort()
 	{
-		if($this->_securePort === null){
+		if ($this->_securePort === null) {
 			$this->_securePort = $this->isSecureConnection() && isset($_SERVER['SERVER_PORT']) ? (int)$_SERVER['SERVER_PORT'] : 443;
 		}
 		
@@ -892,101 +900,101 @@ class CHttpRequest extends CComponent
 	}
 	
 	/**
-	* Returns content of the given URL
-	* @param string $url
-	* @param string $method
-	* @param string $data
-	* @param string $params
-	* @param string $function			'file_get_contents' or 'curl'
-	* @return mixed
-	*/
-   function getUrlContent($url = '', $method = 'get', $data = array(), $params = array(), $function = 'file_get_contents'){
-	
+	 * Returns content of the given URL
+	 * @param string $url
+	 * @param string $method
+	 * @param string $data
+	 * @param string $params
+	 * @param string $function 'file_get_contents' or 'curl'
+	 * @return mixed
+	 */
+	function getUrlContent($url = '', $method = 'get', $data = array(), $params = array(), $function = 'file_get_contents')
+	{
+		
 		# Validate function argumanets
 		$method = strtolower($method);
 		$data = (array)$data;
 		
-		if(empty($url) && !in_array($method, array('get', 'post'))){
+		if (empty($url) && !in_array($method, array('get', 'post'))) {
 			return true;
 		}
-	
+		
 		# Get parameters
 		$ajaxCall = isset($params['ajax']) ? (bool)$params['ajax'] : false;
 		$showErrors = isset($params['errors']) ? (bool)$params['errors'] : false;
 		$json = isset($params['json']) ? (bool)$params['json'] : false;
 		$sslVerifyHost = isset($params['ssl_verify_host']) ? (bool)$params['ssl_verify_host'] : false;
 		$sslVerifyPeer = isset($params['ssl_verify_peer']) ? (bool)$params['ssl_verify_peer'] : false;
-		$result = NULL;	
-	
-		if($function == 'curl'){
+		$result = NULL;
+		
+		if ($function == 'curl') {
 			# Init curl
-			$ch = curl_init();	
-				
+			$ch = curl_init();
+			
 			# Set options
 			curl_setopt($ch, CURLOPT_URL, $url);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 			curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0);
 			curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 1.0.3705; .NET CLR 1.1.4322)');
-	
+			
 			# Fake AJAX call
-			if($ajaxCall){
+			if ($ajaxCall) {
 				curl_setopt($ch, CURLOPT_HTTPHEADER, array("X-Requested-With: XMLHttpRequest"));
 			}
-	
+			
 			# SSL verification
 			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, ($sslVerifyHost ? 2 : 0));
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, ($sslVerifyPeer ? 1 : 0));
-	
-			if($method == 'post'){
+			
+			if ($method == 'post') {
 				# Set the HEADER, number of POST vars, POST data
-				if($json){
+				if ($json) {
 					curl_setopt($ch, CURLOPT_HEADER, false);
 					curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-type: application/json"));
 					curl_setopt($ch, CURLOPT_POST, count($data));
 					curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-				}
-				else{
+				} else {
 					curl_setopt($ch, CURLOPT_POST, count($data));
 					curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
 					curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 				}
 			}
-		
-			if($showErrors){
+			
+			if ($showErrors) {
 				# Check for errors and include in the error message
 				$error = '';
-				if($errno = curl_errno($ch)){
+				if ($errno = curl_errno($ch)) {
 					$errorMessage = function_exists('curl_strerror') ? curl_strerror($errno) : '';
 					$error = "cURL error ({$errno}):\n {$errorMessage}";
 				}
 				
 				$result['result'] = curl_exec($ch);
 				$result['error'] = $error;
-			}else{
+			} else {
 				$result = curl_exec($ch);
 			}
 			
 			# Close connection
 			curl_close($ch);
-		}else{
+		} else {
 			$context = NULL;
 			
 			# Use key 'http' even if you send the request to https://
-			if($method == 'post'){
+			if ($method == 'post') {
 				$options = array(
 					'http' => array(
-						'header'  => "Content-type: application/x-www-form-urlencoded\r\n" .
-									( $ajaxCall ? "X-Requested-With: XMLHttpRequest\r\n" : '' ),
-						'method'  => 'POST',
+						'header' => "Content-type: application/x-www-form-urlencoded\r\n" .
+							($ajaxCall ? "X-Requested-With: XMLHttpRequest\r\n" : ''),
+						'method' => 'POST',
 						'content' => http_build_query($data),
 					),
 				);
-	
+				
 				# Disable SSL verification
-				if(!$sslVerifyPeer){
+				if (!$sslVerifyPeer) {
 					$options['ssl'] = array(
-						'verify_peer'		=> false,
-						'verify_peer_name'	=> false
+						'verify_peer' => false,
+						'verify_peer_name' => false,
 					);
 				}
 				
@@ -994,7 +1002,7 @@ class CHttpRequest extends CComponent
 			}
 			
 			$result = file_get_contents($url, false, $context);
-		}	
+		}
 		
 		return $result;
 	}

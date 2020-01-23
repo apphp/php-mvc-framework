@@ -3997,7 +3997,7 @@ class nusoap_server extends nusoap_base {
 		$method = '';
 		if (strlen($delim) > 0 && substr_count($this->methodname, $delim) == 1) {
 			$try_class = substr($this->methodname, 0, strpos($this->methodname, $delim));
-			if (class_exists($try_class)) {
+			if (class_exists($try_class, false)) {
 				// get the class and method name
 				$class = $try_class;
 				$method = substr($this->methodname, strpos($this->methodname, $delim) + strlen($delim));

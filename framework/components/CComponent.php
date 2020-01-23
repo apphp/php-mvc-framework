@@ -8,19 +8,19 @@
  * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
- * PUBLIC:					PROTECTED:					PRIVATE:		
- * ----------               ----------                  ---------- 
- * __construct											_parentInit (static)
+ * PUBLIC:                    PROTECTED:                    PRIVATE:
+ * ----------               ----------                  ----------
+ * __construct                                            _parentInit (static)
  * __callStatic (static)
  *
- */	  
+ */
 
 class CComponent
 {
-
-    /* class name => component */
-    private static $_components = array();
-
+	
+	/* class name => component */
+	private static $_components = array();
+	
 	/**
 	 * Class constructor
 	 * @return void
@@ -29,7 +29,7 @@ class CComponent
 	{
 		
 	}
-  
+	
 	/**
 	 * Triggered when invoking inaccessible methods in an object context
 	 * We use this method to avoid calling model($className = __CLASS__) in derived class
@@ -39,17 +39,17 @@ class CComponent
 	 */
 	public static function __callStatic($method, $args)
 	{
-		if(strtolower($method) == 'init'){
-			if(count($args) == 1){
+		if (strtolower($method) == 'init') {
+			if (count($args) == 1) {
 				return self::_parentInit($args[0]);
 			}
-		}		
+		}
 	}
-
+	
 	/**
 	 * Returns the static component of the specified class
 	 * @param string $className
-	 * 
+	 *
 	 * EVERY derived component class must override this method in following way,
 	 * <pre>
 	 * public static function init()
@@ -60,11 +60,11 @@ class CComponent
 	 */
 	private static function _parentInit($className = __CLASS__)
 	{
-		if(isset(self::$_components[$className])){
+		if (isset(self::$_components[$className])) {
 			return self::$_components[$className];
-		}else{
+		} else {
 			return self::$_components[$className] = new $className(null);
-		}        
-    }
-
+		}
+	}
+	
 }

@@ -12,42 +12,42 @@
  * ----------               ----------                  ----------
  * format
  * 
- */	  
+ */
 
 class CCurrency
 {
 	
-    /**
-     * Format price value
-     * @param mixed $price
-     * @param array $params
-     */
-    public static function format($price, $params = array())
-    {
-        // Determine the type of default separators
+	/**
+	 * Format price value
+	 * @param mixed $price
+	 * @param array $params
+	 */
+	public static function format($price, $params = array())
+	{
+		// Determine the type of default separators
 		$numberFormat = Bootstrap::init()->getSettings()->number_format;
-		if($numberFormat == 'european'){
+		if ($numberFormat == 'european') {
 			$defaultDecimalSeparator = ',';
 			$defaultThousandsSeparator = '.';
-		}else{
+		} else {
 			$defaultDecimalSeparator = '.';
 			$defaultThousandsSeparator = ',';
 		}
-
- 		// Get currency info
-        $rate               = isset($params['rate']) ? $params['rate'] : A::app()->getCurrency('rate');		
-        $decimals           = isset($params['decimals']) ? $params['decimals'] : A::app()->getCurrency('decimals');		
-        $symbol             = isset($params['symbol']) ? $params['symbol'] : A::app()->getCurrency('symbol');
-        $symbolPlace        = isset($params['symbolPlace']) ? $params['symbolPlace'] : A::app()->getCurrency('symbol_place'); 
-        $decimalSeparator   = isset($params['decimalSeparator']) ? $params['decimalSeparator'] : $defaultDecimalSeparator;
-        $thousandsSeparator = isset($params['thousandsSeparator']) ? $params['thousandsSeparator'] : $defaultThousandsSeparator;
 		
-        $return  = ($symbolPlace == 'before') ? $symbol : '';
-        $return .= ($decimals != '' && $rate != '') ? number_format((float)($price * $rate), $decimals, $decimalSeparator, $thousandsSeparator) : $price;
-        $return .= ($symbolPlace == 'after') ? $symbol : '';
-               
-        return $return;
-          
-    }
-
+		// Get currency info
+		$rate = isset($params['rate']) ? $params['rate'] : A::app()->getCurrency('rate');
+		$decimals = isset($params['decimals']) ? $params['decimals'] : A::app()->getCurrency('decimals');
+		$symbol = isset($params['symbol']) ? $params['symbol'] : A::app()->getCurrency('symbol');
+		$symbolPlace = isset($params['symbolPlace']) ? $params['symbolPlace'] : A::app()->getCurrency('symbol_place');
+		$decimalSeparator = isset($params['decimalSeparator']) ? $params['decimalSeparator'] : $defaultDecimalSeparator;
+		$thousandsSeparator = isset($params['thousandsSeparator']) ? $params['thousandsSeparator'] : $defaultThousandsSeparator;
+		
+		$return = ($symbolPlace == 'before') ? $symbol : '';
+		$return .= ($decimals != '' && $rate != '') ? number_format((float)($price * $rate), $decimals, $decimalSeparator, $thousandsSeparator) : $price;
+		$return .= ($symbolPlace == 'after') ? $symbol : '';
+		
+		return $return;
+		
+	}
+	
 }

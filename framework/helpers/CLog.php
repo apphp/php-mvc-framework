@@ -13,20 +13,20 @@
  * __construct
  * addMessage
  * 
- */	  
+ */
 
 class CLog
 {
- 
-    /**
-     * Write to log file
-	 * @param string $level		The error level: 'error', 'debug' or 'info'
-	 * @param string $msg		The error message
+	
+	/**
+	 * Write to log file
+	 * @param string $level The error level: 'error', 'debug' or 'info'
+	 * @param string $msg   The error message
 	 * @return bool
-     */
-    public static function addMessage($level = '', $msg = '')
-    {
+	 */
+	public static function addMessage($level = '', $msg = '')
+	{
 		return A::app()->getLogger()->writeLog($level, $msg);
-    }
+	}
 	
 }

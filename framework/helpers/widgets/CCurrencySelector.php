@@ -8,105 +8,105 @@
  * @copyright Copyright (c) 2012 - 2019 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
- * PUBLIC (static):			PROTECTED:					PRIVATE:		
+ * PUBLIC (static):            PROTECTED:                    PRIVATE:
  * ----------               ----------                  ----------
  * init
- * 
- */	  
+ *
+ */
 
 class CCurrencySelector extends CWidgs
 {
 	
-    const NL = "\n";
- 
-    /**
-     * Draws currency selector
-     * @param array $params
-     * 
-     * Usage: 
-     *  echo CWidget::create('CCurrencySelector', array(
-     *      'currencies' => array('en'=>array('name'=>'English', 'icon'=>''), 'es'=>array('name'=>'Espanol', 'icon'=>''), 'fr'=>array('name'=>'Francias', 'icon'=>'')),
-     *      'display' => 'names|keys|symbols|dropdown|list',
-     *      'forceDrawing' => false,
-     *      'class' => '',
-     *      'currentCurrency' => A::app()->getCurrency(),
-     *      'return' => true
-     *  ));
-     */
-    public static function init($params = array())
-    {       
+	const NL = "\n";
+	
+	/**
+	 * Draws currency selector
+	 * @param array $params
+	 *
+	 * Usage:
+	 *  echo CWidget::create('CCurrencySelector', array(
+	 *      'currencies' => array('en'=>array('name'=>'English', 'icon'=>''), 'es'=>array('name'=>'Espanol', 'icon'=>''), 'fr'=>array('name'=>'Francias', 'icon'=>'')),
+	 *      'display' => 'names|keys|symbols|dropdown|list',
+	 *      'forceDrawing' => false,
+	 *      'class' => '',
+	 *      'currentCurrency' => A::app()->getCurrency(),
+	 *      'return' => true
+	 *  ));
+	 */
+	public static function init($params = array())
+	{
 		parent::init($params);
 		
-        $output 			= '';
-        $tagName 			= 'div';
-        
-        $display 			= self::params('display', 'names');
-        $currentCurrency 	= self::params('currentCurrency', '');
-        $return 			= (bool)self::params('return', true);
-		$forceDrawing		= self::params('forceDrawing', false);
-		$class				= self::params('class', '');
-		$currencies 		= self::params('currencies', array(), 'is_array');
-        $totalCurrencies 	= count($currencies);
-        
-		if($totalCurrencies == 1 && !$forceDrawing){
-            return '';        
-        }elseif($totalCurrencies < 6 && in_array($display, array('names', 'symbols', 'keys'))){
-            // Render options 
-            $totalCurrencies = count($currencies);
+		$output = '';
+		$tagName = 'div';
+		
+		$display = self::params('display', 'names');
+		$currentCurrency = self::params('currentCurrency', '');
+		$return = (bool)self::params('return', true);
+		$forceDrawing = self::params('forceDrawing', false);
+		$class = self::params('class', '');
+		$currencies = self::params('currencies', array(), 'is_array');
+		$totalCurrencies = count($currencies);
+		
+		if ($totalCurrencies == 1 && !$forceDrawing) {
+			return '';
+		} elseif ($totalCurrencies < 6 && in_array($display, array('names', 'symbols', 'keys'))) {
+			// Render options
+			$totalCurrencies = count($currencies);
 			$count = 0;
-            foreach($currencies as $key => $val){
-                $currName = self::keyAt('name', $val, '');
+			foreach ($currencies as $key => $val) {
+				$currName = self::keyAt('name', $val, '');
 				$currSymbol = self::keyAt('symbol', $val, '');
-                if($display == 'names'){
-                    $displayValue = $currName;
-                }elseif($display == 'symbols'){
-                    $displayValue = $currSymbol;
-                }elseif($display == 'keys'){
-                    $displayValue = strtoupper($key);
-                }else{
+				if ($display == 'names') {
+					$displayValue = $currName;
+				} elseif ($display == 'symbols') {
+					$displayValue = $currSymbol;
+				} elseif ($display == 'keys') {
+					$displayValue = strtoupper($key);
+				} else {
 					$displayValue = $key;
-                }
-                if($key == $currentCurrency){
-                    $output .= CHtml::tag('span', array('class'=>'current', 'title'=>$currName), $displayValue).self::NL;
-                }else{
-                    $output .= CHtml::link($displayValue, 'currencies/change/currency/'.$key, array('title'=>$currName)).self::NL;
-                }
-                if(++$count < $totalCurrencies){
-                    $output .= ' | '; 
-                } 
-            }            
-        }elseif ($display == 'list'){
-			$output .= CHtml::openTag('ul', array('class'=>$class)).self::NL;       
-			foreach($currencies as $key => $val){
+				}
+				if ($key == $currentCurrency) {
+					$output .= CHtml::tag('span', array('class' => 'current', 'title' => $currName), $displayValue) . self::NL;
+				} else {
+					$output .= CHtml::link($displayValue, 'currencies/change/currency/' . $key, array('title' => $currName)) . self::NL;
+				}
+				if (++$count < $totalCurrencies) {
+					$output .= ' | ';
+				}
+			}
+		} elseif ($display == 'list') {
+			$output .= CHtml::openTag('ul', array('class' => $class)) . self::NL;
+			foreach ($currencies as $key => $val) {
 				$curName = isset($val['name']) ? $val['name'] : '';
 				$curSymbol = isset($val['symbol']) ? $val['symbol'] : '';
 				
-				$output .= '<li'.($key == $currentCurrency ? ' class="current"' : '').'>'.CHtml::link($curSymbol.' &nbsp;&nbsp; '.$curName, 'currencies/change/currency/'.$key, array('title'=>$curName)).'</li>'.self::NL;
+				$output .= '<li' . ($key == $currentCurrency ? ' class="current"' : '') . '>' . CHtml::link($curSymbol . ' &nbsp;&nbsp; ' . $curName, 'currencies/change/currency/' . $key, array('title' => $curName)) . '</li>' . self::NL;
 			}
-			$output .= CHtml::closeTag('ul').self::NL;       
-        }else{
-            // Render options as dropdown list
-            $output .= CHtml::openForm('currencies/change/', 'get', array('name'=>'frmCurrencySelector')).self::NL;
-            $arrCurrencies = array();
-            foreach($currencies as $key => $val){
+			$output .= CHtml::closeTag('ul') . self::NL;
+		} else {
+			// Render options as dropdown list
+			$output .= CHtml::openForm('currencies/change/', 'get', array('name' => 'frmCurrencySelector')) . self::NL;
+			$arrCurrencies = array();
+			foreach ($currencies as $key => $val) {
 				$arrCurrencies[$key] = self::keyAt('name', $val, '');
 			}
-            $output .= CHtml::dropDownList(
-                'currency', $currentCurrency, $arrCurrencies,
-                array(
-                    'id'=>'selCurrencies',
-                    'submit'=>''
-                )
-            );
-            $output .= CHtml::closeForm().self::NL;
-        }
- 
+			$output .= CHtml::dropDownList(
+				'currency', $currentCurrency, $arrCurrencies,
+				array(
+					'id' => 'selCurrencies',
+					'submit' => '',
+				)
+			);
+			$output .= CHtml::closeForm() . self::NL;
+		}
+
 //        $final_output = CHtml::openTag($tagName, array('id'=>'currency-selector'));
 //		  $final_output .= $output;
 //        $final_output .= CHtml::closeTag($tagName).self::NL;       
-        
-        if($return) return $output;
-        else echo $output;
-    }
-   
+		
+		if ($return) return $output;
+		else echo $output;
+	}
+	
 }

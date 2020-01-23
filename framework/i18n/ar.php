@@ -2,9 +2,9 @@
 /**
  * Locale data for 'ar' - Arabic
  */
-return array (
-	'monthNames' => array (
-		'wide' => array (
+return array(
+	'monthNames' => array(
+		'wide' => array(
 			1 => 'يناير',
 			2 => 'فبراير',
 			3 => 'مارس',
@@ -18,7 +18,7 @@ return array (
 			11 => 'نوفمبر',
 			12 => 'ديسمبر',
 		),
-		'abbreviated' => array (
+		'abbreviated' => array(
 			1 => '1',
 			2 => '2',
 			3 => '3',
@@ -32,7 +32,7 @@ return array (
 			11 => '11',
 			12 => '12',
 		),
-		'narrow' => array (
+		'narrow' => array(
 			1 => '1',
 			2 => '2',
 			3 => '3',
@@ -49,8 +49,8 @@ return array (
 	),
 	'amName' => 'ص',
 	'pmName' => 'م',
-	'weekDayNames' => array (
-		'wide' => array (
+	'weekDayNames' => array(
+		'wide' => array(
 			1 => 'الأحد',
 			2 => 'الاثنين',
 			3 => 'الثلاثاء',
@@ -59,7 +59,7 @@ return array (
 			6 => 'الجمعة',
 			7 => 'السبت',
 		),
-		'abbreviated' => array (
+		'abbreviated' => array(
 			1 => 'الأحد',
 			2 => 'الاثنين',
 			3 => 'الثلاثاء',
@@ -68,7 +68,7 @@ return array (
 			6 => 'الجمعة',
 			7 => 'السبت',
 		),
-		'narrow' => array (
+		'narrow' => array(
 			1 => 'الأحد',
 			2 => 'الاثنين',
 			3 => 'الثلاثاء',
@@ -79,7 +79,7 @@ return array (
 		),
 	),
 	'orientation' => 'rtl',
-	'languages' => array (
+	'languages' => array(
 		'aa' => 'الأفارية',
 		'ab' => 'الأبخازية',
 		'ae' => 'الأفستية',
@@ -300,7 +300,7 @@ return array (
 		'053' => 'منطقة ميكرونيزيا',
 		'054' => 'بولينيزيا',
 	),
-	'countries' => array (
+	'countries' => array(
 		'ac' => 'جزيرة أسينشيون',
 		'ad' => 'أندورا',
 		'ae' => 'الإمارات العربية المتحدة',

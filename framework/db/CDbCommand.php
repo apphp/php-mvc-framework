@@ -15,7 +15,7 @@
  *     ->from(CConfig::get('db.prefix').'accounts')
  *     ->order('id ASC')
  *     ->queryAll();
- *     
+ *
  * $account = CDatabase::init()->createCommand()
  *     ->select('id, username, password')
  *     ->from(CConfig::get('db.prefix').'accounts')
@@ -24,13 +24,13 @@
  * </pre>
  *
  *
- * PUBLIC:					PROTECTED:					PRIVATE:		
- * ---------------         	---------------            	---------------
- * __construct											_queryInternal
- * reset												_quotes
- * cancel												_processConditions
- * setText												_joinInternal
- * getText												_applyLimit
+ * PUBLIC:                    PROTECTED:                    PRIVATE:
+ * ---------------            ---------------                ---------------
+ * __construct                                            _queryInternal
+ * reset                                                _quotes
+ * cancel                                                _processConditions
+ * setText                                                _joinInternal
+ * getText                                                _applyLimit
  * queryAll
  * queryRow
  * queryScalar
@@ -66,16 +66,16 @@
  * getOffset
  * union
  * getUnion
- * 
- */	  
+ *
+ */
 
-class CDbCommand 
+class CDbCommand
 {
 	/** @var CDatabase */
-	protected $_db;	
-	/**	@var */ 
-    protected $_dbDriver = '';
-	/**	@var array */ 
+	protected $_db;
+	/** @var */
+	protected $_dbDriver = '';
+	/** @var array */
 	public $_params = array();
 	
 	/** @var string */
@@ -84,9 +84,9 @@ class CDbCommand
 	private $_statement;
 	/** @var string */
 	private $_query;
-	/**	@var char */
+	/** @var char */
 	private $_backQuote = '`';
-	/**	@var  int */
+	/** @var  int */
 	private $_fetchMode = PDO::FETCH_ASSOC;
 	
 	
@@ -95,16 +95,16 @@ class CDbCommand
 	 * @param CDatabase $dbConnection
 	 */
 	public function __construct($dbConnection = null)
-	{	
+	{
 		$this->_db = $dbConnection;
 		$this->_dbDriver = CConfig::get('db.driver');
 		
 		// Set back quote according to database driver
-		if(preg_match('/mssql|sqlsrv/i', CConfig::get('db.driver'))){
+		if (preg_match('/mssql|sqlsrv/i', CConfig::get('db.driver'))) {
 			$this->_backQuote = '';
 		}
 	}
-
+	
 	/**
 	 * Cleans up the command for building a new query
 	 * @return CDbCommand command instance
@@ -117,7 +117,7 @@ class CDbCommand
 		$this->_params = array();
 		return $this;
 	}
-
+	
 	/**
 	 * Cancels execution of the SQL statement
 	 */
@@ -139,17 +139,17 @@ class CDbCommand
 	
 	/**
 	 * Returns SQL to be executed
-	 * @return string 
+	 * @return string
 	 */
 	public function getText()
 	{
-		if($this->_text == '' && !empty($this->_query)){
+		if ($this->_text == '' && !empty($this->_query)) {
 			$this->setText($this->buildQuery($this->_query));
 		}
 		
 		return $this->_text;
 	}
-
+	
 	/**
 	 * Executes the SQL statement and returns all rows
 	 * @param boolean $fetchAssociative
@@ -166,7 +166,7 @@ class CDbCommand
 	 * @param boolean $fetchAssociative
 	 * @param array $params
 	 * @return array
-	 */ 
+	 */
 	public function queryRow($fetchAssociative = true, $params = array())
 	{
 		return $this->_queryInternal('fetch', $fetchAssociative ? $this->_fetchMode : PDO::FETCH_NUM, $params);
@@ -180,7 +180,7 @@ class CDbCommand
 	public function queryScalar($params = array())
 	{
 		return $this->_queryInternal('fetchColumn', 0, $params);
-
+		
 	}
 	
 	/**
@@ -194,11 +194,11 @@ class CDbCommand
 	}
 	
 	/**
-	 * Executes the SQL statement 
-	 * @param string $method 
-	 * @param mixed $mode 
-	 * @param array $params 
-	 * @return mixed 
+	 * Executes the SQL statement
+	 * @param string $method
+	 * @param mixed $mode
+	 * @param array $params
+	 * @return mixed
 	 */
 	private function _queryInternal($method, $mode, $params = array())
 	{
@@ -208,49 +208,49 @@ class CDbCommand
 	
 	/**
 	 * Builds a SQL SELECT statement from the given query specification
-	 * @param array $query 
+	 * @param array $query
 	 * @return string the SQL statement
 	 */
 	public function buildQuery($query)
 	{
 		$sql = !empty($query['distinct']) ? 'SELECT DISTINCT' : 'SELECT';
-		$sql .= ' '.(!empty($query['select']) ? $query['select'] : '*');
+		$sql .= ' ' . (!empty($query['select']) ? $query['select'] : '*');
 		
 		$limit = isset($query['limit']) ? (int)$query['limit'] : '';
 		$offset = isset($query['offset']) ? (int)$query['offset'] : '';
 		$limits = $this->_applyLimit($limit, $offset);
 		
-		if(!empty($limits['before'])){
-			$sql .= "\n ".$limits['before'];
+		if (!empty($limits['before'])) {
+			$sql .= "\n " . $limits['before'];
 		}
-		if(!empty($query['from'])){
-			$sql .= "\nFROM ".$query['from'];
+		if (!empty($query['from'])) {
+			$sql .= "\nFROM " . $query['from'];
 		}
-		if(!empty($query['join'])){
-			$sql .= "\n".(is_array($query['join']) ? implode("\n",$query['join']) : $query['join']);
+		if (!empty($query['join'])) {
+			$sql .= "\n" . (is_array($query['join']) ? implode("\n", $query['join']) : $query['join']);
 		}
-		if(!empty($query['where'])){
-			$sql .= "\nWHERE ".$query['where'];
+		if (!empty($query['where'])) {
+			$sql .= "\nWHERE " . $query['where'];
 		}
-		if(!empty($query['group'])){
-			$sql .= "\nGROUP BY ".$query['group'];
+		if (!empty($query['group'])) {
+			$sql .= "\nGROUP BY " . $query['group'];
 		}
-		if(!empty($query['having'])){
-			$sql .= "\nHAVING ".$query['having'];
+		if (!empty($query['having'])) {
+			$sql .= "\nHAVING " . $query['having'];
 		}
-		if(!empty($query['union'])){
-			$sql .= "\nUNION (\n".(is_array($query['union']) ? implode("\n) UNION (\n",$query['union']) : $query['union']) . ')';
+		if (!empty($query['union'])) {
+			$sql .= "\nUNION (\n" . (is_array($query['union']) ? implode("\n) UNION (\n", $query['union']) : $query['union']) . ')';
 		}
-		if(!empty($query['order'])){
-			$sql .= "\nORDER BY ".$query['order'];
+		if (!empty($query['order'])) {
+			$sql .= "\nORDER BY " . $query['order'];
 		}
-		if(!empty($limits['after'])){
-			$sql .= "\n ".$limits['after'];
+		if (!empty($limits['after'])) {
+			$sql .= "\n " . $limits['after'];
 		}
 		
 		return $sql;
 	}
-
+	
 	/**
 	 * Sets SELECT part of the query
 	 * @param mixed $columns The columns to be selected (default '*' - all columns, or as array (e.g. array('id', 'name') )
@@ -259,22 +259,22 @@ class CDbCommand
 	 */
 	public function select($columns = '*', $option = '')
 	{
-		if(is_string($columns) && strpos($columns,'(') !== false){
+		if (is_string($columns) && strpos($columns, '(') !== false) {
 			$this->_query['select'] = $columns;
-		}else{
-			if(!is_array($columns)){
+		} else {
+			if (!is_array($columns)) {
 				$columns = preg_split('/\s*,\s*/', trim($columns), -1, PREG_SPLIT_NO_EMPTY);
 			}
 			
-			foreach($columns as $key => $column){
-				if(is_object($column)){
+			foreach ($columns as $key => $column) {
+				if (is_object($column)) {
 					$columns[$key] = (string)$column;
-				}elseif(strpos($column, '(') === false){
+				} elseif (strpos($column, '(') === false) {
 					// With alias
-					if(preg_match('/^(.*?)(?i:\s+as\s+|\s+)(.*)$/', $column, $matches)){
-						$columns[$key] = $this->_quotes($matches[1]).' AS '.$this->_quotes($matches[2]);
-					}else{
-						$columns[$key] = $column !== '*' ? $this->_quotes($column) : '*';	
+					if (preg_match('/^(.*?)(?i:\s+as\s+|\s+)(.*)$/', $column, $matches)) {
+						$columns[$key] = $this->_quotes($matches[1]) . ' AS ' . $this->_quotes($matches[2]);
+					} else {
+						$columns[$key] = $column !== '*' ? $this->_quotes($column) : '*';
 					}
 				}
 			}
@@ -282,22 +282,22 @@ class CDbCommand
 			$this->_query['select'] = implode(', ', $columns);
 		}
 		
-		if($option != ''){
-			$this->_query['select'] = $option.' '.$this->_query['select'];
+		if ($option != '') {
+			$this->_query['select'] = $option . ' ' . $this->_query['select'];
 		}
 		
 		return $this;
 	}
-
+	
 	/**
 	 * Returns the SELECT part of the query
-	 * @return string 
+	 * @return string
 	 */
 	public function getSelect()
 	{
 		return isset($this->_query['select']) ? $this->_query['select'] : '';
 	}
-
+	
 	/**
 	 * Sets a SELECT part of the query with the DISTINCT flag turned ON
 	 * @param mixed $columns
@@ -308,7 +308,7 @@ class CDbCommand
 		$this->_query['distinct'] = true;
 		return $this->select($columns);
 	}
-
+	
 	/**
 	 * Sets a FROM part of the query
 	 * @param mixed string|array
@@ -316,20 +316,19 @@ class CDbCommand
 	 */
 	public function from($tables)
 	{
-		if(is_string($tables) && strpos($tables, '(') !== false){
+		if (is_string($tables) && strpos($tables, '(') !== false) {
 			$this->_query['from'] = $tables;
-		}else{
-			if(!is_array($tables)){
+		} else {
+			if (!is_array($tables)) {
 				$tables = preg_split('/\s*,\s*/', trim($tables), -1, PREG_SPLIT_NO_EMPTY);
 			}
 			
-			foreach($tables as $key => $table){
-				if(strpos($table, '(') === false){
+			foreach ($tables as $key => $table) {
+				if (strpos($table, '(') === false) {
 					// With alias
-					if(preg_match('/^(.*?)(?i:\s+as|)\s+([^ ]+)$/', $table, $matches)){
-						$tables[$key] = $this->_quotes($matches[1]).' '.$this->_quotes($matches[2]);
-					}
-					else{
+					if (preg_match('/^(.*?)(?i:\s+as|)\s+([^ ]+)$/', $table, $matches)) {
+						$tables[$key] = $this->_quotes($matches[1]) . ' ' . $this->_quotes($matches[2]);
+					} else {
 						$tables[$key] = $this->_quotes($table);
 					}
 				}
@@ -340,26 +339,26 @@ class CDbCommand
 		
 		return $this;
 	}
-
+	
 	/**
 	 * Returns a FROM part in the query
-	 * @return string 
+	 * @return string
 	 */
 	public function getFrom()
 	{
 		return isset($this->_query['from']) ? $this->_query['from'] : '';
 	}
-
+	
 	/**
 	 * Sets the WHERE part of the query
-	 * @param mixed $conditions 		Ex.: array('and', 'id=1', 'id=2')
-	 * @param array $params 
+	 * @param mixed $conditions Ex.: array('and', 'id=1', 'id=2')
+	 * @param array $params
 	 * @return CDbCommand the command object itself
 	 */
 	public function where($conditions, $params = array())
 	{
 		$this->_query['where'] = $this->_processConditions($conditions);
-		foreach($params as $name => $value){
+		foreach ($params as $name => $value) {
 			$this->_params[$name] = $value;
 		}
 		
@@ -368,7 +367,7 @@ class CDbCommand
 	
 	/**
 	 * Returns the WHERE part in the query
-	 * @return string 
+	 * @return string
 	 */
 	public function getWhere()
 	{
@@ -377,20 +376,19 @@ class CDbCommand
 	
 	/**
 	 * Sets the WHERE part of the query with AND
-	 * @param mixed $conditions 		Ex.: array('id=1', 'id=2')
-	 * @param array $params 
+	 * @param mixed $conditions Ex.: array('id=1', 'id=2')
+	 * @param array $params
 	 * @return CDbCommand the command object itself
 	 */
 	public function andWhere($conditions, $params = array())
 	{
-		if(isset($this->_query['where'])){
+		if (isset($this->_query['where'])) {
 			$this->_query['where'] = $this->_processConditions(array('AND', $this->_query['where'], $conditions));
-		}
-		else{
+		} else {
 			$this->_query['where'] = $this->_processConditions($conditions);
 		}
 		
-		foreach($params as $name => $value){
+		foreach ($params as $name => $value) {
 			$this->_params[$name] = $value;
 		}
 		
@@ -399,20 +397,19 @@ class CDbCommand
 	
 	/**
 	 * Sets the WHERE part of the query with OR
-	 * @param mixed $conditions 		Ex.: array('id=1', 'id=2')
-	 * @param array $params 
+	 * @param mixed $conditions Ex.: array('id=1', 'id=2')
+	 * @param array $params
 	 * @return CDbCommand the command object itself
 	 */
-	public function orWhere($conditions, $params=array())
+	public function orWhere($conditions, $params = array())
 	{
-		if(isset($this->_query['where'])){
+		if (isset($this->_query['where'])) {
 			$this->_query['where'] = $this->_processConditions(array('OR', $this->_query['where'], $conditions));
-		}
-		else{
+		} else {
 			$this->_query['where'] = $this->_processConditions($conditions);
 		}
 		
-		foreach($params as $name => $value){
+		foreach ($params as $name => $value) {
 			$this->_params[$name] = $value;
 		}
 		
@@ -422,9 +419,9 @@ class CDbCommand
 	/**
 	 * Appends an INNER JOIN part to the query
 	 * Ex.: join('table2', 'table1.id = table2.t_id')
-	 * @param string $table 			
-	 * @param mixed $conditions 		join condition that should appear in the ON part	
-	 * @param array $params 			format: (name=>value) to be bound to the query
+	 * @param string $table
+	 * @param mixed $conditions join condition that should appear in the ON part
+	 * @param array $params format: (name=>value) to be bound to the query
 	 * @return CDbCommand the command object itself
 	 */
 	public function join($table, $conditions, $params = array())
@@ -434,7 +431,7 @@ class CDbCommand
 	
 	/**
 	 * Returns the join part in the query
-	 * @return mixed 
+	 * @return mixed
 	 */
 	public function getJoin()
 	{
@@ -443,9 +440,9 @@ class CDbCommand
 	
 	/**
 	 * Appends a LEFT OUTER JOIN part to the query
-	 * @param string $table 			
-	 * @param mixed $conditions 		join condition that should appear in the ON part	
-	 * @param array $params 			format: (name=>value) to be bound to the query
+	 * @param string $table
+	 * @param mixed $conditions join condition that should appear in the ON part
+	 * @param array $params format: (name=>value) to be bound to the query
 	 * @return CDbCommand the command object itself
 	 */
 	public function leftJoin($table, $conditions, $params = array())
@@ -455,9 +452,9 @@ class CDbCommand
 	
 	/**
 	 * Appends a RIGHT OUTER JOIN part to the query
-	 * @param string $table 			
-	 * @param mixed $conditions 		join condition that should appear in the ON part	
-	 * @param array $params 			format: (name=>value) to be bound to the query
+	 * @param string $table
+	 * @param mixed $conditions join condition that should appear in the ON part
+	 * @param array $params format: (name=>value) to be bound to the query
 	 * @return CDbCommand the command object itself
 	 */
 	public function rightJoin($table, $conditions, $params = array())
@@ -467,7 +464,7 @@ class CDbCommand
 	
 	/**
 	 * Appends a CROSS (INNER) JOIN part to the query
-	 * @param string $table 			
+	 * @param string $table
 	 * @return CDbCommand the command object itself
 	 */
 	public function crossJoin($table)
@@ -482,10 +479,10 @@ class CDbCommand
 	{
 		return $this->_joinInternal('inner join', $table);
 	}
-
+	
 	/**
 	 * Appends a NATURAL JOIN part to the query
-	 * @param string $table 			
+	 * @param string $table
 	 * @return CDbCommand the command object itself
 	 */
 	public function naturalJoin($table)
@@ -495,7 +492,7 @@ class CDbCommand
 	
 	/**
 	 * Appends a NATURAL LEFT JOIN part to the query
-	 * @param string $table 			
+	 * @param string $table
 	 * @return CDbCommand the command object itself
 	 */
 	public function naturalLeftJoin($table)
@@ -505,7 +502,7 @@ class CDbCommand
 	
 	/**
 	 * Appends a NATURAL RIGHT JOIN part to the query
-	 * @param string $table 			
+	 * @param string $table
 	 * @return CDbCommand the command object itself
 	 */
 	public function naturalRightJoin($table)
@@ -520,23 +517,22 @@ class CDbCommand
 	 */
 	public function group($columns)
 	{
-		if(is_string($columns) && strpos($columns,'(') !== false){
+		if (is_string($columns) && strpos($columns, '(') !== false) {
 			$this->_query['group'] = $columns;
-		}else{
-			if(!is_array($columns)){
+		} else {
+			if (!is_array($columns)) {
 				$columns = preg_split('/\s*,\s*/', trim($columns), -1, PREG_SPLIT_NO_EMPTY);
 			}
 			
-			foreach($columns as $i => $column){
-				if(is_object($column)){
+			foreach ($columns as $i => $column) {
+				if (is_object($column)) {
 					$columns[$i] = (string)$column;
-				}
-				elseif(strpos($column,'(') === false){
+				} elseif (strpos($column, '(') === false) {
 					$columns[$i] = $this->_quotes($column);
 				}
 			}
 			
-			$this->_query['group'] = implode(', ',$columns);
+			$this->_query['group'] = implode(', ', $columns);
 		}
 		
 		return $this;
@@ -550,17 +546,17 @@ class CDbCommand
 	{
 		return isset($this->_query['group']) ? $this->_query['group'] : '';
 	}
-
+	
 	/**
 	 * Sets the HAVING part of the query
-	 * @param mixed $conditions 
-	 * @param array $params 
+	 * @param mixed $conditions
+	 * @param array $params
 	 * @return CDbCommand the command object itself
 	 */
 	public function having($conditions, $params = array())
 	{
 		$this->_query['having'] = $this->_processConditions($conditions);
-		foreach($params as $name => $value){
+		foreach ($params as $name => $value) {
 			$this->_params[$name] = $value;
 		}
 		
@@ -575,28 +571,28 @@ class CDbCommand
 	{
 		return isset($this->_query['having']) ? $this->_query['having'] : '';
 	}
-
+	
 	/**
 	 * Sets the ORDER BY part of the query.
-	 * @param mixed $columns	(e.g. order(array('id ASC', 'name DESC')) or order('(1)'))
+	 * @param mixed $columns (e.g. order(array('id ASC', 'name DESC')) or order('(1)'))
 	 * @return CDbCommand the command object itself
-	 */	
+	 */
 	public function order($columns)
 	{
-		if(is_string($columns) && strpos($columns, '(') !== false){
+		if (is_string($columns) && strpos($columns, '(') !== false) {
 			$this->_query['order'] = $columns;
-		}else{
-			if(!is_array($columns)){
+		} else {
+			if (!is_array($columns)) {
 				$columns = preg_split('/\s*,\s*/', trim($columns), -1, PREG_SPLIT_NO_EMPTY);
 			}
 			
-			foreach($columns as $i => $column){
-				if(is_object($column)){
+			foreach ($columns as $i => $column) {
+				if (is_object($column)) {
 					$columns[$i] = (string)$column;
-				}elseif(strpos($column, '(') === false){
-					if(preg_match('/^(.*?)\s+(asc|desc)$/i',$column,$matches)){
-						$columns[$i] = $this->_quotes($matches[1]).' '.strtoupper($matches[2]);
-					}else{
+				} elseif (strpos($column, '(') === false) {
+					if (preg_match('/^(.*?)\s+(asc|desc)$/i', $column, $matches)) {
+						$columns[$i] = $this->_quotes($matches[1]) . ' ' . strtoupper($matches[2]);
+					} else {
 						$columns[$i] = $this->_quotes($column);
 					}
 				}
@@ -623,10 +619,10 @@ class CDbCommand
 	 * @param int $offset
 	 * @return CDbCommand the command object itself
 	 */
-	public function limit($limit, $offset=null)
+	public function limit($limit, $offset = null)
 	{
 		$this->_query['limit'] = (int)$limit;
-		if($offset !== null){
+		if ($offset !== null) {
 			$this->offset($offset);
 		}
 		
@@ -641,10 +637,10 @@ class CDbCommand
 	{
 		return isset($this->_query['limit']) ? $this->_query['limit'] : -1;
 	}
-
+	
 	/**
 	 * Sets the OFFSET part of the query
-	 * @param int $offset 
+	 * @param int $offset
 	 * @return CDbCommand the command object itself
 	 */
 	public function offset($offset)
@@ -669,7 +665,7 @@ class CDbCommand
 	 */
 	public function union($sql)
 	{
-		if(isset($this->_query['union']) && is_string($this->_query['union'])){
+		if (isset($this->_query['union']) && is_string($this->_query['union'])) {
 			$this->_query['union'] = array($this->_query['union']);
 		}
 		
@@ -685,77 +681,77 @@ class CDbCommand
 	{
 		return isset($this->_query['union']) ? $this->_query['union'] : '';
 	}
-
+	
 	/**
 	 * Creates condition string that will be put in the WHERE part od the SQL statement
-	 * @param mixed $conditions 
-	 * @return string 
+	 * @param mixed $conditions
+	 * @return string
 	 */
 	private function _processConditions($conditions)
 	{
-		if(empty($conditions)){
+		if (empty($conditions)) {
 			return '';
-		}else if(!is_array($conditions)){
+		} else if (!is_array($conditions)) {
 			return $conditions;
 		}
-	
+		
 		$conditionsCount = count($conditions);
 		$operator = strtoupper($conditions[0]);
-		if(in_array($operator, array('OR', 'AND'))){
+		if (in_array($operator, array('OR', 'AND'))) {
 			$parts = array();
-			for($i = 1; $i < $conditionsCount; $i++){
+			for ($i = 1; $i < $conditionsCount; $i++) {
 				$condition = $this->_processConditions($conditions[$i]);
-				if($condition !== ''){
-					$parts[] = '('.$condition.')';
+				if ($condition !== '') {
+					$parts[] = '(' . $condition . ')';
 				}
 			}
-			return !empty($parts) ? implode(' '.$operator.' ', $parts) : '';
+			return !empty($parts) ? implode(' ' . $operator . ' ', $parts) : '';
 		}
 		
-		if(!isset($conditions[1], $conditions[2])){
+		if (!isset($conditions[1], $conditions[2])) {
 			return '';
 		}
 		
 		$column = $conditions[1];
-		if(strpos($column, '(') === false){
+		if (strpos($column, '(') === false) {
 			$column = $this->_quotes($column);
 		}
 		
 		$values = $conditions[2];
-		if(!is_array($values)){
+		if (!is_array($values)) {
 			$values = array($values);
 		}
-	
-		if(in_array($operator, array('IN', 'NOT IN'))){	
-			if($values === array()){
+		
+		if (in_array($operator, array('IN', 'NOT IN'))) {
+			if ($values === array()) {
 				return $operator === 'IN' ? '0=1' : '';
 			}
 			
-			foreach($values as $i => $value){
+			foreach ($values as $i => $value) {
 				$values[$i] = is_string($value) ? $this->_quotes($value) : (string)$value;
 			}
 			
-			return $column.' '.$operator.' ('.implode(', ', $values).')';
+			return $column . ' ' . $operator . ' (' . implode(', ', $values) . ')';
 		}
 		
-		if(in_array($operator, array('LIKE', 'NOT LIKE', 'OR LIKE', 'OR NOT LIKE'))){
-			if(empty($values)){
+		if (in_array($operator, array('LIKE', 'NOT LIKE', 'OR LIKE', 'OR NOT LIKE'))) {
+			if (empty($values)) {
 				return $operator === 'LIKE' || $operator === 'OR LIKE' ? '0=1' : '';
 			}
 			
-			if($operator === 'LIKE' || $operator === 'NOT LIKE'){
+			if ($operator === 'LIKE' || $operator === 'NOT LIKE') {
 				$andor = ' AND ';
-			}else{
+			} else {
 				$andor = ' OR ';
-				$operator=$operator === 'OR LIKE' ? 'LIKE' : 'NOT LIKE';
+				$operator = $operator === 'OR LIKE' ? 'LIKE' : 'NOT LIKE';
 			}
 			
 			$expressions = array();
-			foreach($values as $value){
-				$expressions[] = $column.' '.$operator.' '.$this->_quotes($value);
+			foreach ($values as $value) {
+				$expressions[] = $column . ' ' . $operator . ' ' . $this->_quotes($value);
 			}
 			
-			return implode($andor,$expressions);
+			return implode($andor, $expressions);
 		}
 		
 		CDebug::addMessage('errors', 'wrong operator in condition ', A::t('core', 'Unknown operator "{operator}".', array('{operator}' => $operator)));
@@ -763,34 +759,34 @@ class CDbCommand
 	
 	/**
 	 * Appends an JOIN part to the query
-	 * @param string $type 					Ex.:('join', 'left join', 'right join', 'cross join', 'natural join')
-	 * @param string $table 
-	 * @param mixed $conditions 
-	 * @param array $params 
+	 * @param string $type Ex.:('join', 'left join', 'right join', 'cross join', 'natural join')
+	 * @param string $table
+	 * @param mixed $conditions
+	 * @param array $params
 	 * @return CDbCommand the command object itself
 	 */
 	private function _joinInternal($type, $table, $conditions = '', $params = array())
 	{
-		if(strpos($table, '(') === false){
-			if(preg_match('/^(.*?)(?i:\s+as|)\s+([^ ]+)$/', $table, $matches)){
+		if (strpos($table, '(') === false) {
+			if (preg_match('/^(.*?)(?i:\s+as|)\s+([^ ]+)$/', $table, $matches)) {
 				// With alias
-				$table = $this->_connection->quoteTableName($matches[1]).' '.$this->_connection->quoteTableName($matches[2]);
-			}else{
+				$table = $this->_connection->quoteTableName($matches[1]) . ' ' . $this->_connection->quoteTableName($matches[2]);
+			} else {
 				$table = $this->_connection->quoteTableName($table);
 			}
 		}
 		
 		$conditions = $this->_processConditions($conditions);
-		if($conditions != ''){
-			$conditions = ' ON '.$conditions;
+		if ($conditions != '') {
+			$conditions = ' ON ' . $conditions;
 		}
 		
-		if(isset($this->_query['join']) && is_string($this->_query['join'])){
+		if (isset($this->_query['join']) && is_string($this->_query['join'])) {
 			$this->_query['join'] = array($this->_query['join']);
 		}
 		
 		$this->_query['join'][] = strtoupper($type) . ' ' . $table . $conditions;
-		foreach($params as $name => $value){
+		foreach ($params as $name => $value) {
 			$this->_params[$name] = $value;
 		}
 		
@@ -805,23 +801,23 @@ class CDbCommand
 	 */
 	private function _quotes($string = '')
 	{
-		return $this->_backQuote.$string.$this->_backQuote;
+		return $this->_backQuote . $string . $this->_backQuote;
 	}
 	
 	/**
 	 * Prepare LIMIT clause for SQL statement
 	 * @param string $limit
-	 * @retun array 
+	 * @retun array
 	 */
 	private function _applyLimit($limit, $offset = '')
 	{
 		$limits = array('before' => '', 'after' => '');
 		
-		if(!empty($limit)){
-			if(preg_match('/mssql|sqlsrv/i', $this->_dbDriver)){
-				$limits['before'] = !empty($limit) ? ' TOP '.$limit : '';
-			}else{
-				$limits['after'] = !empty($limit) ? ' LIMIT '.(!empty($offset) ? ', ' : '').' '.$limit : '';
+		if (!empty($limit)) {
+			if (preg_match('/mssql|sqlsrv/i', $this->_dbDriver)) {
+				$limits['before'] = !empty($limit) ? ' TOP ' . $limit : '';
+			} else {
+				$limits['after'] = !empty($limit) ? ' LIMIT ' . (!empty($offset) ? ', ' : '') . ' ' . $limit : '';
 			}
 		}
 		
