@@ -42,8 +42,33 @@ class CAuthTestTest extends TestCase
 		self::assertEquals(true, CAuth::isLoggedInAs('user'));
 		self::assertEquals(false, CAuth::isLoggedInAs('customer'));
 	}
+	
+	/**
+	 * Test for CAuth::isLoggedInAsAdmin
+	 */
+	public function testIsLoggedInAsAdmin(): void
+	{
+		A::app()->getSession()->set('loggedId', 0);
+		self::assertEquals(false, CAuth::isLoggedInAsAdmin());
+		
+		A::app()->getSession()->set('loggedId', 1);
+		self::assertEquals(false, CAuth::isLoggedInAsAdmin());
+		
+		A::app()->getSession()->set('loggedRole', 'owner');
+		self::assertEquals(true, CAuth::isLoggedInAsAdmin());
+		
+		A::app()->getSession()->set('loggedRole', 'mainadmin');
+		self::assertEquals(true, CAuth::isLoggedInAsAdmin());
+		
+		A::app()->getSession()->set('loggedRole', 'admin');
+		self::assertEquals(true, CAuth::isLoggedInAsAdmin());
+		
+		A::app()->getSession()->set('loggedRole', 'super-admin');
+		self::assertEquals(false, CAuth::isLoggedInAsAdmin());
+		self::assertEquals(true, CAuth::isLoggedInAsAdmin(array('super-admin')));
+	}
 
-	//isLoggedInAsAdmin
+	//
 	//isGuest()
 	// handleLogin
 	// handleLoggedIn
