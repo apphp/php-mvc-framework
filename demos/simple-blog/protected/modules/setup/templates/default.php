@@ -10,7 +10,7 @@
 
     <?php echo CHtml::cssFile('templates/setup/css/main.css'); ?>
 
-	<?php echo CHtml::scriptFile('//code.jquery.com/jquery-1.8.3.min.js'); ?>
+	<?php echo CHtml::scriptFile('//code.jquery.com/jquery-1.11.3.min.js'); ?>
 </head>
 <body>
     <header>        
