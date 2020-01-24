@@ -10,8 +10,8 @@ env:
 on:
   push:
     branches: 
-      # master
-      - dev
+      - master
+      #- dev
 
 jobs:
 #  my-testing:
