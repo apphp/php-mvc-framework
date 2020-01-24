@@ -46,7 +46,7 @@ jobs:
           phpunit --version
 
       - name: Install PHPUnit
-        run: composer require phpunit/phpunit ^7
+        run: composer require phpunit/phpunit
 
       - name: Check again some packages if they are installed
         run: | 
