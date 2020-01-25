@@ -14,12 +14,14 @@ on:
       - dev
 
 jobs:
-#  my-testing:
+  runs-on: ubuntu-latest
+
+  my-testing:
 #    runs-on: ubuntu-latest
 
-#    steps:
-#    - name: Run testing
-#      run: echo Testing is running...
+    steps:
+    - name: Run testing
+      run: echo Testing is running...
 #    
 #    - name: Print env variables
 #      run: | 
@@ -27,7 +29,7 @@ jobs:
    
 
   my-deploy:
-    runs-on: ubuntu-latest
+#    runs-on: ubuntu-latest
  #   needs: [my-testing]
     
     steps:
@@ -46,19 +48,13 @@ jobs:
           composer --version
           phpunit --version
 
-      - name: Install Composer
-        run: |
-          apt-get update && apt-get install -y unzip
-          curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-          composer install
-
-      - name: Install PHPUnit
-        run: composer require phpunit/phpunit ^7
-
-      - name: Check again some packages if they are installed
-        run: | 
-          composer --version
-          phpunit --version
+#      - name: Re-install PHPUnit
+#        run: composer require phpunit/phpunit ^7
+#
+#      - name: Check again some packages if they are installed
+#        run: |
+#          composer --version
+#          phpunit --version
     
       - name: Runt PHPUnit tests 
         run: composer tests
