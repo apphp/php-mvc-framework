@@ -2,57 +2,99 @@
 
 <ul>
     <li><a href="index.php?page=unit-tests#general"><span>General</span></a></li>
-    <li><a href="index.php?page=unit-tests#installation"><span>Installation and usage</span></a></li>
+    <li><a href="index.php?page=unit-tests#tests_installation"><span>Installation of PHPUnit</span></a></li>
+    <li><a href="index.php?page=unit-tests#tests_running"><span>Running tests</span></a></li>
 </ul>
 <br />
 
 
 <a name="general"></a>
+<h3>General: <a class="hashlink" href="#general">¶</a></h3>
 <p>
     Because the ApPHP Framework testing is built on top of PHPUnit, we strongly recommended that you go through the PHPUnit documentation
     first to get the basic understanding on how to write a unit test.
 
     We summarize in the following the basic principles of writing a unit test in ApPHP.
+
+    <ul>
+        <li>
+            A unit test is written in terms of a class <code>AbcTest</code> which extends from <code>TestCase</code>,
+            where <code>AbcTest</code> stands for the class being tested.
+
+            For example, to test the <code>CArray</code> class, we would name the corresponding unit test as CArrayTest by convention.
+            The base class <code>TestCase</code> is meant for generic unit tests. Because <code>PHPUnit_Framework_TestCase</code>
+            is the ancestor class for these classes, we can use all methods inherited from this class.
+        </li>
+        <li>
+            The unit test class is saved in a PHP file named as <code>AbcTest.php</code>.
+            It may be stored under the directory <code>tests/framework</code> for framework tests or
+            <code>tests/protected</code> for application tests.
+        </li>
+        <li>
+            The test class mainly contains a set of test methods named as <code>testAbc</code>, where <code>Abc</code> is
+            often the name of the class method to be tested.
+        </li>
+        <li>
+            A test method usually contains a sequence of assertion statements (e.g. assertTrue, assertEquals) which serve
+            as checkpoints on validating the behavior of the target class.
+        </li>
+    </ul>
 </p>
+<br>
 
-.........
 
-
-<a name="installation"></a>
+<a name="tests_installation"></a>
+<h3>Installation and usage: <a class="hashlink" href="#tests_installation">¶</a></h3>
 <p>
     To install and run Unit test you have to perform following actions:
 </p>
 
 <ol>
     <li>
-        Make sure you added following to <strong>composer.json</strong> file:
-<pre>
-
-        "scripts": {
-        "tests-result": "phpunit --colors=always --log-junit test-results.xml",
-        "tests": "phpunit --colors=always",
-        "test": "phpunit --colors=always --filter"
-        }
-</pre>
-
-    </li>
-    <li>
         Install composer on your server.
         <a class="external" href="https://getcomposer.org" target="_blank" rel="noopener noreferrer">https://getcomposer.org</a>
+        <br><br>
     </li>
     <li>
         After Composer is installed, install PHPUnit by<br>
         <pre>composer require phpunit/phpunit --dev</pre>
-        <br><br>
-
-        you may also remove it and re-install:<br>
+        <br>
+        you may also remove it and re-install again:<br>
 <pre>composer remove phpunit/phpunit --dev
 composer update
 </pre>
-
     </li>
     <li>
-        Run tests by....
+        Make sure you added following to <strong>composer.json</strong> file:
+        <pre>
+"scripts": {
+    "tests-result": "phpunit --colors=always --log-junit test-results.xml",
+    "tests": "phpunit --colors=always",
+    "test": "phpunit --colors=always --filter"
+}
+</pre>
+    </li>
+    <li>
+        Create test files in  <code>tests/protected</code> directory and write your tests.
     </li>
 </ol>
+<br>
 
+
+<a name="tests_running"></a>
+<h3>Running tests: <a class="hashlink" href="#tests_running">¶</a></h3>
+<ol>
+    <li>
+        To run all your tests use following command in command line:
+        <pre>composer tests</pre>
+    </li>
+    <li>
+        To run specific test use following command:
+        <pre>composer test AbcTest</pre>
+    </li>
+    <li>
+        To run specific test from the specific test file use following command:
+        <pre>composer test AbcTest::testXyz</pre>
+    </li>
+
+</ol>

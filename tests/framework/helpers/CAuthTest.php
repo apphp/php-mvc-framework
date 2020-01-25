@@ -8,7 +8,7 @@ use CAuth;
 
 require_once('tests/autoload.php');
 
-class CAuthTestTest extends TestCase
+class CAuthTest extends TestCase
 {
 	protected function setUp(): void
 	{
