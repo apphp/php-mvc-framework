@@ -10,8 +10,8 @@ env:
 on:
   push:
     branches: 
-      #- master
-      - dev
+      - master
+      #- dev
 
 jobs:
 #  testing:
@@ -33,7 +33,7 @@ jobs:
       - name: Print env variables
         run: | 
           echo "Pack Name: ${{ env.DEPLOY_PACKAGE_NAME }}"
-          
+
       - name: Git clone my repo  
         uses: actions/checkout@v1
 
