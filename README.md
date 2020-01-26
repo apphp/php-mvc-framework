@@ -40,4 +40,4 @@ The ApPHP Developer Team
 
 
 Status of last deployment:  
-<img src="https://github.com/apphp/php-mvc-framework/workflows/build/badge.svg?branch=master" />
+![build](https://github.com/apphp/php-mvc-framework/workflows/build/badge.svg)
