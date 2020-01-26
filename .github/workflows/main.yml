@@ -1,7 +1,7 @@
 #-----------------------------------------
 # Framework Deploy
 #-----------------------------------------
-name: Framework Deploy
+name: ApPHP-Framework-Deploy
 env:
   APP_NAME: ApPHP-MVC-Framework
   DEPLOY_PACKAGE_NAME: "apphp-deploy-${{ github.sha }}"

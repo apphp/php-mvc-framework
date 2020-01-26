@@ -39,4 +39,5 @@ The ApPHP Developer Team
 - [GitHub Repository](https://github.com/apphp/php-mvc-framework)
 
 
-Status of last deployment:
+Status of last deployment:  
+https://github.com/apphp/php-mvc-framework/workflows/ApPHP-Framework-Deploy/badge.svg?branch=master
