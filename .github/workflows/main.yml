@@ -14,15 +14,24 @@ on:
       #- dev
 
 jobs:
-#  testing:
+#  my-testing:
 #    runs-on: ubuntu-latest
+#    env:
+#      VAR1: "Local var1"
+#      VAR2: "Local var2"
 #    steps:
 #    - name: Run testing
 #      run: echo Testing is running...
-#    
 #    - name: Print env variables
-#      run: | 
+#      run: |
 #        echo "App Name: ${{ env.APP_NAME }}"
+#    - name: Print local env variables
+#      run: |
+#        echo "Var1: ${{ env.VAR1 }}"
+#        echo "Var2: ${{ env.VAR2 }}"
+#        echo "Var2: $LOCAL_VAR"
+#      env:
+#        LOCAL_VAR: "Super local var"
    
 
   deploy:

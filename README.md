@@ -1,10 +1,10 @@
 ApPHP Web Development Framework
-===============================
+---------------------------------------------------------------------------
 
 Thank you for choosing ApPHP - a high-performance PHP MVC framework
 
 INSTALLATION
-------------
+---------------------------------------------------------------------------
 Please make sure the release file is unpacked under a web-accessible directory.
 You will see the following files and directories:
 
@@ -34,6 +34,9 @@ discussions with other ApPHP users.
 
 The ApPHP Developer Team
 ------------
-https://www.apphp.com/php-framework/
-http://www.apphpframework.com
-https://github.com/apphp/php-mvc-framework
+- [Official Website](http://www.apphpframework.com)
+- [Website](https://www.apphp.com/php-framework/)
+- [GitHub Repository](https://github.com/apphp/php-mvc-framework)
+
+
+Status of last deployment:
