@@ -1,9 +1,9 @@
 #-----------------------------------------
 # Framework Deploy
 #-----------------------------------------
-name: ApPHP-Framework-Deploy
+name: build
 env:
-  APP_NAME: ApPHP-MVC-Framework
+  APP_NAME: ApPHP MVC Framework
   DEPLOY_PACKAGE_NAME: "apphp-deploy-${{ github.sha }}"
 
 # Run on [push]
