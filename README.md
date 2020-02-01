@@ -22,7 +22,10 @@ If you're starting a new project, we recommend using the [Directy CMF](https://g
 a starting point. For installing new version in existing applications you can run the following:
 
 ``` bash
-$ composer require apphp/php-mvc-framework
+composer remove phpunit/phpunit --dev
+or  
+composer require phpunit/phpunit --dev
+composer update
 ```
 
 ## Manual installation of ApPHP Framework
