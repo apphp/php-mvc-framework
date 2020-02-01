@@ -22,10 +22,10 @@
         "sort-packages": true
     },
     "require": {
-        "php": ">=5.4.0"
+        "php": ">=5.4.0",
+        "apphp/php-mvc-framework": "^1.2.2",
     },
     "require-dev": {
-        "apphp/php-mvc-framework": "^1.2.2@dev",
         "phpunit/phpunit": "^7.5"
     },
     "autoload": {
