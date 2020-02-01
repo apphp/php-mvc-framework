@@ -3,6 +3,7 @@
 
 <p align="center">
 <a href="https://github.com/apphp/php-mvc-framework"><img src="https://github.com/apphp/php-mvc-framework/workflows/build/badge.svg" alt="Build Status"></a>
+<a href="http://apphpframework.com/license/"><img src="http://apphpframework.com/license/license.svg" alt="License"></a>
 </p>
 
 ## About ApPHP Framework
@@ -22,10 +23,7 @@ If you're starting a new project, we recommend using the [Directy CMF](https://g
 a starting point. For installing new version in existing applications you can run the following:
 
 ``` bash
-composer remove phpunit/phpunit --dev
-or  
 composer require phpunit/phpunit --dev
-composer update
 ```
 
 ## Manual installation of ApPHP Framework
