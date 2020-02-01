@@ -3,6 +3,7 @@
     "type": "project",
     "description": "The ApPHP Framework.",
     "minimum-stability": "dev",
+    "prefer-stable": true,
     "keywords": [
         "framework",
         "mvc",
@@ -24,7 +25,7 @@
         "php": ">=5.4.0"
     },
     "require-dev": {
-        "apphp/php-mvc-framework": "dev-master",
+        "apphp/php-mvc-framework": "^1.2.2@dev",
         "phpunit/phpunit": "^7.5"
     },
     "autoload": {
