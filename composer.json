@@ -2,6 +2,7 @@
     "name": "apphp/php-mvc-framework",
     "type": "project",
     "description": "The ApPHP Framework.",
+    "minimum-stability": "dev",
     "keywords": [
         "framework",
         "mvc",
