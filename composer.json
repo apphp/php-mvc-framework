@@ -12,8 +12,10 @@
     "license": "LGPL",
     "authors": [
         {
-            "name": "ApPHP",
-            "homepage": "https://apphp.com/php-framework"
+            "name": "Samuel Akopyan",
+            "email": "admin@apphp.com",
+            "homepage": "https://apphp.com/php-framework",
+            "role": "Founder and project lead"
         }
     ],
     "minimum-stability": "dev",
