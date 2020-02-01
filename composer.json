@@ -23,6 +23,7 @@
         "php": ">=5.4.0"
     },
     "require-dev": {
+        "apphp/php-mvc-framework": "dev-master",
         "phpunit/phpunit": "^7.5"
     },
     "autoload": {
