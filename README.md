@@ -77,8 +77,7 @@ operating systems.
 
 ## What's next
 
-Please visit the project website for tutorials, class reference and join
-discussions with other ApPHP users.
+Please visit the project website for tutorials, class reference and join discussions with other ApPHP users.
 
 ## The ApPHP Developer Team
 
