@@ -15,7 +15,17 @@ It implements the the Model-View-Controller (MVC) design pattern and principles,
 and data layers. It provides an architecture, components and tools for developers to build a complex web applications 
 faster and safer.
 
-## Installation
+## Installing ApPHP Framework via Composer
+
+You can install ApPHP into your project using [Composer](https://getcomposer.org).  
+If you're starting a new project, we recommend using the [Directy CMF](https://github.com/apphp/directy-cmf) as
+a starting point. For installing new version in existing applications you can run the following:
+
+``` bash
+$ composer require apphp/php-mvc-framework
+```
+
+## Manual installation of ApPHP Framework
 
 Please make sure the release file is unpacked under a web-accessible directory.
 You will see the following files and directories:
@@ -32,6 +42,31 @@ You will see the following files and directories:
     LICENSE             license of ApPHP Framework
     README              this file
     UPDATE              updating instructions
+
+## Running Tests
+
+Assuming you have PHPUnit installed system wide using one of the methods stated
+[here](https://phpunit.de/manual/current/en/installation.html), you can run the
+tests for ApPHP Framework by doing the following:
+
+1. Install composer on your server.
+2. After Composer is installed, install PHPUnit by
+``` bash
+composer remove phpunit/phpunit --dev
+composer update
+```
+2. Make sure you added following to <strong>composer.json</strong> file:
+``` bash
+"scripts": {
+    "tests-result": "phpunit --colors=always --log-junit test-results.xml",
+    "tests": "phpunit --colors=always",
+    "test": "phpunit --colors=always --filter"
+}
+```
+4. Run `phpunit` by:
+``` bash
+composer tests
+```
 
 ## Requirements
 
