@@ -19,7 +19,7 @@
 				'is_active' => array('title' => A::t('app', 'Active'), 'type' => 'enum', 'operator' => '=', 'width' => '', 'source' => array('' => '', '0' => A::t('app', 'No'), '1' => A::t('app', 'Yes'))),
 			),
 			'fields' => array(
-				'fullname' => array('title' => A::t('app', 'Full Name'), 'type' => 'label', 'class' => 'left', 'headerClass' => 'left', 'width' => '110px'),
+				'fullname' => array('title' => A::t('app', 'Full Name'), 'type' => 'label', 'class' => 'left', 'headerClass' => 'left', 'width' => '190px'),
 				'username' => array('title' => A::t('app', 'Username'), 'type' => 'label', 'class' => 'left', 'headerClass' => 'left', 'width' => '110px'),
 				'email' => array('title' => A::t('app', 'Email'), 'type' => 'label', 'class' => 'left', 'headerClass' => 'left'),
 				'role' => array('title' => A::t('app', 'Account Type'), 'type' => 'enum', 'class' => 'center', 'headerClass' => 'center', 'source' => $rolesList, 'width' => '110px'),

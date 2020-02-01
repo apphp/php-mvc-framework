@@ -36,7 +36,7 @@
     <header>
         <nav>
             <ul class="menu">
-				<li class="active"><a href="index.php">ApPHP Framework Guide 1.2</a></li>
+				<li class="active"><a href="index.php">ApPHP Framework Guide 1.3</a></li>
 				<li><a href="../utils/requirements/index.php">Requirements</a></li>				
 				<li><a href="../utils/tests/index.php">Tests</a></li>
                 <li><a href="../utils/generators/index.php">Code Generators</a></li>
@@ -49,7 +49,7 @@
 				</li>				
 			</ul>
 			<ul class="menu" style="float:right">
-				<li class="active"><a href="../index.html">&laquo; Back to Site</a></li>
+				<li class="active"><a href="../index.html">&laquo; Index</a></li>
 			</ul>           
         </nav>
     </header>

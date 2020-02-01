@@ -14,7 +14,7 @@
 			'fields' => array(
 				'act' => array('type' => 'hidden', 'value' => 'send'),
 				'menuName' => array('type' => 'textbox', 'title' => 'Menu Name', 'mandatoryStar' => true, 'htmlOptions' => array('maxlength' => '50', 'class' => 'text_header')),
-				'sortOrder' => array('type' => 'hidden', 'value' => '0'),
+				'sortOrder' => array('type' => 'hidden', 'value' => '1'),
 			),
 			'buttons' => array(
 				'submit' => array('type' => 'submit', 'value' => 'Create'),

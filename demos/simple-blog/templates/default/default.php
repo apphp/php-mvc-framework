@@ -14,15 +14,6 @@
 	
 	<?= CHtml::scriptFile('//code.jquery.com/jquery-1.11.3.min.js'); ?>
 	<?= CHtml::scriptFile('templates/default/js/main.js'); ?>
-	
-	<?
-//		echo CHtml::scriptFiles(array(
-//			'templates/default/js/main.js',
-//			'//code.jquery.com/jquery-1.11.3.min.js' => array('integrity'=>'...', 'crossorigin'=>'anonymous')
-//		));
-	?>
-	
-
 </head>
 <body>
 <header>
