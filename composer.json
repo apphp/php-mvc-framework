@@ -2,8 +2,6 @@
     "name": "apphp/php-mvc-framework",
     "type": "project",
     "description": "The ApPHP Framework.",
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "keywords": [
         "framework",
         "mvc",
@@ -18,15 +16,17 @@
             "homepage": "https://apphp.com/php-framework"
         }
     ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "config": {
         "sort-packages": true
     },
     "require": {
-        "php": ">=5.4.0",
-        "apphp/php-mvc-framework": "^1.2.2",
+        "php": ">=5.4.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^7.5"
+        "phpunit/phpunit": "^7.5",
+        "apphp/php-mvc-framework": "^1.2.2"
     },
     "autoload": {
         "psr-4": {
