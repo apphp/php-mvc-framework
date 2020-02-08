@@ -3,7 +3,8 @@
 
 <p align="center">
 <a href="https://github.com/apphp/php-mvc-framework"><img src="https://github.com/apphp/php-mvc-framework/workflows/build/badge.svg" alt="Build Status"></a>
-<a href="http://apphpframework.com/license/"><img src="http://apphpframework.com/license/license.svg" alt="License"></a>
+<a href="https://opensource.org/licenses/lgpl-3.0.html"><img src="http://apphpframework.com/images/badges/license.svg" alt="License LGPL"></a>
+<a href="http://apphpframework.com/"><img src="http://apphpframework.com/images/badges/stable.svg" alt="Stable Version"></a>
 </p>
 
 ## About ApPHP Framework
@@ -16,17 +17,26 @@ It implements the the Model-View-Controller (MVC) design pattern and principles,
 and data layers. It provides an architecture, components and tools for developers to build a complex web applications 
 faster and safer.
 
-## Installing ApPHP Framework via Composer
+## Installing ApPHP Framework 
 
-You can install ApPHP into your project using [Composer](https://getcomposer.org).  
+#### via Git
+
+``` bash
+git clone https://github.com/apphp/php-mvc-framework.git 
+```
+
+#### via Composer
+
+You can install ApPHP into your project using [Composer](https://getcomposer.org).
+
 If you're starting a new project, we recommend using the [Directy CMF](https://github.com/apphp/directy-cmf) as
 a starting point. For installing new version in existing applications you can run the following:
 
 ``` bash
-composer require phpunit/phpunit --dev
+composer require apphp/php-mvc-framework
 ```
 
-## Manual installation of ApPHP Framework
+#### Manual installation
 
 Please make sure the release file is unpacked under a web-accessible directory.
 You will see the following files and directories:
@@ -53,8 +63,7 @@ tests for ApPHP Framework by doing the following:
 1. Install composer on your server.
 2. After Composer is installed, install PHPUnit by
 ``` bash
-composer remove phpunit/phpunit --dev
-composer update
+composer require phpunit/phpunit --dev
 ```
 2. Make sure you added following to <strong>composer.json</strong> file:
 ``` bash
@@ -74,6 +83,10 @@ composer tests
 The minimum requirement by ApPHP is that your Web server supports PHP 5.4.0 or
 above. ApPHP has been tested with Apache HTTP server on Windows and Linux
 operating systems.
+
+## License
+
+The Laravel framework is open-sourced software licensed under the [LGPL3 license](https://opensource.org/licenses/lgpl-3.0.html).
 
 ## What's next
 
