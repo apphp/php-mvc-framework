@@ -339,11 +339,10 @@ class CView
 					}
 				}
 				
-				$this->_isRendered = true;
-				
 				if ($return) {
 					return $output;
 				} else {
+					$this->_isRendered = true;
 					echo $output;
 				}
 				

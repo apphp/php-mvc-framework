@@ -1,3 +1,8 @@
+Version 1.4.x -
+----------------------------
+- Bug: fixed wrong assignment of _isRendered in CView
+
+
 Version 1.3.2 - 24 Jan, 2020
 ----------------------------
 - New: added CRecordEntity to ORM model
