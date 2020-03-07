@@ -68,7 +68,7 @@ class A
 	
 	
 	/** @var string */
-	private static $_frameworkVersion = '1.2.2';
+	private static $_frameworkVersion = '1.3.2';
 	/** @var string */
 	private static $_phpVersion;
 	/** @var object */
