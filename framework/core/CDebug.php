@@ -11,7 +11,7 @@
  * PUBLIC (static):            PROTECTED:               PRIVATE (static):
  * ---------------            ---------------           ---------------
  * init
- * dump / d
+ * dump / d / dd
  * console / c
  * write
  * prepareBacktrace
@@ -77,7 +77,18 @@ class CDebug
 	{
 		self::dump($param, $terminate, $useDbug);
 	}
-	
+
+    /**
+     * Alias to method 'dump' with $terminate=true param
+     * @param mixed $param
+     * @param bool $useDbug
+     * @return HTML dump
+     */
+    public static function dd($param, $useDbug = true)
+    {
+        self::dump($param, true, $useDbug);
+    }
+
 	/**
 	 * Displays parameter on the screen
 	 * @param mixed $param
