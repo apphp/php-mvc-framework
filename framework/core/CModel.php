@@ -41,11 +41,12 @@ abstract class CModel
 		$this->_error = CDatabase::getError();
 		$this->_errorMessage = CDatabase::getErrorMessage();
 	}
-	
-	/**
-	 * Initializes the database class
-	 * @param array $params
-	 */
+
+    /**
+     * Initializes the database class
+     * @param  array  $params
+     * @return CModel|object
+     */
 	public static function init($params = array())
 	{
 		if (self::$_instance == null) self::$_instance = new self($params);

@@ -83,7 +83,10 @@ class A
 	/** @var array */
 	private static $_coreClasses = array(
 		'CConfig' => 'collections/CConfig.php',
-		
+
+        'CConsole' => 'console/CConsole.php',
+        'CConsoleCommand' => 'console/CConsoleCommand.php',
+
 		'CController' => 'core/CController.php',
 		'CDebug' => 'core/CDebug.php',
 		'CModel' => 'core/CModel.php',
