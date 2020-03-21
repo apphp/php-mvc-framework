@@ -11,7 +11,7 @@
  * PUBLIC (static):            PROTECTED:               PRIVATE (static):
  * ---------------            ---------------           ---------------
  * init
- * dump / d / dd
+ * dump / d / dd / ddd
  * console / c
  * write
  * prepareBacktrace
@@ -89,6 +89,17 @@ class CDebug
         self::dump($param, true, $useDbug);
     }
 
+    /**
+     * Alias to method 'dump' with $terminate=true param and showing debug panel
+     * @param mixed $param
+     * @return HTML dump
+     */
+    public static function ddd($param)
+    {
+        CDebug::displayInfo();
+        self::dump($param, true, true);
+    }
+
 	/**
 	 * Displays parameter on the screen
 	 * @param mixed $param
@@ -102,7 +113,7 @@ class CDebug
 			@header('content-type: text/html; charset=utf-8');
 			echo '<!DOCTYPE html><html><head><meta charset="UTF-8" /></head><body>';
 		}
-		
+
 		if ($useDbug) {
 			include_once(dirname(__FILE__) . DS . '..' . DS . 'vendors' . DS . 'dbug' . DS . 'dbug.php');
 			new dBug($param);
