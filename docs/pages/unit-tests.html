@@ -93,8 +93,12 @@ composer update
         <pre>composer test AbcTest</pre>
     </li>
     <li>
-        To run specific test from the specific test file use following command:
+        To run specific test from the specific test file use following command (if it's placed in default directory):
         <pre>composer test AbcTest::testXyz</pre>
+
+        or
+        <pre>composer test AbcTest Tests\\Unit\\Entity\\User\\AbcTest.php</pre>
+        where 2nd parameter is a path to test class
     </li>
 
 </ol>
