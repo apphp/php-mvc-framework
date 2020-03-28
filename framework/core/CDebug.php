@@ -363,25 +363,33 @@ class CDebug
 		$totalWarnings = count(self::$_arrWarnings);
 		$totalErrors = count(self::$_arrErrors);
 		$totalQueries = count(self::$_arrQueries);
-		
-		// Debug bar status
+
+        $totalRunningTime = round((float)self::$_endTime - (float)self::$_startTime, 5);
+        $totalRunningTimeQueriesSql = round((float)self::$_sqlTotalTime, 5);
+        $totalRunningTimeConnectionSql = round((float)self::$_sqlConnectionTime, 5);
+        $totalRunningTimeScript = round($totalRunningTime - $totalRunningTimeConnectionSql - $totalRunningTimeQueriesSql, 5);
+        $totalMemoryUsage = CConvert::fileSize((float)self::$_endMemoryUsage - (float)self::$_startMemoryUsage);
+        $htmlCompressionRate = !empty(self::$_arrData['html-compression-rate']) ? self::$_arrData['html-compression-rate'] : A::t('core', 'Unknown');
+
+        // Debug bar status
 		$debugBarState = isset($_COOKIE['debugBarState']) ? $_COOKIE['debugBarState'] : 'min';
 		$onDblClick = 'appTabsMinimize()';
 		
 		$panelAlign = A::app()->getLanguage('direction') == 'rtl' ? 'left' : 'right';
 		$panelTextAlign = A::app()->getLanguage('direction') == 'rtl' ? 'right' : 'left';
+
 		$output = $nl . '<style type="text/css">
 			#debug-panel {opacity:0.9;position:fixed;bottom:0;left:0;z-index:2000;width:100%;max-height:90%;font:12px tahoma, verdana, sans-serif;color:#000;}
 			#debug-panel fieldset {padding:0px 10px;background-color:#fff;border:1px solid #ccc;width:98%;margin:0px auto 0px auto;text-align:' . $panelTextAlign . ';}
 			#debug-panel fieldset legend {float:' . $panelAlign . ';background-color:#f9f9f9;padding:5px 5px 4px 5px;border:1px solid #ccc;border-left:1px solid #ddd;border-bottom:1px solid #f4f4f4;margin:-15px 0 0 10px;font:12px tahoma, verdana, sans-serif;width:auto;}
 			#debug-panel fieldset legend ul {color:#999;font-weight:normal;margin:0px;padding:0px;}
 			#debug-panel fieldset legend ul li{float:left;width:auto;list-style-type:none;}
-			#debug-panel fieldset legend ul li.title{min-width:50px;width:auto;padding:0 2px;}
+			#debug-panel fieldset legend ul li.title{min-width:10px;width:auto;padding:0 2px;}
 			#debug-panel fieldset legend ul li.narrow{width:auto;padding:0 2px;}
 			#debug-panel fieldset legend ul li.item{width:auto;padding:0 12px;border-right:1px solid #999;}
-			#debug-panel fieldset legend ul li.item:last-child{' . (A::app()->getLanguage('direction') == 'rtl' ? 'padding:0 12px 0 0;' : 'padding:0 0 0 12px;') . 'border-right:0px;}
+			#debug-panel fieldset legend ul li.item.item-last{margin:' . (A::app()->getLanguage('direction') == 'rtl' ? '0 12px 0 0' : '0 12px 0 0') . ';}
 			#debug-panel a {text-decoration:none;text-transform:none;color:#bbb;font-weight:normal;}
-			#debug-panel a.debugArrow {color:#222;}
+			#debug-panel a.debugArrow {color:#222;margin: auto 2px}
 			#debug-panel a.black {color:#222;}
             #debug-panel pre {border:0px;}
 			#debug-panel strong {font-weight:bold;}
@@ -389,12 +397,15 @@ class CDebug
 			#debug-panel .tab-orange { color:#d15600 !important; }
 			#debug-panel .tab-red { color:#cc0000 !important; }
 			@media (max-width: 680px) {
+				#debug-panel fieldset legend ul li.item.item-clock {display:none;}
+				#debug-panel fieldset legend ul li.title > .item-debug {display:none;}				
 				#debug-panel fieldset legend ul li.item a {display:block;visibility:hidden;}				
 				#debug-panel fieldset legend ul li.item a:first-letter {visibility:visible !important;}
 				#debug-panel fieldset legend ul li.item {width:30px; height:15px; margin-bottom:3px;)
 			}
-		</style>
-		<script type="text/javascript">
+		</style>';
+
+		$output .= $nl . '<script type="text/javascript">
 			var arrDebugTabs = ["General","Params","Console","Warnings","Errors","Queries"];
 			var debugTabsHeight = "200px";
 			var cssText = keyTab = "";
@@ -438,23 +449,30 @@ class CDebug
 				document.getElementById("debug-panel").style.opacity = (act == "min") ? "0.9" : "1";
 				appSetCookie(act, key);
 			}
-		</script>
+		</script>';
 		
-		<div id="debug-panel">
+		$output .= $nl . '<div id="debug-panel">
 		<fieldset>
 		<legend id="debug-panel-legend">
 			<ul>
-				<li class="title"><b style="color:#222">' . A::t('core', 'Debug') . '</b>:&nbsp;</li>
-				<li class="narrow"><a id="debugArrowExpand" class="debugArrow" style="display:;" href="javascript:void(0)" title="Expand" onclick="javascript:appTabsMiddle()">&#9650;</a></li>
-				<li class="narrow"><a id="debugArrowCollapse" class="debugArrow" style="display:none;" href="javascript:void(0)" title="Collapse" onclick="javascript:appTabsMinimize()">&#9660;</a></li>
-				<li class="narrow"><a id="debugArrowMaximize" class="debugArrow" style="display:;" href="javascript:void(0)" title="Maximize" onclick="javascript:appTabsMaximize()">&#9744;</a></li>
-				<li class="narrow"><a id="debugArrowMinimize" class="debugArrow" style="display:none;" href="javascript:void(0)" title="Minimize" onclick="javascript:appTabsMiddle()">&#9635;</a></li>
+				<li class="title" style="display:flex">
+				    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAmRJREFUeNpcUz1vE0EQfbu3Pp99jo/YB7FkCloKoIlQYuAPhIICBEIgJ3TIRkKiAqeBnhCFAhoiWUJCKBREiCYJHxWiSIWE4CcgURDZDo4/7oPZuTs75qS73Zud9/btzhthu+Zcr+19FRKQhgCEoJEGSfNDTxiECHw90WNI/4CVV/PCMGWogcIYA6URvYcfDYqAEVEY/wtlEYGSDJZKwNDzlGCi3IyJi49PotfysFn7HpEMI6BPoyZRMt6ZwaaEkZI86ljhhE0JafT3hlCWgcAL4IsQGASsyqfjKC1d75aAr708w4vv7v6AU8rCVGkM2/u4sn6K4xuL3+grEfb96Nh0Z6MzL76uwErZeH/vJxQRFsoO0ioL7y84pteqryoEHGNkcmn1zQXY5hFs1HZJCSlKS7jlaQb1Wz7H3tR3Oaf+doF3B2uhp/GxiimriBfVLSZLSIslF5ay0et4fEc6tr60zbmNnSp06ZUmyGdcaL7JwgHHSjNImQa6rd5E3KH8MJ6zgvvnnyBvHcXKziOuc0i3m3Ns5HPTyKTyaP/usHEojJWth5z74MIqx5hA17M+16CFIp5/eMq1dgoOMqZNJTNw0BlQ3QM8217jnDvzy4xhBSOHkbuWZmt0SQ6an5souvr8U+j+GcDrB2h+avLarbO12I2RKxVLo5dNQnqunr5BnhC4fPsSVSBL8rvwDnxcn71JOSE8MlHiRm1pxZ6WI8dHZL5A6XiZTJTF3q8OK2CAF1mZSfzIyqNm0v4fmSNuLiGTThw3z/jIcTNRO1f6+94XISY7Ukj8186Y6ERdqXROnfsnwADuWSOCrzpCtgAAAABJRU5ErkJggg==">
+				    <b class="item-debug" style="color:#222;margin-left:7px;">' . A::t('core', 'Debug') . ':&nbsp;</b>
+				</li>				
+
+				<li class="item item-clock">&#9716 ' . round($totalRunningTime, 3) . ' ' . A::t('core', 'sec') . '</li>				
 				<li class="item"><a id="tabGeneral" href="javascript:void(\'General\')" onclick="javascript:appExpandTabs(\'auto\', \'General\')" ondblclick="javascript:' . $onDblClick . '">' . A::t('core', 'General') . '</a></li>
 				<li class="item"><a id="tabParams" href="javascript:void(\'Params\')" onclick="javascript:appExpandTabs(\'auto\', \'Params\')" ondblclick="javascript:' . $onDblClick . '">' . A::t('core', 'Params') . ' (' . $totalParams . ')</a></li>
 				<li class="item"><a id="tabConsole" href="javascript:void(\'Console\')" onclick="javascript:appExpandTabs(\'auto\', \'Console\')" ondblclick="javascript:' . $onDblClick . '">' . A::t('core', 'Console') . ' (' . $totalConsole . ')</a></li>
 				<li class="item"><a id="tabWarnings" href="javascript:void(\'Warnings\')" ' . ($totalWarnings ? 'class="tab-orange"' : '') . ' onclick="javascript:appExpandTabs(\'auto\', \'Warnings\')" ondblclick="javascript:' . $onDblClick . '">' . A::t('core', 'Warnings') . ' (' . $totalWarnings . ')</a></li>
 				<li class="item"><a id="tabErrors" href="javascript:void(\'Errors\')" ' . ($totalErrors ? 'class="tab-red"' : '') . ' onclick="javascript:appExpandTabs(\'auto\', \'Errors\')" ondblclick="javascript:' . $onDblClick . '">' . A::t('core', 'Errors') . ' (' . $totalErrors . ')</a></li>
-				<li class="item"><a id="tabQueries" href="javascript:void(\'Queries\')" onclick="javascript:appExpandTabs(\'auto\', \'Queries\')" ondblclick="javascript:' . $onDblClick . '">' . A::t('core', 'SQL Queries') . ' (' . $totalQueries . ')</a></li>
+				<li class="item item-last"><a id="tabQueries" href="javascript:void(\'Queries\')" onclick="javascript:appExpandTabs(\'auto\', \'Queries\')" ondblclick="javascript:' . $onDblClick . '">' . A::t('core', 'SQL Queries') . ' (' . $totalQueries . ')</a></li>
+
+				<li class="narrow"><a id="debugArrowExpand" class="debugArrow" style="display:;" href="javascript:void(0)" title="Expand" onclick="javascript:appTabsMiddle()">&#9650;</a></li>
+				<li class="narrow"><a id="debugArrowCollapse" class="debugArrow" style="display:none;" href="javascript:void(0)" title="Collapse" onclick="javascript:appTabsMinimize()">&#9660;</a></li>
+				<li class="narrow"><a id="debugArrowMaximize" class="debugArrow" style="display:;" href="javascript:void(0)" title="Maximize" onclick="javascript:appTabsMaximize()">&#9744;</a></li>
+				<li class="narrow"><a id="debugArrowMinimize" class="debugArrow" style="display:none;" href="javascript:void(0)" title="Minimize" onclick="javascript:appTabsMiddle()">&#9635;</a></li>
+				<li class="narrow"><a class="debugArrow" href="javascript:void(0)" title="Close">&times;</a></li>
 			</ul>
 		</legend>
 		
@@ -466,13 +484,6 @@ class CDebug
 		$output .= A::t('core', 'Directy CMF version') . ': ' . CConfig::get('directy_cmf_version') . '<br>';
 		$output .= A::t('core', 'PHP version') . ': ' . phpversion() . '<br>';
 		$output .= (CConfig::get('db.driver') != '' ? ucfirst(CConfig::get('db.driver')) . ' ' . A::t('core', 'version') . ': ' . CDatabase::init()->getVersion() : 'DB: ' . A::te('core', 'no')) . '<br><br>';
-		
-		$totalRunningTime = round((float)self::$_endTime - (float)self::$_startTime, 5);
-		$totalRunningTimeQueriesSql = round((float)self::$_sqlTotalTime, 5);
-		$totalRunningTimeConnectionSql = round((float)self::$_sqlConnectionTime, 5);
-		$totalRunningTimeScript = round($totalRunningTime - $totalRunningTimeConnectionSql - $totalRunningTimeQueriesSql, 5);
-		$totalMemoryUsage = CConvert::fileSize((float)self::$_endMemoryUsage - (float)self::$_startMemoryUsage);
-		$htmlCompressionRate = !empty(self::$_arrData['html-compression-rate']) ? self::$_arrData['html-compression-rate'] : A::t('core', 'Unknown');
 		
 		$output .= A::t('core', 'Total running time') . ': ' . $totalRunningTime . ' ' . A::t('core', 'sec') . '.<br>';
 		$output .= A::t('core', 'SQL connection running time') . ': ' . $totalRunningTimeConnectionSql . ' ' . A::t('core', 'sec') . '.<br>';
