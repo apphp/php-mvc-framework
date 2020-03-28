@@ -1,0 +1,27 @@
+<?php
+
+/**
+ * CVersionCommand console core class file
+ *
+ * @project ApPHP Framework
+ * @author ApPHP <info@apphp.com>
+ * @link http://www.apphpframework.com/
+ * @copyright Copyright (c) 2012 - 2020 ApPHP Framework
+ * @license http://www.apphpframework.com/license/
+ *
+ * PUBLIC (static):            PROTECTED:               PRIVATE (static):
+ * ---------------            ---------------           ---------------
+ * handle (static)
+ */
+
+class CVersionCommand
+{
+
+    public static function handle()
+    {
+        $output = 'ApPHP Framework ' . CConsole::green(A::version());
+
+        return $output;
+    }
+
+}

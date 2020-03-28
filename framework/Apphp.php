@@ -82,68 +82,72 @@ class A
 	);
 	/** @var array */
 	private static $_coreClasses = array(
-		'CConfig' => 'collections/CConfig.php',
+        'CConfig' => 'collections/CConfig.php',
 
-        'CConsole' => 'console/CConsole.php',
-        'CConsoleCommand' => 'console/CConsoleCommand.php',
+        'CController' => 'core/CController.php',
+        'CDebug'      => 'core/CDebug.php',
+        'CModel'      => 'core/CModel.php',
+        'CRouter'     => 'core/CRouter.php',
+        'CView'       => 'core/CView.php',
 
-		'CController' => 'core/CController.php',
-		'CDebug' => 'core/CDebug.php',
-		'CModel' => 'core/CModel.php',
-		'CRouter' => 'core/CRouter.php',
-		'CView' => 'core/CView.php',
-		
-		'CActiveRecord' => array('5.4.0' => 'db/CActiveRecord.php'),
-		'CRecordEntity' => 'db/CRecordEntity.php',
-		'CDatabase' => 'db/CDatabase.php',
-		'CDbCommand' => 'db/CDbCommand.php',
+        'CActiveRecord' => array('5.4.0' => 'db/CActiveRecord.php'),
+        'CRecordEntity' => 'db/CRecordEntity.php',
+        'CDatabase'     => 'db/CDatabase.php',
+        'CDbCommand'    => 'db/CDbCommand.php',
 	);
+    /** @var array */
+    private static $_coreConsoleClasses = array(
+        'CConsole'        => 'console/CConsole.php',
+        'CConsoleCommand' => 'console/CConsoleCommand.php',
+        'CHelpCommand'    => 'console/CHelpCommand.php',
+        'CVersionCommand' => 'console/CVersionCommand.php',
+    );
 	/** @var array */
 	private static $_coreComponents = array(
-		//'component' => array('class' => 'CComponent', 'path' => array('5.4.0' => 'components/CComponent.php')),
-		'component' => array('class' => 'CComponent', 'path' => 'components/CComponent.php'),
-		'clientScript' => array('class' => 'CClientScript', 'path' => 'components/CClientScript.php'),
-		'dbSession' => array('class' => 'CDbHttpSession', 'path' => 'components/CDbHttpSession.php'),
-		'request' => array('class' => 'CHttpRequest', 'path' => 'components/CHttpRequest.php'),
-		'session' => array('class' => 'CHttpSession', 'path' => 'components/CHttpSession.php'),
-		'cookie' => array('class' => 'CHttpCookie', 'path' => 'components/CHttpCookie.php'),
-		'localTime' => array('class' => 'CLocalTime', 'path' => 'components/CLocalTime.php'),
-		'logger' => array('class' => 'CLogger', 'path' => 'components/CLogger.php'),
-		'coreMessages' => array('class' => 'CMessageSource', 'path' => 'components/CMessageSource.php', 'language' => 'en'),
-		'messages' => array('class' => 'CMessageSource', 'path' => 'components/CMessageSource.php'),
-		'mobileDetect' => array('class' => 'CMobileDetect', 'path' => 'components/CMobileDetect.php'),
-		'shoppingCart' => array('class' => 'CShoppingCart', 'path' => 'components/CShoppingCart.php'),
-		'uri' => array('class' => 'CUri', 'path' => 'components/CUri.php'),
+        //'component' => array('class' => 'CComponent', 'path' => array('5.4.0' => 'components/CComponent.php')),
+        'component'    => array('class' => 'CComponent', 'path' => 'components/CComponent.php'),
+        'clientScript' => array('class' => 'CClientScript', 'path' => 'components/CClientScript.php'),
+        'dbSession'    => array('class' => 'CDbHttpSession', 'path' => 'components/CDbHttpSession.php'),
+        'request'      => array('class' => 'CHttpRequest', 'path' => 'components/CHttpRequest.php'),
+        'session'      => array('class' => 'CHttpSession', 'path' => 'components/CHttpSession.php'),
+        'cookie'       => array('class' => 'CHttpCookie', 'path' => 'components/CHttpCookie.php'),
+        'localTime'    => array('class' => 'CLocalTime', 'path' => 'components/CLocalTime.php'),
+        'logger'       => array('class' => 'CLogger', 'path' => 'components/CLogger.php'),
+        'coreMessages' => array('class' => 'CMessageSource', 'path' => 'components/CMessageSource.php', 'language' => 'en'),
+        'messages'     => array('class' => 'CMessageSource', 'path' => 'components/CMessageSource.php'),
+        'mobileDetect' => array('class' => 'CMobileDetect', 'path' => 'components/CMobileDetect.php'),
+        'shoppingCart' => array('class' => 'CShoppingCart', 'path' => 'components/CShoppingCart.php'),
+        'uri'          => array('class' => 'CUri', 'path' => 'components/CUri.php'),
 	);
 	/** @var array */
 	private static $_coreHelpers = array(
-		'CArray' => 'helpers/CArray.php',
-		'CAuth' => 'helpers/CAuth.php',
-		'CCache' => 'helpers/CCache.php',
-		'CClass' => 'helpers/CClass.php',
-		'CConvert' => 'helpers/CConvert.php',
-		'CCurrency' => 'helpers/CCurrency.php',
-		'CFile' => 'helpers/CFile.php',
-		'CFilter' => 'helpers/CFilter.php',
-		'CGeoLocation' => 'helpers/CGeoLocation.php',
-		'CHash' => 'helpers/CHash.php',
-		'CHtml' => 'helpers/CHtml.php',
-		'CImage' => 'helpers/CImage.php',
-		'CLoader' => 'helpers/CLoader.php',
-		'CLocale' => 'helpers/CLocale.php',
-		'CLog' => 'helpers/CLog.php',
-		'CMailer' => 'helpers/CMailer.php',
-		'CMinify' => 'helpers/CMinify.php',
-		'CNumber' => 'helpers/CNumber.php',
-		'COauth' => 'helpers/COauth.php',
-		'CPdf' => 'helpers/CPdf.php',
-		'CRss' => 'helpers/CRss.php',
-		'CSessionCache' => 'helpers/CSessionCache.php',
-		'CSoap' => 'helpers/CSoap.php',
-		'CString' => 'helpers/CString.php',
-		'CTime' => 'helpers/CTime.php',
-		'CValidator' => 'helpers/CValidator.php',
-		'CWidget' => 'helpers/CWidget.php',
+        'CArray'        => 'helpers/CArray.php',
+        'CAuth'         => 'helpers/CAuth.php',
+        'CCache'        => 'helpers/CCache.php',
+        'CClass'        => 'helpers/CClass.php',
+        'CConvert'      => 'helpers/CConvert.php',
+        'CCurrency'     => 'helpers/CCurrency.php',
+        'CFile'         => 'helpers/CFile.php',
+        'CFilter'       => 'helpers/CFilter.php',
+        'CGeoLocation'  => 'helpers/CGeoLocation.php',
+        'CHash'         => 'helpers/CHash.php',
+        'CHtml'         => 'helpers/CHtml.php',
+        'CImage'        => 'helpers/CImage.php',
+        'CLoader'       => 'helpers/CLoader.php',
+        'CLocale'       => 'helpers/CLocale.php',
+        'CLog'          => 'helpers/CLog.php',
+        'CMailer'       => 'helpers/CMailer.php',
+        'CMinify'       => 'helpers/CMinify.php',
+        'CNumber'       => 'helpers/CNumber.php',
+        'COauth'        => 'helpers/COauth.php',
+        'CPdf'          => 'helpers/CPdf.php',
+        'CRss'          => 'helpers/CRss.php',
+        'CSessionCache' => 'helpers/CSessionCache.php',
+        'CSoap'         => 'helpers/CSoap.php',
+        'CString'       => 'helpers/CString.php',
+        'CTime'         => 'helpers/CTime.php',
+        'CValidator'    => 'helpers/CValidator.php',
+        'CWidget'       => 'helpers/CWidget.php',
 	);
 	/** @var array */
 	private static $_coreModules = array(
@@ -195,7 +199,7 @@ class A
 		require(dirname(__FILE__) . DS . 'core' . DS . 'interfaces.php');
 		
 		self::$_phpVersion = phpversion();
-		
+
 		$configMain = $configDir . 'main.php';
 		$configDb = $configDir . 'db.php';
 		
@@ -269,7 +273,7 @@ class A
 		}
 		
 		// Set components loading type
-		if (APPHP_MODE == 'hidden' || (CConfig::exists('coreComponentsLazyLoading') && CConfig::get('coreComponentsLazyLoading') === false)) {
+		if (APPHP_MODE == 'hidden' || APPHP_MODE == 'console' || (CConfig::exists('coreComponentsLazyLoading') && CConfig::get('coreComponentsLazyLoading') === false)) {
 			$this->_coreComponentsLazyLoading = false;
 		}
 		
@@ -284,8 +288,8 @@ class A
 	 */
 	public function run()
 	{
-		if (APPHP_MODE != 'hidden') {
-			// Specify error settings
+        if ( ! in_array(APPHP_MODE, array('hidden', 'console')) ) {
+            // Specify error settings
 			if (APPHP_MODE == 'debug' || APPHP_MODE == 'test') {
 				error_reporting(E_ALL);
 				ini_set('display_errors', 'On');
@@ -419,6 +423,22 @@ class A
 	 */
 	private function _autoload($className)
 	{
+        // Framework: CONSOLE CORE CLASSES
+        if (APPHP_MODE === 'console' && isset(self::$_coreConsoleClasses[$className])) {
+            $classPath = '';
+            // Check if we need PHP version compatible class
+            if (is_array(self::$_coreConsoleClasses[$className])) {
+                foreach (self::$_coreConsoleClasses[$className] as $key => $val) {
+                    if (self::$_phpVersion >= $key) {
+                        $classPath = $val;
+                    }
+                }
+            } else {
+                $classPath = self::$_coreConsoleClasses[$className];
+            }
+
+            include(dirname(__FILE__) . DS . $classPath);
+        }
 		// Framework: CORE CLASSES
 		if (isset(self::$_coreClasses[$className])) {
 			$classPath = '';
@@ -434,7 +454,8 @@ class A
 			}
 			
 			include(dirname(__FILE__) . DS . $classPath);
-		} // Framework: HELPER CLASSES or HELPER EXTENSIONS
+		}
+		// Framework: HELPER CLASSES or HELPER EXTENSIONS
 		elseif (isset(self::$_coreHelpers[$className])) {
 			$coreHelper = dirname(__FILE__) . DS . self::$_coreHelpers[$className];
 			$extCoreHelper = APPHP_PATH . DS . 'protected' . DS . self::$_coreHelpers[$className];
@@ -444,16 +465,20 @@ class A
 			} else {
 				include($coreHelper);
 			}
-		} // Framework: COMPONENT CLASSES
+		}
+		// Framework: COMPONENT CLASSES
 		elseif ($coreComponent = $this->mapCoreComponent($className)) {
 			include(dirname(__FILE__) . DS . $coreComponent);
-		} // Application: COMPONENT CLASSES
+		}
+		// Application: COMPONENT CLASSES
 		elseif (isset(self::$_appClasses[$className])) {
 			include(APPHP_PATH . DS . 'protected' . DS . self::$_appClasses[$className]);
-		} // Application: HELPER CLASSES
+		}
+		// Application: HELPER CLASSES
 		elseif (isset(self::$_coreHelpers[$className])) {
 			include(APPHP_PATH . DS . 'protected' . DS . self::$_appHelpers[$className]);
-		} // Check if required class is Controller, Model or Entity (in application or modules)
+		}
+		// Check if required class is Controller, Model or Entity (in application or modules)
 		else {
 			$classNameItems = preg_split('/(?=[A-Z])/', $className);
 			$itemsCount = count($classNameItems);
@@ -542,8 +567,8 @@ class A
 		
 		// Run begin events
 		if ($this->_hasEventHandler('_onBeginRequest')) $this->_onBeginRequest();
-		
-		if (APPHP_MODE != 'hidden') {
+
+        if ( ! in_array(APPHP_MODE, array('hidden', 'console')) ) {
 			$this->router = new CRouter();
 			$this->router->route();
 			// Run finish events

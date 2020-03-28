@@ -4,8 +4,8 @@
 defined('APPHP_PATH') || define('APPHP_PATH', dirname(__FILE__));
 // Directory separator
 defined('DS') || define('DS', DIRECTORY_SEPARATOR);
-// Hidden mode only
-defined('APPHP_MODE') or define('APPHP_MODE', 'hidden');
+// Console mode only
+defined('APPHP_MODE') or define('APPHP_MODE', 'console');
 
 
 $apphp = dirname(__FILE__) . '/../framework/Apphp.php';

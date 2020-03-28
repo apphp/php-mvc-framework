@@ -1,0 +1,8 @@
+[28-Mar-2020 13:28:18 UTC] PHP Fatal error:  Uncaught Error: Class 'Modules\Setup\Controllers\SetupController' not found in C:\xampp\htdocs\git\php-mvc-framework\framework\core\CRouter.php:203
+Stack trace:
+#0 C:\xampp\htdocs\git\php-mvc-framework\framework\Apphp.php(548): CRouter->route()
+#1 C:\xampp\htdocs\git\php-mvc-framework\framework\Apphp.php(321): A->_runApp()
+#2 C:\xampp\htdocs\git\php-mvc-framework\bin\aii.php(15): A->run()
+#3 C:\xampp\htdocs\git\php-mvc-framework\bin\aii(15): require_once('C:\\xampp\\htdocs...')
+#4 {main}
+  thrown in C:\xampp\htdocs\git\php-mvc-framework\framework\core\CRouter.php on line 203

@@ -50,31 +50,13 @@ class CConsoleCommand
             case '-h':
             case '--help':
 
-                $output .= 'ApPHP Framework ' . CConsole::green(A::version()) . PHP_EOL;
-                $output .= PHP_EOL;
-
-                $output .= CConsole::yellow("Usage:") . PHP_EOL;
-                $output .= "  command [options] [arguments]" . PHP_EOL . PHP_EOL;
-
-                $output .= CConsole::yellow("Options:") . PHP_EOL;
-                $output .= "  ".CConsole::green("-h, --help")."\t\tDisplay this help message". PHP_EOL;
-                $output .= "  ".CConsole::green("-v, --version")."\t\tDisplay this application version". PHP_EOL;
-
-                //-q, --quiet           Do not output any message
-                //-n, --no-interaction  Do not ask any interactive question
-                $output .= PHP_EOL;
-
-                $output .= CConsole::yellow("Available commands:") . PHP_EOL;
-                $output .= "  ".CConsole::green("cache:clear")."\t\tFlush specific application cache". PHP_EOL;
-                $output .= "  ".CConsole::green("cache:clear-all")."\tFlush all application cache". PHP_EOL;
-
+                $output .= CHelpCommand::handle();
                 break;
 
             case '-v':
-            case '-version':
+            case '--version':
 
-                $output .= 'ApPHP Framework ' . CConsole::green(A::version());
-
+                $output .= CVersionCommand::handle();
                 break;
 
             case 'cache:clear':
