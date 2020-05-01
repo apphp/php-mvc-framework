@@ -407,8 +407,8 @@ class CFormValidation extends CWidgs
 						break;
 					case 'float':
 						$valid = CValidator::isFloat($fieldValue, $format);
-						$format_sample = ($format == 'european') ? '1234,00' : '1234.00';
-						$errorMessage = A::t($msgSource, 'The field {title} must be a valid float value in format: {format}! Please re-enter.', array('{title}' => $title, '{format}' => $format_sample));
+						$formatSample = ($format == 'european') ? '1234,00' : '1234.00';
+						$errorMessage = A::t($msgSource, 'The field {title} must be a valid float value in format: {format}! Please re-enter.', array('{title}' => $title, '{format}' => $formatSample));
 						if ($valid && $minValue != '') {
 							$valid = CValidator::validateMin($fieldValue, $minValue, $format);
 							$errorMessage = A::t($msgSource, 'The field {title} must be greater than or equal to {min}! Please re-enter.', array('{title}' => $title, '{min}' => $minValue));
