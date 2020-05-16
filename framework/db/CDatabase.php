@@ -236,7 +236,7 @@ class CDatabase extends PDO
 			$finishTime = CTime::getMicrotime();
 			$sqlTotalTime = round((float)$finishTime - (float)$startTime, 5);
 			CDebug::addSqlTime($sqlTotalTime);
-			CDebug::addMessage('queries', ++self::$count . '. select | ' . $sqlTotalTime . ' ' . A::t('core', 'sec') . '. | <i>' . A::t('core', 'total') . ': ' . (($result) ? count($result) : '0 (<b>' . ($error ? 'error' : 'empty') . '</b>)') . ($cacheContent ? ' <b>[cached]</b>' : '') . '</i>', $this->_query);
+			CDebug::addMessage('queries', '<span class="dbugNum">'.++self::$count . '.</span> select | ' . $sqlTotalTime . ' ' . A::t('core', 'sec') . '. | <i>' . A::t('core', 'total') . ': ' . (($result) ? count($result) : '0 (<b>' . ($error ? 'error' : 'empty') . '</b>)') . ($cacheContent ? ' <b>[cached]</b>' : '') . '</i>', $this->_query);
 		}
 		
 		return $result;
@@ -301,7 +301,7 @@ class CDatabase extends PDO
 			$finishTime = CTime::getMicrotime();
 			$sqlTotalTime = round((float)$finishTime - (float)$startTime, 5);
 			CDebug::addSqlTime($sqlTotalTime);
-			CDebug::addMessage('queries', ++self::$count . '. insert | ' . $sqlTotalTime . ' ' . A::t('core', 'sec') . '. | <i>ID: ' . (($result) ? $result : '0 (<b>error</b>)') . '</i>', $this->_query);
+			CDebug::addMessage('queries', '<span class="dbugNum">' . ++self::$count . '.</span> insert | ' . $sqlTotalTime . ' ' . A::t('core', 'sec') . '. | <i>ID: ' . (($result) ? $result : '0 (<b>error</b>)') . '</i>', $this->_query);
 		}
 		
 		return $result;
@@ -385,7 +385,7 @@ class CDatabase extends PDO
 			$finishTime = CTime::getMicrotime();
 			$sqlTotalTime = round((float)$finishTime - (float)$startTime, 5);
 			CDebug::addSqlTime($sqlTotalTime);
-			CDebug::addMessage('queries', ++self::$count . '. update | ' . $sqlTotalTime . ' ' . A::t('core', 'sec') . '. | <i>' . A::t('core', 'total') . ': ' . (($result) ? $sth->rowCount() : '0 (<b>error</b>)') . '</i>', $this->_query);
+			CDebug::addMessage('queries', '<span class="dbugNum">'.++self::$count . '.</span> update | ' . $sqlTotalTime . ' ' . A::t('core', 'sec') . '. | <i>' . A::t('core', 'total') . ': ' . (($result) ? $sth->rowCount() : '0 (<b>error</b>)') . '</i>', $this->_query);
 		}
 		
 		return $result;
@@ -436,7 +436,7 @@ class CDatabase extends PDO
 			$finishTime = CTime::getMicrotime();
 			$sqlTotalTime = round((float)$finishTime - (float)$startTime, 5);
 			CDebug::addSqlTime($sqlTotalTime);
-			CDebug::addMessage('queries', ++self::$count . '. delete | ' . $sqlTotalTime . ' ' . A::t('core', 'sec') . '. | <i>' . A::t('core', 'total') . ': ' . (($result) ? $result : '0 (<b>warning</b>)') . '</i>', $this->_query);
+			CDebug::addMessage('queries', '<span class="dbugNum">'.++self::$count . '.</span> delete | ' . $sqlTotalTime . ' ' . A::t('core', 'sec') . '. | <i>' . A::t('core', 'total') . ': ' . (($result) ? $result : '0 (<b>warning</b>)') . '</i>', $this->_query);
 		}
 		
 		return $result;
@@ -478,7 +478,7 @@ class CDatabase extends PDO
 			$finishTime = CTime::getMicrotime();
 			$sqlTotalTime = round((float)$finishTime - (float)$startTime, 5);
 			CDebug::addSqlTime($sqlTotalTime);
-			CDebug::addMessage('queries', ++self::$count . '. truncate | ' . $sqlTotalTime . ' ' . A::t('core', 'sec') . '. | <i>' . A::t('core', 'total') . ': ' . (($result) ? $result : '0 (<b>warning</b>)') . '</i>', $this->_query);
+			CDebug::addMessage('queries', '<span class="dbugNum">'.++self::$count . '.</span> truncate | ' . $sqlTotalTime . ' ' . A::t('core', 'sec') . '. | <i>' . A::t('core', 'total') . ': ' . (($result) ? $result : '0 (<b>warning</b>)') . '</i>', $this->_query);
 		}
 		
 		return $result;
@@ -545,7 +545,7 @@ class CDatabase extends PDO
 			$finishTime = CTime::getMicrotime();
 			$sqlTotalTime = round((float)$finishTime - (float)$startTime, 5);
 			CDebug::addSqlTime($sqlTotalTime);
-			CDebug::addMessage('queries', ++self::$count . '. query | ' . $sqlTotalTime . ' ' . A::t('core', 'sec') . '. | <i>' . A::t('core', 'total') . ': ' . (($result) ? count($result) : '0 (<b>error</b>)') . '</i>', $this->_query);
+			CDebug::addMessage('queries', '<span class="dbugNum">'.++self::$count . '.</span> query | ' . $sqlTotalTime . ' ' . A::t('core', 'sec') . '. | <i>' . A::t('core', 'total') . ': ' . (($result) ? count($result) : '0 (<b>error</b>)') . '</i>', $this->_query);
 		}
 		
 		return $result;
@@ -594,7 +594,7 @@ class CDatabase extends PDO
 			$finishTime = CTime::getMicrotime();
 			$sqlTotalTime = round((float)$finishTime - (float)$startTime, 5);
 			CDebug::addSqlTime($sqlTotalTime);
-			CDebug::addMessage('queries', ++self::$count . '. query | ' . $sqlTotalTime . ' ' . A::t('core', 'sec') . '. | <i>' . A::t('core', 'total') . ': ' . (($result) ? $result : '0 (<b>error</b>)') . '</i>', $this->_query);
+			CDebug::addMessage('queries', '<span class="dbugNum">'.++self::$count . '.</span> query | ' . $sqlTotalTime . ' ' . A::t('core', 'sec') . '. | <i>' . A::t('core', 'total') . ': ' . (($result) ? $result : '0 (<b>error</b>)') . '</i>', $this->_query);
 		}
 		
 		return $result;
@@ -659,7 +659,7 @@ class CDatabase extends PDO
 			$finishTime = CTime::getMicrotime();
 			$sqlTotalTime = round((float)$finishTime - (float)$startTime, 5);
 			CDebug::addSqlTime($sqlTotalTime);
-			CDebug::addMessage('queries', ++self::$count . '. query | ' . $sqlTotalTime . ' ' . A::t('core', 'sec') . '. | <i>' . A::t('core', 'total') . ': ' . (($result) ? count($result) : '0 (<b>error</b>)') . '</i>', $this->_query);
+			CDebug::addMessage('queries', '<span class="dbugNum">'.++self::$count . '.</span> query | ' . $sqlTotalTime . ' ' . A::t('core', 'sec') . '. | <i>' . A::t('core', 'total') . ': ' . (($result) ? count($result) : '0 (<b>error</b>)') . '</i>', $this->_query);
 		}
 		
 		return $result;
@@ -722,7 +722,7 @@ class CDatabase extends PDO
 			$finishTime = CTime::getMicrotime();
 			$sqlTotalTime = round((float)$finishTime - (float)$startTime, 5);
 			CDebug::addSqlTime($sqlTotalTime);
-			CDebug::addMessage('queries', ++self::$count . '. query | ' . $sqlTotalTime . ' ' . A::t('core', 'sec') . '. | <i>' . A::t('core', 'total') . ': ' . (($result) ? count($result) : '0 (<b>error</b>)') . ($cacheContent ? ' <b>[cached]</b>' : '') . '</i>', $this->_query);
+			CDebug::addMessage('queries', '<span class="dbugNum">'.++self::$count . '</span> show | ' . $sqlTotalTime . ' ' . A::t('core', 'sec') . '. | <i>' . A::t('core', 'total') . ': ' . (($result) ? count($result) : '0 (<b>error</b>)') . ($cacheContent ? ' <b>[cached]</b>' : '') . '</i>', $this->_query);
 		}
 		
 		return $result;

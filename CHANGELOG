@@ -1,5 +1,6 @@
 Version 1.4.x -
 ----------------------------
+- Enh: added possibility to hide system queries in debug panel
 - Bug: fixed wrong assignment of _isRendered in CView
 
 

@@ -409,6 +409,8 @@ class CDebug
 			var arrDebugTabs = ["General","Params","Console","Warnings","Errors","Queries"];
 			var debugTabsHeight = "200px";
 			var cssText = keyTab = "";
+			
+			function toggleSystemQueries(){var x, i; x = document.getElementsByClassName("dbugQuery");for(i = 0; i < x.length; i++){if(x[i].style.display === "none"){x[i].style.display = "";}else {x[i].style.display = "none";}}}
 			function appSetCookie(state, tab){ document.cookie = "debugBarState="+state+"; path=/"; if(tab !== null) document.cookie = "debugBarTab="+tab+"; path=/"; }
 			function appGetCookie(name){ if(document.cookie.length > 0){ start_c = document.cookie.indexOf(name + "="); if(start_c != -1){ start_c += (name.length + 1); end_c = document.cookie.indexOf(";", start_c); if(end_c == -1) end_c = document.cookie.length; return unescape(document.cookie.substring(start_c,end_c)); }} return ""; }
 			function appTabsMiddle(){ appExpandTabs("middle", appGetCookie("debugBarTab")); }
@@ -663,11 +665,16 @@ class CDebug
 	
 		<div id="contentQueries" style="display:none;padding:10px;width:100%;height:200px;overflow-y:auto;">';
 		if ($totalQueries > 0) {
-			$output .= A::t('core', 'SQL queries running time') . ': ' . $totalRunningTimeQueriesSql . ' sec.<br><br>';
+			$output .= A::t('core', 'SQL queries running time') . ': ' . $totalRunningTimeQueriesSql . ' sec.  <br><input type="checkbox" id="dbugToggleSysQueries" style="margin:'.($panelTextAlign == 'left' ? '5px 5px 0px 0px' : '5px 0px 0px 5px').';" onclick="toggleSystemQueries()" /><label for="dbugToggleSysQueries">Hide system queries</label><br><br>';
+            $output .= '<ol style="padding-left:20px;">';
 			foreach (self::$_arrQueries as $msgKey => $msgVal) {
-				$output .= $msgKey . '<br>';
+                $dbugQuery = preg_match('/(show|truncate)/i', $msgKey);
+			    $output .= '<li'.($dbugQuery ? ' class="dbugQuery"' : '').'>';
+                $output .= preg_replace('#<span[^>]*>.*?</span>#si', '', $msgKey) . '<br>';
 				$output .= $msgVal[0] . '<br><br>';
+                $output .= '</li>';
 			}
+            $output .= '</ol>';
 		}
 		$output .= '</div>
 	
