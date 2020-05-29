@@ -87,6 +87,10 @@ class CImage
 				$imagePathNameNew = $imagePath . $imageName;
 				
 				if ($case != '') {
+				    // Prevent using of size like 150px or something else
+                    $resizeWidth = intval($resizeWidth);
+                    $resizeHeight = intval($resizeHeight);
+
 					if ($resizeWidth != '' && $resizeHeight == '') {
 						$newWidth = $resizeWidth;
 						$newHeight = ($height / $width) * $newWidth;

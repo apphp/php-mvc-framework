@@ -725,7 +725,7 @@ class CFormView extends CWidgs
 			
 			case 'textarea':
 				$maxLength = (int)self::keyAt('maxLength', $htmlOptions, 0);
-				if ($maxLength > 0) $appendLabel = '<br>' . A::t('core', 'max.: {maxchars} chars', array('{maxchars}' => $maxLength));
+				if ($maxLength > 0) $appendLabel = '<br>' . A::t('core', 'max.: {maxchars} chars', array('{maxchars}' => number_format($maxLength)));
 				$fieldHtml = CHtml::textArea($field, $value, $htmlOptions);
 				break;
 			

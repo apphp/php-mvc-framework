@@ -520,7 +520,7 @@ class CFormValidation extends CWidgs
 				}
 			}
 		} elseif (!CValidator::validateMaxLength($fieldValue, $maxLength)) {
-			self::$_errorMessage = A::t($msgSource, 'The {title} field length may be {max_length} characters maximum! Please re-enter.', array('{title}' => $title, '{max_length}' => $maxLength));
+			self::$_errorMessage = A::t($msgSource, 'The {title} field length may be {max_length} characters maximum! Please re-enter.', array('{title}' => $title, '{max_length}' => number_format($maxLength)));
 			$result = false;
 		}
 		

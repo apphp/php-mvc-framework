@@ -354,7 +354,7 @@ class CDataForm extends CWidgs
 							} elseif ($fieldType == 'image') {
 								unset($recordsAssoc[$field]);
 							} elseif ($fieldType == 'data') {
-								$fieldValue = self::keyAt('default', $fieldInfo, '');
+								$fieldValue = self::keyAt('default', $fieldInfo, null);
 							} elseif ($fieldType == 'imageupload') {
 								if (!empty($_FILES[$field]['name'])) {
 									$targetPath = self::keyAt('validation.targetPath', $fieldInfo, '');
