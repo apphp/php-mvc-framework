@@ -1,7 +1,7 @@
 <?php
 /**
  * CRecordEntity base class for classes that represent a single database row.
- * It implements the Active Record design pattern.
+ * It implements the Record Entity design pattern.
  *
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
@@ -15,6 +15,7 @@
  * __construct
  * __set
  * __get
+ * __isset
  * __unset
  * set
  * get
@@ -79,9 +80,19 @@ abstract class CRecordEntity
 			return '';
 		}
 	}
-	
+
+    /**
+     * Checks if record entity property exists
+     * @param string $index
+     * @return bool
+     */
+    public function __isset($index)
+    {
+        return array_key_exists($index, $this->_columns) ? true : false;
+    }
+
 	/**
-	 * Sets a active record property to be null
+	 * Sets a record entity property to be null
 	 * @param string $index
 	 * @return void
 	 */

@@ -20,14 +20,15 @@
  * __construct              _relations                  _parentModel (static)
  * __set                    _customFields               _createObjectFromTable
  * __get                    _encryptedFields            _getRelations
- * __unset                  _beforeSave                 _getCustomFields
- * __callStatic             _afterSave                  _addCustomFields
- *                          _beforeDelete               _removeCustomFields
- * init (static)            _afterDelete                _prepareLimit
- * set                                                  _tableName
- * get                                                  _isEncryptedField
- * resultArray                                          _getEncryptedFields
- * allowedColumns         								_getEncryptedField
+ * __isset                  _beforeSave                 _getCustomFields
+ * __unset                  _afterSave                  _addCustomFields
+ * __callStatic             _beforeDelete               _removeCustomFields
+ *                          _afterDelete                _prepareLimit
+ * init (static)                                        _tableName
+ * set                                                  _isEncryptedField
+ * get                                                  _getEncryptedFields
+ * resultArray                                          _getEncryptedField
+ * allowedColumns
  * isColumnExists
  * setSpecialField
  * getSpecialField
@@ -191,7 +192,17 @@ class CActiveRecord extends CModel
 			return '';
 		}
 	}
-	
+
+    /**
+     * Checks if active record property exists
+     * @param string $index
+     * @return bool
+     */
+    public function __isset($index)
+    {
+        return array_key_exists($index, $this->_columns) ? true : false;
+    }
+
 	/**
 	 * Sets a active record property to be null
 	 * @param string $index
