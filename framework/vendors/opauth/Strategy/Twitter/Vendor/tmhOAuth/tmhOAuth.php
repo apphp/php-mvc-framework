@@ -10,11 +10,16 @@
  * @version 0.7.1
  *
  * 27 October 2012
+ *
+ *  FIXES by ApPHP:
+ *  --------
+ *  07/07/2020 - class declaration changed to PHP5-7
+ *
  */
 class tmhOAuth {
   const VERSION = '0.7.1';
 
-  var $response = array();
+  public $response = array();
 
   /**
    * Creates a new tmhOAuth object
