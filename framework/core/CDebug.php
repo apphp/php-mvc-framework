@@ -416,10 +416,12 @@ class CDebug
 			function appTabsMiddle(){ appExpandTabs("middle", appGetCookie("debugBarTab")); }
 			function appTabsMaximize(){ appExpandTabs("max", appGetCookie("debugBarTab")); }
 			function appTabsMinimize(){ appExpandTabs("min", "General"); }			
+			function appTabsClose(){ appExpandTabs("close", appGetCookie("debugBarTab")); }			
 			function appExpandTabs(act, key){ 
 				if(act == "max"){ debugTabsHeight = "500px"; }
 				else if(act == "middle"){ debugTabsHeight = "200px"; }
 				else if(act == "min"){ debugTabsHeight = "0px";	}
+				else if(act == "close"){ debugTabsHeight = "0px";	}
 				else if(act == "auto"){ 
 					if(debugTabsHeight == "0px"){ debugTabsHeight = "200px"; act = "middle"; }
 					else if(debugTabsHeight == "200px"){ act = "middle"; }
@@ -437,6 +439,14 @@ class CDebug
 					}
 				}
 				if(act != "min"){
+				    x = document.getElementsByClassName("item");
+				    if(act == "close"){
+                        for (i = 0; i < x.length; i++) x[i].style.display = "none";
+                        document.getElementsByClassName("narrow-close")[0].style.display = "none";
+				    }else{
+                        for (i = 0; i < x.length; i++) x[i].style.display = "";
+                        document.getElementsByClassName("narrow-close")[0].style.display = "";
+				    }
 					document.getElementById("content"+keyTab).style.display = "";
 					document.getElementById("content"+keyTab).style.cssText = "width:100%;height:"+debugTabsHeight+";overflow-y:auto;";
 					if(document.getElementById("tab"+keyTab).className == "tab-orange"){
@@ -458,7 +468,7 @@ class CDebug
 		<legend id="debug-panel-legend">
 			<ul>
 				<li class="title" style="display:flex">
-				    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAmRJREFUeNpcUz1vE0EQfbu3Pp99jo/YB7FkCloKoIlQYuAPhIICBEIgJ3TIRkKiAqeBnhCFAhoiWUJCKBREiCYJHxWiSIWE4CcgURDZDo4/7oPZuTs75qS73Zud9/btzhthu+Zcr+19FRKQhgCEoJEGSfNDTxiECHw90WNI/4CVV/PCMGWogcIYA6URvYcfDYqAEVEY/wtlEYGSDJZKwNDzlGCi3IyJi49PotfysFn7HpEMI6BPoyZRMt6ZwaaEkZI86ljhhE0JafT3hlCWgcAL4IsQGASsyqfjKC1d75aAr708w4vv7v6AU8rCVGkM2/u4sn6K4xuL3+grEfb96Nh0Z6MzL76uwErZeH/vJxQRFsoO0ioL7y84pteqryoEHGNkcmn1zQXY5hFs1HZJCSlKS7jlaQb1Wz7H3tR3Oaf+doF3B2uhp/GxiimriBfVLSZLSIslF5ay0et4fEc6tr60zbmNnSp06ZUmyGdcaL7JwgHHSjNImQa6rd5E3KH8MJ6zgvvnnyBvHcXKziOuc0i3m3Ns5HPTyKTyaP/usHEojJWth5z74MIqx5hA17M+16CFIp5/eMq1dgoOMqZNJTNw0BlQ3QM8217jnDvzy4xhBSOHkbuWZmt0SQ6an5souvr8U+j+GcDrB2h+avLarbO12I2RKxVLo5dNQnqunr5BnhC4fPsSVSBL8rvwDnxcn71JOSE8MlHiRm1pxZ6WI8dHZL5A6XiZTJTF3q8OK2CAF1mZSfzIyqNm0v4fmSNuLiGTThw3z/jIcTNRO1f6+94XISY7Ukj8186Y6ERdqXROnfsnwADuWSOCrzpCtgAAAABJRU5ErkJggg==">
+				    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAmRJREFUeNpcUz1vE0EQfbu3Pp99jo/YB7FkCloKoIlQYuAPhIICBEIgJ3TIRkKiAqeBnhCFAhoiWUJCKBREiCYJHxWiSIWE4CcgURDZDo4/7oPZuTs75qS73Zud9/btzhthu+Zcr+19FRKQhgCEoJEGSfNDTxiECHw90WNI/4CVV/PCMGWogcIYA6URvYcfDYqAEVEY/wtlEYGSDJZKwNDzlGCi3IyJi49PotfysFn7HpEMI6BPoyZRMt6ZwaaEkZI86ljhhE0JafT3hlCWgcAL4IsQGASsyqfjKC1d75aAr708w4vv7v6AU8rCVGkM2/u4sn6K4xuL3+grEfb96Nh0Z6MzL76uwErZeH/vJxQRFsoO0ioL7y84pteqryoEHGNkcmn1zQXY5hFs1HZJCSlKS7jlaQb1Wz7H3tR3Oaf+doF3B2uhp/GxiimriBfVLSZLSIslF5ay0et4fEc6tr60zbmNnSp06ZUmyGdcaL7JwgHHSjNImQa6rd5E3KH8MJ6zgvvnnyBvHcXKziOuc0i3m3Ns5HPTyKTyaP/usHEojJWth5z74MIqx5hA17M+16CFIp5/eMq1dgoOMqZNJTNw0BlQ3QM8217jnDvzy4xhBSOHkbuWZmt0SQ6an5souvr8U+j+GcDrB2h+avLarbO12I2RKxVLo5dNQnqunr5BnhC4fPsSVSBL8rvwDnxcn71JOSE8MlHiRm1pxZ6WI8dHZL5A6XiZTJTF3q8OK2CAF1mZSfzIyqNm0v4fmSNuLiGTThw3z/jIcTNRO1f6+94XISY7Ukj8186Y6ERdqXROnfsnwADuWSOCrzpCtgAAAABJRU5ErkJggg==" alt="logo" />
 				    <b class="item-debug" style="color:#222;margin-left:7px;">' . A::t('core', 'Debug') . ':&nbsp;</b>
 				</li>				
 
@@ -474,7 +484,7 @@ class CDebug
 				<li class="narrow"><a id="debugArrowCollapse" class="debugArrow" style="display:none;" href="javascript:void(0)" title="Collapse" onclick="javascript:appTabsMinimize()">&#9660;</a></li>
 				<li class="narrow"><a id="debugArrowMaximize" class="debugArrow" style="display:;" href="javascript:void(0)" title="Maximize" onclick="javascript:appTabsMaximize()">&#9744;</a></li>
 				<li class="narrow"><a id="debugArrowMinimize" class="debugArrow" style="display:none;" href="javascript:void(0)" title="Minimize" onclick="javascript:appTabsMiddle()">&#9635;</a></li>
-				<li class="narrow"><a class="debugArrow" href="javascript:void(0)" title="Close">&times;</a></li>
+				<li class="narrow narrow-close"><a class="debugArrow" href="javascript:void(0)" onclick="javascript:appTabsClose()" title="Close">&times;</a></li>
 			</ul>
 		</legend>
 		
@@ -685,6 +695,8 @@ class CDebug
 			$output .= '<script type="text/javascript">appTabsMaximize();</script>';
 		} elseif ($debugBarState == 'middle') {
 			$output .= '<script type="text/javascript">appTabsMiddle();</script>';
+		} elseif ($debugBarState == 'close') {
+			$output .= '<script type="text/javascript">appTabsClose();</script>';
 		} else {
 			$output .= '<script type="text/javascript">appTabsMinimize();</script>';
 		}

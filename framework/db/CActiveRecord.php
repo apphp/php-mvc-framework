@@ -43,6 +43,8 @@
  * getTranslations
  * saveTranslations
  *
+ * chunk
+ *
  * find
  * findByPk
  * findByAttributes
@@ -576,6 +578,31 @@ class CActiveRecord extends CModel
 		
 		return true;
 	}
+
+    /**
+     * Split AR result into parts (chunks)
+     * @param  int  $size
+     * @param  null  $callback
+     */
+    public function chunk(int $size, callable $callback = null)
+    {
+        if (is_int($size) && $size > 0 && !empty($callback)) {
+            $from = 0;
+//            echo('limit'."$from, $size");
+            while ($result = $this->findAll(array('limit'=>"$from, $size"))){
+                $callback($result);
+                $from += $size;
+//                echo('limit'."$from, $size");
+//                if ($from > 10){
+//                    return;
+//                }
+            }
+        } else {
+            CDebug::AddMessage('errors', 'chunk', A::t('core', 'Wrong params for chunk: {size} or callback method is callable.', array('{size}' => $size)));
+        }
+
+        return null;
+    }
 	
 	/**
 	 * This method queries your database to find first related object

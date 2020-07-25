@@ -1,6 +1,7 @@
 Version 1.4.x -
 ----------------------------
 - Enh: added possibility to hide system queries in debug panel
+- Enh: added possibility to close debug panel to minimum size
 - Bug: fixed wrong assignment of _isRendered in CView
 
 
