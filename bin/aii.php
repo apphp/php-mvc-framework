@@ -14,8 +14,8 @@ $config = APPHP_PATH . '/protected/config/';
 require_once($apphp);
 A::init($config)->run();
 
-
-$console        = new CConsole($argv);
+// We get automatically $argv and $argc, as we run command line command
+$console = new CConsole($argv);
 $consoleCommand = new CConsoleCommand(
     $console->getCommand(),
     $console->getParams()

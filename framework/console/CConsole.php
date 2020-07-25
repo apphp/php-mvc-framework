@@ -27,6 +27,8 @@ class CConsole
 
     /**
      * Class constructor
+     *
+     * @param  array  $argv
      */
     public function __construct($argv = array())
     {

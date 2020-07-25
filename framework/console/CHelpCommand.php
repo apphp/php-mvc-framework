@@ -14,9 +14,13 @@
  * handle (static)
  */
 
-class CHelpCommand
+class CHelpCommand implements IConsoleCommand
 {
 
+    /**
+     * Handle specific console command
+     * @return string
+     */
     public static function handle()
     {
         $output = '';
@@ -35,8 +39,15 @@ class CHelpCommand
         $output .= PHP_EOL;
 
         $output .= CConsole::yellow("Available commands:") . PHP_EOL;
+
+        $output .= "  ".CConsole::green("help")."\t\t\tHelp on console commands". PHP_EOL;
+
+        $output .= CConsole::yellow("cache") . PHP_EOL;
         $output .= "  ".CConsole::green("cache:clear")."\t\tFlush specific application cache". PHP_EOL;
         $output .= "  ".CConsole::green("cache:clear-all")."\tFlush all application cache". PHP_EOL;
+
+        $output .= CConsole::yellow("make") . PHP_EOL;
+        $output .= "  ".CConsole::green("make:controller")."\tCreate controller". PHP_EOL;
 
         return $output;
     }

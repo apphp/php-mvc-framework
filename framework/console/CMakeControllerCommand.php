@@ -1,7 +1,7 @@
 <?php
 
 /**
- * CVersionCommand console core class file
+ * CMakeControllerCommand console core class file
  *
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
@@ -14,16 +14,19 @@
  * handle (static)
  */
 
-class CVersionCommand implements IConsoleCommand
+class CMakeControllerCommand implements IConsoleCommand
 {
 
     /**
      * Handle specific console command
+     *
+     * @param  string  $param
+     *
      * @return string
      */
-    public static function handle()
+    public static function handle($param = '')
     {
-        $output = 'ApPHP Framework ' . CConsole::green(A::version());
+        $output = 'Controller created: ' . $param;
 
         return $output;
     }

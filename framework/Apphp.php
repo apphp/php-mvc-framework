@@ -97,10 +97,12 @@ class A
 	);
     /** @var array */
     private static $_coreConsoleClasses = array(
-        'CConsole'        => 'console/CConsole.php',
-        'CConsoleCommand' => 'console/CConsoleCommand.php',
-        'CHelpCommand'    => 'console/CHelpCommand.php',
-        'CVersionCommand' => 'console/CVersionCommand.php',
+        'CConsole'               => 'console/CConsole.php',
+        'CConsoleCommand'        => 'console/CConsoleCommand.php',
+        'CHelpCommand'           => 'console/CHelpCommand.php',
+        'CVersionCommand'        => 'console/CVersionCommand.php',
+        'CCacheClearCommand'     => 'console/CCacheClearCommand.php',
+        'CMakeControllerCommand' => 'console/CMakeControllerCommand.php',
     );
 	/** @var array */
 	private static $_coreComponents = array(
