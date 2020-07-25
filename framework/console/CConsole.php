@@ -73,13 +73,26 @@ class CConsole
 
     /**
      * Draw line with red background
+     *
      * @param  string  $string
+     * @param  bool  $padding
+     *
      * @return string
      */
-    public static function redbg($string = '')
+    public static function redbg($string = '', $padding = true)
     {
-        return "\e[0;41m".$string."\e[0m";
-    }
+        $length = strlen($string) + 4;
+        $output = '';
 
+        if ($padding) {
+            $output .= "\e[0;41m".str_pad(' ', $length, " ", STR_PAD_LEFT)."\e[0m" . PHP_EOL;
+        }
+        $output .= "\e[0;41m".($padding ? '  ' : '').$string.($padding ? '  ' : '')."\e[0m".PHP_EOL;
+        if ($padding) {
+            $output .= "\e[0;41m".str_pad(' ', $length, " ", STR_PAD_LEFT)."\e[0m" . PHP_EOL;
+        }
+
+        return $output;
+    }
 
 }
