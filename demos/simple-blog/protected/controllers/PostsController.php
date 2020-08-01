@@ -135,21 +135,27 @@ class PostsController extends CController
 		if (!$this->_view->currentPage) {
 			$this->_view->actionMessage = CWidget::create('CMessage', array('error', 'Wrong parameter passed! Please try again later.', array('button' => true)));
 		} else {
-/*			$this->_view->posts = Posts::model()->findAll(array(
-				'limit' => (($this->_view->currentPage - 1) * $this->_view->pageSize) . ', ' . $this->_view->pageSize,
-				'order' => 'post_datetime DESC',
-			));*/
+            $conditions = array(
+                'limit' => (($this->_view->currentPage - 1) * $this->_view->pageSize) . ', ' . $this->_view->pageSize,
+                'order' => 'post_datetime DESC',
+            );
 
-            $posts = null;
-            Posts::model()->chunk(2, function ($records) use(&$posts){
-                foreach ($records as $key => $record) {
-                    $posts[] = $record;
-                }
-                //CDebug::d($record);
-            });
-            //CDebug::dd($posts);
-
-            $this->_view->posts = $posts;
+            if (!true) {
+                $this->_view->posts = Posts::model()->findAll(array(
+                    'limit' => (($this->_view->currentPage - 1) * $this->_view->pageSize) . ', ' . $this->_view->pageSize,
+                    'order' => 'post_datetime DESC',
+                ));
+            }else{
+                $posts = null;
+                Posts::model()->chunk($conditions, [], -2, function ($records) use(&$posts){
+                    foreach ($records as $key => $record) {
+                        $posts[] = $record;
+                    }
+                    //CDebug::d($record);
+                });
+                //CDebug::dd($posts);
+                $this->_view->posts = $posts;
+            }
 		}
 		
 		$this->_view->render('posts/index');

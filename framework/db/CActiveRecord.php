@@ -581,24 +581,46 @@ class CActiveRecord extends CModel
 
     /**
      * Split AR result into parts (chunks)
+     * Ex.: chunk(array('condition'=>'post_id = :postID AND is_active = :isActive', 'select'=>'', 'group|groupBy'=>'', 'order|orderBy'=>'id DESC', 'limit'=>'0, 10'), array(':postID'=>10, ':isActive'=>1));
+     * Ex.: chunk(CConfig::get('db.prefix').$this->_tableTranslation.'.news_text LIKE :keywords', array(':keywords'=>'%'.$keywords.'%'));
+     *
+     * @param  array  $conditions
+     * @param  array  $params
      * @param  int  $size
-     * @param  null  $callback
+     * @param  callable  $callback
+     *
+     * @return null
      */
-    public function chunk(int $size, callable $callback = null)
+    public function chunk(array $conditions = [], array $params = [], int $size = 0, callable $callback = null)
     {
         if (is_int($size) && $size > 0 && !empty($callback)) {
-            $from = 0;
-//            echo('limit'."$from, $size");
-            while ($result = $this->findAll(array('limit'=>"$from, $size"))){
+            if (!isset($conditions['limit'])) {
+                $from = 0;
+                $limitSize = $size;
+            } else {
+                $limitParts = explode(',', $conditions['limit']);
+                $from = isset($limitParts[0]) ? $limitParts[0] : 0;
+                $limitSize = isset($limitParts[1]) ? $limitParts[1] : $size;
+                if ($size >= $limitSize) {
+                    $size = $limitSize;
+                }
+            }
+
+            $conditions['limit'] = "$from, $size";
+            $count = 0;
+
+            while ($result = $this->findAll($conditions, $params)){
                 $callback($result);
                 $from += $size;
-//                echo('limit'."$from, $size");
-//                if ($from > 10){
-//                    return;
-//                }
+                $conditions['limit'] = "$from, $size";
+
+                $count += $size;
+                if ($count >= $limitSize) {
+                    break;
+                }
             }
         } else {
-            CDebug::AddMessage('errors', 'chunk', A::t('core', 'Wrong params for chunk: {size} or callback method is callable.', array('{size}' => $size)));
+            CDebug::AddMessage('errors', 'chunk', A::t('core', 'Wrong params for chunk size: {size} or callback method is callable.', array('{size}' => $size)));
         }
 
         return null;
@@ -713,16 +735,19 @@ class CActiveRecord extends CModel
 			return null;
 		}
 	}
-	
-	/**
-	 * This method queries your database to find related objects by attributes
-	 * Ex.: findByAttributes($attributes, 'postID = :postID AND isActive = :isActive', array(':postID'=>10, ':isActive'=>1));
-	 * Ex.: findByAttributes($attributes, array('condition'=>'postID = :postID AND isActive = :isActive', 'order|orderBy'=>'id DESC', 'limit'=>'0, 10'), 'params'=>array(':postID'=>10, ':isActive'=>1));
-	 * Ex.: $attributes = array('first_name'=>$firstName, 'last_name'=>$lastName);
-	 * @param array $attributes
-	 * @param mixed $conditions
-	 * @param array $params
-	 */
+
+    /**
+     * This method queries your database to find related objects by attributes
+     * Ex.: findByAttributes($attributes, 'postID = :postID AND isActive = :isActive', array(':postID'=>10, ':isActive'=>1));
+     * Ex.: findByAttributes($attributes, array('condition'=>'postID = :postID AND isActive = :isActive', 'order|orderBy'=>'id DESC', 'limit'=>'0, 10'), 'params'=>array(':postID'=>10, ':isActive'=>1));
+     * Ex.: $attributes = array('first_name'=>$firstName, 'last_name'=>$lastName);
+     *
+     * @param  array  $attributes
+     * @param  mixed  $conditions
+     * @param  array  $params
+     *
+     * @return mixed
+     */
 	public function findByAttributes($attributes, $conditions = '', $params = array())
 	{
 		if (is_array($conditions)) {

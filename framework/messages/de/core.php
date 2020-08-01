@@ -184,4 +184,5 @@ return array(
 'You cannot delete the last remaining record in table {table}!' => 'Sie können die letzten verbliebenen Satz in der Tabelle {table} nicht löschen!',
 'Warnings' => 'Warnungen',
 'Wrong column name: {index} in table {table}' => 'Falsche Spalte name: {index} in Tabelle {table}',
+'Wrong params for chunk size: {size} or callback method is callable.' => 'Wrong params for chunk size: {size} or callback method is callable.',
 );

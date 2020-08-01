@@ -186,4 +186,5 @@ return array(
 	'You cannot delete the last remaining record in table {table}!' => 'No se puede eliminar el único registro existente en la tabla {table}.',
 	'Warnings' => 'Advertencias',
 	'Wrong column name: {index} in table {table}' => 'Nombre de columna incorrecta: {index} en la tabla {table}.',
+    'Wrong params for chunk size: {size} or callback method is callable.' => 'Wrong params for chunk size: {size} or callback method is callable.',
 );
