@@ -24,15 +24,15 @@ class Bootstrap extends CComponent
 	 */
 	function __construct()
 	{
-		A::app()->attachEventHandler('_onBeginRequest', array($this, 'setTimeZone'));
-		A::app()->attachEventHandler('_onBeginRequest', array($this, 'setSslMode'));
-		A::app()->attachEventHandler('_onBeginRequest', array($this, 'setCron'));
-		
-		A::app()->attachEventHandler('_onEndRequest', array($this, 'setLastVisitedPage'));
-	}
-	
-	/**
-	 * Returns the instance of object
+        A::app()->attachEventHandler('_onBeginRequest', [$this, 'setTimeZone']);
+        A::app()->attachEventHandler('_onBeginRequest', [$this, 'setSslMode']);
+        A::app()->attachEventHandler('_onBeginRequest', [$this, 'setCron']);
+
+        A::app()->attachEventHandler('_onEndRequest', [$this, 'setLastVisitedPage']);
+    }
+
+    /**
+     * Returns the instance of object
 	 * @return current class
 	 */
 	public static function init()

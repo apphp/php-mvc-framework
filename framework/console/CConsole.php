@@ -30,32 +30,36 @@ class CConsole
      *
      * @param  array  $argv
      */
-    public function __construct($argv = array())
+    public function __construct($argv = [])
     {
         $this->argv = $argv;
     }
 
     /**
      * Get command
+     *
      * @return mixed|string
      */
     public function getCommand()
     {
-        return !empty($this->argv[1]) ? $this->argv[1] : '';
+        return ! empty($this->argv[1]) ? $this->argv[1] : '';
     }
 
     /**
      * Get parameters
+     *
      * @return mixed|string
      */
     public function getParams()
     {
-        return !empty($this->argv[2]) ? $this->argv[2] : '';
+        return ! empty($this->argv[2]) ? $this->argv[2] : '';
     }
 
     /**
      * Draw green line
+     *
      * @param  string  $string
+     *
      * @return string
      */
     public static function green($string = '')
@@ -65,7 +69,9 @@ class CConsole
 
     /**
      * Draw yellow line
+     *
      * @param  string  $string
+     *
      * @return string
      */
     public static function yellow($string = '')
@@ -87,11 +93,11 @@ class CConsole
         $output = '';
 
         if ($padding) {
-            $output .= "\e[0;41m".str_pad(' ', $length, " ", STR_PAD_LEFT)."\e[0m" . PHP_EOL;
+            $output .= "\e[0;41m".str_pad(' ', $length, " ", STR_PAD_LEFT)."\e[0m".PHP_EOL;
         }
         $output .= "\e[0;41m".($padding ? '  ' : '').$string.($padding ? '  ' : '')."\e[0m".PHP_EOL;
         if ($padding) {
-            $output .= "\e[0;41m".str_pad(' ', $length, " ", STR_PAD_LEFT)."\e[0m" . PHP_EOL;
+            $output .= "\e[0;41m".str_pad(' ', $length, " ", STR_PAD_LEFT)."\e[0m".PHP_EOL;
         }
 
         return $output;

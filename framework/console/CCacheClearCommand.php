@@ -19,7 +19,9 @@ class CCacheClearCommand implements IConsoleCommand
 
     /**
      * Handle specific console command
+     *
      * @param  string  $param
+     *
      * @return string
      */
     public static function handle($param = '')
@@ -30,13 +32,13 @@ class CCacheClearCommand implements IConsoleCommand
         //var_dump($argc);
 
         if (empty($param)) {
-            $output .= CConsole::redbg("No cache type for deleting is defined. Type cache:clear -help") . PHP_EOL;
+            $output .= CConsole::redbg("No cache type for deleting is defined. Type cache:clear -help").PHP_EOL;
 //        } elseif ($param === '-h' || $param === '-help') {
 //            $output .= CConsole::yellow("Usage:") . PHP_EOL;
 //            $output .= "  cache:clear-all\tFlush all application cache". PHP_EOL;
 //            $output .= "  cache:clear [type]\tFlush specific application cache". PHP_EOL;
 //            $output .= "  \t\t\t[type] - the type of cache to be removed: 'db', 'css', 'js' or 'all'". PHP_EOL;
-//        } elseif (in_array($param, array('db', 'css', 'js', 'all'))) {
+//        } elseif (in_array($param, ['db', 'css', 'js', 'all'])) {
 //            if($param == 'db' || $param == 'all'){
 //                if (CConfig::get('cache.db.path') == '') {
 //                    $output .= CConsole::redbg("Config value 'cache.db.path' is not defined. Check your configuration file.") . PHP_EOL;

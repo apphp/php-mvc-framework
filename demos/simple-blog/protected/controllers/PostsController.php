@@ -147,7 +147,7 @@ class PostsController extends CController
                 ));
             }else{
                 $posts = null;
-                Posts::model()->chunk($conditions, [], -2, function ($records) use(&$posts){
+                Posts::model()->chunk($conditions, [], 2, function ($records) use(&$posts){
                     foreach ($records as $key => $record) {
                         $posts[] = $record;
                     }

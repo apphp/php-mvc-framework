@@ -52,8 +52,8 @@ class CategoriesController extends CController
 		
 		//All posts from the selected category
 		$postsModel = Posts::model();
-		if (!$postsModel->count('category_id = :category_id', array(':category_id' => $categoryId))) {
-			$msgType = 'warning';
+        if ( ! $postsModel->count('category_id = :category_id', [':category_id' => $categoryId])) {
+            $msgType = 'warning';
 			$msg = (!empty($catName)) ? 'There are still no posts in category <b>' . $catName . '</b>.' : 'Wrong parameter passed, please try again later.';
 		} else {
 			
@@ -61,25 +61,26 @@ class CategoriesController extends CController
 			$this->_view->targetPage = 'categories/view/id/' . $categoryId;
 			$this->_view->currentPage = A::app()->getRequest()->getQuery('page', 'integer', 1);
 			$this->_view->pageSize = '5';
-			$this->_view->totalRecords = Posts::model()->count(array(
-				'condition' => 'category_id = :category_id',
-			),
-				array(':category_id' => $categoryId)
-			);
-			
-			$msgType = 'info';
+            $this->_view->totalRecords = Posts::model()->count(
+                ['condition' => 'category_id = :category_id',],
+                [':category_id' => $categoryId]
+            );
+
+            $msgType = 'info';
 			$msg = 'Category: ' . $catName;
-			
-			$this->_view->posts = $postsModel->findAll(array(
-				'condition' => 'category_id = :category_id',
-				'limit' => (($this->_view->currentPage - 1) * $this->_view->pageSize) . ', ' . $this->_view->pageSize,
-				'order' => 'post_datetime DESC',
-			),
-				array(':category_id' => $categoryId)
-			);
-		}
-		$this->_view->mainText = CWidget::create('CMessage', array($msgType, $msg, array('button' => false)));
-		$this->_view->render('categories/view');
+
+            $this->_view->posts = $postsModel->findAll(
+                [
+                    'condition' => 'category_id = :category_id',
+                    'limit'     => (($this->_view->currentPage - 1) * $this->_view->pageSize).', '
+                        .$this->_view->pageSize,
+                    'order'     => 'post_datetime DESC',
+                ],
+                [':category_id' => $categoryId]
+            );
+        }
+        $this->_view->mainText = CWidget::create('CMessage', [$msgType, $msg, ['button' => false]]);
+        $this->_view->render('categories/view');
 	}
 	
 	public function indexAction($msg = '')
@@ -107,25 +108,35 @@ class CategoriesController extends CController
 				$msgType = 'Wrong parameter passed! Check category ID.';
 				$msgType = 'error';
 			}
-			if (!empty($msgType)) $this->_view->actionMessage = CWidget::create('CMessage', array($msgType, $msgType, array('button' => true)));
-		}
-		
-		// prepare pagination vars
+            if ( ! empty($msgType)) {
+                $this->_view->actionMessage = CWidget::create('CMessage', [$msgType, $msgType, ['button' => true]]);
+            }
+        }
+
+        // prepare pagination vars
 		$this->_view->targetPage = 'categories/index';
 		$this->_view->currentPage = A::app()->getRequest()->getQuery('page', 'integer', 1);
 		$this->_view->pageSize = '15';
 		$this->_view->totalRecords = Categories::model()->count();
-		
-		if (!$this->_view->currentPage) {
-			$this->_view->actionMessage = CWidget::create('CMessage', array('error', 'Wrong parameter passed! Please try again later.', array('button' => true)));
-		} else {
-			$this->_view->categories = Categories::model()->findAll(array(
-				'limit' => (($this->_view->currentPage - 1) * $this->_view->pageSize) . ', ' . $this->_view->pageSize,
-				'order' => 'id ASC',
-			));
-		}
-		
-		$this->_view->render('categories/index');
+
+        if ( ! $this->_view->currentPage) {
+            $this->_view->actionMessage = CWidget::create('CMessage',
+              [
+                  'error',
+                  'Wrong parameter passed! Please try again later.',
+                  ['button' => true]
+              ]
+            );
+        } else {
+            $this->_view->categories = Categories::model()->findAll(
+                [
+                    'limit' => (($this->_view->currentPage - 1) * $this->_view->pageSize).', '.$this->_view->pageSize,
+                    'order' => 'id ASC',
+                ]
+            );
+        }
+
+        $this->_view->render('categories/index');
 	}
 	
 	public function addAction()

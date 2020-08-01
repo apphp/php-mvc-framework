@@ -26,7 +26,7 @@ class CMakeControllerCommand implements IConsoleCommand
      */
     public static function handle($param = '')
     {
-        $output = 'Controller created: ' . $param;
+        $output = 'Controller created: '.$param;
 
         return $output;
     }

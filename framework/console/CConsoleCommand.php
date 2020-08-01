@@ -32,12 +32,14 @@ class CConsoleCommand
     public function __construct($command = '', $param = '')
     {
         $this->command = $command;
-        $this->param = $param;
+        $this->param   = $param;
     }
 
     /**
      * Run command
-     * @param bool $return
+     *
+     * @param  bool  $return
+     *
      * @return string
      */
     public function run($return = false)
@@ -45,7 +47,6 @@ class CConsoleCommand
         $output = '';
 
         switch ($this->command) {
-
             case '-h':
             case '--help':
             case 'help':
@@ -72,7 +73,7 @@ class CConsoleCommand
 
             default:
                 $output .= PHP_EOL;
-                $output .= CConsole::redbg("Command '".$this->command."' is not defined.") . PHP_EOL;
+                $output .= CConsole::redbg("Command '".$this->command."' is not defined.").PHP_EOL;
                 $output .= 'Type "bin/aii --help" to check all commands and options.';
                 break;
         }

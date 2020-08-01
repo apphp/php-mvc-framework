@@ -23,29 +23,29 @@ include(dirname(__FILE__) . '/../vendors/mobiledetect/mobile_detect.php');
 
 class CMobileDetect extends CComponent
 {
-	/** @var Mobile_detect */
-	static private $_mobileDetect = null;
-	
-	
-	/**
-	 * Class default constructor
-	 */
-	function __construct()
-	{
-	
-	}
-	
-	/**
-	 *    Returns the instance of object
-	 * @return current class
-	 */
-	public static function init()
-	{
-		if (self::$_mobileDetect == null) {
-			self::$_mobileDetect = new Mobile_Detect();
-		}
-		
-		return self::$_mobileDetect;
-	}
-	
+    /** @var Mobile_detect */
+    static private $_mobileDetect = null;
+
+
+    /**
+     * Class default constructor
+     */
+    function __construct()
+    {
+    }
+
+    /**
+     * Returns the instance of object
+     *
+     * @return CMobileDetect
+     */
+    public static function init()
+    {
+        if (self::$_mobileDetect == null) {
+            self::$_mobileDetect = new Mobile_Detect();
+        }
+
+        return self::$_mobileDetect;
+    }
+
 }

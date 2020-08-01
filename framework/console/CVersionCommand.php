@@ -19,11 +19,12 @@ class CVersionCommand implements IConsoleCommand
 
     /**
      * Handle specific console command
+     *
      * @return string
      */
     public static function handle()
     {
-        $output = 'ApPHP Framework ' . CConsole::green(A::version());
+        $output = 'ApPHP Framework '.CConsole::green(A::version());
 
         return $output;
     }

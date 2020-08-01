@@ -31,16 +31,19 @@
 			}
 			echo '</tbody>';
 			echo '</table>';
-			
-			echo CWidget::create('CPagination', array(
-				'actionPath' => 'categories/index',
-				'currentPage' => $currentPage,
-				'pageSize' => $pageSize,
-				'totalRecords' => $totalRecords,
-				'linkType' => 1,
-				'paginationType' => 'fullNumbers',
-			));
-		}
-		?>
+
+            echo CWidget::create(
+                'CPagination',
+                [
+                    'actionPath'     => 'categories/index',
+                    'currentPage'    => $currentPage,
+                    'pageSize'       => $pageSize,
+                    'totalRecords'   => $totalRecords,
+                    'linkType'       => 1,
+                    'paginationType' => 'fullNumbers',
+                ]
+            );
+        }
+        ?>
 	</p>
 </article>
