@@ -45,16 +45,14 @@ class CLogger extends CComponent
     function __construct()
     {
         $this->_enabled       = CConfig::get('log.enable') !== '' ? CConfig::get('log.enable') : false;
-        $this->_logPath       = APPHP_PATH.DS.(CConfig::get('log.path') !== '' ? CConfig::get('log.path')
-                : 'protected/tmp/logs/');
-        $this->_fileExtension = CConfig::exists('log.fileExtension') && CConfig::get('log.fileExtension') !== ''
-            ? ltrim(CConfig::get('log.fileExtension'), '.') : 'php';
+        $this->_logPath       = APPHP_PATH.DS.(CConfig::get('log.path') !== '' ? CConfig::get('log.path') : 'protected/tmp/logs/');
+        $this->_fileExtension = CConfig::exists('log.fileExtension') && CConfig::get('log.fileExtension') !== '' ? ltrim(CConfig::get('log.fileExtension'), '.') : 'php';
         $this->_dateFormat    = CConfig::get('log.dateFormat') !== '' ? CConfig::get('log.dateFormat') : '';
         $this->_lifetime      = CConfig::get('log.lifetime') !== '' ? CConfig::get('log.lifetime') : '';
         $logThreshold         = CConfig::get('log.threshold') !== '' ? CConfig::get('log.threshold') : '';
         $logFilePermissions   = CConfig::get('log.filePermissions') !== '' ? CConfig::get('log.filePermissions') : '';
 
-        if ( ! file_exists($this->_logPath)) {
+        if ( APPHP_MODE !== 'console' && ! file_exists($this->_logPath)) {
             mkdir($this->_logPath, 0755, true);
         }
 

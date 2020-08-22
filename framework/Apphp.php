@@ -292,7 +292,7 @@ class A
 	{
         if ( ! in_array(APPHP_MODE, array('hidden', 'console')) ) {
             // Specify error settings
-			if (APPHP_MODE == 'debug' || APPHP_MODE == 'test') {
+			if (in_array(APPHP_MODE, ['debug', 'test'])) {
 				error_reporting(E_ALL);
 				ini_set('display_errors', 'On');
 			} else {

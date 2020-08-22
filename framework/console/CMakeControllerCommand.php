@@ -26,7 +26,29 @@ class CMakeControllerCommand implements IConsoleCommand
      */
     public static function handle($param = '')
     {
-        $output = 'Controller created: '.$param;
+        $output = '';
+
+        if (empty($param)) {
+            $output .= CConsole::redbg("No model name is defined. Type make:controller -h or --help").PHP_EOL;
+        }
+        elseif ($param === '-h' || $param === '--help') {
+            $output .= CConsole::yellow("Usage:") . PHP_EOL;
+            $output .= "  make:controller [model]\t Create a new controller class". PHP_EOL;
+            $output .= "  \t\t\t\t[model] - Generate a resource controller for the given model.". PHP_EOL;
+        }
+        elseif (CValidator::isVariable($param)) {
+            // TODO: create controller
+        }
+        else {
+            if (!CValidator::isVariable($param)){
+                $output .= CConsole::redbg("The model name must be a valid controller name (alphanumeric, starts with letter and can contain an underscore)! Please re-enter.").PHP_EOL;
+            } else {
+                $output .= CConsole::redbg("No model name is defined or wrong parameters. Type make:controller -h or --help").PHP_EOL;
+            }
+        }
+
+        //echo $param;
+        //$output = 'Controller created: '.$param;
 
         return $output;
     }
