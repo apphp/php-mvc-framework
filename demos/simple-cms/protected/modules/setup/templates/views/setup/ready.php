@@ -37,21 +37,27 @@
 <?php echo ($actionMessage) ? $actionMessage.'<br>' : ''; ?>
 
 <?php
-    echo CWidget::create('CFormView', array(
-        'action'=>'setup/ready',
-        'method'=>'post',
-        'htmlOptions'=>array(
-            'name'=>'frmSetup'
-        ),
-        'fields'=>array(
-            'act'=>array('type'=>'hidden', 'value'=>'send'),            
-        ),
-        'buttons'=>array(
-            'back'=>array('type'=>'button', 'value'=>'Previous', 'htmlOptions'=>array('name'=>'', 'onclick'=>"$(location).attr('href','setup/administrator');")),
-            'submit'=>array('type'=>'submit', 'value'=>'Next', 'htmlOptions'=>array('name'=>''))
-        ),
-        'return'=>true,
-    ));
+
+echo CWidget::create(
+    'CFormView',
+    [
+        'action'      => 'setup/ready',
+        'method'      => 'post',
+        'htmlOptions' => ['name' => 'frmSetup'],
+        'fields'      => [
+            'act' => ['type' => 'hidden', 'value' => 'send'],
+        ],
+        'buttons'     => [
+            'back'   => [
+                'type'        => 'button',
+                'value'       => 'Previous',
+                'htmlOptions' => ['name' => '', 'onclick' => "$(location).attr('href','setup/administrator');"]
+            ],
+            'submit' => ['type' => 'submit', 'value' => 'Next', 'htmlOptions' => ['name' => '']]
+        ],
+        'return'      => true,
+    ]
+);
 
 ?>
 <br>    

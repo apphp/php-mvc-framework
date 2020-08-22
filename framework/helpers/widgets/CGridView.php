@@ -41,7 +41,7 @@ class CGridView extends CWidgs
      *   - 'case'=>'normal' - attribute for type 'label', allows to convert value to 'upper', 'lower', 'camel' or 'humanize' cases
      *   - 'maxLength'=>'X' - attribute for type 'label', specifies to show maximum X characters of the string
      *     'showTooltip'=>true - specifies whether to show tooltip on field if it's length was reduced
-     *   - 'aggregate'=>array('function'=>'sum|avg') - allow to run aggregate function on specific column
+     *   - 'aggregate'=>['function'=>'sum|avg'] - allow to run aggregate function on specific column
      *   - 'sourceField'=>'' - used to show data from another field
      *   - 'callback'=>array('class'=>'className', 'function'=>'functionName', 'params'=>$functionParams)
      *      callback of closure function that is called when item created (available for labels only), $record - all current record
@@ -92,10 +92,10 @@ class CGridView extends CWidgs
 	 *    	 'gridTable' 	=> array('class'=>''),
 	 *    ),
      *    'filters'	=> array(
-     *    	 'field_1' 	=> array('title'=>'Field 1', 'type'=>'textbox', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'', 'maxLength'=>'', 'htmlOptions'=>array()),
-     *    	 'field_2' 	=> array('title'=>'Field 2', 'type'=>'textbox', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'', 'maxLength'=>'', 'autocomplete'=>array('enable'=>true, 'ajaxHandler'=>'path/to/handler/file', 'minLength'=>3, 'returnId'=>true), 'htmlOptions'=>array()),
-     *    	 'field_3' 	=> array('title'=>'Field 3', 'type'=>'enum', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'', 'source'=>array('0'=>'No', '1'=>'Yes'), 'emptyOption'=>true, 'emptyValue'=>'', 'htmlOptions'=>array('class'=>'chosen-select-filter')),
-     *    	 'field_4' 	=> array('title'=>'Field 5', 'type'=>'datetime', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'80px', 'maxLength'=>'', 'format'=>'', 'htmlOptions'=>array(), 'viewType'=>'datetime|date|time'),
+     *    	 'field_1' 	=> ['title'=>'Field 1', 'type'=>'textbox', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'', 'maxLength'=>'', 'htmlOptions'=>array()],
+     *    	 'field_2' 	=> ['title'=>'Field 2', 'type'=>'textbox', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'', 'maxLength'=>'', 'autocomplete'=>array('enable'=>true, 'ajaxHandler'=>'path/to/handler/file', 'minLength'=>3, 'returnId'=>true), 'htmlOptions'=>array()],
+     *    	 'field_3' 	=> ['title'=>'Field 3', 'type'=>'enum', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'', 'source'=>array('0'=>'No', '1'=>'Yes'), 'emptyOption'=>true, 'emptyValue'=>'', 'htmlOptions'=>array('class'=>'chosen-select-filter')],
+     *    	 'field_4' 	=> ['title'=>'Field 5', 'type'=>'datetime', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'80px', 'maxLength'=>'', 'format'=>'', 'htmlOptions'=>array(), 'viewType'=>'datetime|date|time'],
      *    ),
 	 *    'fields'	=> array(
 	 *       'field_1' => array('title'=>'Field 1', 'type'=>'index', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>false),
@@ -597,11 +597,11 @@ class CGridView extends CWidgs
 		// ---------------------------------------
 		$totalRecords = $totalPageRecords = 0;
 		$currentPage = '';
-		$modelParams = !empty($relationType) ? array($relationType) : array();
-		$objModel = call_user_func_array($model . '::model', $modelParams);
+        $modelParams = ! empty($relationType) ? [$relationType] : [];
+        $objModel = call_user_func_array($model . '::model', $modelParams);
 		if (!$objModel) {
-			CDebug::addMessage('errors', 'missing-model', A::t('core', 'Unable to find class "{class}".', array('{class}' => $model)), 'session');
-			return '';
+            CDebug::addMessage('errors', 'missing-model', A::t('core', 'Unable to find class "{class}".', ['{class}' => $model]), 'session');
+            return '';
 		}
 		
 		// Replacing rows
@@ -623,9 +623,9 @@ class CGridView extends CWidgs
 						$val2 = $record2->$replaceField;
 					}
 					if ($val1 != '' && $val2 != '') {
-						$objModel->updateByPk($id1, array($replaceField => $val2));
-						$objModel->updateByPk($id2, array($replaceField => $val1));
-						if (APPHP_MODE == 'demo') {
+                        $objModel->updateByPk($id1, [$replaceField => $val2]);
+                        $objModel->updateByPk($id2, [$replaceField => $val1]);
+                        if (APPHP_MODE == 'demo') {
 							A::app()->getSession()->setFlash('alert', A::t('core', 'This operation is blocked in Demo Mode!'));
 							A::app()->getSession()->setFlash('alertType', 'warning');
 						} else {
@@ -649,24 +649,24 @@ class CGridView extends CWidgs
 		
 		if ($pagination) {
 			$currentPage = A::app()->getRequest()->getQuery('page', 'integer', 1);
-			$totalRecords = self::_countAllRecords($objModel, array('condition' => $whereClause, 'group' => $groupBy));
+			$totalRecords = self::_countAllRecords($objModel, ['condition' => $whereClause, 'group' => $groupBy]);
 			if ($currentPage) {
 				$records = self::_getAllRecords($objModel, array('condition' => $whereClause, 'order' => $orderClause, 'group' => $groupBy, 'limit' => (($currentPage - 1) * $pageSize) . ', ' . $pageSize));
 				$totalPageRecords = is_array($records) ? count($records) : 0;
 			}
 			if (!$totalPageRecords || !$currentPage) {
 				if (A::app()->getRequest()->getQuery('but_filter')) {
-					$output .= CWidget::create('CMessage', array('warning', A::t('core', 'No records found or incorrect parameters passed')));
-				} else {
-					$output .= CWidget::create('CMessage', array('warning', A::t('core', 'No records found')));
-				}
-			}
+                    $output .= CWidget::create('CMessage', ['warning', A::t('core', 'No records found or incorrect parameters passed')]);
+                } else {
+                    $output .= CWidget::create('CMessage', ['warning', A::t('core', 'No records found')]);
+                }
+            }
 		} else {
-			$records = self::_getAllRecords($objModel, array('condition' => $whereClause, 'order' => $orderClause, 'group' => $groupBy, 'limit' => $limit));
+			$records = self::_getAllRecords($objModel, ['condition' => $whereClause, 'order' => $orderClause, 'group' => $groupBy, 'limit' => $limit]);
 			$totalPageRecords = is_array($records) ? count($records) : 0;
 			if (!$totalPageRecords) {
-				$output .= CWidget::create('CMessage', array('warning', A::t('core', 'No records found')));
-			}
+                $output .= CWidget::create('CMessage', ['warning', A::t('core', 'No records found')]);
+            }
 		}
 		
 		// Draw table
@@ -681,15 +681,15 @@ class CGridView extends CWidgs
 			// Draw TABLE wrapper
 			// ----------------------------------------------
 			if (!empty($gridWrapper['tag'])) {
-				$output .= CHtml::openTag($gridWrapper['tag'], array('class' => (!empty($gridWrapper['class']) ? $gridWrapper['class'] : null))) . self::NL;
-			}
+                $output .= CHtml::openTag($gridWrapper['tag'], ['class' => (! empty($gridWrapper['class']) ? $gridWrapper['class'] : null)]).self::NL;
+            }
 			// ----------------------------------------------
 			// Draw <THEAD> rows 
 			// ----------------------------------------------
-			$output .= CHtml::openTag('table', array('class' => 'grid-view-table' . (!empty($gridTable['class']) ? ' ' . $gridTable['class'] : ''))) . self::NL;
-			$output .= CHtml::openTag('thead') . self::NL;
-			$output .= CHtml::openTag('tr', array('id' => 'tr' . $modelName . '_' . self::$_rowCount++)) . self::NL;
-			foreach ($fields as $key => $val) {
+            $output .= CHtml::openTag('table', ['class' => 'grid-view-table'.(! empty($gridTable['class']) ? ' '.$gridTable['class'] : '')]).self::NL;
+            $output .= CHtml::openTag('thead') . self::NL;
+            $output .= CHtml::openTag('tr', ['id' => 'tr'.$modelName.'_'.self::$_rowCount++]).self::NL;
+            foreach ($fields as $key => $val) {
 				
 				// Check if we want to use another field as a "source field"
 				$sourceField = self::keyAt('sourceField', $val, '');
@@ -714,7 +714,7 @@ class CGridView extends CWidgs
 				if ($sortingEnabled && $isSortable && ($type != 'template' || ($type == 'template' && !empty($sortField)))) {
 					$sortByField = !empty($sortField) ? $sortField : $key;
 					$colSortDir = (($sortBy != $sortByField) ? 'asc' : (($sortDir == 'asc') ? 'desc' : 'asc'));
-					$sortImg = ($sortBy == $sortByField) ? ' ' . CHtml::tag('span', array('class' => 'sort-arrow'), (($colSortDir == 'asc') ? '&#9660;' : '&#9650;')) : '';
+					$sortImg = ($sortBy == $sortByField) ? ' ' . CHtml::tag('span', ['class' => 'sort-arrow'], (($colSortDir == 'asc') ? '&#9660;' : '&#9650;')) : '';
 					if ($sortBy == $sortByField) $sortUrl = 'sort_by=' . $sortByField . '&sort_dir=' . $sortDir;
 					
 					$separateSymbol = preg_match('/\?/', $actionPath) ? '&' : '?';
@@ -724,25 +724,25 @@ class CGridView extends CWidgs
 					$linkUrl .= self::_customParams($customParameters, $linkType, '&');
 					$title = CHtml::link($title . $sortImg, $linkUrl);
 				}
-				
-				$title .= !empty($headerTooltip) ? ' ' . CHtml::link('', false, array('class' => 'tooltip-icon', 'title' => $headerTooltip)) : '';
-				
-				$output .= CHtml::tag('th', array('class' => $headerClass, 'style' => $style), $title) . self::NL;
-			}
+
+                $title .= ! empty($headerTooltip) ? ' '.CHtml::link('', false, ['class' => 'tooltip-icon', 'title' => $headerTooltip]) : '';
+
+                $output .= CHtml::tag('th', ['class' => $headerClass, 'style' => $style], $title).self::NL;
+            }
 			if ($activeActions > 0) {
-				$output .= CHtml::tag('th', array('class' => 'actions'), A::t('core', 'Actions')) . self::NL;
-			}
+                $output .= CHtml::tag('th', ['class' => 'actions'], A::t('core', 'Actions')).self::NL;
+            }
 			$output .= CHtml::closeTag('tr') . self::NL;;
 			$output .= CHtml::closeTag('thead') . self::NL;
 			
 			// ----------------------------------------------
 			// Draw <TBODY> rows 
 			// ----------------------------------------------
-			$aggregateRow = array();
-			$output .= CHtml::openTag('tbody') . self::NL;
+            $aggregateRow = [];
+            $output .= CHtml::openTag('tbody') . self::NL;
 			for ($i = 0; $i < $totalPageRecords; $i++) {
-				$output .= CHtml::openTag('tr', array('id' => 'tr' . $modelName . '_' . self::$_rowCount++)) . self::NL;
-				$id = (isset($records[$i]['id'])) ? $records[$i]['id'] : '';
+                $output .= CHtml::openTag('tr', ['id' => 'tr'.$modelName.'_'.self::$_rowCount++]).self::NL;
+                $id = (isset($records[$i]['id'])) ? $records[$i]['id'] : '';
 				$prevId = (isset($records[$i - 1]['id'])) ? $records[$i - 1]['id'] : '';
 				$nextId = (isset($records[$i + 1]['id'])) ? $records[$i + 1]['id'] : '';
 				
@@ -764,14 +764,14 @@ class CGridView extends CWidgs
 					$title = self::keyAt('title', $val, '');
 					$format = self::keyAt('format', $val, '');
 					$definedValues = self::keyAt('definedValues', $val, '');
-					$htmlOptions = (array)self::keyAt('htmlOptions', $val, array());
-					$prependCode = self::keyAt('prependCode', $val, '');
+                    $htmlOptions = (array)self::keyAt('htmlOptions', $val, []);
+                    $prependCode = self::keyAt('prependCode', $val, '');
 					$appendCode = self::keyAt('appendCode', $val, '');
 					$fieldValue = (isset($records[$i][$key])) ? $records[$i][$key] : ''; /* $key */
 					$fieldValueOriginal = $fieldValue;
 					$aggregateFunction = self::keyAt('aggregate.function', $val, '');
-					$aggregateFunction = in_array(strtolower($aggregateFunction), array('sum', 'avg')) ? strtolower($aggregateFunction) : '';
-					$changeOrder = (bool)self::keyAt('changeOrder', $val, false);
+                    $aggregateFunction = in_array(strtolower($aggregateFunction), ['sum', 'avg']) ? strtolower($aggregateFunction) : '';
+                    $changeOrder = (bool)self::keyAt('changeOrder', $val, false);
 					
 					$fieldOutput = '';
 					switch ($type) {

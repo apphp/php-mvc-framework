@@ -9,9 +9,9 @@
 		echo CWidget::create('CFormView', array(
 			'action' => 'categories/update',
 			'method' => 'post',
-			'htmlOptions' => array(
-				'name' => 'frmEditCategory',
-			),
+            'htmlOptions' => [
+                'name' => 'frmEditCategory',
+            ],
 			'fields' => array(
 				'act' => array('type' => 'hidden', 'value' => 'send'),
 				'categoryId' => array('type' => 'hidden', 'value' => $categoryId),
@@ -20,12 +20,12 @@
 			),
 			'buttons' => array(
 				'cancel' => array('type' => 'button', 'value' => 'Cancel', 'htmlOptions' => array('name' => '', 'onclick' => "$(location).attr('href','categories/index');")),
-				'submit' => array('type' => 'submit', 'value' => 'Update'),
-			),
-			'events' => array(
-				'focus' => array('field' => $errorField),
-			),
-			'return' => true,
+				'submit' => ['type' => 'submit', 'value' => 'Update'],
+            ),
+            'events' => array(
+                'focus' => ['field' => $errorField],
+            ),
+            'return' => true,
 		));
 		?>
 	</div>

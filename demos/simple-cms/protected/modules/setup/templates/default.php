@@ -27,21 +27,24 @@
             </div>            
 
             <?php
-                CWidget::create('CMenu', array(
-                    'type'=>'vertical',					
-                    'items'=>array(
-                        array('label'=>'1. Server Requirements', 'url'=>'setup/index', 'readonly'=>true),
-                        array('label'=>'2. Database Settings', 'url'=>'setup/database', 'readonly'=>true),
-                        array('label'=>'3. Administrator Account', 'url'=>'setup/administrator', 'readonly'=>true),
-                        array('label'=>'4. Ready to Install', 'url'=>'setup/ready', 'readonly'=>true),
-                        array('label'=>'5. Completed', 'url'=>'setup/completed', 'readonly'=>true),
-                    ),
-                    'selected'=>$this->_activeMenu,
-					'return'=>false
-                ));
+                CWidget::create(
+                    'CMenu',
+                    [
+                        'type'     => 'vertical',
+                        'items'    => [
+                            ['label' => '1. Server Requirements', 'url' => 'setup/index', 'readonly' => true],
+                            ['label' => '2. Database Settings', 'url' => 'setup/database', 'readonly' => true],
+                            ['label' => '3. Administrator Account', 'url' => 'setup/administrator', 'readonly' => true],
+                            ['label' => '4. Ready to Install', 'url' => 'setup/ready', 'readonly' => true],
+                            ['label' => '5. Completed', 'url' => 'setup/completed', 'readonly' => true],
+                        ],
+                        'selected' => $this->_activeMenu,
+                        'return'   => false
+                    ]
+                );
             ?>
-        </aside>
-        <article>
+		</aside>
+		<article>
             <?php echo A::app()->view->getContent(); ?>
         </article>
     </section>

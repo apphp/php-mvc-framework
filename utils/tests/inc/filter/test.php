@@ -18,10 +18,10 @@ foreach($test_data as $key => $val){
 	$count = 0;
 	foreach($val as $v_key => $v_val){
 		if($count++ % $span == 0) $content .= '</tr><tr>';
-		$parameters = (!is_array($v_val)) ? array($v_val) : $v_val;
-		$expected_result = isset($v_val[2]) ? $v_val[2]: true;
-		$result = call_user_func_array(array('CFilter', $key), $parameters);
-		$content .= '<td>'.$parameters[0].'</td>
+        $parameters      = ( ! is_array($v_val)) ? [$v_val] : $v_val;
+        $expected_result = isset($v_val[2]) ? $v_val[2] : true;
+        $result          = call_user_func_array(['CFilter', $key], $parameters);
+        $content .= '<td>'.$parameters[0].'</td>
 					 <td>'.$parameters[1].'</td>
 					 <td>'.$result.'</td>
 					 <td class="align-center">'.(($parameters[1] === $result) ? '<span class="true">not cleaned</span>' : '<span class="false">cleaned</span>').'</td>

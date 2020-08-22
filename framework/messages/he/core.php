@@ -186,5 +186,5 @@ return array(
 	'You cannot delete the last remaining record in table {table}!' => 'לא ניתן למחוק את הרשומה האחרונה שנותרה בטבלה {table}!',
 	'Warnings' => 'אזהרות',
 	'Wrong column name: {index} in table {table}' => 'שם עמוד שגוי: {index} בטבלה {table}',
-    'Wrong params for chunk size: {size} or callback method is callable.' => 'Wrong params for chunk size: {size} or callback method is callable.',
+    'Wrong params for chunk size: {size} or callback method is not callable.' => 'פרמטרים שגויים בגודל נתח: {size} או מטודות התקשרות אינה תקינה.',
 );

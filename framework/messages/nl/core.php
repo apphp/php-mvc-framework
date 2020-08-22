@@ -186,5 +186,5 @@ return array(
 	'You cannot delete the last remaining record in table {table}!' => 'U kunt de laatst overgebleven record niet verwijderen in tabel {table}!',
 	'Warnings' => 'Waarschuwingen',
 	'Wrong column name: {index} in table {table}' => 'naam verkeerd column: {index} in tabel {table}',
-    'Wrong params for chunk size: {size} or callback method is callable.' => 'Wrong params for chunk size: {size} or callback method is callable.',
+    'Wrong params for chunk size: {size} or callback method is not callable.' => 'Verkeerde parameters voor chunkgrootte: {size} of callback-methode is niet opvraagbaar.',
 );

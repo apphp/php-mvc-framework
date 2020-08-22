@@ -74,14 +74,14 @@ class A
 	/** @var object */
 	private static $_instance;
 	/** @var array */
-	private static $_classMap = array(
-		'Controller' => 'controllers',
-		'Model' => 'models',
-		'Entity' => 'entities',
-		'' => 'models',
-	);
-	/** @var array */
-	private static $_coreClasses = array(
+    private static $_classMap = [
+        'Controller' => 'controllers',
+        'Model'      => 'models',
+        'Entity'     => 'entities',
+        ''           => 'models',
+    ];
+    /** @var array */
+	private static $_coreClasses = [
         'CConfig' => 'collections/CConfig.php',
 
         'CController' => 'core/CController.php',
@@ -94,35 +94,35 @@ class A
         'CRecordEntity' => 'db/CRecordEntity.php',
         'CDatabase'     => 'db/CDatabase.php',
         'CDbCommand'    => 'db/CDbCommand.php',
-	);
+	];
     /** @var array */
-    private static $_coreConsoleClasses = array(
+    private static $_coreConsoleClasses = [
         'CConsole'               => 'console/CConsole.php',
         'CConsoleCommand'        => 'console/CConsoleCommand.php',
         'CHelpCommand'           => 'console/CHelpCommand.php',
         'CVersionCommand'        => 'console/CVersionCommand.php',
         'CCacheClearCommand'     => 'console/CCacheClearCommand.php',
         'CMakeControllerCommand' => 'console/CMakeControllerCommand.php',
-    );
+    ];
 	/** @var array */
-	private static $_coreComponents = array(
+    private static $_coreComponents = [
         //'component' => array('class' => 'CComponent', 'path' => array('5.4.0' => 'components/CComponent.php')),
-        'component'    => array('class' => 'CComponent', 'path' => 'components/CComponent.php'),
-        'clientScript' => array('class' => 'CClientScript', 'path' => 'components/CClientScript.php'),
-        'dbSession'    => array('class' => 'CDbHttpSession', 'path' => 'components/CDbHttpSession.php'),
-        'request'      => array('class' => 'CHttpRequest', 'path' => 'components/CHttpRequest.php'),
-        'session'      => array('class' => 'CHttpSession', 'path' => 'components/CHttpSession.php'),
-        'cookie'       => array('class' => 'CHttpCookie', 'path' => 'components/CHttpCookie.php'),
-        'localTime'    => array('class' => 'CLocalTime', 'path' => 'components/CLocalTime.php'),
-        'logger'       => array('class' => 'CLogger', 'path' => 'components/CLogger.php'),
-        'coreMessages' => array('class' => 'CMessageSource', 'path' => 'components/CMessageSource.php', 'language' => 'en'),
-        'messages'     => array('class' => 'CMessageSource', 'path' => 'components/CMessageSource.php'),
-        'mobileDetect' => array('class' => 'CMobileDetect', 'path' => 'components/CMobileDetect.php'),
-        'shoppingCart' => array('class' => 'CShoppingCart', 'path' => 'components/CShoppingCart.php'),
-        'uri'          => array('class' => 'CUri', 'path' => 'components/CUri.php'),
-	);
-	/** @var array */
-	private static $_coreHelpers = array(
+        'component'    => ['class' => 'CComponent', 'path' => 'components/CComponent.php'],
+        'clientScript' => ['class' => 'CClientScript', 'path' => 'components/CClientScript.php'],
+        'dbSession'    => ['class' => 'CDbHttpSession', 'path' => 'components/CDbHttpSession.php'],
+        'request'      => ['class' => 'CHttpRequest', 'path' => 'components/CHttpRequest.php'],
+        'session'      => ['class' => 'CHttpSession', 'path' => 'components/CHttpSession.php'],
+        'cookie'       => ['class' => 'CHttpCookie', 'path' => 'components/CHttpCookie.php'],
+        'localTime'    => ['class' => 'CLocalTime', 'path' => 'components/CLocalTime.php'],
+        'logger'       => ['class' => 'CLogger', 'path' => 'components/CLogger.php'],
+        'coreMessages' => ['class'    => 'CMessageSource', 'path' => 'components/CMessageSource.php', 'language' => 'en'],
+        'messages'     => ['class' => 'CMessageSource', 'path' => 'components/CMessageSource.php'],
+        'mobileDetect' => ['class' => 'CMobileDetect', 'path' => 'components/CMobileDetect.php'],
+        'shoppingCart' => ['class' => 'CShoppingCart', 'path' => 'components/CShoppingCart.php'],
+        'uri'          => ['class' => 'CUri', 'path' => 'components/CUri.php'],
+    ];
+    /** @var array */
+    private static $_coreHelpers = [
         'CArray'        => 'helpers/CArray.php',
         'CAuth'         => 'helpers/CAuth.php',
         'CCache'        => 'helpers/CCache.php',
@@ -150,35 +150,35 @@ class A
         'CTime'         => 'helpers/CTime.php',
         'CValidator'    => 'helpers/CValidator.php',
         'CWidget'       => 'helpers/CWidget.php',
-	);
+	];
 	/** @var array */
-	private static $_coreModules = array(
-		// 'General'   => '/core/modules/General.php'
-	);
-	/** @var array */
-	private static $_appClasses = array(
+    private static $_coreModules = [
+        // 'General'   => '/core/modules/General.php'
+    ];
+    /** @var array */
+	private static $_appClasses = [
 		// empty
-	);
+	];
 	/** @var array */
-	private static $_appComponents = array(
+	private static $_appComponents = [
 		// empty
-	);
+	];
 	/** @var array */
-	private static $_appHelpers = array(
+	private static $_appHelpers = [
 		// empty
-	);
+	];
 	/** @var array */
-	private static $_appModules = array(
-		'setup' => array('classes' => array('Modules\Setup\Controllers\Setup')),
-	);
+	private static $_appModules = [
+        'setup' => ['classes' => ['Modules\Setup\Controllers\Setup']],
+    ];
 	/** @var bool */
 	private $_coreComponentsLazyLoading = true;
 	/** @var array */
-	private $_components = array();
-	/** @var array */
-	private $_events = array();
-	/** @var boolean */
-	private $_setup = false;
+    private $_components = [];
+    /** @var array */
+    private $_events = [];
+    /** @var boolean */
+    private $_setup = false;
 	/** @var string */
 	private $_responseCode = '';
 	/** @var string */
@@ -195,9 +195,9 @@ class A
 	public function __construct($configDir)
 	{
 		// Set autoload register method
-		spl_autoload_register(array($this, '_autoload'));
-		
-		// Include interfaces
+        spl_autoload_register([$this, '_autoload']);
+
+        // Include interfaces
 		require(dirname(__FILE__) . DS . 'core' . DS . 'interfaces.php');
 		
 		self::$_phpVersion = phpversion();

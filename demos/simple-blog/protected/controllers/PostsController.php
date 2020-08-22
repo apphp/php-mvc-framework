@@ -129,7 +129,7 @@ class PostsController extends CController
 		// prepare pagination vars
 		$this->_view->targetPage = 'posts/index';
 		$this->_view->currentPage = A::app()->getRequest()->getQuery('page', 'integer', 1);
-		$this->_view->pageSize = '15';
+		$this->_view->pageSize = 15;
 		$this->_view->totalRecords = Posts::model()->count();
 		
 		if (!$this->_view->currentPage) {
@@ -147,13 +147,11 @@ class PostsController extends CController
                 ));
             }else{
                 $posts = null;
-                Posts::model()->chunk($conditions, [], 2, function ($records) use(&$posts){
+                Posts::model()->chunk($conditions, [], 10, function ($records) use(&$posts){
                     foreach ($records as $key => $record) {
                         $posts[] = $record;
                     }
-                    //CDebug::d($record);
                 });
-                //CDebug::dd($posts);
                 $this->_view->posts = $posts;
             }
 		}
