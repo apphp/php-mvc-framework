@@ -342,8 +342,9 @@ class CView
 				if ($return) {
 					return $output;
 				} else {
-					$this->_isRendered = true;
-					echo $output;
+                    $this->_isRendered = true;
+                    $this->_renderHeaders();
+                    echo $output;
 				}
 				
 				///CDebug::addMessage('params', 'view', $this->__viewFile);
@@ -644,5 +645,15 @@ class CView
 			true :
 			false;
 	}
-	
+
+    /**
+     * Render headers
+     */
+    private function _renderHeaders()
+    {
+        header('X-Author: ApPHP');
+        //header('X-Framework-Name: ApPHP');
+        //header('X-Framework-Version: '.A::version());
+        //CSecureHeaders::renderHeaders();
+	}
 }
