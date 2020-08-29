@@ -3,7 +3,7 @@
 $dir = $arr_projects[$project]['path'];
 
 // Open a known directory, and proceed to read its contents
-$prepare_data = array();
+$prepare_data = [];
 if(is_dir($dir)){
     if($dh = opendir($dir)){
         while(($file = readdir($dh)) !== false){

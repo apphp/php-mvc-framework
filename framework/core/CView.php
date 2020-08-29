@@ -56,11 +56,11 @@ class CView
 	/** @var string */
 	private $_breadcrumbsTitle;
 	/** @var array */
-	private $_vars = array();
+	private $_vars = [];
 	/** @var bool */
 	private $_isRendered = false;
 	/** @var array */
-	private $_isCompRendered = array();
+	private $_isCompRendered = [];
 	/** @var boolean to enable html output compression */
 	private $_htmlCompression = false;
 	/** @var int */
@@ -444,7 +444,7 @@ class CView
 	 * @throws Exception
 	 * @return void
 	 */
-	public function renderView($params, $data = array(), $return = false)
+	public function renderView($params, $data = [], $return = false)
 	{
 		try {
 			// Set default controller and action
@@ -652,8 +652,16 @@ class CView
     private function _renderHeaders()
     {
         header('X-Author: ApPHP');
-        //header('X-Framework-Name: ApPHP');
-        //header('X-Framework-Version: '.A::version());
-        //CSecureHeaders::renderHeaders();
+
+        // Framework info headers
+        if (CConfig::get('httpHeaders.framework') === true) {
+            header('X-Framework-Name: ApPHP');
+            header('X-Framework-Version: '.A::version());
+        }
+
+        // Secure headers
+        if (CConfig::get('httpHeaders.secure') === true) {
+            CSecureHeaders::renderHeaders();
+        }
 	}
 }

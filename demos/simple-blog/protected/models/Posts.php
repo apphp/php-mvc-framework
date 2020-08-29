@@ -80,6 +80,6 @@ class Posts extends CActiveRecord
 	{
 		// update total count of posts in categories table
         $totalPosts = self::model()->count('category_id = :category_id', [':category_id' => $pKey]);
-        $this->_db->update('categories', array('posts_count' => $totalPosts), 'id = ' . (int)$pKey);
-	}
+        $this->_db->update('categories', ['posts_count' => $totalPosts], 'id = '.(int)$pKey);
+    }
 }

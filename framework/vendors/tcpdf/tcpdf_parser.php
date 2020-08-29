@@ -63,13 +63,13 @@ class TCPDF_PARSER {
 	 * XREF data.
 	 * @protected
 	 */
-	protected $xref = array();
+	protected $xref = [];
 
 	/**
 	 * Array of PDF objects.
 	 * @protected
 	 */
-	protected $objects = array();
+	protected $objects = [];
 
 	/**
 	 * Class object for decoding filters.
@@ -99,7 +99,7 @@ class TCPDF_PARSER {
 	 * @public
 	 * @since 1.0.000 (2011-05-24)
 	 */
-	public function __construct($data, $cfg=array()) {
+	public function __construct($data, $cfg=[]) {
 		if (empty($data)) {
 			$this->Error('Empty PDF data.');
 		}
@@ -116,7 +116,7 @@ class TCPDF_PARSER {
 		// get xref and trailer data
 		$this->xref = $this->getXrefData();
 		// parse all document objects
-		$this->objects = array();
+		$this->objects = [];
 		foreach ($this->xref['xref'] as $obj => $offset) {
 			if (!isset($this->objects[$obj]) AND ($offset > 0)) {
 				// decode objects with positive offset
@@ -166,7 +166,7 @@ class TCPDF_PARSER {
 	 * @protected
 	 * @since 1.0.000 (2011-05-24)
 	 */
-	protected function getXrefData($offset=0, $xref=array()) {
+	protected function getXrefData($offset=0, $xref=[]) {
 		if ($offset == 0) {
 			// find last startxref
 			if (preg_match_all('/[\r\n]startxref[\s]*[\r\n]+([0-9]+)[\s]*[\r\n]+%%EOF/i', $this->pdfdata, $matches, PREG_SET_ORDER, $offset) == 0) {
@@ -208,7 +208,7 @@ class TCPDF_PARSER {
 	 * @protected
 	 * @since 1.0.000 (2011-06-20)
 	 */
-	protected function decodeXref($startxref, $xref=array()) {
+	protected function decodeXref($startxref, $xref=[]) {
 		$startxref += 4; // 4 is the length of the word 'xref'
 		// skip initial white space chars: \x00 null (NUL), \x09 horizontal tab (HT), \x0A line feed (LF), \x0C form feed (FF), \x0D carriage return (CR), \x20 space (SP)
 		$offset = $startxref + strspn($this->pdfdata, "\x00\x09\x0a\x0c\x0d\x20", $startxref);
@@ -242,7 +242,7 @@ class TCPDF_PARSER {
 			$trailer_data = $matches[1][0];
 			if (!isset($xref['trailer']) OR empty($xref['trailer'])) {
 				// get only the last updated version
-				$xref['trailer'] = array();
+				$xref['trailer'] = [];
 				// parse trailer_data
 				if (preg_match('/Size[\s]+([0-9]+)/i', $trailer_data, $matches) > 0) {
 					$xref['trailer']['size'] = intval($matches[1]);
@@ -257,7 +257,7 @@ class TCPDF_PARSER {
 					$xref['trailer']['info'] = intval($matches[1]).'_'.intval($matches[2]);
 				}
 				if (preg_match('/ID[\s]*[\[][\s]*[<]([^>]*)[>][\s]*[<]([^>]*)[>]/i', $trailer_data, $matches) > 0) {
-					$xref['trailer']['id'] = array();
+					$xref['trailer']['id'] = [];
 					$xref['trailer']['id'][0] = $matches[1];
 					$xref['trailer']['id'][1] = $matches[2];
 				}
@@ -280,25 +280,25 @@ class TCPDF_PARSER {
 	 * @protected
 	 * @since 1.0.003 (2013-03-16)
 	 */
-	protected function decodeXrefStream($startxref, $xref=array()) {
+	protected function decodeXrefStream($startxref, $xref=[]) {
 		// try to read Cross-Reference Stream
 		$xrefobj = $this->getRawObject($startxref);
 		$xrefcrs = $this->getIndirectObject($xrefobj[1], $startxref, true);
 		if (!isset($xref['trailer']) OR empty($xref['trailer'])) {
 			// get only the last updated version
-			$xref['trailer'] = array();
+			$xref['trailer'] = [];
 			$filltrailer = true;
 		} else {
 			$filltrailer = false;
 		}
 		if (!isset($xref['xref'])) {
-			$xref['xref'] = array();
+			$xref['xref'] = [];
 		}
 		$valid_crs = false;
 		$columns = 0;
 		$sarr = $xrefcrs[0][1];
 		if (!is_array($sarr)) {
-			$sarr = array();
+			$sarr = [];
 		}
 		foreach ($sarr as $k => $v) {
 			if (($v[0] == '/') AND ($v[1] == 'Type') AND (isset($sarr[($k +1)]) AND ($sarr[($k +1)][0] == '/') AND ($sarr[($k +1)][1] == 'XRef'))) {

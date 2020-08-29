@@ -21,7 +21,7 @@ class CFormValidation extends CWidgs
 	
 	/** @var string */
 	private static $_errorMessage = '';
-	private static $_output = array('error'=>false, 'uploadedFiles'=>array());		
+	private static $_output = array('error'=>false, 'uploadedFiles'=>[]);
 
     /**
      * Performs form validation
@@ -60,7 +60,7 @@ class CFormValidation extends CWidgs
      *
      *  3. <input type="file" name="listing_image[]" value="" />
      *     ...
-     *      $fieldsImages = array();
+     *      $fieldsImages = [];
      *		for($i = 1; $i <= 10; $i++){
      *			$fieldsImages['listing_image'][] = array('title'=>A::t('autoportal', 'Image').' #'.$i, 'validation'=>array('required'=>false, 'type'=>'image', 'targetPath'=>'assets/modules/gallery/images/items/', 'maxSize'=>'990k', 'fileName'=>'l'.$listingId.'_'.CHash::getRandomString(10), 'mimeType'=>'image/jpeg, image/jpg, image/png, image/gif'));
      *		}
@@ -98,11 +98,11 @@ class CFormValidation extends CWidgs
      *     // your code here to handle a successful submission...
      * }
      */
-	public static function init($params = array())
+	public static function init($params = [])
 	{
 		parent::init($params);
 		
-		$fields = self::params('fields', array());
+		$fields = self::params('fields', []);
 		$isMultiArray = (bool)self::params('multiArray', false);
 		$ind = 0;
 		
@@ -135,7 +135,7 @@ class CFormValidation extends CWidgs
 	{
 		$cRequest = A::app()->getRequest();
 		
-		$fields = self::params('fields', array());
+		$fields = self::params('fields', []);
 		$msgSource = self::params('messagesSource', 'core');
 		$showAllErrors = self::params('showAllErrors', false);
 		$requestMethod = strtolower(self::params('method', 'post')) == 'get' ? 'getQuery' : 'getPost';
@@ -144,8 +144,8 @@ class CFormValidation extends CWidgs
 		$required = self::keyAt('validation.required', $fieldInfo, false);
 		$type = self::keyAt('validation.type', $fieldInfo, 'any');
 		$viewType = self::keyAt('validation.viewType', $fieldInfo, '');
-		$forbiddenChars = self::keyAt('validation.forbiddenChars', $fieldInfo, array());
-		$allowedChars = self::keyAt('validation.allowedChars', $fieldInfo, array());
+		$forbiddenChars = self::keyAt('validation.forbiddenChars', $fieldInfo, []);
+		$allowedChars = self::keyAt('validation.allowedChars', $fieldInfo, []);
 		$minLength = self::keyAt('validation.minLength', $fieldInfo, '');
 		$maxLength = self::keyAt('validation.maxLength', $fieldInfo, '');
 		$minValue = self::keyAt('validation.minValue', $fieldInfo, '');
@@ -161,7 +161,7 @@ class CFormValidation extends CWidgs
 		
 		$targetPath = self::keyAt('validation.targetPath', $fieldInfo, '');
 		$fileMimeType = self::keyAt('validation.mimeType', $fieldInfo, '');
-		$fileMimeTypes = (!empty($fileMimeType)) ? explode(',', str_replace(' ', '', $fileMimeType)) : array();
+		$fileMimeTypes = (!empty($fileMimeType)) ? explode(',', str_replace(' ', '', $fileMimeType)) : [];
 		$fileDefinedName = self::keyAt('validation.fileName', $fieldInfo, '');
 		$trim = (bool)self::keyAt('validation.trim', $fieldInfo, false);
 		$format = self::keyAt('validation.format', $fieldInfo, '');
@@ -419,7 +419,7 @@ class CFormValidation extends CWidgs
 						}
 						break;
 					case 'set':
-						$sourceArray = self::keyAt('validation.source', $fieldInfo, array());
+						$sourceArray = self::keyAt('validation.source', $fieldInfo, []);
 						if (is_array($fieldValue)) {
 							foreach ($fieldValue as $key => $val) {
 								$valid = CValidator::inArray($val, $sourceArray);

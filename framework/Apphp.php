@@ -90,7 +90,7 @@ class A
         'CRouter'     => 'core/CRouter.php',
         'CView'       => 'core/CView.php',
 
-        'CActiveRecord' => array('5.4.0' => 'db/CActiveRecord.php'),
+        'CActiveRecord' => ['5.4.0' => 'db/CActiveRecord.php'],
         'CRecordEntity' => 'db/CRecordEntity.php',
         'CDatabase'     => 'db/CDatabase.php',
         'CDbCommand'    => 'db/CDbCommand.php',
@@ -106,7 +106,7 @@ class A
     ];
 	/** @var array */
     private static $_coreComponents = [
-        //'component' => array('class' => 'CComponent', 'path' => array('5.4.0' => 'components/CComponent.php')),
+        //'component' => ['class' => 'CComponent', 'path' => ['5.4.0' => 'components/CComponent.php']],
         'component'    => ['class' => 'CComponent', 'path' => 'components/CComponent.php'],
         'clientScript' => ['class' => 'CClientScript', 'path' => 'components/CClientScript.php'],
         'dbSession'    => ['class' => 'CDbHttpSession', 'path' => 'components/CDbHttpSession.php'],
@@ -209,12 +209,12 @@ class A
 		if (is_string($configMain) && is_string($configDb)) {
 			// Check if main configuration file exists
 			if (!file_exists($configMain)) {
-				$arrConfig = array(
-					'template' => array('default' => 'setup'),
-					'defaultController' => 'Setup',
-					'defaultAction' => 'index',
-				);
-				// Block access to regular files when application is not properly installed
+                $arrConfig = [
+                    'template'          => ['default' => 'setup'],
+                    'defaultController' => 'Setup',
+                    'defaultAction'     => 'index',
+                ];
+                // Block access to regular files when application is not properly installed
 				$url = isset($_GET['url']) ? $_GET['url'] : '';
 				if (!preg_match('/setup\//i', $url)) {
 					$_GET['url'] = 'setup/index';
@@ -282,16 +282,16 @@ class A
 		
 		// Set error handler method
 		if (CConfig::get('exceptionHandling.enable') && CConfig::get('exceptionHandling.level') === 'global') {
-			set_error_handler(array($this, 'errorHandler'));
-		}
-	}
+            set_error_handler([$this, 'errorHandler']);
+        }
+    }
 	
 	/**
 	 * Runs application
 	 */
 	public function run()
 	{
-        if ( ! in_array(APPHP_MODE, array('hidden', 'console')) ) {
+        if ( ! in_array(APPHP_MODE, ['hidden', 'console'])) {
             // Specify error settings
 			if (in_array(APPHP_MODE, ['debug', 'test'])) {
 				error_reporting(E_ALL);
@@ -334,9 +334,9 @@ class A
 	 * @param array $config
 	 * @return object Apphp
 	 */
-	public static function init($config = array())
-	{
-		if (self::$_instance == null) self::$_instance = new self($config);
+	public static function init($config = [])
+    {
+        if (self::$_instance == null) self::$_instance = new self($config);
 		return self::$_instance;
 	}
 	
@@ -388,7 +388,7 @@ class A
 	 * @param string $language
 	 * @return string
 	 */
-	public static function t($category = 'app', $message = '', $params = array(), $source = null, $language = null)
+	public static function t($category = 'app', $message = '', $params = [], $source = null, $language = null)
 	{
 		if (self::$_instance !== null && $message !== '') {
 			if ($source === null) $source = ($category === 'core') ? 'coreMessages' : 'messages';
@@ -397,11 +397,11 @@ class A
 			}
 		}
 		
-		if ($params === array()) {
+		if ($params === []) {
 			return $message;
 		} else {
 			if (!is_array($params)) $params = array($params);
-			return $params !== array() ? strtr($message, $params) : $message;
+			return $params !== [] ? strtr($message, $params) : $message;
 		}
 	}
 	
@@ -414,7 +414,7 @@ class A
 	 * @param string $language
 	 * @return string
 	 */
-	public static function te($category = 'app', $message = '', $params = array(), $source = null, $language = null)
+	public static function te($category = 'app', $message = '', $params = [], $source = null, $language = null)
 	{
 		return CHtml::encode(self::t($category, $message, $params, $source, $language));
 	}
@@ -593,7 +593,7 @@ class A
 			unset($this->_components[$id]);
 		} else {
 			// For PHP_VERSION | phpversion() < 5.4.0 you may use
-			/// if($callback = call_user_func_array($component.'::init', array())){
+			/// if($callback = call_user_func_array($component.'::init', [])){
 			if ($callback = $component::init()) {
 				$this->_components[$id] = $callback;
 				CDebug::addMessage('general', 'components', ucfirst($id));
@@ -821,7 +821,7 @@ class A
 		if ($this->_hasEvent($name)) {
 			$name = strtolower($name);
 			if (!isset($this->_events[$name])) {
-				$this->_events[$name] = array();
+				$this->_events[$name] = [];
 			}
 			if (!in_array($handler, $this->_events[$name])) {
 				$this->_events[$name][] = $handler;
@@ -882,7 +882,7 @@ class A
 					$object = $handler[0];
 					$method = $handler[1];
 					if (is_string($object)) {
-						@call_user_func_array(array($object, $method), array());
+						@call_user_func_array(array($object, $method), []);
 					} elseif (CClass::isMethodExists($object, $method)) {
 						$object->$method();
 					}
@@ -993,7 +993,7 @@ class A
 	 * @param string $language (code)
 	 * @param array $params
 	 */
-	public function setLanguage($language = '', $params = array())
+	public function setLanguage($language = '', $params = [])
 	{
 		$this->_language = $language;
 		$this->getSession()->set('language', $this->_language);
@@ -1042,7 +1042,7 @@ class A
 	 * @param string $currency (code)
 	 * @param array $params
 	 */
-	public function setCurrency($currency = '', $params = array())
+	public function setCurrency($currency = '', $params = [])
 	{
 		$this->_currency = $currency;
 		$this->getSession()->set('currency_code', $this->_currency);
@@ -1169,7 +1169,7 @@ class A
 		$components = CConfig::get('components');
 		if (!is_array($components)) return false;
 		
-		$arrSetComponents = array();
+		$arrSetComponents = [];
 		foreach ($components as $id => $component) {
 			$enable = isset($component['enable']) ? (bool)$component['enable'] : false;
 			$class = isset($component['class']) ? $component['class'] : '';

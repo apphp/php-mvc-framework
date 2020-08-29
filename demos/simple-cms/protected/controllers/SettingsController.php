@@ -70,16 +70,17 @@ class SettingsController extends CController
 			$this->_view->metaTagDescription = $cRequest->getPost('metaTagDescription');
 			
 			// perform settings form validation
-			$result = CWidget::create('CFormValidation', array(
-				'fields' => array(
-					'cmsName' => array('title' => 'Site Name', 'validation' => array('required' => true, 'type' => 'any', 'maxLength' => 100)),
-					'slogan' => array('title' => 'Slogan', 'validation' => array('required' => false, 'type' => 'any', 'maxLength' => 250)),
-					'footer' => array('title' => 'Footer', 'validation' => array('required' => false, 'type' => 'any', 'maxLength' => 250)),
-					'metaTagTitle' => array('title' => CHtml::encode('Tag <TITLE>'), 'validation' => array('required' => true, 'type' => 'any', 'maxLength' => 250)),
-					'metaTagKeywords' => array('title' => CHtml::encode('Meta tag <KEYWORDS>'), 'validation' => array('required' => false, 'type' => 'any', 'maxLength' => 250)),
-					'metaTagDescription' => array('title' => CHtml::encode('Meta tag <DESCRIPTION>'), 'validation' => array('required' => false, 'type' => 'any', 'maxLength' => 250)),
-				),
-			));
+			$result = CWidget::create('CFormValidation', [
+				'fields' => [
+					'cmsName' => ['title' => 'Site Name', 'validation' => ['required' => true, 'type' => 'any', 'maxLength' => 100]],
+					'slogan' => ['title' => 'Slogan', 'validation' => ['required' => false, 'type' => 'any', 'maxLength' => 250]],
+					'footer' => ['title' => 'Footer', 'validation' => ['required' => false, 'type' => 'any', 'maxLength' => 250]],
+					'metaTagTitle' => ['title' => CHtml::encode('Tag <TITLE>'), 'validation' => ['required' => true, 'type' => 'any', 'maxLength' => 250]],
+					'metaTagKeywords' => ['title' => CHtml::encode('Meta tag <KEYWORDS>'), 'validation' => ['required' => false, 'type' => 'any', 'maxLength' => 250]],
+					'metaTagDescription' => ['title' => CHtml::encode('Meta tag <DESCRIPTION>'), 'validation' => ['required' => false, 'type' => 'any', 'maxLength' => 250]],
+				],
+			]);
+
 			if ($result['error']) {
 				$msg = $result['errorMessage'];
 				$msgType = 'validation';

@@ -53,7 +53,7 @@
 	}
 
 
-	$array = array();
+	$array = [];
 	$keyword = isset($_GET['keyword']) ? trim($_GET['keyword']) : '';
 	$keyword = str_ireplace(array('\\', ':', '../', '%00'), '', $keyword);
 	$keyword = str_ireplace(array('(', ')', '[', ']'), array('\(', '\)', '\[', '\]'), $keyword);

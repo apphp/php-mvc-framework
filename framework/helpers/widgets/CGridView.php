@@ -92,23 +92,23 @@ class CGridView extends CWidgs
 	 *    	 'gridTable' 	=> array('class'=>''),
 	 *    ),
      *    'filters'	=> array(
-     *    	 'field_1' 	=> ['title'=>'Field 1', 'type'=>'textbox', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'', 'maxLength'=>'', 'htmlOptions'=>array()],
-     *    	 'field_2' 	=> ['title'=>'Field 2', 'type'=>'textbox', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'', 'maxLength'=>'', 'autocomplete'=>array('enable'=>true, 'ajaxHandler'=>'path/to/handler/file', 'minLength'=>3, 'returnId'=>true), 'htmlOptions'=>array()],
+     *    	 'field_1' 	=> ['title'=>'Field 1', 'type'=>'textbox', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'', 'maxLength'=>'', 'htmlOptions'=>[]],
+     *    	 'field_2' 	=> ['title'=>'Field 2', 'type'=>'textbox', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'', 'maxLength'=>'', 'autocomplete'=>array('enable'=>true, 'ajaxHandler'=>'path/to/handler/file', 'minLength'=>3, 'returnId'=>true), 'htmlOptions'=>[]],
      *    	 'field_3' 	=> ['title'=>'Field 3', 'type'=>'enum', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'', 'source'=>array('0'=>'No', '1'=>'Yes'), 'emptyOption'=>true, 'emptyValue'=>'', 'htmlOptions'=>array('class'=>'chosen-select-filter')],
-     *    	 'field_4' 	=> ['title'=>'Field 5', 'type'=>'datetime', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'80px', 'maxLength'=>'', 'format'=>'', 'htmlOptions'=>array(), 'viewType'=>'datetime|date|time'],
+     *    	 'field_4' 	=> ['title'=>'Field 5', 'type'=>'datetime', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'80px', 'maxLength'=>'', 'format'=>'', 'htmlOptions'=>[], 'viewType'=>'datetime|date|time'],
      *    ),
 	 *    'fields'	=> array(
 	 *       'field_1' => array('title'=>'Field 1', 'type'=>'index', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>false),
 	 *       'field_2' => array('title'=>'Field 2', 'type'=>'concat', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>true, 'concatFields'=>array('first_name', 'last_name'), 'concatSeparator'=>', ',),
 	 *       'field_3' => array('title'=>'Field 3', 'type'=>'decimal', 'align'=>'', 'width'=>'', 'class'=>'right', 'headerTooltip'=>'', 'headerClass'=>'right', 'isSortable'=>true, 'format'=>'american|european', 'decimalPoints'=>''),
-	 *       'field_4' => array('title'=>'Field 4', 'type'=>'datetime', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'format'=>''),
+	 *       'field_4' => array('title'=>'Field 4', 'type'=>'datetime', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>true, 'definedValues'=>[], 'format'=>''),
 	 *       'field_5' => array('title'=>'Field 5', 'type'=>'enum', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerTooltip'=>'', 'headerClass'=>'center', 'isSortable'=>true, 'source'=>array('0'=>'No', '1'=>'Yes')),
 	 *       'field_6' => array('title'=>'Field 6', 'type'=>'image', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerTooltip'=>'', 'headerClass'=>'center', 'isSortable'=>false, 'imagePath'=>'images/flags/', 'defaultImage'=>'', 'imageWidth'=>'16px', 'imageHeight'=>'16px', 'alt'=>'', 'showImageInfo'=>true),
-	 *       'field_7' => array('title'=>'Field 7', 'type'=>'label', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>true, 'changeOrder'=>false, 'definedValues'=>array(), 'stripTags'=>false, 'case'=>'', 'maxLength'=>'', 'showTooltip'=>true, 'callback'=>array('function'=>$functionName, 'params'=>$functionParams), 'trigger'=>array('trigger_key'=>'', 'trigger_operation'=>'!=', 'trigger_value'=>'', 'success_value'=>'', 'wrong_value'=>'')),
-	 *       'field_8' => array('title'=>'Field 8', 'type'=>'html', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'stripTags'=>false, 'case'=>'', 'maxLength'=>'', 'showTooltip'=>true, 'callback'=>array('function'=>$functionName, 'params'=>$functionParams), 'trigger'=>array('trigger_key'=>'', 'trigger_operation'=>'!=', 'trigger_value'=>'', 'success_value'=>'', 'wrong_value'=>'')),
-	 *       'field_9' => array('title'=>'Field 9', 'type'=>'link', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerTooltip'=>'', 'headerClass'=>'center', 'isSortable'=>false, 'linkUrl'=>'path/to/param/{field_name}/page/{page}', 'linkText'=>'{field_name}|free text', 'definedValues'=>array(), 'htmlOptions'=>array()),
-	 *       'field_10' => array('title'=>'Field 10', 'type'=>'evaluation', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerTooltip'=>'', 'headerClass'=>'center', 'isSortable'=>false, 'minValue'=>1, 'maxValue'=>5, 'tooltip'=>A::t('app', 'Value'), 'counts'=>array('fieldName'=>'', 'title'=>A::t('app', 'Evaluations')), 'definedValues'=>array(), 'htmlOptions'=>array()),
-	 *       'field_11' => array('title'=>'Field 11', 'type'=>'template', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>false, 'sortBy'=>'', 'html'=>'{category_id}', 'fields'=>array('category_id'=>array('default'=>'', 'prefix'=>'', 'postfix'=>'', 'source'=>array()))),
+	 *       'field_7' => array('title'=>'Field 7', 'type'=>'label', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>true, 'changeOrder'=>false, 'definedValues'=>[], 'stripTags'=>false, 'case'=>'', 'maxLength'=>'', 'showTooltip'=>true, 'callback'=>array('function'=>$functionName, 'params'=>$functionParams), 'trigger'=>array('trigger_key'=>'', 'trigger_operation'=>'!=', 'trigger_value'=>'', 'success_value'=>'', 'wrong_value'=>'')),
+	 *       'field_8' => array('title'=>'Field 8', 'type'=>'html', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>true, 'definedValues'=>[], 'stripTags'=>false, 'case'=>'', 'maxLength'=>'', 'showTooltip'=>true, 'callback'=>array('function'=>$functionName, 'params'=>$functionParams), 'trigger'=>array('trigger_key'=>'', 'trigger_operation'=>'!=', 'trigger_value'=>'', 'success_value'=>'', 'wrong_value'=>'')),
+	 *       'field_9' => array('title'=>'Field 9', 'type'=>'link', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerTooltip'=>'', 'headerClass'=>'center', 'isSortable'=>false, 'linkUrl'=>'path/to/param/{field_name}/page/{page}', 'linkText'=>'{field_name}|free text', 'definedValues'=>[], 'htmlOptions'=>[]),
+	 *       'field_10' => array('title'=>'Field 10', 'type'=>'evaluation', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerTooltip'=>'', 'headerClass'=>'center', 'isSortable'=>false, 'minValue'=>1, 'maxValue'=>5, 'tooltip'=>A::t('app', 'Value'), 'counts'=>array('fieldName'=>'', 'title'=>A::t('app', 'Evaluations')), 'definedValues'=>[], 'htmlOptions'=>[]),
+	 *       'field_11' => array('title'=>'Field 11', 'type'=>'template', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>false, 'sortBy'=>'', 'html'=>'{category_id}', 'fields'=>array('category_id'=>array('default'=>'', 'prefix'=>'', 'postfix'=>'', 'source'=>[]))),
 	 *    ),
 	 *    'actions'	=> array(
      *    	 'edit'    => array('link'=>'locations/edit/id/{id}/page/{page}', 'imagePath'=>'templates/backend/images/edit.png', 'title'=>'Edit this record'),
@@ -117,7 +117,7 @@ class CGridView extends CWidgs
 	 *    'return'=>true,
      *  ));
     */
-	public static function init($params = array())
+	public static function init($params = [])
 	{
 		parent::init($params);
 		
@@ -133,15 +133,15 @@ class CGridView extends CWidgs
 		$passParameters = (bool)self::params('passParameters', false);
 		$customParameters = self::params('customParameters', false);
 		$return = (bool)self::params('return', true);
-		$fields = self::params('fields', array());
-		$filters = self::params('filters', array());
-		$actions = self::params('actions', array());
+		$fields = self::params('fields', []);
+		$filters = self::params('filters', []);
+		$actions = self::params('actions', []);
 		$sortingEnabled = (bool)self::params('sorting', false);
-		$filterDiv = self::params('options.filterDiv', array());
-		$filterForm = self::params('options.filterForm', array());
-		$filterItemDiv = self::params('options.filterItemDiv', array());
+		$filterDiv = self::params('options.filterDiv', []);
+		$filterForm = self::params('options.filterForm', []);
+		$filterItemDiv = self::params('options.filterItemDiv', []);
 		$filterType = self::params('options.filterType', 'default');
-		$gridWrapper = self::params('options.gridWrapper', array());
+		$gridWrapper = self::params('options.gridWrapper', []);
 		$gridTable = self::params('options.gridTable', array());
 		$linkType = (int)self::params('linkType', 0);    /* Link type: 0 - standard, 1 - SEO */
 		$pagination = (bool)self::params('pagination.enable', '');

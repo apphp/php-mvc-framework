@@ -5,15 +5,15 @@
  * This script will help you to generate codes for framework and existing applications
  */
 
-$arr_generation_types = array(
-    'controller' => array('name'=>'Simple Controller', 'path'=>''),
-    'model'      => array('name'=>'Simple Model', 'path'=>''),
-    'view'       => array('name'=>'Simple View', 'path'=>''),
-    'ar_controller' => array('name'=>'Active Records Controller', 'path'=>''),
-    'ar_model'      => array('name'=>'Active Records Model', 'path'=>''),
-    'ar_view'       => array('name'=>'Active Records View', 'path'=>''),
+$arr_generation_types = [
+    'controller'    => ['name' => 'Simple Controller', 'path' => ''],
+    'model'         => ['name' => 'Simple Model', 'path' => ''],
+    'view'          => ['name' => 'Simple View', 'path' => ''],
+    'ar_controller' => ['name' => 'Active Records Controller', 'path' => ''],
+    'ar_model'      => ['name' => 'Active Records Model', 'path' => ''],
+    'ar_view'       => ['name' => 'Active Records View', 'path' => ''],
     //'module'        => array('name'=>'Module', 'path'=>''),
-);
+];
 
 $generation_type = isset($_GET['generation_type']) ? filter_var($_GET['generation_type'], FILTER_SANITIZE_STRING) : '';
 $content    = '<h2>Code Generator</h2>To start code generation select a Generation Type from the left dropdown box, then follow instructions.';

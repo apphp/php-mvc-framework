@@ -24,7 +24,7 @@
 				'link_text' => array('type' => 'textbox', 'title' => 'Link', 'value' => $linkText, 'mandatoryStar' => true, 'htmlOptions' => array('maxlength' => '255', 'class' => 'text_header')),
 				'header_text' => array('type' => 'textbox', 'title' => 'Header', 'value' => $headerText, 'mandatoryStar' => true, 'htmlOptions' => array('maxlength' => '255', 'class' => 'text_header')),
 				'menuId' => array('type' => 'dropdown', 'title' => 'Menu', 'data' => $listData, 'value' => $menuId),
-				'is_homepage' => array('type' => 'checkbox', 'title' => 'Homepage', 'tooltip' => '', 'value' => '1', 'checked' => ($isHomePage ? true : false), 'htmlOptions' => array()),
+				'is_homepage' => array('type' => 'checkbox', 'title' => 'Homepage', 'tooltip' => '', 'value' => '1', 'checked' => ($isHomePage ? true : false), 'htmlOptions' => []),
 				'metaTagTitle' => array('type' => 'textbox', 'title' => CHtml::encode('Page <TITLE>'), 'value' => $metaTagTitle, 'htmlOptions' => array('maxlength' => '250', 'class' => 'text_header')),
 				'metaTagKeywords' => array('type' => 'textbox', 'title' => CHtml::encode('Page <KEYWORDS>'), 'value' => $metaTagKeywords, 'htmlOptions' => array('maxlength' => '250', 'class' => 'text_header')),
 				'metaTagDescription' => array('type' => 'textbox', 'title' => CHtml::encode('Page <DESCRIPTION>'), 'value' => $metaTagDescription, 'htmlOptions' => array('maxlength' => '250', 'class' => 'text_header')),

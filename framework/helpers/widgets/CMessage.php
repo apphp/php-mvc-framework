@@ -30,19 +30,19 @@ class CMessage extends CWidgs
 	 * @param array $params
 	 *
 	 * Usage:
-	 *  CWidget::create('CMessage', array(
+	 *  CWidget::create('CMessage', [
 	 *     'info|success|error|warning|validation',
 	 *     'message',
-	 *     array(
-	 *           'id'=>'',
+	 *     [
+	 *         'id'=>'',
 	 *         'button'=>true,
 	 *         'return'=>true
-	 *     )
-	 *  ));
+	 *     ]
+	 *  ]);
 	 */
-	public static function init($type = '', $text = '', $params = array())
-	{
-		parent::init($params);
+	public static function init($type = '', $text = '', $params = [])
+    {
+        parent::init($params);
 		
 		// Change type to lowercase
 		if (!CConfig::get('widgets.paramKeysSensitive')) {
@@ -56,10 +56,10 @@ class CMessage extends CWidgs
 		
 		$output = '';
 		$tagName = 'div';
-		$htmlOptions = array();
-		$type = (in_array($type, array('info', 'success', 'error', 'warning', 'validation'))) ? $type : '';
-		
-		if (!empty($text)) {
+		$htmlOptions = [];
+        $type = (in_array($type, ['info', 'success', 'error', 'warning', 'validation'])) ? $type : '';
+
+        if (!empty($text)) {
 			$htmlOptions['class'] = 'alert alert-' . $type;
 			if ($param_id) $htmlOptions['id'] = $param_id;
 			$output .= CHtml::openTag($tagName, $htmlOptions);

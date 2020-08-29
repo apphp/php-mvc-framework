@@ -40,7 +40,7 @@ class CController
 	 * @param array $params
 	 * @return void
 	 */
-	final public function execute($action = '', $params = array())
+	final public function execute($action = '', $params = [])
 	{
 		if (!empty($action)) {
 			$this->_action = $action;
@@ -176,7 +176,7 @@ class CController
 	 */
 	protected function _accessRules()
 	{
-		return array();
+		return [];
 	}
 	
 	/**
@@ -185,10 +185,10 @@ class CController
 	 * @param array $rules
 	 * @return bool
 	 */
-	protected function _filtersAccessControl($rules = array())
+	protected function _filtersAccessControl($rules = [])
 	{
-		$allowed = !empty($rules[0]) ? $rules[0] : array();
-		$denied = !empty($rules[1]) ? $rules[1] : array();
+		$allowed = !empty($rules[0]) ? $rules[0] : [];
+		$denied = !empty($rules[1]) ? $rules[1] : [];
 		$current_ip = A::app()->getRequest()->getUserHostAddress();
 		$return = true;
 		
@@ -197,8 +197,8 @@ class CController
 		}
 		
 		if ($allowed) {
-			$actions = !empty($allowed['actions']) ? (array)$allowed['actions'] : array();
-			$ips = !empty($allowed['ips']) ? (array)$allowed['ips'] : array();
+			$actions = !empty($allowed['actions']) ? (array)$allowed['actions'] : [];
+			$ips = !empty($allowed['ips']) ? (array)$allowed['ips'] : [];
 			
 			$access = $this->_filterAccessControl('allowed', $actions, $ips, $current_ip);
 			if ($access !== null) {
@@ -207,8 +207,8 @@ class CController
 		}
 		
 		if ($denied) {
-			$actions = !empty($denied['actions']) ? (array)$denied['actions'] : array();
-			$ips = !empty($denied['ips']) ? (array)$denied['ips'] : array();
+			$actions = !empty($denied['actions']) ? (array)$denied['actions'] : [];
+			$ips = !empty($denied['ips']) ? (array)$denied['ips'] : [];
 			
 			$access = $this->_filterAccessControl('denied', $actions, $ips, $current_ip);
 			if ($access !== null) {

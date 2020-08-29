@@ -34,7 +34,7 @@ abstract class CModel
 	 * Class constructor
 	 * @param array $params
 	 */
-	public function __construct($params = array())
+	public function __construct($params = [])
 	{
 		$this->_db = CDatabase::init($params);
 		
@@ -47,7 +47,7 @@ abstract class CModel
      * @param  array  $params
      * @return CModel|object
      */
-	public static function init($params = array())
+	public static function init($params = [])
 	{
 		if (self::$_instance == null) self::$_instance = new self($params);
 		return self::$_instance;

@@ -69,7 +69,7 @@ class CRouter
 	/** @var string */
 	private $_module;
 	/** @var array */
-	private static $_params = array();
+	private static $_params = [];
 	
 	
 	/**

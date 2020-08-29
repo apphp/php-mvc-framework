@@ -34,17 +34,17 @@ class CDebug
 	/** @var string */
 	private static $_endMemoryUsage;
 	/** @var array */
-	private static $_arrGeneral = array();
+	private static $_arrGeneral = [];
 	/** @var array */
-	private static $_arrParams = array();
+	private static $_arrParams = [];
 	/** @var array */
-	private static $_arrConsole = array();
+	private static $_arrConsole = [];
 	/** @var array */
-	private static $_arrWarnings = array();
+	private static $_arrWarnings = [];
 	/** @var array */
-	private static $_arrErrors = array();
+	private static $_arrErrors = [];
 	/** @var array */
-	private static $_arrQueries = array();
+	private static $_arrQueries = [];
 	/** @var array */
 	private static $_arrData;
 	/** @var float */
@@ -169,7 +169,7 @@ class CDebug
 	 * @param array $traceData
 	 * @return string
 	 */
-	public static function prepareBacktrace($traceData = array())
+	public static function prepareBacktrace($traceData = [])
 	{
 		$stack = '';
 		$i = 0;
@@ -203,7 +203,7 @@ class CDebug
 	 * @param bool $formatted
 	 * @return HTML
 	 */
-	public static function backtrace($message = '', $traceData = array(), $formatted = true)
+	public static function backtrace($message = '', $traceData = [], $formatted = true)
 	{
 		if (APPHP_MODE == 'debug') {
 			$stack = self::prepareBacktrace($traceData);
@@ -553,7 +553,7 @@ class CDebug
 		
 		$output .= '<strong>$_GET</strong>:';
 		$output .= '<pre style="white-space:pre-wrap;">';
-		$arrGet = array();
+		$arrGet = [];
 		if (isset($_GET)) {
 			foreach ($_GET as $key => $val) {
 				$arrGet[$key] = is_array($val) ? $val : strip_tags($val);
@@ -566,7 +566,7 @@ class CDebug
 		
 		$output .= '<strong>$_POST</strong>:';
 		$output .= '<pre style="white-space:pre-wrap;">';
-		$arrPost = array();
+		$arrPost = [];
 		if (isset($_POST)) {
 			foreach ($_POST as $key => $val) {
 				$arrPost[$key] = is_array($val) ? $val : strip_tags($val);
@@ -579,7 +579,7 @@ class CDebug
 		
 		$output .= '<strong>$_FILES</strong>:';
 		$output .= '<pre style="white-space:pre-wrap;">';
-		$arrFiles = array();
+		$arrFiles = [];
 		if (isset($_FILES)) {
 			foreach ($_FILES as $key => $val) {
 				$arrFiles[$key] = is_array($val) ? $val : strip_tags($val);
@@ -592,7 +592,7 @@ class CDebug
 		
 		$output .= '<strong>$_COOKIE</strong>:';
 		$output .= '<pre style="white-space:pre-wrap;">';
-		$arrCookie = array();
+		$arrCookie = [];
 		if (isset($_COOKIE)) {
 			foreach ($_COOKIE as $key => $val) {
 				$arrCookie[$key] = is_array($val) ? $val : strip_tags($val);
@@ -605,7 +605,7 @@ class CDebug
 		
 		$output .= '<strong>$_SESSION</strong>:';
 		$output .= '<pre style="white-space:pre-wrap;">';
-		$arrSession = array();
+		$arrSession = [];
 		if (isset($_SESSION)) {
 			foreach ($_SESSION as $key => $val) {
 				$arrSession[$key] = is_array($val) ? $val : strip_tags($val);
@@ -619,7 +619,7 @@ class CDebug
 		$output .= '<strong>CONSTANTS</strong>:';
 		$output .= '<pre style="white-space:pre-wrap;">';
 		$arrConstants = @get_defined_constants(true);
-		$arrUserConstants = isset($arrConstants['user']) ? print_r($arrConstants['user'], true) : array();
+		$arrUserConstants = isset($arrConstants['user']) ? print_r($arrConstants['user'], true) : [];
 		$output .= $htmlCompression ? nl2br($arrUserConstants) : $arrUserConstants;
 		$output .= '</pre>';
 		$output .= '<br>';

@@ -5,8 +5,9 @@
 
 	<div class="panel-content">
 		<?php
-		$listData = array('' => '-- select --');
-		if (!empty($categories)) {
+
+        $listData = ['' => '-- select --'];
+        if (!empty($categories)) {
 			foreach ($categories as $cat) {
 				$listData[$cat['id']] = $cat['name'];
 			}
@@ -19,7 +20,7 @@
 				'name' => 'frmEditPost',
 			),
 			'fields' => array(
-				'act' => array('type' => 'hidden', 'value' => 'send'),
+                'act' => ['type' => 'hidden', 'value' => 'send'],
 				'postId' => array('type' => 'hidden', 'value' => $postId),
 				'postIdLabel' => array('type' => 'label', 'title' => 'Post ID', 'value' => $postId),
 				'header' => array('type' => 'textbox', 'title' => 'Header', 'value' => $header, 'mandatoryStar' => true, 'htmlOptions' => array('maxlength' => '100', 'class' => 'text_header', 'encode' => true)),
