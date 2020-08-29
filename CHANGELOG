@@ -1,6 +1,6 @@
 Version 1.4.x -
 ----------------------------
-- New: added new helper CSecureHeaders
+- New: added new helper CSecureHeaders with possibility to define secure headers
 - Enh: added possibility to hide system queries in debug panel
 - Enh: added possibility to close debug panel to minimum size
 - Enh: added possibility to get records by chunks with chuck() method of Active Record

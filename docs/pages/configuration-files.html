@@ -73,7 +73,7 @@ return array(
         'hashKey' => 'YOUR_HASH_PASSWORD_KEY',    
     ),
     
-	// Password restore settings
+    // Password restore settings
     'restoreAdminPassword' => array(
         'enable' => true,
         'recoveryType' => 'direct' /* 'direct' - send new password directly, 'recovery' - send a link to recovery page */
@@ -99,6 +99,12 @@ return array(
     'validation' => array(
         'csrf' => true
         'bruteforce' => array('enable' => true, 'badLogins' => 5, 'redirectDelay' => 3),
+    ),
+
+    // HTTP headers
+    'httpHeaders' => array(
+        'secure' => true,
+        'framework' => true
     ),
 
     // Exception handling
