@@ -54,6 +54,7 @@ http://www.nusphere.com
  *  --------
  *  07/07/2020 - class declaration changed to PHP5-7
  *  07/07/2020 - undefined var fix
+ *  02/10/2020 - removed using of globals array
  */
 
 /* load classes
@@ -76,7 +77,7 @@ require_once('class.soap_server.php');*/
 
 // class variable emulation
 // cf. http://www.webkreator.com/php/techniques/php-static-class-variables.html
-$GLOBALS['_transient']['static']['nusoap_base']['globalDebugLevel'] = 9;
+
 
 /**
 *
@@ -229,7 +230,7 @@ class nusoap_base {
 	* @access	public
 	*/
 	function __construct() {
-		$this->debugLevel = $GLOBALS['_transient']['static']['nusoap_base']['globalDebugLevel'];
+		$this->debugLevel = 9;
 	}
 
 	/**
@@ -239,7 +240,7 @@ class nusoap_base {
 	* @access	public
 	*/
 	function getGlobalDebugLevel() {
-		return $GLOBALS['_transient']['static']['nusoap_base']['globalDebugLevel'];
+		return $this->debugLevel;
 	}
 
 	/**
@@ -249,7 +250,7 @@ class nusoap_base {
 	* @access	public
 	*/
 	function setGlobalDebugLevel($level) {
-		$GLOBALS['_transient']['static']['nusoap_base']['globalDebugLevel'] = $level;
+        $this->debugLevel = $level;
 	}
 
 	/**
