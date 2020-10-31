@@ -19,7 +19,8 @@
  * humanize
  * plural
  * isSerialized
- * 
+ * shortenUrl
+ *
  */
 
 class CString
@@ -237,4 +238,17 @@ class CString
 		
 		return false;
 	}
+
+    /**
+     * Returns shorten URL
+     * @param  string  $url
+     * @param  int  $len1
+     * @param  int  $len2
+     * @return string|string[]|null
+     */
+    public static function shortenUrl($url = '', $len1 = 0, $len2 = 0)
+    {
+        return preg_replace("/(?<=.{{$len1}})(.+)(?=.{{$len2}})/", '...', $url);
+    }
+
 }
