@@ -29,21 +29,64 @@ class CMakeControllerCommand implements IConsoleCommand
         $output = '';
 
         if (empty($param)) {
-            $output .= CConsole::redbg("No model name is defined. Type make:controller -h or --help").PHP_EOL;
+            $output .= CConsole::redbg("No controller name is defined. Type make:controller -h or --help").PHP_EOL;
         }
         elseif ($param === '-h' || $param === '--help') {
             $output .= CConsole::yellow("Usage:") . PHP_EOL;
-            $output .= "  make:controller [model]\t Create a new controller class". PHP_EOL;
-            $output .= "  \t\t\t\t[model] - Generate a resource controller for the given model.". PHP_EOL;
+            $output .= "  make:controller\t[controller]\tCreate a new controller class". PHP_EOL;
+            $output .= "  \t\t\t[model] -ar\tGenerate a resource controller for the given model.". PHP_EOL;
         }
         elseif (CValidator::isVariable($param)) {
             // TODO: create controller
+            //die($param);
+
+            $controllerFile = $param.'.php';
+            $controllerClass = str_ireplace('Controller', '', $param).'Controller';
+            $self = '$this';
+
+            $content = "<?php
+/**
+ * {$controllerClass} controller
+ *
+ * PUBLIC:                  PRIVATE
+ * -----------              ------------------
+ * __construct              
+ * indexAction
+ * 
+ */
+
+class {$controllerClass} extends CController
+{
+    /**
+     * Class default constructor
+     */
+    public function __construct()
+    {
+        parent::__construct();
+
+        // set backend mode
+        // Website::setBackend();
+        // set backend mode
+        // Website::setFrontend();
+    }
+
+    /**
+     * Controller default action handler
+     */
+    public function indexAction()
+    {
+        // {$self}->_view->render(\'{$param}/index\');        
+    }               
+}
+";
+            CFile::writeToFile($controllerFile, $content, 'w');
+            $output .= CConsole::green("Controller $param has been successfully created.").PHP_EOL;
         }
         else {
             if (!CValidator::isVariable($param)){
-                $output .= CConsole::redbg("The model name must be a valid controller name (alphanumeric, starts with letter and can contain an underscore)! Please re-enter.").PHP_EOL;
+                $output .= CConsole::redbg("The controller name must be a valid controller name (alphanumeric, starts with letter and can contain an underscore)! Please re-enter.").PHP_EOL;
             } else {
-                $output .= CConsole::redbg("No model name is defined or wrong parameters. Type make:controller -h or --help").PHP_EOL;
+                $output .= CConsole::redbg("No controller name is defined or wrong parameters. Type make:controller -h or --help").PHP_EOL;
             }
         }
 

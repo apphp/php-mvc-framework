@@ -42,7 +42,7 @@ class CCacheClearCommand implements IConsoleCommand
                 if (CConfig::get('cache.db.path') == '') {
                     $output .= CConsole::redbg("Config value 'cache.db.path' is not defined. Check your configuration file.") . PHP_EOL;
                 }else{
-                    $result = CFile::emptyDirectory(CConfig::get('cache.db.path'), array('index.html'));
+                    $result = CFile::emptyDirectory(CConfig::get('cache.db.path'), ['index.html']);
                     $output .= 'DB cache ' . ($result ? 'successfully cleaned' : 'error');
                 }
             }
@@ -50,7 +50,7 @@ class CCacheClearCommand implements IConsoleCommand
                 if (CConfig::get('compression.css.path') == '') {
                     $output .= CConsole::redbg("Config value 'compression.css.path' is not defined. Check your configuration file.") . PHP_EOL;
                 }else{
-                    $result = CFile::emptyDirectory(CConfig::get('compression.css.path'), array('index.html'));
+                    $result = CFile::emptyDirectory(CConfig::get('compression.css.path'), ['index.html']);
                     $output .= 'CSS cache ' . ($result ? 'successfully cleaned' : 'error');
                 }
             }
@@ -58,7 +58,7 @@ class CCacheClearCommand implements IConsoleCommand
                 if (CConfig::get('compression.js.path') == '') {
                     $output .= CConsole::redbg("Config value 'compression.js.path' is not defined. Check your configuration file.") . PHP_EOL;
                 }else{
-                    $result = CFile::emptyDirectory(CConfig::get('compression.js.path'), array('index.html'));
+                    $result = CFile::emptyDirectory(CConfig::get('compression.js.path'), ['index.html']);
                     $output .= 'JS cache ' . ($result ? 'successfully cleaned' : 'error');
                 }
             }
