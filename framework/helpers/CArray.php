@@ -24,30 +24,30 @@ class CArray
 	 * Exchanges all keys with values from defined field in sub-arrays
 	 * 
 	 * Usage:
-	 * $array = array(
-	 *  [0] => array(
+	 * $array = [
+	 *  [0] => [
      *      'field1' => value01
      *      'field2' => value02
      *      'field3' => value03
-     *   ),
-	 *  [1] => array(
+     *  ],
+	 *  [1] => [
      *      'field1' => value11
      *      'field2' => value12
      *      'field3' => value13
-     *   ));
+     *  ]];
 	 *
 	 *  Result:
-	 * $array = array(
-	 *  ['value01'] => array(
+	 *  $array = [
+	 *   ['value01'] => [
 	 *      'field1' => value01
 	 *      'field2' => value02
 	 *      'field3' => value03
-	 *   ),
-	 *  ['value11'] => array(
+	 *   ],
+	 *   ['value11'] => [
 	 *      'field1' => value11
 	 *      'field2' => value12
 	 *      'field3' => value13
-	 *   ));
+	 *   ]];
 	 *
      *  flipByField($array, 'field3');
      *   
@@ -79,17 +79,17 @@ class CArray
 	 * Returns array of unique values from specified filed in sub-array
 	 *
 	 * Usage:
-	 * $array = array(
-	 *  [0] => array(
+	 * $array = [
+	 *  [0] => [
 	 *      'field1' => ..v1
 	 *      'field2' => ..v2
 	 *      'field3' => ..v3
-	 *   ),
-	 *  [1] => array(
+	 *   ],
+	 *  [1] => [
 	 *      'field1' => ..v1
 	 *      'field2' => ..v2
 	 *      'field3' => ..v3
-	 *   ));
+	 *   ]];
 	 *
 	 *  uniqueByField($array, 'field3');
 	 *
@@ -100,9 +100,9 @@ class CArray
 	 */
 	public static function uniqueByField($array, $field = '', $unique = false)
 	{
-		$return = array();
-		
-		if (is_array($array)) {
+        $return = [];
+
+        if (is_array($array)) {
 			foreach ($array as $k => $v) {
 				if (isset($v[$field])) {
 					$return[] = $v[$field];
@@ -126,9 +126,9 @@ class CArray
 	public static function changeKeysCase($array, $case = CASE_LOWER)
 	{
 		$function = ($case == CASE_UPPER) ? 'strtoupper' : 'strtolower';
-		$newArray = array();
-		
-		foreach ($array as $key => $value) {
+        $newArray = [];
+
+        foreach ($array as $key => $value) {
 			if (is_array($value)) {
 				// $value is an array, handle keys too
 				$newArray[$function($key)] = self::changeKeysCase($value, $case);

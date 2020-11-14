@@ -80,18 +80,28 @@ class SetupController extends CController
 		
 		$this->_view->actionMessage = '';
 		$msg = '';
-		
-		$this->_view->formFields = array(
-			'act' => array('type' => 'hidden', 'value' => 'send'),
-			'language' => array('type' => 'dropdownlist', 'value' => $language, 'title' => A::t('setup', 'Language'), 'mandatoryStar' => false, 'data' => $this->_languages, 'htmlOptions' => [], 'validation' => array('required' => true, 'type' => 'set', 'source' => array_keys($this->_languages))),
-		);
-		
-		if ($this->_cRequest->getPost('act') == 'send') {
-			$result = CWidget::create('CFormValidation', array(
-				'fields' => $this->_view->formFields
-			));
-			
-			if ($result['error']) {
+
+        $this->_view->formFields = [
+            'act'      => ['type' => 'hidden', 'value' => 'send'],
+            'language' => ['type'          => 'dropdownlist',
+                           'value'         => $language,
+                           'title'         => A::t('setup', 'Language'),
+                           'mandatoryStar' => false,
+                           'data'          => $this->_languages,
+                           'htmlOptions'   => [],
+                           'validation'    => ['required' => true, 'type' => 'set', 'source' => array_keys($this->_languages)]
+            ],
+        ];
+
+        if ($this->_cRequest->getPost('act') == 'send') {
+            $result = CWidget::create(
+                'CFormValidation',
+                [
+                    'fields' => $this->_view->formFields
+                ]
+            );
+
+            if ($result['error']) {
 				$msg = $result['errorMessage'];
 				$this->_view->errorField = $result['errorField'];
 			} else {
@@ -100,26 +110,44 @@ class SetupController extends CController
 			}
 			
 			if (!empty($msg)) {
-				$this->_view->actionMessage = CWidget::create('CMessage', array('validation', $msg));
-			}
+                $this->_view->actionMessage = CWidget::create('CMessage', ['validation', $msg]);
+            }
 		}
 		
 		$modeRewrite = $this->_checkModRewrite();
 		if (!$modeRewrite) {
-			$this->_view->actionMessage = CWidget::create('CMessage', array('warning', 'This program requires "<b>mod_rewrite</b>" module to use friendly URLs, but it is not enabled or its status unknown. You may proceed current installation on your own risk.'));
-		}
-		
-		$htaccessFile = !CFile::fileExists('.htaccess');
+            $this->_view->actionMessage = CWidget::create(
+                'CMessage',
+                [
+                    'warning',
+                    'This program requires "<b>mod_rewrite</b>" module to use friendly URLs, but it is not enabled or its status unknown. You may proceed current installation on your own risk.'
+                ]
+            );
+        }
+
+        $htaccessFile = !CFile::fileExists('.htaccess');
 		if ($htaccessFile) {
-			$this->_view->actionMessage .= CWidget::create('CMessage', array('warning', 'This program requires "<b>.htaccess</b>" file with "<b>mod_rewrite</b>" rules in the root directory. You may proceed current installation on your own risk.'));
-		}
-		
-		$hostName = A::app()->getRequest()->getHostName();
+            $this->_view->actionMessage .= CWidget::create(
+                'CMessage',
+                [
+                    'warning',
+                    'This program requires "<b>.htaccess</b>" file with "<b>mod_rewrite</b>" rules in the root directory. You may proceed current installation on your own risk.'
+                ]
+            );
+        }
+
+        $hostName = A::app()->getRequest()->getHostName();
 		if (CValidator::isIpAddress($hostName)) {
-			$this->_view->actionMessage .= CWidget::create('CMessage', array('warning', 'You\'re trying to install this script using IP address (without domain name), so you have to add some changes in your .htaccess file to provide a correct work of the "<b>mod_rewrite</b>". Find more information <a href="http://www.apphp.net/forum/viewtopic.php?f=80&t=6614" target="_blank" rel="noopener noreferrer">here</a>.'));
-		}
-		
-		$phpInfo = $this->_getPhpInfo();
+            $this->_view->actionMessage .= CWidget::create(
+                'CMessage',
+                [
+                    'warning',
+                    'You\'re trying to install this script using IP address (without domain name), so you have to add some changes in your .htaccess file to provide a correct work of the "<b>mod_rewrite</b>". Find more information <a href="http://www.apphp.net/forum/viewtopic.php?f=80&t=6614" target="_blank" rel="noopener noreferrer">here</a>.'
+                ]
+            );
+        }
+
+        $phpInfo = $this->_getPhpInfo();
 		
 		// Check pdoExtension
 		$pdoExtension = $this->_checkPdoExtension($phpInfo);
@@ -160,28 +188,28 @@ class SetupController extends CController
 		$shortOpenTag = isset($phpInfo[$phpCoreIndex]['short_open_tag'][0]) ? strtolower($phpInfo[$phpCoreIndex]['short_open_tag'][0]) : false;
 		
 		if (version_compare(phpversion(), '5.4.0', '<')) {
-			$this->_view->notifyMessage = CWidget::create('CMessage', array('error', 'This program requires at least <b>PHP version 5.4.0</b> installed. You cannot proceed current installation.'));
+			$this->_view->notifyMessage = CWidget::create('CMessage', ['error', 'This program requires at least <b>PHP version 5.4.0</b> installed. You cannot proceed current installation.']);
 			$this->_view->isCriticalError = true;
 		} elseif (!is_writable(APPHP_PATH . '/protected/config/')) {
-			$this->_view->notifyMessage = CWidget::create('CMessage', array('error', 'The directory <b>' . APPHP_PATH . '/protected/config/</b> is not writable! <br>You must grant "write" permissions (access rights 0755 or 777, depending on your system settings) to this directory before you start current installation!'));
+			$this->_view->notifyMessage = CWidget::create('CMessage', ['error', 'The directory <b>' . APPHP_PATH . '/protected/config/</b> is not writable! <br>You must grant "write" permissions (access rights 0755 or 777, depending on your system settings) to this directory before you start current installation!']);
 			$this->_view->isCriticalError = true;
 		} elseif (!is_writable(APPHP_PATH . '/assets/modules/')) {
-			$this->_view->notifyMessage = CWidget::create('CMessage', array('error', 'The directory <b>' . APPHP_PATH . '/assets/modules/</b> is not writable! <br>You must grant "write" permissions (access rights 0755 or 777, depending on your system settings) to this directory before you start current installation!'));
+			$this->_view->notifyMessage = CWidget::create('CMessage', ['error', 'The directory <b>' . APPHP_PATH . '/assets/modules/</b> is not writable! <br>You must grant "write" permissions (access rights 0755 or 777, depending on your system settings) to this directory before you start current installation!']);
 			$this->_view->isCriticalError = true;
 		} elseif (!is_writable(APPHP_PATH . '/protected/messages/')) {
-			$this->_view->notifyMessage = CWidget::create('CMessage', array('error', 'The directory <b>' . APPHP_PATH . '/protected/messages/</b> is not writable! <br>You must grant "write" permissions (access rights 0755 or 777, depending on your system settings) to this directory before you start current installation!'));
+			$this->_view->notifyMessage = CWidget::create('CMessage', ['error', 'The directory <b>' . APPHP_PATH . '/protected/messages/</b> is not writable! <br>You must grant "write" permissions (access rights 0755 or 777, depending on your system settings) to this directory before you start current installation!']);
 			$this->_view->isCriticalError = true;
 		} elseif (!is_writable(APPHP_PATH . '/templates/backend/images/icons/')) {
-			$this->_view->notifyMessage = CWidget::create('CMessage', array('error', 'The directory <b>' . APPHP_PATH . '/templates/backend/images/icons/</b> is not writable! <br>You must grant "write" permissions (access rights 0755 or 777, depending on your system settings) to this directory before you start current installation!'));
+			$this->_view->notifyMessage = CWidget::create('CMessage', ['error', 'The directory <b>' . APPHP_PATH . '/templates/backend/images/icons/</b> is not writable! <br>You must grant "write" permissions (access rights 0755 or 777, depending on your system settings) to this directory before you start current installation!']);
 			$this->_view->isCriticalError = true;
 		} elseif (!$modeRewrite) {
-			$this->_view->notifyMessage = CWidget::create('CMessage', array('warning', 'This program requires "<b>mod_rewrite</b>" module to use friendly URLs, but it is not enabled or its status unknown. You may proceed current installation on your own risk.'));
+			$this->_view->notifyMessage = CWidget::create('CMessage', ['warning', 'This program requires "<b>mod_rewrite</b>" module to use friendly URLs, but it is not enabled or its status unknown. You may proceed current installation on your own risk.']);
 			$this->_view->isCriticalError = false;
 		} elseif ($this->_pdoExtensionRequired && !$pdoExtension) {
-			$this->_view->notifyMessage = CWidget::create('CMessage', array('error', 'This program requires "<b>PDO</b>" extension enabled. You cannot proceed current installation.'));
+			$this->_view->notifyMessage = CWidget::create('CMessage', ['error', 'This program requires "<b>PDO</b>" extension enabled. You cannot proceed current installation.']);
 			$this->_view->isCriticalError = true;
 		} elseif ($shortOpenTag != 'on' && version_compare(phpversion(), '5.4.0', '<')) {
-			$this->_view->notifyMessage = CWidget::create('CMessage', array('warning', 'This program requires "<b>Short Open Tag</b>" enabled. You cannot proceed current installation.'));
+			$this->_view->notifyMessage = CWidget::create('CMessage', ['warning', 'This program requires "<b>Short Open Tag</b>" enabled. You cannot proceed current installation.']);
 			$this->_view->isCriticalError = true;
 		}
 		
@@ -248,15 +276,15 @@ class SetupController extends CController
 		}
 		
 		$this->_view->actionMessage = '';
-		$dbDrivers = array('mysql' => 'MySql');
-		$dbConnectTypes = array('host' => A::t('setup', 'host'), 'socket' => A::t('setup', 'socket'));
-		$msg = '';
+        $dbDrivers = ['mysql' => 'MySql'];
+        $dbConnectTypes = ['host' => A::t('setup', 'host'), 'socket' => A::t('setup', 'socket')];
+        $msg = '';
 		
 		$separatorGeneralFields = array(
-			'separatorInfo' => array('legend' => 'General Settings'),
-			'setupType' => array('type' => 'dropdownlist', 'value' => $this->_view->setupType, 'title' => A::t('setup', 'Setup Type'), 'mandatoryStar' => false, 'data' => array('install' => A::t('setup', 'New Installation'), 'update' => A::t('setup', 'Update')), 'htmlOptions' => [], 'validation' => array('required' => true, 'type' => 'text', 'source' => array('install'))),
-			'dbDriver' => array('type' => 'dropdownlist', 'value' => $this->_view->dbDriver, 'title' => A::t('setup', 'Database Driver'), 'mandatoryStar' => true, 'data' => $dbDrivers, 'htmlOptions' => array('style' => 'width:85px'), 'validation' => array('required' => true, 'type' => 'text', 'source' => array_keys($dbDrivers))),
-			'dbPrefix' => array('type' => 'textbox', 'value' => $this->_view->dbPrefix, 'title' => A::t('setup', 'Database (tables) Prefix'), 'mandatoryStar' => false, 'htmlOptions' => array('maxLength' => '10', 'autocomplete' => 'off'), 'validation' => array('required' => false, 'type' => 'variable')),
+			'separatorInfo' => ['legend' => 'General Settings'],
+			'setupType' => ['type' => 'dropdownlist', 'value' => $this->_view->setupType, 'title' => A::t('setup', 'Setup Type'), 'mandatoryStar' => false, 'data' => array('install' => A::t('setup', 'New Installation'), 'update' => A::t('setup', 'Update')), 'htmlOptions' => [], 'validation' => array('required' => true, 'type' => 'text', 'source' => array('install'))],
+			'dbDriver' => ['type' => 'dropdownlist', 'value' => $this->_view->dbDriver, 'title' => A::t('setup', 'Database Driver'), 'mandatoryStar' => true, 'data' => $dbDrivers, 'htmlOptions' => array('style' => 'width:85px'), 'validation' => array('required' => true, 'type' => 'text', 'source' => array_keys($dbDrivers))],
+			'dbPrefix' => ['type' => 'textbox', 'value' => $this->_view->dbPrefix, 'title' => A::t('setup', 'Database (tables) Prefix'), 'mandatoryStar' => false, 'htmlOptions' => array('maxLength' => '10', 'autocomplete' => 'off'), 'validation' => array('required' => false, 'type' => 'variable')],
 		);
 		$separatorConenctionSettingsFields = array(
 			'separatorInfo' => array('legend' => 'Connection Settings'),
@@ -300,8 +328,8 @@ class SetupController extends CController
 				));
 				
 				if ($model->getError()) {
-					$this->_view->actionMessage = CWidget::create('CMessage', array('error', $model->getErrorMessage()));
-				} else {
+                    $this->_view->actionMessage = CWidget::create('CMessage', ['error', $model->getErrorMessage()]);
+                } else {
 					// Go to the next step
 					$this->_cSession->set('setupType', $this->_view->setupType);
 					$this->_cSession->set('dbDriver', $this->_view->dbDriver);
@@ -320,8 +348,8 @@ class SetupController extends CController
 			}
 			
 			if (!empty($msg)) {
-				$this->_view->actionMessage = CWidget::create('CMessage', array('validation', $msg));
-			}
+                $this->_view->actionMessage = CWidget::create('CMessage', ['validation', $msg]);
+            }
 		}
 		
 		$this->_view->setMetaTags('title', A::t('setup', 'Database Settings | Setup Wizard'));
@@ -351,13 +379,13 @@ class SetupController extends CController
 			$this->_view->username = $this->_cRequest->getPost('username');
 			$this->_view->password = $this->_cRequest->getPost('password');
 			
-			$result = CWidget::create('CFormValidation', array(
-				'fields' => array(
+			$result = CWidget::create('CFormValidation', [
+				'fields' => [
 					'email' => array('title' => A::t('setup', 'Email'), 'validation' => array('required' => false, 'type' => 'email')),
 					'username' => array('title' => A::t('setup', 'Username'), 'validation' => array('required' => true, 'type' => 'any', 'minLength' => 4, 'maxLength' => 32)),
 					'password' => array('title' => A::t('setup', 'Password'), 'validation' => array('required' => true, 'type' => 'any', 'minLength' => 4, 'maxLength' => 25)),
-				),
-			));
+				],
+			]);
 			
 			if ($result['error']) {
 				$msg = $result['errorMessage'];
@@ -373,8 +401,8 @@ class SetupController extends CController
 			}
 			
 			if (!empty($msg)) {
-				$this->_view->actionMessage = CWidget::create('CMessage', array('validation', $msg));
-			}
+                $this->_view->actionMessage = CWidget::create('CMessage', ['validation', $msg]);
+            }
 		}
 		
 		$this->_view->setMetaTags('title', A::t('setup', 'Administrator Account | Setup Wizard'));
@@ -398,7 +426,7 @@ class SetupController extends CController
 			$sqlDumpPath = APPHP_PATH . '/protected/data/schema' . ($this->_cSession->get('setupType') == 'update' ? '.update' : '') . '.' . strtolower($dbDriver) . '.sql';
 			$sqlDump = file($sqlDumpPath);
 			if (empty($sqlDump)) {
-				$this->_view->actionMessage = CWidget::create('CMessage', array('error', 'Could not read file <b>' . $sqlDumpPath . '</b>! Please check if this file exists.'));
+				$this->_view->actionMessage = CWidget::create('CMessage', ['error', 'Could not read file <b>' . $sqlDumpPath . '</b>! Please check if this file exists.']);
 			} else {
 				$encryption = isset($this->_configMain['password']['encryption']) ? $this->_configMain['password']['encryption'] : false;
 				$encryptAlgorithm = isset($this->_configMain['password']['encryptAlgorithm']) ? $this->_configMain['password']['encryptAlgorithm'] : '';
@@ -416,7 +444,7 @@ class SetupController extends CController
 				$sqlDump = str_ireplace('<CURRENT_DATE>', date('Y-m-d', time() + (date('I', time()) ? 3600 : 0)), $sqlDump);
 				$sqlDump = str_ireplace('<CURRENT_DATETIME>', date('Y-m-d H:i:s', time() + (date('I', time()) ? 3600 : 0)), $sqlDump);
 				
-				$model = new Setup(array(
+				$model = new Setup([
 					'dbDriver' => $dbDriver,
 					'dbConnectType' => $this->_cSession->get('dbConnectType'),
 					'dbSocket' => $this->_cSession->get('dbSocket'),
@@ -425,7 +453,7 @@ class SetupController extends CController
 					'dbName' => $this->_cSession->get('dbName'),
 					'dbUser' => $this->_cSession->get('dbUser'),
 					'dbPassword' => $this->_cSession->get('dbPassword')
-				));
+				]);
 				
 				if ($model->getError()) {
 					$this->_view->actionMessage = CWidget::create('CMessage', array('error', $model->getErrorMessage()));

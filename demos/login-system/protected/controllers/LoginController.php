@@ -41,14 +41,17 @@ class LoginController extends CController
 		if ($cRequest->getPost('act') == 'send') {
 			
 			// perform login form validation
-			$result = CWidget::create('CFormValidation', array(
-				'fields' => array(
-					'username' => array('title' => 'Username', 'validation' => array('required' => true, 'type' => 'any')),
-					'password' => array('title' => 'Password', 'validation' => array('required' => true, 'type' => 'any')),
-				),
-			));
-			
-			if ($result['error']) {
+            $result = CWidget::create(
+                'CFormValidation',
+                [
+                    'fields' => [
+                        'username' => ['title' => 'Username', 'validation' => ['required' => true, 'type' => 'any']],
+                        'password' => ['title' => 'Password', 'validation' => ['required' => true, 'type' => 'any']],
+                    ],
+                ]
+            );
+
+            if ($result['error']) {
 				$msg = $result['errorMessage'];
 				$msgType = 'validation';
 				$this->_view->errorField = $result['errorField'];
@@ -66,8 +69,8 @@ class LoginController extends CController
 			if (!empty($msg)) {
 				$this->_view->username = $cRequest->getPost('username', 'string');
 				$this->_view->password = $cRequest->getPost('password', 'string');
-				$this->_view->actionMessage = CWidget::create('CMessage', array($msgType, $msg));
-			}
+                $this->_view->actionMessage = CWidget::create('CMessage', [$msgType, $msg]);
+            }
 		}
 		$this->_view->render('login/index');
 	}
