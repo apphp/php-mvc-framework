@@ -49,9 +49,9 @@ class SetupController extends CController
 		$this->_cRequest = A::app()->getRequest();
 		$this->_pdoExtensionRequired = true;
 		$this->_configMain = include(APPHP_PATH . '/protected/data/config.main.tpl');
-		$this->_languages = array('en' => 'English', 'es' => utf8_encode('Español'), 'de' => utf8_encode('Deutsch'));
-		
-		$this->_view->errorField = '';
+        $this->_languages = ['en' => 'English', 'es' => utf8_encode('Español'), 'de' => utf8_encode('Deutsch')];
+
+        $this->_view->errorField = '';
 		$this->_view->_programName = isset($this->_configMain['name']) ? $this->_configMain['name'] : '';
 		$this->_view->_programVersion = isset($this->_configMain['version']) ? $this->_configMain['version'] : '';
 		
@@ -280,22 +280,22 @@ class SetupController extends CController
         $dbConnectTypes = ['host' => A::t('setup', 'host'), 'socket' => A::t('setup', 'socket')];
         $msg = '';
 		
-		$separatorGeneralFields = array(
+		$separatorGeneralFields = [
 			'separatorInfo' => ['legend' => 'General Settings'],
 			'setupType' => ['type' => 'dropdownlist', 'value' => $this->_view->setupType, 'title' => A::t('setup', 'Setup Type'), 'mandatoryStar' => false, 'data' => array('install' => A::t('setup', 'New Installation'), 'update' => A::t('setup', 'Update')), 'htmlOptions' => [], 'validation' => array('required' => true, 'type' => 'text', 'source' => array('install'))],
 			'dbDriver' => ['type' => 'dropdownlist', 'value' => $this->_view->dbDriver, 'title' => A::t('setup', 'Database Driver'), 'mandatoryStar' => true, 'data' => $dbDrivers, 'htmlOptions' => array('style' => 'width:85px'), 'validation' => array('required' => true, 'type' => 'text', 'source' => array_keys($dbDrivers))],
 			'dbPrefix' => ['type' => 'textbox', 'value' => $this->_view->dbPrefix, 'title' => A::t('setup', 'Database (tables) Prefix'), 'mandatoryStar' => false, 'htmlOptions' => array('maxLength' => '10', 'autocomplete' => 'off'), 'validation' => array('required' => false, 'type' => 'variable')],
-		);
-		$separatorConenctionSettingsFields = array(
-			'separatorInfo' => array('legend' => 'Connection Settings'),
-			'dbConnectType' => array('type' => 'dropdownlist', 'value' => $this->_view->dbConnectType, 'title' => A::t('setup', 'Connection Type'), 'mandatoryStar' => true, 'data' => $dbConnectTypes, 'htmlOptions' => array('style' => 'width:85px'), 'validation' => array('required' => true, 'type' => 'text', 'source' => array_keys($dbConnectTypes))),
-			'dbSocket' => array('type' => 'textbox', 'value' => $this->_view->dbSocket, 'title' => A::t('setup', 'Database Socket'), 'mandatoryStar' => true, 'htmlOptions' => array('maxLength' => '60', 'autocomplete' => 'off', 'placeholder' => '/tmp/mysql.sock'), 'validation' => array('required' => ($this->_view->dbConnectType == 'socket' ? true : false), 'type' => 'text'), 'disabled' => ($this->_view->dbConnectType == 'socket' ? false : true)),
-			'dbHost' => array('type' => 'textbox', 'value' => $this->_view->dbHost, 'title' => A::t('setup', 'Database Host'), 'mandatoryStar' => true, 'htmlOptions' => array('maxLength' => '60', 'autocomplete' => 'off', 'placeholder' => 'e.g. localhost'), 'validation' => array('required' => ($this->_view->dbConnectType == 'host' ? true : false), 'type' => 'text'), 'disabled' => ($this->_view->dbConnectType == 'host' ? false : true)),
-			'dbPort' => array('type' => 'textbox', 'value' => $this->_view->dbPort, 'title' => A::t('setup', 'Database Port'), 'mandatoryStar' => false, 'htmlOptions' => array('maxLength' => '10', 'autocomplete' => 'off', 'placeholder' => 'e.g. 3306', 'style' => 'width:80px'), 'validation' => array('required' => false, 'type' => 'integer'), 'disabled' => ($this->_view->dbConnectType == 'host' ? false : true)),
-			'dbName' => array('type' => 'textbox', 'value' => $this->_view->dbName, 'title' => A::t('setup', 'Database Name'), 'mandatoryStar' => true, 'htmlOptions' => array('maxLength' => '30', 'autocomplete' => 'off'), 'validation' => array('required' => true, 'type' => 'text')),
-			'dbUser' => array('type' => 'textbox', 'value' => $this->_view->dbUser, 'title' => A::t('setup', 'Database User'), 'mandatoryStar' => true, 'htmlOptions' => array('maxLength' => '30', 'autocomplete' => 'off'), 'validation' => array('required' => true, 'type' => 'text')),
-			'dbPassword' => array('type' => 'password', 'value' => $this->_view->dbPassword, 'title' => A::t('setup', 'Database Password'), 'mandatoryStar' => false, 'htmlOptions' => array('maxLength' => '20', 'autocomplete' => 'off', 'id' => 'db_password'), 'validation' => array('required' => false, 'type' => 'text'), 'appendCode' => '<div for="db_password" class="toggle_password" data-field="db_password"></div>'),
-		);
+		];
+		$separatorConenctionSettingsFields = [
+			'separatorInfo' => ['legend' => 'Connection Settings'],
+            'dbConnectType' => ['type' => 'dropdownlist', 'value' => $this->_view->dbConnectType, 'title' => A::t('setup', 'Connection Type'), 'mandatoryStar' => true, 'data' => $dbConnectTypes, 'htmlOptions' => array('style' => 'width:85px'), 'validation' => ['required' => true, 'type' => 'text', 'source' => array_keys($dbConnectTypes)]],
+			'dbSocket' => ['type' => 'textbox', 'value' => $this->_view->dbSocket, 'title' => A::t('setup', 'Database Socket'), 'mandatoryStar' => true, 'htmlOptions' => array('maxLength' => '60', 'autocomplete' => 'off', 'placeholder' => '/tmp/mysql.sock'), 'validation' => array('required' => ($this->_view->dbConnectType == 'socket' ? true : false), 'type' => 'text'), 'disabled' => ($this->_view->dbConnectType == 'socket' ? false : true)],
+			'dbHost' => ['type' => 'textbox', 'value' => $this->_view->dbHost, 'title' => A::t('setup', 'Database Host'), 'mandatoryStar' => true, 'htmlOptions' => array('maxLength' => '60', 'autocomplete' => 'off', 'placeholder' => 'e.g. localhost'), 'validation' => array('required' => ($this->_view->dbConnectType == 'host' ? true : false), 'type' => 'text'), 'disabled' => ($this->_view->dbConnectType == 'host' ? false : true)],
+			'dbPort' => ['type' => 'textbox', 'value' => $this->_view->dbPort, 'title' => A::t('setup', 'Database Port'), 'mandatoryStar' => false, 'htmlOptions' => array('maxLength' => '10', 'autocomplete' => 'off', 'placeholder' => 'e.g. 3306', 'style' => 'width:80px'), 'validation' => array('required' => false, 'type' => 'integer'), 'disabled' => ($this->_view->dbConnectType == 'host' ? false : true)],
+			'dbName' => ['type' => 'textbox', 'value' => $this->_view->dbName, 'title' => A::t('setup', 'Database Name'), 'mandatoryStar' => true, 'htmlOptions' => array('maxLength' => '30', 'autocomplete' => 'off'), 'validation' => array('required' => true, 'type' => 'text')],
+			'dbUser' => ['type' => 'textbox', 'value' => $this->_view->dbUser, 'title' => A::t('setup', 'Database User'), 'mandatoryStar' => true, 'htmlOptions' => array('maxLength' => '30', 'autocomplete' => 'off'), 'validation' => array('required' => true, 'type' => 'text')],
+			'dbPassword' => ['type' => 'password', 'value' => $this->_view->dbPassword, 'title' => A::t('setup', 'Database Password'), 'mandatoryStar' => false, 'htmlOptions' => array('maxLength' => '20', 'autocomplete' => 'off', 'id' => 'db_password'), 'validation' => array('required' => false, 'type' => 'text'), 'appendCode' => '<div for="db_password" class="toggle_password" data-field="db_password"></div>'],
+		];
 		$validationFields = array_merge($separatorGeneralFields, $separatorConenctionSettingsFields);
 		$this->_view->formFields = array(
 			'act' => array('type' => 'hidden', 'value' => 'send'),
@@ -307,16 +307,13 @@ class SetupController extends CController
 		if ($this->_cSession->get('step') < 2) {
 			$this->redirect('setup/index');
 		} elseif ($this->_cRequest->getPost('act') == 'send') {
-			
-			$result = CWidget::create('CFormValidation', array(
-				'fields' => $validationFields
-			));
-			
-			if ($result['error']) {
+            $result = CWidget::create('CFormValidation', ['fields' => $validationFields]);
+
+            if ($result['error']) {
 				$msg = $result['errorMessage'];
 				$this->_view->errorField = $result['errorField'];
 			} else {
-				$model = new Setup(array(
+				$model = new Setup([
 					'dbDriver' => $this->_view->dbDriver,
 					'dbConnectType' => $this->_view->dbConnectType,
 					'dbSocket' => $this->_view->dbSocket,
@@ -325,7 +322,7 @@ class SetupController extends CController
 					'dbName' => $this->_view->dbName,
 					'dbUser' => $this->_view->dbUser,
 					'dbPassword' => $this->_view->dbPassword
-				));
+				]);
 				
 				if ($model->getError()) {
                     $this->_view->actionMessage = CWidget::create('CMessage', ['error', $model->getErrorMessage()]);
@@ -381,9 +378,9 @@ class SetupController extends CController
 			
 			$result = CWidget::create('CFormValidation', [
 				'fields' => [
-					'email' => array('title' => A::t('setup', 'Email'), 'validation' => array('required' => false, 'type' => 'email')),
-					'username' => array('title' => A::t('setup', 'Username'), 'validation' => array('required' => true, 'type' => 'any', 'minLength' => 4, 'maxLength' => 32)),
-					'password' => array('title' => A::t('setup', 'Password'), 'validation' => array('required' => true, 'type' => 'any', 'minLength' => 4, 'maxLength' => 25)),
+                    'email' => ['title' => A::t('setup', 'Email'), 'validation' => ['required' => false, 'type' => 'email']],
+                    'username' => ['title' => A::t('setup', 'Username'), 'validation' => ['required' => true, 'type' => 'any', 'minLength' => 4, 'maxLength' => 32]],
+					'password' => ['title' => A::t('setup', 'Password'), 'validation' => ['required' => true, 'type' => 'any', 'minLength' => 4, 'maxLength' => 25]],
 				],
 			]);
 			
@@ -456,8 +453,8 @@ class SetupController extends CController
 				]);
 				
 				if ($model->getError()) {
-					$this->_view->actionMessage = CWidget::create('CMessage', array('error', $model->getErrorMessage()));
-				} else {
+					$this->_view->actionMessage = CWidget::create('CMessage', ['error', $model->getErrorMessage()]);
+                } else {
 					if ($model->install($sqlDump)) {
 						$modulesError = false;
 						$modulesWarning = false;
@@ -481,7 +478,7 @@ class SetupController extends CController
 												$model->doBeginTransaction();
 												if (!$model->install($sqlDump, false)) {
 													$modulesError = true;
-													$this->_view->actionMessage = CWidget::create('CMessage', array('error', $model->getErrorMessage()));
+													$this->_view->actionMessage = CWidget::create('CMessage', ['error', $model->getErrorMessage()]);
 												} else {
 													// Copy module files
 													foreach ($xml->files->children() as $folder) {

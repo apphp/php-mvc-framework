@@ -17,9 +17,9 @@ class PostEntity extends CRecordEntity
 	/** @var */
 	protected $_fillable = [];
 	/** @var */
-	protected $_guarded = array('post_datetime');
+    protected $_guarded = ['post_datetime'];
 
-	/**
+    /**
 	 * Class constructor
 	 * @param int $pkVal
 	 */

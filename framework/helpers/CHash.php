@@ -109,9 +109,9 @@ class CHash
 	 * case: 'upper', 'lower' (default)
 	 * @return string
 	 */
-	public static function getRandomString($length = 10, $params = array())
-	{
-		$type = isset($params['type']) ? $params['type'] : '';
+    public static function getRandomString($length = 10, $params = [])
+    {
+        $type = isset($params['type']) ? $params['type'] : '';
 		$case = isset($params['case']) ? $params['case'] : '';
 		
 		if ($type == 'numeric') {
@@ -234,9 +234,9 @@ class CHash
 		if (strlen($key) > 32) return false;
 		
 		// Set sizes
-		$sizes = array(16, 24, 32);
-		
-		// Loop through sizes and pad key
+        $sizes = [16, 24, 32];
+
+        // Loop through sizes and pad key
 		foreach ($sizes as $s) {
 			if ($s > strlen($key)) {
 				$key = str_pad($key, $s, "\0");
