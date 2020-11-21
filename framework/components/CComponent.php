@@ -60,6 +60,7 @@ class CComponent
      *     return parent::init(__CLASS__);
      * }
      * </pre>
+     * @return mixed
      */
     private static function _parentInit($className = __CLASS__)
     {

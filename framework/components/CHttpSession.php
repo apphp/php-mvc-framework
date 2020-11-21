@@ -64,6 +64,8 @@ class CHttpSession extends CComponent
      */
     function __construct()
     {
+        parent::__construct();
+
         if ($this->_cookieMode !== 'only') {
             $this->_setCookieMode($this->_cookieMode);
         }

@@ -76,6 +76,7 @@ class CClientScript extends CComponent
      */
     function __construct()
     {
+        parent::__construct();
     }
 
     /**

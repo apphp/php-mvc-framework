@@ -29,6 +29,8 @@ class CMessageSource extends CComponent
      */
     function __construct()
     {
+        parent::__construct();
+
         $this->_basePath = dirname(__FILE__);
     }
 

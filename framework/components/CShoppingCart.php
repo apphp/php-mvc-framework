@@ -67,6 +67,8 @@ class CShoppingCart extends CComponent
      */
     function __construct()
     {
+        parent::__construct();
+
         // Grab the shopping cart array from the session and initialize it
         $this->_cartContent = A::app()->getSession()->get('shopping_cart_content', null);
         if ($this->_cartContent === null) {

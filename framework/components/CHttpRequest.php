@@ -101,6 +101,8 @@ class CHttpRequest extends CComponent
      */
     function __construct()
     {
+        parent::__construct();
+
         $this->_csrfValidation  = (CConfig::get('validation.csrf.enable') === true) ? true : false;
         $this->_csrfExclude     = CConfig::exists('validation.csrf.exclude') ? CConfig::get('validation.csrf.exclude')
             : [];

@@ -28,6 +28,7 @@ class CLocalTime extends CComponent
      */
     function __construct()
     {
+        parent::__construct();
     }
 
     /**

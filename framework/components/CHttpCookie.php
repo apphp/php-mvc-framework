@@ -43,6 +43,8 @@ class CHttpCookie extends CComponent
      */
     function __construct()
     {
+        parent::__construct();
+
         if (CConfig::get('cookies.domain') != '') {
             $this->setDomain(CConfig::get('cookies.domain'));
         }

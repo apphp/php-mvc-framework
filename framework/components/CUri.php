@@ -46,6 +46,8 @@ class CUri extends CComponent
      */
     function __construct()
     {
+        parent::__construct();
+
         $this->_uriString = $this->_detectUri();
         $this->_explodeSegments();
     }

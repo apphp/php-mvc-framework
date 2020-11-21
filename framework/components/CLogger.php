@@ -44,6 +44,8 @@ class CLogger extends CComponent
      */
     function __construct()
     {
+        parent::__construct();
+
         $this->_enabled       = CConfig::get('log.enable') !== '' ? CConfig::get('log.enable') : false;
         $this->_logPath       = APPHP_PATH.DS.(CConfig::get('log.path') !== '' ? CConfig::get('log.path') : 'protected/tmp/logs/');
         $this->_fileExtension = CConfig::exists('log.fileExtension') && CConfig::get('log.fileExtension') !== '' ? ltrim(CConfig::get('log.fileExtension'), '.') : 'php';

@@ -66,6 +66,8 @@ class CDbHttpSession extends CComponent
      */
     function __construct()
     {
+        parent::__construct();
+
         $this->_db = CDatabase::init();
 
         @session_set_save_handler(
