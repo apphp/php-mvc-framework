@@ -23,6 +23,7 @@
  * #002 - 26.06.2012 : commented echo invalid_address (doesn't present in current version)
  * #003 - 13.03.2015 : added auto include of class.smtp.php
  * #004 - 14.12.2016 : default CharSet changed from 'iso-8859-1' to 'utf-8'
+ * #005 - 11.12.2020 : commented magic_quotes functionality
  */
 
 /**
@@ -2711,26 +2712,28 @@ class PHPMailer
             if (!is_readable($path)) {
                 throw new phpmailerException($this->lang('file_open') . $path, self::STOP_CONTINUE);
             }
-            $magic_quotes = get_magic_quotes_runtime();
-            if ($magic_quotes) {
-                if (version_compare(phpversion(), '5.3.0', '<')) {
-                    set_magic_quotes_runtime(false);
-                } else {
-                    //Doesn't exist in PHP 5.4, but we don't need to check because
-                    //get_magic_quotes_runtime always returns false in 5.4+
-                    //so it will never get here
-                    ini_set('magic_quotes_runtime', false);
-                }
-            }
+            //#005
+            //$magic_quotes = get_magic_quotes_runtime();
+            //if ($magic_quotes) {
+            //    if (version_compare(phpversion(), '5.3.0', '<')) {
+            //        set_magic_quotes_runtime(false);
+            //    } else {
+            //        //Doesn't exist in PHP 5.4, but we don't need to check because
+            //        //get_magic_quotes_runtime always returns false in 5.4+
+            //        //so it will never get here
+            //        ini_set('magic_quotes_runtime', false);
+            //    }
+            //}
             $file_buffer = file_get_contents($path);
             $file_buffer = $this->encodeString($file_buffer, $encoding);
-            if ($magic_quotes) {
-                if (version_compare(phpversion(), '5.3.0', '<')) {
-                    set_magic_quotes_runtime($magic_quotes);
-                } else {
-                    ini_set('magic_quotes_runtime', $magic_quotes);
-                }
-            }
+            //#005
+            //if ($magic_quotes) {
+            //    if (version_compare(phpversion(), '5.3.0', '<')) {
+            //        set_magic_quotes_runtime($magic_quotes);
+            //    } else {
+            //        ini_set('magic_quotes_runtime', $magic_quotes);
+            //    }
+            //}
             return $file_buffer;
         } catch (Exception $exc) {
             $this->setError($exc->getMessage());
