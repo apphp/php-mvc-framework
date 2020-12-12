@@ -714,7 +714,7 @@ class CActiveRecord extends CModel
     /**
      * This method queries your database to find first related object
      * Ex.: find('postID = :postID AND isActive = :isActive', [':postID'=>10, ':isActive'=>1]);
-     * Ex.: find(['condition'=>'postID = :postID AND isActive = :isActive', 'order|orderBy'=>'id DESC'], 'params'=>[':postID'=>10, ':isActive'=>1]);
+     * Ex.: find(['condition'=>'postID = :postID AND isActive = :isActive', 'order|orderBy'=>'id DESC'], [':postID'=>10, ':isActive'=>1]);
      *
      * @param  mixed  $conditions
      * @param  array  $params
@@ -773,7 +773,7 @@ class CActiveRecord extends CModel
     /**
      * This method queries your database to find related objects by PK
      * Ex.: findByPk($pk, 'postID = :postID AND isActive = :isActive', array(':postID'=>10, ':isActive'=>1));
-     * Ex.: findByPk($pk, array('condition'=>'postID = :postID AND isActive = :isActive', 'order|orderBy'=>'id DESC'), 'params'=>array(':postID'=>10, ':isActive'=>1));
+     * Ex.: findByPk($pk, array('condition'=>'postID = :postID AND isActive = :isActive', 'order|orderBy'=>'id DESC'), array(':postID'=>10, ':isActive'=>1));
      *
      * @param  string  $pk
      * @param  mixed  $conditions
@@ -832,7 +832,7 @@ class CActiveRecord extends CModel
     /**
      * This method queries your database to find related objects by attributes
      * Ex.: findByAttributes($attributes, 'postID = :postID AND isActive = :isActive', array(':postID'=>10, ':isActive'=>1));
-     * Ex.: findByAttributes($attributes, array('condition'=>'postID = :postID AND isActive = :isActive', 'order|orderBy'=>'id DESC', 'limit'=>'0, 10'), 'params'=>array(':postID'=>10, ':isActive'=>1));
+     * Ex.: findByAttributes($attributes, array('condition'=>'postID = :postID AND isActive = :isActive', 'order|orderBy'=>'id DESC', 'limit'=>'0, 10'), array(':postID'=>10, ':isActive'=>1));
      * Ex.: $attributes = array('first_name'=>$firstName, 'last_name'=>$lastName);
      *
      * @param  array  $attributes
