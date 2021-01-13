@@ -401,7 +401,7 @@ class CDebug
 				#debug-panel fieldset legend ul li.title > .item-debug {display:none;}				
 				#debug-panel fieldset legend ul li.item a {display:block;visibility:hidden;}				
 				#debug-panel fieldset legend ul li.item a:first-letter {visibility:visible !important;}
-				#debug-panel fieldset legend ul li.item {width:30px; height:15px; margin-bottom:3px;)
+				#debug-panel fieldset legend ul li.item {width:30px; height:15px; margin-bottom:3px;}
 			}
 		</style>';
 
