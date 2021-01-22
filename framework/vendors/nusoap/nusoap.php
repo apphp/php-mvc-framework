@@ -55,6 +55,7 @@ http://www.nusphere.com
  *  07/07/2020 - class declaration changed to PHP5-7
  *  07/07/2020 - undefined var fix
  *  02/10/2020 - removed using of globals array
+ *  22/01/2021 - $HTTP_SERVER_VARS replaced with $_SERVER
  */
 
 /* load classes
@@ -3625,14 +3626,14 @@ class nusoap_server extends nusoap_base {
 		parent::nusoap_base();
 		// turn on debugging?
 		global $debug;
-		global $HTTP_SERVER_VARS;
+		global $_SERVER;
 
 		if (isset($_SERVER)) {
 			$this->debug("_SERVER is defined:");
 			$this->appendDebug($this->varDump($_SERVER));
-		} elseif (isset($HTTP_SERVER_VARS)) {
+		} elseif (isset($_SERVER)) {
 			$this->debug("HTTP_SERVER_VARS is defined:");
-			$this->appendDebug($this->varDump($HTTP_SERVER_VARS));
+			$this->appendDebug($this->varDump($_SERVER));
 		} else {
 			$this->debug("Neither _SERVER nor HTTP_SERVER_VARS is defined.");
 		}
@@ -3648,8 +3649,8 @@ class nusoap_server extends nusoap_base {
 					$this->debug_flag = substr($v, 6);
 				}
 			}
-		} elseif (isset($HTTP_SERVER_VARS['QUERY_STRING'])) {
-			$qs = explode('&', $HTTP_SERVER_VARS['QUERY_STRING']);
+		} elseif (isset($_SERVER['QUERY_STRING'])) {
+			$qs = explode('&', $_SERVER['QUERY_STRING']);
 			foreach ($qs as $v) {
 				if (substr($v, 0, 6) == 'debug=') {
 					$this->debug("In nusoap_server, set debug_flag=" . substr($v, 6) . " based on query string #2");
@@ -3681,24 +3682,24 @@ class nusoap_server extends nusoap_base {
 	/**
 	* processes request and returns response
 	*
-	* @param    string $data usually is the value of $HTTP_RAW_POST_DATA
+	* @param    string $data usually is the value of POST data
 	* @access   public
 	*/
 	function service($data){
-		global $HTTP_SERVER_VARS;
+		global $_SERVER;
 
 		if (isset($_SERVER['REQUEST_METHOD'])) {
 			$rm = $_SERVER['REQUEST_METHOD'];
-		} elseif (isset($HTTP_SERVER_VARS['REQUEST_METHOD'])) {
-			$rm = $HTTP_SERVER_VARS['REQUEST_METHOD'];
+		} elseif (isset($_SERVER['REQUEST_METHOD'])) {
+			$rm = $_SERVER['REQUEST_METHOD'];
 		} else {
 			$rm = '';
 		}
 
 		if (isset($_SERVER['QUERY_STRING'])) {
 			$qs = $_SERVER['QUERY_STRING'];
-		} elseif (isset($HTTP_SERVER_VARS['QUERY_STRING'])) {
-			$qs = $HTTP_SERVER_VARS['QUERY_STRING'];
+		} elseif (isset($_SERVER['QUERY_STRING'])) {
+			$qs = $_SERVER['QUERY_STRING'];
 		} else {
 			$qs = '';
 		}
@@ -3769,7 +3770,7 @@ class nusoap_server extends nusoap_base {
 	* @access   private
 	*/
 	function parse_http_headers() {
-		global $HTTP_SERVER_VARS;
+		global $_SERVER;
 
 		$this->request = '';
 		$this->SOAPAction = '';
@@ -3832,9 +3833,9 @@ class nusoap_server extends nusoap_base {
 				$this->request .= "$k: $v\r\n";
 				$this->debug("$k: $v");
 			}
-		} elseif (is_array($HTTP_SERVER_VARS)) {
+		} elseif (is_array($_SERVER)) {
 			$this->debug("In parse_http_headers, use HTTP_SERVER_VARS");
-			foreach ($HTTP_SERVER_VARS as $k => $v) {
+			foreach ($_SERVER as $k => $v) {
 				if (substr($k, 0, 5) == 'HTTP_') {
 					$k = str_replace(' ', '-', strtolower(str_replace('_', ' ', substr($k, 5)))); 	                                         $k = strtolower(substr($k, 5));
 				} else {
@@ -4409,7 +4410,7 @@ class nusoap_server extends nusoap_base {
 	* @access   public
 	*/
 	function register($name,$in=array(),$out=array(),$namespace=false,$soapaction=false,$style=false,$use=false,$documentation='',$encodingStyle=''){
-		global $HTTP_SERVER_VARS;
+		global $_SERVER;
 
 		if($this->externalWSDLURL){
 			die('You cannot bind to an external WSDL file, and register methods outside of it! Please choose either WSDL or no WSDL.');
@@ -4429,11 +4430,11 @@ class nusoap_server extends nusoap_base {
 			if (isset($_SERVER)) {
 				$SERVER_NAME = $_SERVER['SERVER_NAME'];
 				$SCRIPT_NAME = isset($_SERVER['PHP_SELF']) ? $_SERVER['PHP_SELF'] : $_SERVER['SCRIPT_NAME'];
-				$HTTPS = isset($_SERVER['HTTPS']) ? $_SERVER['HTTPS'] : (isset($HTTP_SERVER_VARS['HTTPS']) ? $HTTP_SERVER_VARS['HTTPS'] : 'off');
-			} elseif (isset($HTTP_SERVER_VARS)) {
-				$SERVER_NAME = $HTTP_SERVER_VARS['SERVER_NAME'];
-				$SCRIPT_NAME = isset($HTTP_SERVER_VARS['PHP_SELF']) ? $HTTP_SERVER_VARS['PHP_SELF'] : $HTTP_SERVER_VARS['SCRIPT_NAME'];
-				$HTTPS = isset($HTTP_SERVER_VARS['HTTPS']) ? $HTTP_SERVER_VARS['HTTPS'] : 'off';
+				$HTTPS = isset($_SERVER['HTTPS']) ? $_SERVER['HTTPS'] : (isset($_SERVER['HTTPS']) ? $_SERVER['HTTPS'] : 'off');
+			} elseif (isset($_SERVER)) {
+				$SERVER_NAME = $_SERVER['SERVER_NAME'];
+				$SCRIPT_NAME = isset($_SERVER['PHP_SELF']) ? $_SERVER['PHP_SELF'] : $_SERVER['SCRIPT_NAME'];
+				$HTTPS = isset($_SERVER['HTTPS']) ? $_SERVER['HTTPS'] : 'off';
 			} else {
 				$this->setError("Neither _SERVER nor HTTP_SERVER_VARS is available");
 			}
@@ -4498,18 +4499,18 @@ class nusoap_server extends nusoap_base {
     */
     function configureWSDL($serviceName,$namespace = false,$endpoint = false,$style='rpc', $transport = 'http://schemas.xmlsoap.org/soap/http', $schemaTargetNamespace = false)
     {
-    	global $HTTP_SERVER_VARS;
+    	global $_SERVER;
 
 		if (isset($_SERVER)) {
 			$SERVER_NAME = $_SERVER['SERVER_NAME'];
 			$SERVER_PORT = $_SERVER['SERVER_PORT'];
 			$SCRIPT_NAME = isset($_SERVER['PHP_SELF']) ? $_SERVER['PHP_SELF'] : $_SERVER['SCRIPT_NAME'];
-			$HTTPS = isset($_SERVER['HTTPS']) ? $_SERVER['HTTPS'] : (isset($HTTP_SERVER_VARS['HTTPS']) ? $HTTP_SERVER_VARS['HTTPS'] : 'off');
-		} elseif (isset($HTTP_SERVER_VARS)) {
-			$SERVER_NAME = $HTTP_SERVER_VARS['SERVER_NAME'];
-			$SERVER_PORT = $HTTP_SERVER_VARS['SERVER_PORT'];
-			$SCRIPT_NAME = isset($HTTP_SERVER_VARS['PHP_SELF']) ? $HTTP_SERVER_VARS['PHP_SELF'] : $HTTP_SERVER_VARS['SCRIPT_NAME'];
-			$HTTPS = isset($HTTP_SERVER_VARS['HTTPS']) ? $HTTP_SERVER_VARS['HTTPS'] : 'off';
+			$HTTPS = isset($_SERVER['HTTPS']) ? $_SERVER['HTTPS'] : (isset($_SERVER['HTTPS']) ? $_SERVER['HTTPS'] : 'off');
+		} elseif (isset($_SERVER)) {
+			$SERVER_NAME = $_SERVER['SERVER_NAME'];
+			$SERVER_PORT = $_SERVER['SERVER_PORT'];
+			$SCRIPT_NAME = isset($_SERVER['PHP_SELF']) ? $_SERVER['PHP_SELF'] : $_SERVER['SCRIPT_NAME'];
+			$HTTPS = isset($_SERVER['HTTPS']) ? $_SERVER['HTTPS'] : 'off';
 		} else {
 			$this->setError("Neither _SERVER nor HTTP_SERVER_VARS is available");
 		}
@@ -5326,12 +5327,12 @@ class wsdl extends nusoap_base {
     * @access private
     */
     function webDescription(){
-    	global $HTTP_SERVER_VARS;
+    	global $_SERVER;
 
 		if (isset($_SERVER)) {
 			$PHP_SELF = $_SERVER['PHP_SELF'];
-		} elseif (isset($HTTP_SERVER_VARS)) {
-			$PHP_SELF = $HTTP_SERVER_VARS['PHP_SELF'];
+		} elseif (isset($_SERVER)) {
+			$PHP_SELF = $_SERVER['PHP_SELF'];
 		} else {
 			$this->setError("Neither _SERVER nor HTTP_SERVER_VARS is available");
 		}
