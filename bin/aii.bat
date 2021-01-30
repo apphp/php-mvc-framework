@@ -8,7 +8,7 @@ rem
 rem  @project ApPHP Framework
 rem  @author ApPHP <info@apphp.com>
 rem  @link http://www.apphpframework.com/
-rem  @copyright Copyright (c) 2012 - 2020 ApPHP Framework
+rem  @copyright Copyright (c) 2012 - 2021 ApPHP Framework
 rem  @license http://www.apphpframework.com/license/
 rem -------------------------------------------------------------
 

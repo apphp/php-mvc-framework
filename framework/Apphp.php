@@ -5,7 +5,7 @@
  * @project ApPHP Framework
  * @author ApPHP <info@apphp.com>
  * @link http://www.apphpframework.com/
- * @copyright Copyright (c) 2012 - 2020 ApPHP Framework
+ * @copyright Copyright (c) 2012 - 2021 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
  * PUBLIC:					PROTECTED:					    PRIVATE:		
@@ -68,7 +68,7 @@ class A
 	
 	
 	/** @var string */
-	private static $_frameworkVersion = '1.3.2';
+	private static $_frameworkVersion = '1.4.1';
 	/** @var string */
 	private static $_phpVersion;
 	/** @var object */
