@@ -17,54 +17,58 @@
 
 class CComponent
 {
-	
-	/* class name => component */
-	private static $_components = array();
-	
-	/**
-	 * Class constructor
-	 * @return void
-	 */
-	function __construct()
-	{
-		
-	}
-	
-	/**
-	 * Triggered when invoking inaccessible methods in an object context
-	 * We use this method to avoid calling model($className = __CLASS__) in derived class
-	 * @param string $method
-	 * @param array $args
-	 * @return mixed
-	 */
-	public static function __callStatic($method, $args)
-	{
-		if (strtolower($method) == 'init') {
-			if (count($args) == 1) {
-				return self::_parentInit($args[0]);
-			}
-		}
-	}
-	
-	/**
-	 * Returns the static component of the specified class
-	 * @param string $className
-	 *
-	 * EVERY derived component class must override this method in following way,
-	 * <pre>
-	 * public static function init()
-	 * {
-	 *     return parent::init(__CLASS__);
-	 * }
-	 * </pre>
-	 */
-	private static function _parentInit($className = __CLASS__)
-	{
-		if (isset(self::$_components[$className])) {
-			return self::$_components[$className];
-		} else {
-			return self::$_components[$className] = new $className(null);
-		}
-	}
-	
+
+    /* class name => component */
+    private static $_components = [];
+
+    /**
+     * Class constructor
+     *
+     * @return void
+     */
+    function __construct()
+    {
+    }
+
+    /**
+     * Triggered when invoking inaccessible methods in an object context
+     * We use this method to avoid calling model($className = __CLASS__) in derived class
+     *
+     * @param  string  $method
+     * @param  array  $args
+     *
+     * @return mixed
+     */
+    public static function __callStatic($method, $args)
+    {
+        if (strtolower($method) == 'init') {
+            if (count($args) == 1) {
+                return self::_parentInit($args[0]);
+            }
+        }
+    }
+
+    /**
+     * Returns the static component of the specified class
+     *
+     * @param  string  $className
+     *
+     * EVERY derived component class must override this method in following way,
+     * <pre>
+     * public static function init()
+     * {
+     *     return parent::init(__CLASS__);
+     * }
+     * </pre>
+     * @return mixed
+     */
+    private static function _parentInit($className = __CLASS__)
+    {
+        if (isset(self::$_components[$className])) {
+            return self::$_components[$className];
+        } else {
+            return self::$_components[$className] = new $className(null);
+        }
+    }
+
 }

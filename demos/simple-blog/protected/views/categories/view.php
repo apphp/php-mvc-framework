@@ -47,17 +47,19 @@ if (!empty($posts)) {
 	}
 	
 	if (count($posts) > 1) {
-		echo CWidget::create('CPagination', array(
-			'actionPath' => 'posts/view',
-			'currentPage' => $currentPage,
-			'pageSize' => $pageSize,
-			'totalRecords' => $totalRecords,
-			'showResultsOfTotal' => false,
-			'linkType' => 0,
-			'paginationType' => 'prevNext',
-		));
+		echo CWidget::create(
+			'CPagination',
+			[
+				'actionPath'         => 'posts/view',
+				'currentPage'        => $currentPage,
+				'pageSize'           => $pageSize,
+				'totalRecords'       => $totalRecords,
+				'showResultsOfTotal' => false,
+				'linkType'           => 0,
+				'paginationType'     => 'prevNext',
+			]
+		);
 	}
-	
 }
 ?>
 

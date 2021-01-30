@@ -9,7 +9,7 @@ if (!empty($posts)) {
 	}
 	
 	if (is_object($posts)) {
-		$posts_new = array();
+		$posts_new = [];
 		$posts_new[0]['id'] = $posts->id;
 		$posts_new[0]['header'] = $posts->header;
 		$posts_new[0]['post_text'] = $posts->post_text;

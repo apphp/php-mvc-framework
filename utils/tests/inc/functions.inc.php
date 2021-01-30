@@ -8,7 +8,7 @@ function starts_with($str, $sub) {
     return strpos($str, $sub) === 0;
 }
 
-function render_file($_params_ = array()){
+function render_file($_params_ = []){
     $_file_ = dirname(__FILE__).'/../views/index.php';
 	extract($_params_);
 	require($_file_);

@@ -146,13 +146,9 @@ return array(
 		'recoveryType' => 'direct'            /* 'direct' - send new password directly, 'recovery' - send link to recovery page */
 	),
 	
-	// Widget settings
-	'widgets' => array(
-		'paramKeysSensitive' => true,
-	),
-	
 	// Application helpers
-	'helpers' => array(//'helper' => array('enable' => true, 'class' => 'Helper'),
+	'helpers' => array(
+	    //'helper' => array('enable' => true, 'class' => 'Helper'),
 	),
 	
 	// Application modules

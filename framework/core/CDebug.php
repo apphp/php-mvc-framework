@@ -11,7 +11,7 @@
  * PUBLIC (static):            PROTECTED:               PRIVATE (static):
  * ---------------            ---------------           ---------------
  * init
- * dump / d
+ * dump / d / dd / ddd
  * console / c
  * write
  * prepareBacktrace
@@ -34,17 +34,17 @@ class CDebug
 	/** @var string */
 	private static $_endMemoryUsage;
 	/** @var array */
-	private static $_arrGeneral = array();
+	private static $_arrGeneral = [];
 	/** @var array */
-	private static $_arrParams = array();
+	private static $_arrParams = [];
 	/** @var array */
-	private static $_arrConsole = array();
+	private static $_arrConsole = [];
 	/** @var array */
-	private static $_arrWarnings = array();
+	private static $_arrWarnings = [];
 	/** @var array */
-	private static $_arrErrors = array();
+	private static $_arrErrors = [];
 	/** @var array */
-	private static $_arrQueries = array();
+	private static $_arrQueries = [];
 	/** @var array */
 	private static $_arrData;
 	/** @var float */
@@ -77,7 +77,29 @@ class CDebug
 	{
 		self::dump($param, $terminate, $useDbug);
 	}
-	
+
+    /**
+     * Alias to method 'dump' with $terminate=true param
+     * @param mixed $param
+     * @param bool $useDbug
+     * @return HTML dump
+     */
+    public static function dd($param, $useDbug = true)
+    {
+        self::dump($param, true, $useDbug);
+    }
+
+    /**
+     * Alias to method 'dump' with $terminate=true param and showing debug panel
+     * @param mixed $param
+     * @return HTML dump
+     */
+    public static function ddd($param)
+    {
+        CDebug::displayInfo();
+        self::dump($param, true, true);
+    }
+
 	/**
 	 * Displays parameter on the screen
 	 * @param mixed $param
@@ -91,7 +113,7 @@ class CDebug
 			@header('content-type: text/html; charset=utf-8');
 			echo '<!DOCTYPE html><html><head><meta charset="UTF-8" /></head><body>';
 		}
-		
+
 		if ($useDbug) {
 			include_once(dirname(__FILE__) . DS . '..' . DS . 'vendors' . DS . 'dbug' . DS . 'dbug.php');
 			new dBug($param);
@@ -147,7 +169,7 @@ class CDebug
 	 * @param array $traceData
 	 * @return string
 	 */
-	public static function prepareBacktrace($traceData = array())
+	public static function prepareBacktrace($traceData = [])
 	{
 		$stack = '';
 		$i = 0;
@@ -181,7 +203,7 @@ class CDebug
 	 * @param bool $formatted
 	 * @return HTML
 	 */
-	public static function backtrace($message = '', $traceData = array(), $formatted = true)
+	public static function backtrace($message = '', $traceData = [], $formatted = true)
 	{
 		if (APPHP_MODE == 'debug') {
 			$stack = self::prepareBacktrace($traceData);
@@ -341,25 +363,33 @@ class CDebug
 		$totalWarnings = count(self::$_arrWarnings);
 		$totalErrors = count(self::$_arrErrors);
 		$totalQueries = count(self::$_arrQueries);
-		
-		// Debug bar status
+
+        $totalRunningTime = round((float)self::$_endTime - (float)self::$_startTime, 5);
+        $totalRunningTimeQueriesSql = round((float)self::$_sqlTotalTime, 5);
+        $totalRunningTimeConnectionSql = round((float)self::$_sqlConnectionTime, 5);
+        $totalRunningTimeScript = round($totalRunningTime - $totalRunningTimeConnectionSql - $totalRunningTimeQueriesSql, 5);
+        $totalMemoryUsage = CConvert::fileSize((float)self::$_endMemoryUsage - (float)self::$_startMemoryUsage);
+        $htmlCompressionRate = !empty(self::$_arrData['html-compression-rate']) ? self::$_arrData['html-compression-rate'] : A::t('core', 'Unknown');
+
+        // Debug bar status
 		$debugBarState = isset($_COOKIE['debugBarState']) ? $_COOKIE['debugBarState'] : 'min';
 		$onDblClick = 'appTabsMinimize()';
 		
 		$panelAlign = A::app()->getLanguage('direction') == 'rtl' ? 'left' : 'right';
 		$panelTextAlign = A::app()->getLanguage('direction') == 'rtl' ? 'right' : 'left';
+
 		$output = $nl . '<style type="text/css">
 			#debug-panel {opacity:0.9;position:fixed;bottom:0;left:0;z-index:2000;width:100%;max-height:90%;font:12px tahoma, verdana, sans-serif;color:#000;}
 			#debug-panel fieldset {padding:0px 10px;background-color:#fff;border:1px solid #ccc;width:98%;margin:0px auto 0px auto;text-align:' . $panelTextAlign . ';}
 			#debug-panel fieldset legend {float:' . $panelAlign . ';background-color:#f9f9f9;padding:5px 5px 4px 5px;border:1px solid #ccc;border-left:1px solid #ddd;border-bottom:1px solid #f4f4f4;margin:-15px 0 0 10px;font:12px tahoma, verdana, sans-serif;width:auto;}
 			#debug-panel fieldset legend ul {color:#999;font-weight:normal;margin:0px;padding:0px;}
 			#debug-panel fieldset legend ul li{float:left;width:auto;list-style-type:none;}
-			#debug-panel fieldset legend ul li.title{min-width:50px;width:auto;padding:0 2px;}
+			#debug-panel fieldset legend ul li.title{min-width:10px;width:auto;padding:0 2px;}
 			#debug-panel fieldset legend ul li.narrow{width:auto;padding:0 2px;}
 			#debug-panel fieldset legend ul li.item{width:auto;padding:0 12px;border-right:1px solid #999;}
-			#debug-panel fieldset legend ul li.item:last-child{' . (A::app()->getLanguage('direction') == 'rtl' ? 'padding:0 12px 0 0;' : 'padding:0 0 0 12px;') . 'border-right:0px;}
+			#debug-panel fieldset legend ul li.item.item-last{margin:' . (A::app()->getLanguage('direction') == 'rtl' ? '0 12px 0 0' : '0 12px 0 0') . ';}
 			#debug-panel a {text-decoration:none;text-transform:none;color:#bbb;font-weight:normal;}
-			#debug-panel a.debugArrow {color:#222;}
+			#debug-panel a.debugArrow {color:#222;margin: auto 2px}
 			#debug-panel a.black {color:#222;}
             #debug-panel pre {border:0px;}
 			#debug-panel strong {font-weight:bold;}
@@ -367,24 +397,31 @@ class CDebug
 			#debug-panel .tab-orange { color:#d15600 !important; }
 			#debug-panel .tab-red { color:#cc0000 !important; }
 			@media (max-width: 680px) {
+				#debug-panel fieldset legend ul li.item.item-clock {display:none;}
+				#debug-panel fieldset legend ul li.title > .item-debug {display:none;}				
 				#debug-panel fieldset legend ul li.item a {display:block;visibility:hidden;}				
 				#debug-panel fieldset legend ul li.item a:first-letter {visibility:visible !important;}
-				#debug-panel fieldset legend ul li.item {width:30px; height:15px; margin-bottom:3px;)
+				#debug-panel fieldset legend ul li.item {width:30px; height:15px; margin-bottom:3px;}
 			}
-		</style>
-		<script type="text/javascript">
+		</style>';
+
+		$output .= $nl . '<script type="text/javascript">
 			var arrDebugTabs = ["General","Params","Console","Warnings","Errors","Queries"];
 			var debugTabsHeight = "200px";
 			var cssText = keyTab = "";
+			
+			function toggleSystemQueries(){var x, i; x = document.getElementsByClassName("dbugQuery");for(i = 0; i < x.length; i++){if(x[i].style.display === "none"){x[i].style.display = "";}else {x[i].style.display = "none";}}}
 			function appSetCookie(state, tab){ document.cookie = "debugBarState="+state+"; path=/"; if(tab !== null) document.cookie = "debugBarTab="+tab+"; path=/"; }
 			function appGetCookie(name){ if(document.cookie.length > 0){ start_c = document.cookie.indexOf(name + "="); if(start_c != -1){ start_c += (name.length + 1); end_c = document.cookie.indexOf(";", start_c); if(end_c == -1) end_c = document.cookie.length; return unescape(document.cookie.substring(start_c,end_c)); }} return ""; }
 			function appTabsMiddle(){ appExpandTabs("middle", appGetCookie("debugBarTab")); }
 			function appTabsMaximize(){ appExpandTabs("max", appGetCookie("debugBarTab")); }
 			function appTabsMinimize(){ appExpandTabs("min", "General"); }			
+			function appTabsClose(){ appExpandTabs("close", appGetCookie("debugBarTab")); }			
 			function appExpandTabs(act, key){ 
 				if(act == "max"){ debugTabsHeight = "500px"; }
 				else if(act == "middle"){ debugTabsHeight = "200px"; }
 				else if(act == "min"){ debugTabsHeight = "0px";	}
+				else if(act == "close"){ debugTabsHeight = "0px";	}
 				else if(act == "auto"){ 
 					if(debugTabsHeight == "0px"){ debugTabsHeight = "200px"; act = "middle"; }
 					else if(debugTabsHeight == "200px"){ act = "middle"; }
@@ -402,6 +439,14 @@ class CDebug
 					}
 				}
 				if(act != "min"){
+				    x = document.getElementsByClassName("item");
+				    if(act == "close"){
+                        for (i = 0; i < x.length; i++) x[i].style.display = "none";
+                        document.getElementsByClassName("narrow-close")[0].style.display = "none";
+				    }else{
+                        for (i = 0; i < x.length; i++) x[i].style.display = "";
+                        document.getElementsByClassName("narrow-close")[0].style.display = "";
+				    }
 					document.getElementById("content"+keyTab).style.display = "";
 					document.getElementById("content"+keyTab).style.cssText = "width:100%;height:"+debugTabsHeight+";overflow-y:auto;";
 					if(document.getElementById("tab"+keyTab).className == "tab-orange"){
@@ -416,23 +461,30 @@ class CDebug
 				document.getElementById("debug-panel").style.opacity = (act == "min") ? "0.9" : "1";
 				appSetCookie(act, key);
 			}
-		</script>
+		</script>';
 		
-		<div id="debug-panel">
+		$output .= $nl . '<div id="debug-panel">
 		<fieldset>
 		<legend id="debug-panel-legend">
 			<ul>
-				<li class="title"><b style="color:#222">' . A::t('core', 'Debug') . '</b>:&nbsp;</li>
-				<li class="narrow"><a id="debugArrowExpand" class="debugArrow" style="display:;" href="javascript:void(0)" title="Expand" onclick="javascript:appTabsMiddle()">&#9650;</a></li>
-				<li class="narrow"><a id="debugArrowCollapse" class="debugArrow" style="display:none;" href="javascript:void(0)" title="Collapse" onclick="javascript:appTabsMinimize()">&#9660;</a></li>
-				<li class="narrow"><a id="debugArrowMaximize" class="debugArrow" style="display:;" href="javascript:void(0)" title="Maximize" onclick="javascript:appTabsMaximize()">&#9744;</a></li>
-				<li class="narrow"><a id="debugArrowMinimize" class="debugArrow" style="display:none;" href="javascript:void(0)" title="Minimize" onclick="javascript:appTabsMiddle()">&#9635;</a></li>
+				<li class="title" style="display:flex">
+				    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAmRJREFUeNpcUz1vE0EQfbu3Pp99jo/YB7FkCloKoIlQYuAPhIICBEIgJ3TIRkKiAqeBnhCFAhoiWUJCKBREiCYJHxWiSIWE4CcgURDZDo4/7oPZuTs75qS73Zud9/btzhthu+Zcr+19FRKQhgCEoJEGSfNDTxiECHw90WNI/4CVV/PCMGWogcIYA6URvYcfDYqAEVEY/wtlEYGSDJZKwNDzlGCi3IyJi49PotfysFn7HpEMI6BPoyZRMt6ZwaaEkZI86ljhhE0JafT3hlCWgcAL4IsQGASsyqfjKC1d75aAr708w4vv7v6AU8rCVGkM2/u4sn6K4xuL3+grEfb96Nh0Z6MzL76uwErZeH/vJxQRFsoO0ioL7y84pteqryoEHGNkcmn1zQXY5hFs1HZJCSlKS7jlaQb1Wz7H3tR3Oaf+doF3B2uhp/GxiimriBfVLSZLSIslF5ay0et4fEc6tr60zbmNnSp06ZUmyGdcaL7JwgHHSjNImQa6rd5E3KH8MJ6zgvvnnyBvHcXKziOuc0i3m3Ns5HPTyKTyaP/usHEojJWth5z74MIqx5hA17M+16CFIp5/eMq1dgoOMqZNJTNw0BlQ3QM8217jnDvzy4xhBSOHkbuWZmt0SQ6an5souvr8U+j+GcDrB2h+avLarbO12I2RKxVLo5dNQnqunr5BnhC4fPsSVSBL8rvwDnxcn71JOSE8MlHiRm1pxZ6WI8dHZL5A6XiZTJTF3q8OK2CAF1mZSfzIyqNm0v4fmSNuLiGTThw3z/jIcTNRO1f6+94XISY7Ukj8186Y6ERdqXROnfsnwADuWSOCrzpCtgAAAABJRU5ErkJggg==" alt="logo" />
+				    <b class="item-debug" style="color:#222;margin-left:7px;">' . A::t('core', 'Debug') . ':&nbsp;</b>
+				</li>				
+
+				<li class="item item-clock">&#9716 ' . round($totalRunningTime, 3) . ' ' . A::t('core', 'sec') . '</li>				
 				<li class="item"><a id="tabGeneral" href="javascript:void(\'General\')" onclick="javascript:appExpandTabs(\'auto\', \'General\')" ondblclick="javascript:' . $onDblClick . '">' . A::t('core', 'General') . '</a></li>
 				<li class="item"><a id="tabParams" href="javascript:void(\'Params\')" onclick="javascript:appExpandTabs(\'auto\', \'Params\')" ondblclick="javascript:' . $onDblClick . '">' . A::t('core', 'Params') . ' (' . $totalParams . ')</a></li>
 				<li class="item"><a id="tabConsole" href="javascript:void(\'Console\')" onclick="javascript:appExpandTabs(\'auto\', \'Console\')" ondblclick="javascript:' . $onDblClick . '">' . A::t('core', 'Console') . ' (' . $totalConsole . ')</a></li>
 				<li class="item"><a id="tabWarnings" href="javascript:void(\'Warnings\')" ' . ($totalWarnings ? 'class="tab-orange"' : '') . ' onclick="javascript:appExpandTabs(\'auto\', \'Warnings\')" ondblclick="javascript:' . $onDblClick . '">' . A::t('core', 'Warnings') . ' (' . $totalWarnings . ')</a></li>
 				<li class="item"><a id="tabErrors" href="javascript:void(\'Errors\')" ' . ($totalErrors ? 'class="tab-red"' : '') . ' onclick="javascript:appExpandTabs(\'auto\', \'Errors\')" ondblclick="javascript:' . $onDblClick . '">' . A::t('core', 'Errors') . ' (' . $totalErrors . ')</a></li>
-				<li class="item"><a id="tabQueries" href="javascript:void(\'Queries\')" onclick="javascript:appExpandTabs(\'auto\', \'Queries\')" ondblclick="javascript:' . $onDblClick . '">' . A::t('core', 'SQL Queries') . ' (' . $totalQueries . ')</a></li>
+				<li class="item item-last"><a id="tabQueries" href="javascript:void(\'Queries\')" onclick="javascript:appExpandTabs(\'auto\', \'Queries\')" ondblclick="javascript:' . $onDblClick . '">' . A::t('core', 'SQL Queries') . ' (' . $totalQueries . ')</a></li>
+
+				<li class="narrow"><a id="debugArrowExpand" class="debugArrow" style="display:;" href="javascript:void(0)" title="Expand" onclick="javascript:appTabsMiddle()">&#9650;</a></li>
+				<li class="narrow"><a id="debugArrowCollapse" class="debugArrow" style="display:none;" href="javascript:void(0)" title="Collapse" onclick="javascript:appTabsMinimize()">&#9660;</a></li>
+				<li class="narrow"><a id="debugArrowMaximize" class="debugArrow" style="display:;" href="javascript:void(0)" title="Maximize" onclick="javascript:appTabsMaximize()">&#9744;</a></li>
+				<li class="narrow"><a id="debugArrowMinimize" class="debugArrow" style="display:none;" href="javascript:void(0)" title="Minimize" onclick="javascript:appTabsMiddle()">&#9635;</a></li>
+				<li class="narrow narrow-close"><a class="debugArrow" href="javascript:void(0)" onclick="javascript:appTabsClose()" title="Close">&times;</a></li>
 			</ul>
 		</legend>
 		
@@ -444,13 +496,6 @@ class CDebug
 		$output .= A::t('core', 'Directy CMF version') . ': ' . CConfig::get('directy_cmf_version') . '<br>';
 		$output .= A::t('core', 'PHP version') . ': ' . phpversion() . '<br>';
 		$output .= (CConfig::get('db.driver') != '' ? ucfirst(CConfig::get('db.driver')) . ' ' . A::t('core', 'version') . ': ' . CDatabase::init()->getVersion() : 'DB: ' . A::te('core', 'no')) . '<br><br>';
-		
-		$totalRunningTime = round((float)self::$_endTime - (float)self::$_startTime, 5);
-		$totalRunningTimeQueriesSql = round((float)self::$_sqlTotalTime, 5);
-		$totalRunningTimeConnectionSql = round((float)self::$_sqlConnectionTime, 5);
-		$totalRunningTimeScript = round($totalRunningTime - $totalRunningTimeConnectionSql - $totalRunningTimeQueriesSql, 5);
-		$totalMemoryUsage = CConvert::fileSize((float)self::$_endMemoryUsage - (float)self::$_startMemoryUsage);
-		$htmlCompressionRate = !empty(self::$_arrData['html-compression-rate']) ? self::$_arrData['html-compression-rate'] : A::t('core', 'Unknown');
 		
 		$output .= A::t('core', 'Total running time') . ': ' . $totalRunningTime . ' ' . A::t('core', 'sec') . '.<br>';
 		$output .= A::t('core', 'SQL connection running time') . ': ' . $totalRunningTimeConnectionSql . ' ' . A::t('core', 'sec') . '.<br>';
@@ -508,7 +553,7 @@ class CDebug
 		
 		$output .= '<strong>$_GET</strong>:';
 		$output .= '<pre style="white-space:pre-wrap;">';
-		$arrGet = array();
+		$arrGet = [];
 		if (isset($_GET)) {
 			foreach ($_GET as $key => $val) {
 				$arrGet[$key] = is_array($val) ? $val : strip_tags($val);
@@ -521,7 +566,7 @@ class CDebug
 		
 		$output .= '<strong>$_POST</strong>:';
 		$output .= '<pre style="white-space:pre-wrap;">';
-		$arrPost = array();
+		$arrPost = [];
 		if (isset($_POST)) {
 			foreach ($_POST as $key => $val) {
 				$arrPost[$key] = is_array($val) ? $val : strip_tags($val);
@@ -534,7 +579,7 @@ class CDebug
 		
 		$output .= '<strong>$_FILES</strong>:';
 		$output .= '<pre style="white-space:pre-wrap;">';
-		$arrFiles = array();
+		$arrFiles = [];
 		if (isset($_FILES)) {
 			foreach ($_FILES as $key => $val) {
 				$arrFiles[$key] = is_array($val) ? $val : strip_tags($val);
@@ -547,7 +592,7 @@ class CDebug
 		
 		$output .= '<strong>$_COOKIE</strong>:';
 		$output .= '<pre style="white-space:pre-wrap;">';
-		$arrCookie = array();
+		$arrCookie = [];
 		if (isset($_COOKIE)) {
 			foreach ($_COOKIE as $key => $val) {
 				$arrCookie[$key] = is_array($val) ? $val : strip_tags($val);
@@ -560,7 +605,7 @@ class CDebug
 		
 		$output .= '<strong>$_SESSION</strong>:';
 		$output .= '<pre style="white-space:pre-wrap;">';
-		$arrSession = array();
+		$arrSession = [];
 		if (isset($_SESSION)) {
 			foreach ($_SESSION as $key => $val) {
 				$arrSession[$key] = is_array($val) ? $val : strip_tags($val);
@@ -574,7 +619,7 @@ class CDebug
 		$output .= '<strong>CONSTANTS</strong>:';
 		$output .= '<pre style="white-space:pre-wrap;">';
 		$arrConstants = @get_defined_constants(true);
-		$arrUserConstants = isset($arrConstants['user']) ? print_r($arrConstants['user'], true) : array();
+		$arrUserConstants = isset($arrConstants['user']) ? print_r($arrConstants['user'], true) : [];
 		$output .= $htmlCompression ? nl2br($arrUserConstants) : $arrUserConstants;
 		$output .= '</pre>';
 		$output .= '<br>';
@@ -630,11 +675,16 @@ class CDebug
 	
 		<div id="contentQueries" style="display:none;padding:10px;width:100%;height:200px;overflow-y:auto;">';
 		if ($totalQueries > 0) {
-			$output .= A::t('core', 'SQL queries running time') . ': ' . $totalRunningTimeQueriesSql . ' sec.<br><br>';
+			$output .= A::t('core', 'SQL queries running time') . ': ' . $totalRunningTimeQueriesSql . ' sec.  <br><input type="checkbox" id="dbugToggleSysQueries" style="margin:'.($panelTextAlign == 'left' ? '5px 5px 0px 0px' : '5px 0px 0px 5px').';" onclick="toggleSystemQueries()" /><label for="dbugToggleSysQueries">Hide system queries</label><br><br>';
+            $output .= '<ol style="padding-left:20px;">';
 			foreach (self::$_arrQueries as $msgKey => $msgVal) {
-				$output .= $msgKey . '<br>';
+                $dbugQuery = preg_match('/(show|truncate)/i', $msgKey);
+			    $output .= '<li'.($dbugQuery ? ' class="dbugQuery"' : '').'>';
+                $output .= preg_replace('#<span[^>]*>.*?</span>#si', '', $msgKey) . '<br>';
 				$output .= $msgVal[0] . '<br><br>';
+                $output .= '</li>';
 			}
+            $output .= '</ol>';
 		}
 		$output .= '</div>
 	
@@ -645,6 +695,8 @@ class CDebug
 			$output .= '<script type="text/javascript">appTabsMaximize();</script>';
 		} elseif ($debugBarState == 'middle') {
 			$output .= '<script type="text/javascript">appTabsMiddle();</script>';
+		} elseif ($debugBarState == 'close') {
+			$output .= '<script type="text/javascript">appTabsClose();</script>';
 		} else {
 			$output .= '<script type="text/javascript">appTabsMinimize();</script>';
 		}

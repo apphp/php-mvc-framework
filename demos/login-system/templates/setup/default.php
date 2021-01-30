@@ -29,23 +29,26 @@
 			</div>
 			
 			<?php
-			CWidget::create('CMenu', array(
-				'type' => 'vertical',
-				'items' => array(
-					array('label' => '1. ' . A::t('setup', 'General'), 'url' => 'setup/index', 'readonly' => true),
-					array('label' => '2. ' . A::t('setup', 'Check Requirements'), 'url' => 'setup/requirements', 'readonly' => true),
-					array('label' => '3. ' . A::t('setup', 'Database Settings'), 'url' => 'setup/database', 'readonly' => true),
-					array('label' => '4. ' . A::t('setup', 'Administrator Account'), 'url' => 'setup/administrator', 'readonly' => true),
-					array('label' => '5. ' . A::t('setup', 'Ready to Install'), 'url' => 'setup/ready', 'readonly' => true),
-					array('label' => '6. ' . A::t('setup', 'Completed'), 'url' => 'setup/completed', 'readonly' => true),
-				),
-				'selected' => $this->_activeMenu,
-				'return' => false,
-			));
-			?>
+				CWidget::create(
+					'CMenu',
+					[
+						'type'     => 'vertical',
+						'items'    => [
+							['label' => '1. '.A::t('setup', 'General'), 'url' => 'setup/index', 'readonly' => true],
+							['label' => '2. '.A::t('setup', 'Check Requirements'), 'url' => 'setup/requirements', 'readonly' => true],
+							['label' => '3. '.A::t('setup', 'Database Settings'), 'url' => 'setup/database', 'readonly' => true],
+							['label' => '4. '.A::t('setup', 'Administrator Account'), 'url' => 'setup/administrator', 'readonly' => true],
+							['label' => '5. '.A::t('setup', 'Ready to Install'), 'url' => 'setup/ready', 'readonly' => true],
+							['label' => '6. '.A::t('setup', 'Completed'), 'url' => 'setup/completed', 'readonly' => true],
+						],
+						'selected' => $this->_activeMenu,
+						'return'   => false,
+					]
+				);
+            ?>
 		</aside>
 		<article>
-			<?= A::app()->view->getContent(); ?>
+            <?= A::app()->view->getContent(); ?>
 		</article>
 	</section>
 	<footer>

@@ -11,7 +11,7 @@
             <li><a href="#creating_record">Creating Record</a></li>
             <li><a href="#updating_record">Updating Record</a></li>
             <li><a href="#deleting_record">Deleting Record</a></li>
-            <li><a href="#reading_record">Reading Record</a></li>
+            <li><a href="#reading_records">Reading Records</a></li>
             <li><a href="#additional_methods">Additional Methods</a></li>
         </ul>            
     </li>
@@ -415,8 +415,8 @@ Pages::model()->deleteByPk($pk, $condition, $params);
 <br>
 
 
-<a name="reading_record"></a>
-<h4>Reading Record</h4>
+<a name="reading_records"></a>
+<h4>Reading Records</h4>
 To read data from a database table, we can use one of the find methods as follows.
 
 <pre name="dlhl" class="php">
@@ -432,6 +432,20 @@ $page = Pages::model()->findByAttributes($attributes, $conditions, $params);
 $page = Pages::model()->findAll($conditions, $params);
 // Finds all rows satisfying the specified conditions with %LIKE%
 $news = News:model()->findAll(CConfig::get('db.prefix').$this->_tableTranslation.'.news_text LIKE :keywords', array(':keywords'=>'%'.$keywords.'%'));
+</pre>
+
+Reading records with chunks. The chunk method breaks the record set into small parts of a given size
+<pre name="dlhl" class="php">
+$posts = [];
+// 1st parameter - conditions
+// 2nd parameter - condition parameters
+// 3rd parameter - chunk size
+// 4th parameter - callback function
+Posts::model()->chunk($conditions, [], 10, function ($records) use(&$posts){
+    foreach ($records as $key => $record) {
+        $posts[] = $record;
+    }
+});
 </pre>
 <br>
     

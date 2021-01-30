@@ -186,4 +186,5 @@ return array(
 	'You cannot delete the last remaining record in table {table}!' => 'Vous ne pouvez pas supprimer le dernier enregistrement restante dans le tableau {table}!',
 	'Warnings' => 'Avertissements',
 	'Wrong column name: {index} in table {table}' => 'Nom de colonne incorrect: {index} dans la table {table}',
+    'Wrong params for chunk size: {size} or callback method is not callable.' => 'Mauvais paramètres pour la taille du bloc: {size} ou la méthode de rappel ne peut pas être appelée.',
 );

@@ -65,10 +65,10 @@ class CAuthTest extends TestCase
 		
 		A::app()->getSession()->set('loggedRole', 'super-admin');
 		self::assertEquals(false, CAuth::isLoggedInAsAdmin());
-		self::assertEquals(true, CAuth::isLoggedInAsAdmin(array('super-admin')));
-	}
+        self::assertEquals(true, CAuth::isLoggedInAsAdmin(['super-admin']));
+    }
 
-	//
+    //
 	//isGuest()
 	// handleLogin
 	// handleLoggedIn

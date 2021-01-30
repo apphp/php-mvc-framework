@@ -7,7 +7,7 @@
 function check_server_vars($realpath = '')
 {
 	$vars = array('HTTP_HOST', 'SERVER_NAME', 'SERVER_PORT', 'SCRIPT_NAME', 'SCRIPT_FILENAME', 'PHP_SELF', 'HTTP_ACCEPT', 'HTTP_USER_AGENT');
-	$missing = array();
+	$missing = [];
 	foreach($vars as $var){
 		if(!isset($_SERVER[$var])) $missing[] = $var;
 	}
@@ -105,7 +105,7 @@ function get_footer_info()
  * Render file
  * @return void
  */
-function render_file($_params_ = array())
+function render_file($_params_ = [])
 {
     $_file_ = dirname(__FILE__).'/../views/index.php';
 	extract($_params_);
@@ -165,13 +165,13 @@ function get_php_info()
 {
 	ob_start();        
 	if(function_exists('phpinfo')) @phpinfo(-1);
-	$phpInfo = array('phpinfo' => array());
+	$phpInfo = array('phpinfo' => []);
 	if(preg_match_all('#(?:<h2>(?:<a name=".*?">)?(.*?)(?:</a>)?</h2>)|(?:<tr(?: class=".*?")?><t[hd](?: class=".*?")?>(.*?)\s*</t[hd]>(?:<t[hd](?: class=".*?")?>(.*?)\s*</t[hd]>(?:<t[hd](?: class=".*?")?>(.*?)\s*</t[hd]>)?)?</tr>)#s', ob_get_clean(), $matches, PREG_SET_ORDER))
 	foreach($matches as $match){
 		$arrayKeys = array_keys($phpInfo);
 		$endArrayKeys = end($arrayKeys);
 		if(strlen($match[1])){
-			$phpInfo[$match[1]] = array();
+			$phpInfo[$match[1]] = [];
 		}elseif(isset($match[3])){
 			$phpInfo[$endArrayKeys][$match[2]] = isset($match[4]) ? array($match[3], $match[4]) : $match[3];
 		}else{				

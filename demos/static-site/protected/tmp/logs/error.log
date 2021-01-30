@@ -1,0 +1,11 @@
+[22-Aug-2020 19:45:03 UTC] PHP Fatal error:  Uncaught Error: Class 'CSecureHeaders' not found in C:\xampp\htdocs\git\php-mvc-framework\framework\core\CView.php:655
+Stack trace:
+#0 C:\xampp\htdocs\git\php-mvc-framework\framework\core\CView.php(346): CView->_renderHeaders()
+#1 C:\xampp\htdocs\git\php-mvc-framework\demos\static-site\protected\controllers\IndexController.php(24): CView->render('index/index')
+#2 C:\xampp\htdocs\git\php-mvc-framework\framework\core\CController.php(49): IndexController->indexAction()
+#3 C:\xampp\htdocs\git\php-mvc-framework\framework\core\CRouter.php(232): CController->execute('indexAction', Array)
+#4 C:\xampp\htdocs\git\php-mvc-framework\framework\Apphp.php(575): CRouter->route()
+#5 C:\xampp\htdocs\git\php-mvc-framework\framework\Apphp.php(321): A->_runApp()
+#6 C:\xampp\htdocs\git\php-mvc-framework\demos\static-site\index.php(24): A->run()
+#7 {main}
+  thrown in C:\xampp\htdocs\git\php-mvc-framework\framework\core\CView.php on line 655

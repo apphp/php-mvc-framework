@@ -42,7 +42,7 @@
  * 	     #$rss_text = htmlentities($post_text, ENT_COMPAT, 'UTF-8');
  * 	     self::SetItem(APPHP_BASE.'index.php?page=news&nid='.$allNews[0][$i]['id'], $allNews[0][$i]['header_text'], $rss_text, $allNews[0][$i]['date_created']);
  *    }		
- *    News::UpdateFields(array('rss_last_ids'=>$rss_ids));				
+ *    News::UpdateFields(['rss_last_ids'=>$rss_ids]);
  * }		
  * 
  * self::SaveFeed();
@@ -63,12 +63,12 @@ class CRss
 	private static $_channelSubject = '';
 	
 	private static $_rssType = 'rss1';
-	private static $_rssTypes = array('rss1', 'rss2', 'atom');
+	private static $_rssTypes = ['rss1', 'rss2', 'atom'];
+
+    private static $_imageUrl = '';
 	
-	private static $_imageUrl = '';
-	
-	private static $_arrItems = array();
-	private static $_countItems = 0;
+	private static $_arrItems = [];
+    private static $_countItems = 0;
 	
 	private static $_filePath = 'feeds/';
 	private static $_fileName = 'rss.xml';
@@ -87,9 +87,9 @@ class CRss
 	 * Sets Channel
 	 * @param array $params
 	 */
-	public static function setChannel($params = array())
-	{
-		// $creator, $subject
+    public static function setChannel($params = [])
+    {
+        // $creator, $subject
 		self::$_channelUrl = isset($params['url']) ? $params['url'] : '';
 		self::$_channelTitle = isset($params['title']) ? $params['title'] : '';
 		self::$_channelDescription = isset($params['description']) ? $params['description'] : '';
@@ -266,10 +266,14 @@ class CRss
 			@fclose($handle);
 			$result = '';
 		} else {
-			$result = A::t('core', 'Cannot open RSS file to add a new item! Please check your access rights to {file} or try again later.', array('{file}' => self::$_filePath . self::$_fileName));
-		}
-		
-		return $result;
+            $result = A::t(
+                'core',
+                'Cannot open RSS file to add a new item! Please check your access rights to {file} or try again later.',
+                ['{file}' => self::$_filePath.self::$_fileName]
+            );
+        }
+
+        return $result;
 	}
 	
 	/**

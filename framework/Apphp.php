@@ -68,108 +68,118 @@ class A
 	
 	
 	/** @var string */
-	private static $_frameworkVersion = '1.2.2';
+	private static $_frameworkVersion = '1.3.2';
 	/** @var string */
 	private static $_phpVersion;
 	/** @var object */
 	private static $_instance;
 	/** @var array */
-	private static $_classMap = array(
-		'Controller' => 'controllers',
-		'Model' => 'models',
-		'Entity' => 'entities',
-		'' => 'models',
-	);
+    private static $_classMap = [
+        'Controller' => 'controllers',
+        'Model'      => 'models',
+        'Entity'     => 'entities',
+        ''           => 'models',
+    ];
+    /** @var array */
+	private static $_coreClasses = [
+        'CConfig' => 'collections/CConfig.php',
+
+        'CController' => 'core/CController.php',
+        'CDebug'      => 'core/CDebug.php',
+        'CModel'      => 'core/CModel.php',
+        'CRouter'     => 'core/CRouter.php',
+        'CView'       => 'core/CView.php',
+
+        'CActiveRecord' => ['5.4.0' => 'db/CActiveRecord.php'],
+        'CRecordEntity' => 'db/CRecordEntity.php',
+        'CDatabase'     => 'db/CDatabase.php',
+        'CDbCommand'    => 'db/CDbCommand.php',
+	];
+    /** @var array */
+    private static $_coreConsoleClasses = [
+        'CConsole'               => 'console/CConsole.php',
+        'CConsoleCommand'        => 'console/CConsoleCommand.php',
+        'CHelpCommand'           => 'console/CHelpCommand.php',
+        'CVersionCommand'        => 'console/CVersionCommand.php',
+        'CCacheClearCommand'     => 'console/CCacheClearCommand.php',
+        'CMakeControllerCommand' => 'console/CMakeControllerCommand.php',
+    ];
 	/** @var array */
-	private static $_coreClasses = array(
-		'CConfig' => 'collections/CConfig.php',
-		
-		'CController' => 'core/CController.php',
-		'CDebug' => 'core/CDebug.php',
-		'CModel' => 'core/CModel.php',
-		'CRouter' => 'core/CRouter.php',
-		'CView' => 'core/CView.php',
-		
-		'CActiveRecord' => array('5.4.0' => 'db/CActiveRecord.php'),
-		'CRecordEntity' => 'db/CRecordEntity.php',
-		'CDatabase' => 'db/CDatabase.php',
-		'CDbCommand' => 'db/CDbCommand.php',
-	);
+    private static $_coreComponents = [
+        //'component' => ['class' => 'CComponent', 'path' => ['5.4.0' => 'components/CComponent.php']],
+        'component'    => ['class' => 'CComponent', 'path' => 'components/CComponent.php'],
+        'clientScript' => ['class' => 'CClientScript', 'path' => 'components/CClientScript.php'],
+        'dbSession'    => ['class' => 'CDbHttpSession', 'path' => 'components/CDbHttpSession.php'],
+        'request'      => ['class' => 'CHttpRequest', 'path' => 'components/CHttpRequest.php'],
+        'session'      => ['class' => 'CHttpSession', 'path' => 'components/CHttpSession.php'],
+        'cookie'       => ['class' => 'CHttpCookie', 'path' => 'components/CHttpCookie.php'],
+        'localTime'    => ['class' => 'CLocalTime', 'path' => 'components/CLocalTime.php'],
+        'logger'       => ['class' => 'CLogger', 'path' => 'components/CLogger.php'],
+        'coreMessages' => ['class'    => 'CMessageSource', 'path' => 'components/CMessageSource.php', 'language' => 'en'],
+        'messages'     => ['class' => 'CMessageSource', 'path' => 'components/CMessageSource.php'],
+        'mobileDetect' => ['class' => 'CMobileDetect', 'path' => 'components/CMobileDetect.php'],
+        'shoppingCart' => ['class' => 'CShoppingCart', 'path' => 'components/CShoppingCart.php'],
+        'uri'          => ['class' => 'CUri', 'path' => 'components/CUri.php'],
+    ];
+    /** @var array */
+    private static $_coreHelpers = [
+        'CArray'         => 'helpers/CArray.php',
+        'CAuth'          => 'helpers/CAuth.php',
+        'CCache'         => 'helpers/CCache.php',
+        'CClass'         => 'helpers/CClass.php',
+        'CConvert'       => 'helpers/CConvert.php',
+        'CCurrency'      => 'helpers/CCurrency.php',
+        'CFile'          => 'helpers/CFile.php',
+        'CFilter'        => 'helpers/CFilter.php',
+        'CGeoLocation'   => 'helpers/CGeoLocation.php',
+        'CHash'          => 'helpers/CHash.php',
+        'CHtml'          => 'helpers/CHtml.php',
+        'CImage'         => 'helpers/CImage.php',
+        'CLoader'        => 'helpers/CLoader.php',
+        'CLocale'        => 'helpers/CLocale.php',
+        'CLog'           => 'helpers/CLog.php',
+        'CMailer'        => 'helpers/CMailer.php',
+        'CMinify'        => 'helpers/CMinify.php',
+        'CNumber'        => 'helpers/CNumber.php',
+        'COauth'         => 'helpers/COauth.php',
+        'CPdf'           => 'helpers/CPdf.php',
+        'CRss'           => 'helpers/CRss.php',
+        'CSecureHeaders' => 'helpers/CSecureHeaders.php',
+        'CSessionCache'  => 'helpers/CSessionCache.php',
+        'CSoap'          => 'helpers/CSoap.php',
+        'CString'        => 'helpers/CString.php',
+        'CTime'          => 'helpers/CTime.php',
+        'CValidator'     => 'helpers/CValidator.php',
+        'CWidget'        => 'helpers/CWidget.php',
+	];
 	/** @var array */
-	private static $_coreComponents = array(
-		//'component' => array('class' => 'CComponent', 'path' => array('5.4.0' => 'components/CComponent.php')),
-		'component' => array('class' => 'CComponent', 'path' => 'components/CComponent.php'),
-		'clientScript' => array('class' => 'CClientScript', 'path' => 'components/CClientScript.php'),
-		'dbSession' => array('class' => 'CDbHttpSession', 'path' => 'components/CDbHttpSession.php'),
-		'request' => array('class' => 'CHttpRequest', 'path' => 'components/CHttpRequest.php'),
-		'session' => array('class' => 'CHttpSession', 'path' => 'components/CHttpSession.php'),
-		'cookie' => array('class' => 'CHttpCookie', 'path' => 'components/CHttpCookie.php'),
-		'localTime' => array('class' => 'CLocalTime', 'path' => 'components/CLocalTime.php'),
-		'logger' => array('class' => 'CLogger', 'path' => 'components/CLogger.php'),
-		'coreMessages' => array('class' => 'CMessageSource', 'path' => 'components/CMessageSource.php', 'language' => 'en'),
-		'messages' => array('class' => 'CMessageSource', 'path' => 'components/CMessageSource.php'),
-		'mobileDetect' => array('class' => 'CMobileDetect', 'path' => 'components/CMobileDetect.php'),
-		'shoppingCart' => array('class' => 'CShoppingCart', 'path' => 'components/CShoppingCart.php'),
-		'uri' => array('class' => 'CUri', 'path' => 'components/CUri.php'),
-	);
-	/** @var array */
-	private static $_coreHelpers = array(
-		'CArray' => 'helpers/CArray.php',
-		'CAuth' => 'helpers/CAuth.php',
-		'CCache' => 'helpers/CCache.php',
-		'CClass' => 'helpers/CClass.php',
-		'CConvert' => 'helpers/CConvert.php',
-		'CCurrency' => 'helpers/CCurrency.php',
-		'CFile' => 'helpers/CFile.php',
-		'CFilter' => 'helpers/CFilter.php',
-		'CGeoLocation' => 'helpers/CGeoLocation.php',
-		'CHash' => 'helpers/CHash.php',
-		'CHtml' => 'helpers/CHtml.php',
-		'CImage' => 'helpers/CImage.php',
-		'CLoader' => 'helpers/CLoader.php',
-		'CLocale' => 'helpers/CLocale.php',
-		'CLog' => 'helpers/CLog.php',
-		'CMailer' => 'helpers/CMailer.php',
-		'CMinify' => 'helpers/CMinify.php',
-		'CNumber' => 'helpers/CNumber.php',
-		'COauth' => 'helpers/COauth.php',
-		'CPdf' => 'helpers/CPdf.php',
-		'CRss' => 'helpers/CRss.php',
-		'CSessionCache' => 'helpers/CSessionCache.php',
-		'CSoap' => 'helpers/CSoap.php',
-		'CString' => 'helpers/CString.php',
-		'CTime' => 'helpers/CTime.php',
-		'CValidator' => 'helpers/CValidator.php',
-		'CWidget' => 'helpers/CWidget.php',
-	);
-	/** @var array */
-	private static $_coreModules = array(
-		// 'General'   => '/core/modules/General.php'
-	);
-	/** @var array */
-	private static $_appClasses = array(
+    private static $_coreModules = [
+        // 'General'   => '/core/modules/General.php'
+    ];
+    /** @var array */
+	private static $_appClasses = [
 		// empty
-	);
+	];
 	/** @var array */
-	private static $_appComponents = array(
+	private static $_appComponents = [
 		// empty
-	);
+	];
 	/** @var array */
-	private static $_appHelpers = array(
+	private static $_appHelpers = [
 		// empty
-	);
+	];
 	/** @var array */
-	private static $_appModules = array(
-		'setup' => array('classes' => array('Modules\Setup\Controllers\Setup')),
-	);
+	private static $_appModules = [
+        'setup' => ['classes' => ['Modules\Setup\Controllers\Setup']],
+    ];
 	/** @var bool */
 	private $_coreComponentsLazyLoading = true;
 	/** @var array */
-	private $_components = array();
-	/** @var array */
-	private $_events = array();
-	/** @var boolean */
-	private $_setup = false;
+    private $_components = [];
+    /** @var array */
+    private $_events = [];
+    /** @var boolean */
+    private $_setup = false;
 	/** @var string */
 	private $_responseCode = '';
 	/** @var string */
@@ -186,25 +196,25 @@ class A
 	public function __construct($configDir)
 	{
 		// Set autoload register method
-		spl_autoload_register(array($this, '_autoload'));
-		
-		// Include interfaces
+        spl_autoload_register([$this, '_autoload']);
+
+        // Include interfaces
 		require(dirname(__FILE__) . DS . 'core' . DS . 'interfaces.php');
 		
 		self::$_phpVersion = phpversion();
-		
+
 		$configMain = $configDir . 'main.php';
 		$configDb = $configDir . 'db.php';
 		
 		if (is_string($configMain) && is_string($configDb)) {
 			// Check if main configuration file exists
 			if (!file_exists($configMain)) {
-				$arrConfig = array(
-					'template' => array('default' => 'setup'),
-					'defaultController' => 'Setup',
-					'defaultAction' => 'index',
-				);
-				// Block access to regular files when application is not properly installed
+                $arrConfig = [
+                    'template'          => ['default' => 'setup'],
+                    'defaultController' => 'Setup',
+                    'defaultAction'     => 'index',
+                ];
+                // Block access to regular files when application is not properly installed
 				$url = isset($_GET['url']) ? $_GET['url'] : '';
 				if (!preg_match('/setup\//i', $url)) {
 					$_GET['url'] = 'setup/index';
@@ -266,24 +276,24 @@ class A
 		}
 		
 		// Set components loading type
-		if (APPHP_MODE == 'hidden' || (CConfig::exists('coreComponentsLazyLoading') && CConfig::get('coreComponentsLazyLoading') === false)) {
+		if (APPHP_MODE == 'hidden' || APPHP_MODE == 'console' || (CConfig::exists('coreComponentsLazyLoading') && CConfig::get('coreComponentsLazyLoading') === false)) {
 			$this->_coreComponentsLazyLoading = false;
 		}
 		
 		// Set error handler method
 		if (CConfig::get('exceptionHandling.enable') && CConfig::get('exceptionHandling.level') === 'global') {
-			set_error_handler(array($this, 'errorHandler'));
-		}
-	}
+            set_error_handler([$this, 'errorHandler']);
+        }
+    }
 	
 	/**
 	 * Runs application
 	 */
 	public function run()
 	{
-		if (APPHP_MODE != 'hidden') {
-			// Specify error settings
-			if (APPHP_MODE == 'debug' || APPHP_MODE == 'test') {
+        if ( ! in_array(APPHP_MODE, ['hidden', 'console'])) {
+            // Specify error settings
+			if (in_array(APPHP_MODE, ['debug', 'test'])) {
 				error_reporting(E_ALL);
 				ini_set('display_errors', 'On');
 			} else {
@@ -324,9 +334,9 @@ class A
 	 * @param array $config
 	 * @return object Apphp
 	 */
-	public static function init($config = array())
-	{
-		if (self::$_instance == null) self::$_instance = new self($config);
+	public static function init($config = [])
+    {
+        if (self::$_instance == null) self::$_instance = new self($config);
 		return self::$_instance;
 	}
 	
@@ -378,7 +388,7 @@ class A
 	 * @param string $language
 	 * @return string
 	 */
-	public static function t($category = 'app', $message = '', $params = array(), $source = null, $language = null)
+	public static function t($category = 'app', $message = '', $params = [], $source = null, $language = null)
 	{
 		if (self::$_instance !== null && $message !== '') {
 			if ($source === null) $source = ($category === 'core') ? 'coreMessages' : 'messages';
@@ -387,11 +397,11 @@ class A
 			}
 		}
 		
-		if ($params === array()) {
+		if ($params === []) {
 			return $message;
 		} else {
 			if (!is_array($params)) $params = array($params);
-			return $params !== array() ? strtr($message, $params) : $message;
+			return $params !== [] ? strtr($message, $params) : $message;
 		}
 	}
 	
@@ -404,7 +414,7 @@ class A
 	 * @param string $language
 	 * @return string
 	 */
-	public static function te($category = 'app', $message = '', $params = array(), $source = null, $language = null)
+	public static function te($category = 'app', $message = '', $params = [], $source = null, $language = null)
 	{
 		return CHtml::encode(self::t($category, $message, $params, $source, $language));
 	}
@@ -416,6 +426,22 @@ class A
 	 */
 	private function _autoload($className)
 	{
+        // Framework: CONSOLE CORE CLASSES
+        if (APPHP_MODE === 'console' && isset(self::$_coreConsoleClasses[$className])) {
+            $classPath = '';
+            // Check if we need PHP version compatible class
+            if (is_array(self::$_coreConsoleClasses[$className])) {
+                foreach (self::$_coreConsoleClasses[$className] as $key => $val) {
+                    if (self::$_phpVersion >= $key) {
+                        $classPath = $val;
+                    }
+                }
+            } else {
+                $classPath = self::$_coreConsoleClasses[$className];
+            }
+
+            include(dirname(__FILE__) . DS . $classPath);
+        }
 		// Framework: CORE CLASSES
 		if (isset(self::$_coreClasses[$className])) {
 			$classPath = '';
@@ -431,7 +457,8 @@ class A
 			}
 			
 			include(dirname(__FILE__) . DS . $classPath);
-		} // Framework: HELPER CLASSES or HELPER EXTENSIONS
+		}
+		// Framework: HELPER CLASSES or HELPER EXTENSIONS
 		elseif (isset(self::$_coreHelpers[$className])) {
 			$coreHelper = dirname(__FILE__) . DS . self::$_coreHelpers[$className];
 			$extCoreHelper = APPHP_PATH . DS . 'protected' . DS . self::$_coreHelpers[$className];
@@ -441,16 +468,20 @@ class A
 			} else {
 				include($coreHelper);
 			}
-		} // Framework: COMPONENT CLASSES
+		}
+		// Framework: COMPONENT CLASSES
 		elseif ($coreComponent = $this->mapCoreComponent($className)) {
 			include(dirname(__FILE__) . DS . $coreComponent);
-		} // Application: COMPONENT CLASSES
+		}
+		// Application: COMPONENT CLASSES
 		elseif (isset(self::$_appClasses[$className])) {
 			include(APPHP_PATH . DS . 'protected' . DS . self::$_appClasses[$className]);
-		} // Application: HELPER CLASSES
+		}
+		// Application: HELPER CLASSES
 		elseif (isset(self::$_coreHelpers[$className])) {
 			include(APPHP_PATH . DS . 'protected' . DS . self::$_appHelpers[$className]);
-		} // Check if required class is Controller, Model or Entity (in application or modules)
+		}
+		// Check if required class is Controller, Model or Entity (in application or modules)
 		else {
 			$classNameItems = preg_split('/(?=[A-Z])/', $className);
 			$itemsCount = count($classNameItems);
@@ -539,8 +570,8 @@ class A
 		
 		// Run begin events
 		if ($this->_hasEventHandler('_onBeginRequest')) $this->_onBeginRequest();
-		
-		if (APPHP_MODE != 'hidden') {
+
+        if ( ! in_array(APPHP_MODE, array('hidden', 'console')) ) {
 			$this->router = new CRouter();
 			$this->router->route();
 			// Run finish events
@@ -562,7 +593,7 @@ class A
 			unset($this->_components[$id]);
 		} else {
 			// For PHP_VERSION | phpversion() < 5.4.0 you may use
-			/// if($callback = call_user_func_array($component.'::init', array())){
+			/// if($callback = call_user_func_array($component.'::init', [])){
 			if ($callback = $component::init()) {
 				$this->_components[$id] = $callback;
 				CDebug::addMessage('general', 'components', ucfirst($id));
@@ -790,7 +821,7 @@ class A
 		if ($this->_hasEvent($name)) {
 			$name = strtolower($name);
 			if (!isset($this->_events[$name])) {
-				$this->_events[$name] = array();
+				$this->_events[$name] = [];
 			}
 			if (!in_array($handler, $this->_events[$name])) {
 				$this->_events[$name][] = $handler;
@@ -851,7 +882,7 @@ class A
 					$object = $handler[0];
 					$method = $handler[1];
 					if (is_string($object)) {
-						@call_user_func_array(array($object, $method), array());
+						@call_user_func_array(array($object, $method), []);
 					} elseif (CClass::isMethodExists($object, $method)) {
 						$object->$method();
 					}
@@ -962,7 +993,7 @@ class A
 	 * @param string $language (code)
 	 * @param array $params
 	 */
-	public function setLanguage($language = '', $params = array())
+	public function setLanguage($language = '', $params = [])
 	{
 		$this->_language = $language;
 		$this->getSession()->set('language', $this->_language);
@@ -1011,7 +1042,7 @@ class A
 	 * @param string $currency (code)
 	 * @param array $params
 	 */
-	public function setCurrency($currency = '', $params = array())
+	public function setCurrency($currency = '', $params = [])
 	{
 		$this->_currency = $currency;
 		$this->getSession()->set('currency_code', $this->_currency);
@@ -1138,7 +1169,7 @@ class A
 		$components = CConfig::get('components');
 		if (!is_array($components)) return false;
 		
-		$arrSetComponents = array();
+		$arrSetComponents = [];
 		foreach ($components as $id => $component) {
 			$enable = isset($component['enable']) ? (bool)$component['enable'] : false;
 			$class = isset($component['class']) ? $component['class'] : '';

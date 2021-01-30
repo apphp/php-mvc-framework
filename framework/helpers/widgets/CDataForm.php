@@ -354,7 +354,7 @@ class CDataForm extends CWidgs
 							} elseif ($fieldType == 'image') {
 								unset($recordsAssoc[$field]);
 							} elseif ($fieldType == 'data') {
-								$fieldValue = self::keyAt('default', $fieldInfo, '');
+								$fieldValue = self::keyAt('default', $fieldInfo, null);
 							} elseif ($fieldType == 'imageupload') {
 								if (!empty($_FILES[$field]['name'])) {
 									$targetPath = self::keyAt('validation.targetPath', $fieldInfo, '');
@@ -978,11 +978,16 @@ class CDataForm extends CWidgs
 						$htmlOptions['data-validation-error-msg'] = A::t('core', 'The field {title} must be a valid HTML element size value (ex.: 100px, pt, em or %)! Please re-enter.', array('{title}' => $title));
 						break;
 					case 'float':
-						$format_sample = ($validationFormat == 'european') ? '1234,00' : '1234.00';
-						$htmlOptions['data-validation'] = 'number';
-						$htmlOptions['data-validation-allowing'] = 'float,negative';
-						$htmlOptions['data-validation-error-msg'] = A::t('core', 'The field {title} must be a valid float value in format: {format}! Please re-enter.', array('{title}' => $title, '{format}' => $format_sample));
-						break;
+                        if ($validationFormat == 'european') {
+                            $formatSample = '1234,00';
+                            $htmlOptions['data-validation-decimal-separator'] = ',';
+                        }else{
+                            $formatSample = '1234.00';
+                        }
+                        $htmlOptions['data-validation'] = 'number';
+                        $htmlOptions['data-validation-allowing'] = 'float,negative';
+                        $htmlOptions['data-validation-error-msg'] = A::t('core', 'The field {title} must be a valid float value in format: {format}! Please re-enter.', array('{title}' => $title, '{format}' => $formatSample));
+                        break;
 					case 'url':
 						//$htmlOptions['data-validation-regexp'] = '^(http:\/\/|https:\/\/|ftp:\/\/)$';
 						$htmlOptions['data-validation'] = 'url';

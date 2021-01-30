@@ -39,11 +39,11 @@
 				),
 				'separatorAccount' => array(
 					'separatorInfo' => array('legend' => A::t('app', 'Account Information')),
-					'role' => array('type' => 'select', 'title' => A::t('app', 'Account Type'), 'data' => ($isMyAccount ? $allRolesList : $rolesList), 'mandatoryStar' => true, 'htmlOptions' => ($isMyAccount ? array('disabled' => 'disabled') : array()), 'validation' => array('required' => false, 'type' => 'set', 'source' => ($isMyAccount ? array('owner') : array_keys($rolesList)))),
-					'username' => array('type' => 'label', 'title' => A::t('app', 'Username'), 'tooltip' => '', 'htmlOptions' => array()),
+					'role' => array('type' => 'select', 'title' => A::t('app', 'Account Type'), 'data' => ($isMyAccount ? $allRolesList : $rolesList), 'mandatoryStar' => true, 'htmlOptions' => ($isMyAccount ? array('disabled' => 'disabled') : []), 'validation' => array('required' => false, 'type' => 'set', 'source' => ($isMyAccount ? array('owner') : array_keys($rolesList)))),
+					'username' => array('type' => 'label', 'title' => A::t('app', 'Username'), 'tooltip' => '', 'htmlOptions' => []),
 					'password' => array('type' => 'password', 'title' => A::t('app', 'Password'), 'validation' => array('required' => false, 'type' => 'password', 'minLength' => 4, 'maxlength' => 20), 'encryption' => array('enabled' => CConfig::get('password.encryption'), 'encryptAlgorithm' => CConfig::get('password.encryptAlgorithm'), 'hashKey' => CConfig::get('password.hashKey')), 'htmlOptions' => array('maxlength' => '20', 'placeholder' => '&#9679;&#9679;&#9679;&#9679;&#9679;')),
 					'passwordRetype' => array('type' => 'password', 'title' => A::t('app', 'Retype Password'), 'validation' => array('required' => false, 'type' => 'confirm', 'confirmField' => 'password', 'minLength' => 4, 'maxlength' => 20), 'htmlOptions' => array('maxlength' => '20', 'placeholder' => '&#9679;&#9679;&#9679;&#9679;&#9679;')),
-					'is_active' => array('type' => 'checkbox', 'title' => A::t('app', 'Active'), 'validation' => array('type' => 'set', 'source' => array(0, 1)), 'htmlOptions' => ($isMyAccount ? array('disabled' => 'disabled', 'uncheckValue' => 1) : array())),
+					'is_active' => array('type' => 'checkbox', 'title' => A::t('app', 'Active'), 'validation' => array('type' => 'set', 'source' => array(0, 1)), 'htmlOptions' => ($isMyAccount ? array('disabled' => 'disabled', 'uncheckValue' => 1) : [])),
 				),
 				'separatorOther' => array(
 					'separatorInfo' => array('legend' => A::t('app', 'Other')),

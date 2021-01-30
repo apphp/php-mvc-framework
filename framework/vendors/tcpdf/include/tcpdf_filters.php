@@ -279,7 +279,7 @@ class TCPDF_FILTERS {
 		// convert string to binary string
 		$bitstring = '';
 		for ($i = 0; $i < $data_length; ++$i) {
-			$bitstring .= sprintf('%08b', ord($data{$i}));
+			$bitstring .= sprintf('%08b', ord($data[$i]));
 		}
 		// get the number of bits
 		$data_length = strlen($bitstring);
@@ -376,7 +376,7 @@ class TCPDF_FILTERS {
 		$i = 0;
 		while($i < $data_length) {
 			// get current byte value
-			$byte = ord($data{$i});
+			$byte = ord($data[$i]);
 			if ($byte == 128) {
 				// a length value of 128 denote EOD
 				break;

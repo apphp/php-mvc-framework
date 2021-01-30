@@ -42,6 +42,12 @@
  */
 
 /**
+ * ApPHP Changes to compatible this class with ApPHP Framework:
+ * #001 - 11.12.2020 : commented magic_quotes functionality
+ */
+
+
+/**
  * @class TCPDF_STATIC
  * Static methods used by the TCPDF class.
  * @package com.tecnick.tcpdf
@@ -139,9 +145,10 @@ class TCPDF_STATIC {
 			$version = PHP_VERSION;
 			define('PHP_VERSION_ID', (($version[0] * 10000) + ($version[2] * 100) + $version[4]));
 		}
-		if (PHP_VERSION_ID < 50300) {
-			@set_magic_quotes_runtime($mqr);
-		}
+        //#001
+        //if (PHP_VERSION_ID < 50300) {
+        //    @set_magic_quotes_runtime($mqr);
+        //}
 	}
 
 	/**
@@ -155,9 +162,10 @@ class TCPDF_STATIC {
 			$version = PHP_VERSION;
 			define('PHP_VERSION_ID', (($version[0] * 10000) + ($version[2] * 100) + $version[4]));
 		}
-		if (PHP_VERSION_ID < 50300) {
-			return @get_magic_quotes_runtime();
-		}
+        //#001
+        //if (PHP_VERSION_ID < 50300) {
+        //    return @get_magic_quotes_runtime();
+        //}
 		return 0;
 	}
 

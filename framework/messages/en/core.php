@@ -186,4 +186,5 @@ return array(
 	'You cannot delete the last remaining record in table {table}!' => 'You cannot delete the last remaining record in table {table}!',
 	'Warnings' => 'Warnings',
 	'Wrong column name: {index} in table {table}' => 'Wrong column name: "{index}" in table "{table}" - can\'t access non existent property of AR object',
+    'Wrong params for chunk size: {size} or callback method is not callable.' => 'Wrong params for chunk size: {size} or callback method is not callable.',
 );

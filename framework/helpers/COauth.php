@@ -26,71 +26,72 @@ include(dirname(__FILE__) . '/../vendors/opauth/Opauth.php');
 class COauth
 {
 	/* @var */
-	private static $config = array(
-		'path' => '/',
-		'callback_url' => '',
-		'security_salt' => '',
-		'security_iteration' => 300,
-		'security_timeout' => '2 minutes',
-		
-		'callback_transport' => 'session',
-		'debug' => false,
-		'Strategy' => array(
-			'Facebook' => array(
-				'app_id' => '',
-				'app_secret' => '',
-				'scope' => 'public_profile,email',
-				'fields' => 'id,name,first_name,last_name,gender,email',
-			),
-			'Google' => array(
-				'client_id' => '',
-				'client_secret' => '',
-				'scope' => 'email',
-			),
-			'Twitter' => array(
-				'key' => '',
-				'secret' => '',
-				'scope' => 'include_email',
-			),
-			'LinkedIn' => array(
-				'api_key' => '',
-				'secret_key' => '',
-				'scope' => 'r_basicprofile r_emailaddress',
-			),
-		),
-	);
-	
-	/**
-	 * Sets a basic configuration
+    private static $config
+        = [
+            'path'               => '/',
+            'callback_url'       => '',
+            'security_salt'      => '',
+            'security_iteration' => 300,
+            'security_timeout'   => '2 minutes',
+
+            'callback_transport' => 'session',
+            'debug'              => false,
+            'Strategy'           => [
+                'Facebook' => [
+                    'app_id'     => '',
+                    'app_secret' => '',
+                    'scope'      => 'public_profile,email',
+                    'fields'     => 'id,name,first_name,last_name,gender,email',
+                ],
+                'Google'   => [
+                    'client_id'     => '',
+                    'client_secret' => '',
+                    'scope'         => 'email',
+                ],
+                'Twitter'  => [
+                    'key'    => '',
+                    'secret' => '',
+                    'scope'  => 'include_email',
+                ],
+                'LinkedIn' => [
+                    'api_key'    => '',
+                    'secret_key' => '',
+                    'scope'      => 'r_basicprofile r_emailaddress',
+                ],
+            ],
+        ];
+
+    /**
+     * Sets a basic configuration
 	 * More information - https://github.com/opauth/opauth/wiki/Opauth-configuration
 	 * @param array $params
-	 *              Usage:
-	 *              COauth::config(array(
-	 *              'path' => '/customer/login/type/', // If url address: http://my_site/customer/login/type/facebook
-	 *              'callback_url' => 'http://my_site/customer/success_return',
-	 *              'security_salt' => '{random_string}',
-	 *              'security_iteration' => '300',
-	 *              'security_timeout' => '2 minutes',
-	 *              'callback_transport' => 'session', // It can take the following parameters: 'session', 'post' or 'get';
-	 *              'debug' => false,
-	 *              'Strategy' => array(
-	 *              'Facebook' => array(
-	 *              'app_id' => '{application_id}',
-	 *              'app_secret' => '{application_secret}',
-	 *              'score' => 'public_profile,email',    // More - https://developers.facebook.com/docs/facebook-login/permissions
-	 *              'fields' => 'id,name,first_name,last_name,gender,email' // More (look fields) - https://developers.facebook.com/docs/graph-api/reference/v2.6/user
-	 *              ),
-	 *              'Google' => array(
-	 *              'client_id' => '{application_id}',
-	 *              'client_secret' => '{application_secret}',
-	 *              'score' => 'email', // More - https://developers.google.com/+/web/api/rest/oauth#authorization-scopes
-	 *              ),
-	 *              'Twitter' => array(
-	 *              'key' => '{application_id}',
-	 *              'secret' => '{application_secret}'
-	 *              )
-	 *              ),
-	 *              ))
+     *  Usage:
+     *  COauth::config([
+	 *  'path' => '/customer/login/type/', // If url address: http://my_site/customer/login/type/facebook
+	 *  'callback_url' => 'http://my_site/customer/success_return',
+	 *  'security_salt' => '{random_string}',
+	 *  'security_iteration' => '300',
+	 *  'security_timeout' => '2 minutes',
+	 *  'callback_transport' => 'session', // It can take the following parameters: 'session', 'post' or 'get';
+	 *  'debug' => false,
+	 *  'Strategy' => [
+	 *      'Facebook' => [
+	 *          'app_id' => '{application_id}',
+	 *          'app_secret' => '{application_secret}',
+	 *          'score' => 'public_profile,email',    // More - https://developers.facebook.com/docs/facebook-login/permissions
+	 *          'fields' => 'id,name,first_name,last_name,gender,email' // More (look fields) - https://developers.facebook.com/docs/graph-api/reference/v2.6/user
+	 *      ],
+	 *      'Google' => [
+	 *          'client_id' => '{application_id}',
+	 *          'client_secret' => '{application_secret}',
+	 *          'score' => 'email', // More - https://developers.google.com/+/web/api/rest/oauth#authorization-scopes
+	 *      ],
+	 *      'Twitter' => [
+	 *          'key' => '{application_id}',
+	 *          'secret' => '{application_secret}'
+	 *      ]
+	 *  ],
+	 *  ])
 	 *
 	 * @return void
 	 */

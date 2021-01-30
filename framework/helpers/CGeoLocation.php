@@ -38,7 +38,7 @@ class CGeoLocation
 				'&region='.$region.
 				(!empty($key) ? '&key='.$key : '');
 
-			$json = A::app()->getRequest()->getUrlContent($url, 'get', array(), array(), 'curl');
+			$json = A::app()->getRequest()->getUrlContent($url, 'get', [], [], 'curl');
 			$json = json_decode($json);
 			
 			if(!empty($json) && $json->{'results'} != false){

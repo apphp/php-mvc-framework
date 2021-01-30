@@ -19,12 +19,12 @@ class Posts extends CActiveRecord
 	public $categoryOldId;
 	
 	/** @var */
-	protected $_fillable = array();
-	/** @var */
-	protected $_guarded = array('post_datetime');
+    protected $_fillable = [];
+    /** @var */
+    protected $_guarded = ['post_datetime'];
 
-	
-	public function __construct()
+
+    public function __construct()
 	{
 		parent::__construct();
 	}
@@ -42,13 +42,27 @@ class Posts extends CActiveRecord
 	 */
 	protected function _relations()
 	{
-		return array(
-			'author_id' => array(self::HAS_ONE, 'authors', 'id', 'condition' => '', 'joinType' => self::LEFT_OUTER_JOIN, 'fields' => array('login' => '')),
-			'category_id' => array(self::BELONGS_TO, 'categories', 'id', 'condition' => '', 'joinType' => self::LEFT_OUTER_JOIN, 'fields' => array('name' => 'category_name')),
-		);
-	}
-	
-	protected function _afterSave($pk = '')
+        return [
+            'author_id' => [
+                self::HAS_ONE,
+                'authors',
+                'id',
+                'condition' => '',
+                'joinType'  => self::LEFT_OUTER_JOIN,
+                'fields'    => ['login' => '']
+            ],
+            'category_id' => [
+                self::BELONGS_TO,
+                'categories',
+                'id',
+                'condition' => '',
+                'joinType'  => self::LEFT_OUTER_JOIN,
+                'fields'    => ['name' => 'category_name']
+            ],
+        ];
+    }
+
+    protected function _afterSave($pk = '')
 	{
 		if ($this->categoryOldId != $this->category_id) {
 			$this->_updatePostsCount($this->categoryOldId);
@@ -65,7 +79,7 @@ class Posts extends CActiveRecord
 	private function _updatePostsCount($pKey)
 	{
 		// update total count of posts in categories table
-		$totalPosts = self::model()->count('category_id = :category_id', array(':category_id' => $pKey));
-		$this->_db->update('categories', array('posts_count' => $totalPosts), 'id = ' . (int)$pKey);
-	}
+        $totalPosts = self::model()->count('category_id = :category_id', [':category_id' => $pKey]);
+        $this->_db->update('categories', ['posts_count' => $totalPosts], 'id = '.(int)$pKey);
+    }
 }

@@ -64,22 +64,24 @@ class PostsController extends CController
 				$msg = 'Wrong parameter passed! Please try again later.';
 				$msgType = 'error';
 			} else {
-				$result = $postsModel->findAll(array(
-					'limit' => (($this->_view->currentPage - 1) * $this->_view->pageSize) . ', ' . $this->_view->pageSize,
-					'order' => 'post_datetime DESC',
-				));
-			}
+                $result = $postsModel->findAll(
+                    [
+                        'limit' => (($this->_view->currentPage - 1) * $this->_view->pageSize).', '.$this->_view->pageSize,
+                        'order' => 'post_datetime DESC',
+                    ]
+                );
+            }
 		} else {
 			$viewOnePost = true;
-			$result = $postsModel->find(CConfig::get('db.prefix') . 'posts.id = :id', array(':id' => $postId));
-		}
-		$this->_view->viewOnePost = $viewOnePost;
+            $result = $postsModel->find(CConfig::get('db.prefix').'posts.id = :id', [':id' => $postId]);
+        }
+        $this->_view->viewOnePost = $viewOnePost;
 		
 		if (!$result) {
 			$msg = (!empty($msg)) ? $msg : 'There are still no posts.';
 			$msgType = (!empty($msgType)) ? $msgType : 'info';
-			$this->_view->mainText = CWidget::create('CMessage', array($msgType, $msg, array('button' => false)));
-		} else {
+            $this->_view->mainText = CWidget::create('CMessage', [$msgType, $msg, ['button' => false]]);
+        } else {
 			$this->_view->mainText = '';
 			if ($viewOnePost) {
 				// meta tags specific for the post
@@ -123,22 +125,44 @@ class PostsController extends CController
 				$msg_text = 'Wrong parameter passed! Check post ID.';
 				$msgType = 'error';
 			}
-			if (!empty($msg_text)) $this->_view->actionMessage = CWidget::create('CMessage', array($msgType, $msg_text, array('button' => true)));
-		}
-		
-		// prepare pagination vars
+            if ( ! empty($msg_text)) {
+                $this->_view->actionMessage = CWidget::create('CMessage', [$msgType, $msg_text, ['button' => true]]);
+            }
+        }
+
+        // prepare pagination vars
 		$this->_view->targetPage = 'posts/index';
 		$this->_view->currentPage = A::app()->getRequest()->getQuery('page', 'integer', 1);
-		$this->_view->pageSize = '15';
+		$this->_view->pageSize = 15;
 		$this->_view->totalRecords = Posts::model()->count();
 		
 		if (!$this->_view->currentPage) {
-			$this->_view->actionMessage = CWidget::create('CMessage', array('error', 'Wrong parameter passed! Please try again later.', array('button' => true)));
-		} else {
-			$this->_view->posts = Posts::model()->findAll(array(
-				'limit' => (($this->_view->currentPage - 1) * $this->_view->pageSize) . ', ' . $this->_view->pageSize,
-				'order' => 'post_datetime DESC',
-			));
+            $this->_view->actionMessage = CWidget::create(
+                'CMessage',
+                ['error', 'Wrong parameter passed! Please try again later.', ['button' => true]]
+            );
+        } else {
+            $conditions = [
+                'limit' => (($this->_view->currentPage - 1) * $this->_view->pageSize).', '.$this->_view->pageSize,
+                'order' => 'post_datetime DESC',
+            ];
+
+            if (!true) {
+                $this->_view->posts = Posts::model()->findAll(
+                    [
+                        'limit' => (($this->_view->currentPage - 1) * $this->_view->pageSize).', '.$this->_view->pageSize,
+                        'order' => 'post_datetime DESC',
+                    ]
+                );
+            }else{
+                $posts = null;
+                Posts::model()->chunk($conditions, [], 10, function ($records) use(&$posts){
+                    foreach ($records as $key => $record) {
+                        $posts[] = $record;
+                    }
+                });
+                $this->_view->posts = $posts;
+            }
 		}
 		
 		$this->_view->render('posts/index');
@@ -201,11 +225,11 @@ class PostsController extends CController
 			// Perform post add form validation
 			$result = CWidget::create('CFormValidation', array(
 				'fields' => array(
-					'header' => array('title' => 'Header', 'validation' => array('required' => true, 'type' => 'any', 'maxLength' => 100)),
-					'postText' => array('title' => 'Post Text', 'validation' => array('required' => true, 'type' => 'any', 'maxLength' => 4000)),
-					'metaTagTitle' => array('title' => CHtml::encode('Tag <TITLE>'), 'validation' => array('required' => false, 'type' => 'any', 'maxLength' => 250)),
-					'metaTagKeywords' => array('title' => CHtml::encode('Meta tag <KEYWORDS>'), 'validation' => array('required' => false, 'type' => 'any', 'maxLength' => 250)),
-					'metaTagDescription' => array('title' => CHtml::encode('Meta tag <DESCRIPTION>'), 'validation' => array('required' => false, 'type' => 'any', 'maxLength' => 250)),
+                    'header' => ['title' => 'Header', 'validation' => ['required' => true, 'type' => 'any', 'maxLength' => 100]],
+                    'postText' => ['title' => 'Post Text', 'validation' => ['required' => true, 'type' => 'any', 'maxLength' => 4000]],
+                    'metaTagTitle' => ['title' => CHtml::encode('Tag <TITLE>'), 'validation' => ['required' => false, 'type' => 'any', 'maxLength' => 250]],
+					'metaTagKeywords' => ['title' => CHtml::encode('Meta tag <KEYWORDS>'), 'validation' => ['required' => false, 'type' => 'any', 'maxLength' => 250]],
+					'metaTagDescription' => ['title' => CHtml::encode('Meta tag <DESCRIPTION>'), 'validation' => ['required' => false, 'type' => 'any', 'maxLength' => 250]],
 				),
 			));
 			
@@ -256,8 +280,8 @@ class PostsController extends CController
 				}
 			}
 			if (!empty($msg)) {
-				$this->_view->actionMessage = CWidget::create('CMessage', array($msgType, $msg, array('button' => true)));
-				$this->_view->render('posts/add');
+                $this->_view->actionMessage = CWidget::create('CMessage', [$msgType, $msg, ['button' => true]]);
+                $this->_view->render('posts/add');
 			}
 		} else {
 			$this->redirect('posts/add');
@@ -318,11 +342,11 @@ class PostsController extends CController
 			// perform post edit form validation
 			$result = CWidget::create('CFormValidation', array(
 				'fields' => array(
-					'header' => array('title' => 'Header', 'validation' => array('required' => true, 'type' => 'any', 'maxLength' => 100)),
-					'postText' => array('title' => 'Post Text', 'validation' => array('required' => true, 'type' => 'any', 'maxLength' => 4000)),
-					'metaTagTitle' => array('title' => CHtml::encode('Tag <TITLE>'), 'validation' => array('required' => false, 'type' => 'any', 'maxLength' => 250)),
-					'metaTagKeywords' => array('title' => CHtml::encode('Meta tag <KEYWORDS>'), 'validation' => array('required' => false, 'type' => 'any', 'maxLength' => 250)),
-					'metaTagDescription' => array('title' => CHtml::encode('Meta tag <DESCRIPTION>'), 'validation' => array('required' => false, 'type' => 'any', 'maxLength' => 250)),
+                    'header' => ['title' => 'Header', 'validation' => ['required' => true, 'type' => 'any', 'maxLength' => 100]],
+                    'postText' => ['title' => 'Post Text', 'validation' => ['required' => true, 'type' => 'any', 'maxLength' => 4000]],
+                    'metaTagTitle' => ['title' => CHtml::encode('Tag <TITLE>'), 'validation' => ['required' => false, 'type' => 'any', 'maxLength' => 250]],
+					'metaTagKeywords' => ['title' => CHtml::encode('Meta tag <KEYWORDS>'), 'validation' => ['required' => false, 'type' => 'any', 'maxLength' => 250]],
+					'metaTagDescription' => ['title' => CHtml::encode('Meta tag <DESCRIPTION>'), 'validation' => ['required' => false, 'type' => 'any', 'maxLength' => 250]],
 				),
 			));
 			
@@ -348,8 +372,8 @@ class PostsController extends CController
 						$post->metatag_title = $this->_view->metaTagTitle;
 						$post->metatag_keywords = $this->_view->metaTagKeywords;
 						$post->metatag_description = $this->_view->metaTagDescription;
-						$post->setGuarded(array('author_id', 'post_datetime'));
-						$saveResult = $posts->save($post);
+                        $post->setGuarded(['author_id', 'post_datetime']);
+                        $saveResult = $posts->save($post);
 					} else {
 						// Use model
 						$posts = Posts::model()->findByPk($this->_view->postId);
@@ -374,9 +398,9 @@ class PostsController extends CController
 				}
 			}
 			if (!empty($msg)) {
-				$this->_view->actionMessage = CWidget::create('CMessage', array($msgType, $msg, array('button' => true)));
-			}
-			$this->_view->render('posts/edit');
+                $this->_view->actionMessage = CWidget::create('CMessage', [$msgType, $msg, ['button' => true]]);
+            }
+            $this->_view->render('posts/edit');
 		} else {
 			$this->redirect('posts/index');
 		}
@@ -405,10 +429,10 @@ class PostsController extends CController
 				$msgType = 'error';
 			}
 			if (!empty($msg)) {
-				$this->_view->actionMessage = CWidget::create('CMessage', array($msgType, $msg, array('button' => true)));
-			}
-			
-			$this->redirect('posts/index/msg/deleted');
+                $this->_view->actionMessage = CWidget::create('CMessage', [$msgType, $msg, ['button' => true]]);
+            }
+
+            $this->redirect('posts/index/msg/deleted');
 		}
 	}
 	

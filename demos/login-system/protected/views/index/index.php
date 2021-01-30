@@ -9,6 +9,6 @@
 </article>
 <?php
     if(!CAuth::isLoggedIn()){
-        echo CWidget::create('CMessage', array('info', 'Click <a href="login/index"><b>here</b></a> to log into the system as administrator.'));
+        echo CWidget::create('CMessage', ['info', 'Click <a href="login/index"><b>here</b></a> to log into the system as administrator.']);
     }
 ?>

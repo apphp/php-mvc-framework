@@ -291,6 +291,7 @@
         "setGuarded",
         "CTime",
         "getMicrotime",
+        "chunk",
     ];
 
 	var BUILTINS = {};

@@ -118,15 +118,15 @@ class CFormView extends CWidgs
      *       'return'=>true,
      *  ));
      */
-	public static function init($params = array())
-	{
-		parent::init($params);
+    public static function init($params = [])
+    {
+        parent::init($params);
 		
 		$output = '';
 		$action = self::params('action', '');
 		$method = self::params('method', 'post');
-		$htmlOptions = self::params('htmlOptions', array(), 'is_array');
-		$autoGenerateId = self::params('htmlOptions.autoGenerateId', false);
+        $htmlOptions = self::params('htmlOptions', [], 'is_array');
+        $autoGenerateId = self::params('htmlOptions.autoGenerateId', false);
 		$formName = self::params('htmlOptions.name', '');
 		$requiredFieldsAlert = self::params('requiredFieldsAlert', false);
 		$fields = self::params('fields', array());
@@ -216,8 +216,8 @@ class CFormView extends CWidgs
 						$content .= self::_formField($iField, $iFieldInfo, $events, $formName, $autoGenerateId, array('fieldWrapperTag' => $fieldWrapperTag, 'fieldWrapperClass' => $fieldWrapperClass));
 					}
 					$tabsCount++;
-					$tabs[$legend] = array('href' => '#tab' . $field . $tabsCount, 'id' => 'tab' . $field . $tabsCount, 'content' => $content);
-				} else {
+                    $tabs[$legend] = ['href' => '#tab'.$field.$tabsCount, 'id' => 'tab'.$field.$tabsCount, 'content' => $content];
+                } else {
 					$output .= CHtml::openTag('fieldset') . self::NL;
 					$output .= CHtml::tag('legend', array(), $legend, true) . self::NL;
 					foreach ($fieldInfo as $iField => $iFieldInfo) {
@@ -312,9 +312,9 @@ class CFormView extends CWidgs
 	 * @param array $params
 	 * @see init()
 	 */
-	private static function _formField($field, $fieldInfo, $events, $formName = '', $autoGenerateId = false, $params = array())
-	{
-		$output = '';
+	private static function _formField($field, $fieldInfo, $events, $formName = '', $autoGenerateId = false, $params = [])
+    {
+        $output = '';
 		
 		$type = strtolower(self::keyAt('type', $fieldInfo, 'textbox'));
 		$value = self::keyAt('value', $fieldInfo, '');
@@ -374,8 +374,8 @@ class CFormView extends CWidgs
 				
 				if ($preview == true && !empty($value)) {
 					$fieldHtml = CHtml::openTag('div', array('style' => 'display:inline-block;'));
-					$matches = array();
-					if (preg_match('/vimeo\./', $value)) {
+                    $matches = [];
+                    if (preg_match('/vimeo\./', $value)) {
 						preg_match('/^(?:http(?:s)?:\/\/)?(?:www\.)?vimeo.com\/([0-9]+)/i', $value, $matches);
 						$id = $matches[1];
 						$fieldHtml .= '<iframe width="240" height="140" src="https://player.vimeo.com/video/' . $id . '" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe><br>';
@@ -554,8 +554,8 @@ class CFormView extends CWidgs
 					$fieldHtml = CHtml::checkBoxList($field, $selectedValues, $data, $htmlOptions);
 				} else {
 					if ($emptyOption) {
-						$data = array('' => $emptyValue) + $data;
-					}
+                        $data = ['' => $emptyValue] + $data;
+                    }
 					$htmlOptions['multiple'] = $multiple;
 					$fieldHtml = CHtml::dropDownList($field, $selectedValues, $data, $htmlOptions);
 				}
@@ -589,8 +589,8 @@ class CFormView extends CWidgs
 				$showImageSize = (bool)self::keyAt('imageOptions.showImageSize', $fieldInfo, false);
 				$showImageDimensions = (bool)self::keyAt('imageOptions.showImageDimensions', $fieldInfo, false);
 				$imageClass = self::keyAt('imageOptions.imageClass', $fieldInfo, '');
-				$imageHtmlOptions = array();
-				if (!empty($imageClass)) $imageHtmlOptions['class'] = $imageClass;
+                $imageHtmlOptions = [];
+                if (!empty($imageClass)) $imageHtmlOptions['class'] = $imageClass;
 				// Delete link options
 				$showDeleteLink = (bool)self::keyAt('deleteOptions.showLink', $fieldInfo, false);
 				$deleteLinkPath = self::keyAt('deleteOptions.linkUrl', $fieldInfo, '');
@@ -671,9 +671,9 @@ class CFormView extends CWidgs
 				$showFileSize = (bool)self::keyAt('iconOptions.showFileSize', $fieldInfo, false);
 				$filePath = self::keyAt('fileOptions.filePath', $fieldInfo, '');
 				$fileDownload = self::keyAt('download', $fieldInfo, false);
-				
-				$imageHtmlOptions = array();
-				if (!empty($imageClass)) $imageHtmlOptions['class'] = $imageClass;
+
+                $imageHtmlOptions = [];
+                if (!empty($imageClass)) $imageHtmlOptions['class'] = $imageClass;
 				// Delete link options
 				$showDeleteLink = (bool)self::keyAt('deleteOptions.showLink', $fieldInfo, false);
 				$deleteLinkPath = self::keyAt('deleteOptions.linkUrl', $fieldInfo, '');
@@ -725,7 +725,7 @@ class CFormView extends CWidgs
 			
 			case 'textarea':
 				$maxLength = (int)self::keyAt('maxLength', $htmlOptions, 0);
-				if ($maxLength > 0) $appendLabel = '<br>' . A::t('core', 'max.: {maxchars} chars', array('{maxchars}' => $maxLength));
+				if ($maxLength > 0) $appendLabel = '<br>' . A::t('core', 'max.: {maxchars} chars', array('{maxchars}' => number_format($maxLength)));
 				$fieldHtml = CHtml::textArea($field, $value, $htmlOptions);
 				break;
 			

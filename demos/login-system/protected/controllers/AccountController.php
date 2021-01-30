@@ -33,12 +33,11 @@ class AccountController extends CController
 		if ($cRequest->getPost('act') == 'send') {
 			
 			// Perform account edit form validation
-			$result = CWidget::create('CFormValidation', array(
-				'fields' => array(
-					//'username'=>array('title'=>'Username' 'validation'=>array('required'=>true, 'type'=>'username', 'minLength'=>4)),
-					'password' => array('title' => 'Password', 'validation' => array('required' => true, 'type' => 'password', 'minLength' => 4)),
-				),
-			));
+			$result = CWidget::create('CFormValidation', [
+				'fields' => [
+					'password' => ['title' => 'Password', 'validation' => ['required' => true, 'type' => 'password', 'minLength' => 4]],
+				],
+			]);
 			
 			if ($result['error']) {
 				$msg = $result['errorMessage'];
@@ -62,8 +61,8 @@ class AccountController extends CController
 			
 			if (!empty($msg)) {
 				$this->_view->username = $cRequest->getPost('username', 'string');
-				$this->_view->actionMessage = CWidget::create('CMessage', array($msgType, $msg, array('button' => true)));
-			} else {
+                $this->_view->actionMessage = CWidget::create('CMessage', [$msgType, $msg, ['button' => true]]);
+            } else {
 				$this->_view->username = $info['username'];
 			}
 		} else {

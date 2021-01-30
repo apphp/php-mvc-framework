@@ -181,9 +181,10 @@ return array(
 	'Unable to find the model class "{model}".' => 'Kan het model de klas "{model}".',
 	'Unknown' => 'Onbekend',
 	'Unknown operator "{operator}".' => 'Onbekende operator "{operator}".',
-	'Uploaded {file} is not a valid image! Please check carefully the file type.' => 'Ge�ploade file <strong>{file}</strong> is geen geldige afbeelding! Gelieve zorgvuldig te controleren het bestandstype.',
+	'Uploaded {file} is not a valid image! Please check carefully the file type.' => 'Geploade file <strong>{file}</strong> is geen geldige afbeelding! Gelieve zorgvuldig te controleren het bestandstype.',
 	'version' => 'versie',
 	'You cannot delete the last remaining record in table {table}!' => 'U kunt de laatst overgebleven record niet verwijderen in tabel {table}!',
 	'Warnings' => 'Waarschuwingen',
 	'Wrong column name: {index} in table {table}' => 'naam verkeerd column: {index} in tabel {table}',
+    'Wrong params for chunk size: {size} or callback method is not callable.' => 'Verkeerde parameters voor chunkgrootte: {size} of callback-methode is niet opvraagbaar.',
 );

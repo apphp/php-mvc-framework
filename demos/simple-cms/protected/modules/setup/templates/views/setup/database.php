@@ -21,8 +21,12 @@
         ),
         'fields'=>$formFields,
         'buttons'=>array(
-            'back'=>array('type'=>'button', 'value'=>'Previous', 'htmlOptions'=>array('name'=>'', 'onclick'=>"$(location).attr('href','setup/index');")),
-            'submit'=>array('type'=>'submit', 'value'=>'Next', 'htmlOptions'=>array('name'=>''))
+            'back'   => array(
+                'type'        => 'button',
+                'value'       => 'Previous',
+                'htmlOptions' => array('name' => '', 'onclick' => "$(location).attr('href','setup/index');")
+            ),
+            'submit' => array('type' => 'submit', 'value' => 'Next', 'htmlOptions' => array('name' => ''))
         ),
         'events'=>array(
             'focus'=>array('field'=>$errorField)

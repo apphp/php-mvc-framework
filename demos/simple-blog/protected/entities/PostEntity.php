@@ -15,11 +15,11 @@ class PostEntity extends CRecordEntity
 	protected $_pkValue = 0;
 	
 	/** @var */
-	protected $_fillable = array();
+	protected $_fillable = [];
 	/** @var */
-	protected $_guarded = array('post_datetime');
+    protected $_guarded = ['post_datetime'];
 
-	/**
+    /**
 	 * Class constructor
 	 * @param int $pkVal
 	 */

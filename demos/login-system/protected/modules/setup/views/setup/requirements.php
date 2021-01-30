@@ -50,22 +50,30 @@
 </fieldset>
 
 <?php
-if (!$isCriticalError) {
-	echo CWidget::create('CFormView', array(
-		'action' => 'setup/requirements',
-		'method' => 'post',
-		'htmlOptions' => array(
-			'name' => 'frmSetup',
-		),
-		'fields' => array(
-			'act' => array('type' => 'hidden', 'value' => 'send'),
-		),
-		'buttons' => array(
-			'back' => array('type' => 'button', 'value' => A::t('setup', 'Previous'), 'htmlOptions' => array('name' => '', 'onclick' => "$(location).attr('href','setup/index');")),
-			'submit' => array('type' => 'submit', 'value' => A::t('setup', 'Next'), 'htmlOptions' => array('name' => ''))
-		),
-		'return' => true,
-	));
+
+if ( ! $isCriticalError) {
+    echo CWidget::create(
+        'CFormView',
+        [
+            'action'      => 'setup/requirements',
+            'method'      => 'post',
+            'htmlOptions' => [
+                'name' => 'frmSetup',
+            ],
+            'fields'      => [
+                'act' => ['type' => 'hidden', 'value' => 'send'],
+            ],
+            'buttons'     => [
+                'back'   => [
+                    'type'        => 'button',
+                    'value'       => A::t('setup', 'Previous'),
+                    'htmlOptions' => ['name' => '', 'onclick' => "$(location).attr('href','setup/index');"]
+                ],
+                'submit' => ['type' => 'submit', 'value' => A::t('setup', 'Next'), 'htmlOptions' => ['name' => '']]
+            ],
+            'return'      => true,
+        ]
+    );
 }
 ?>
 <br>

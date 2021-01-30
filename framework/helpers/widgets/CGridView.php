@@ -8,79 +8,79 @@
  * @copyright Copyright (c) 2012 - 2020 ApPHP Framework
  * @license http://www.apphpframework.com/license/
  *
- * PUBLIC (static):			PROTECTED:					PRIVATE (static):		
+ * PUBLIC (static):			PROTECTED:					PRIVATE (static):
  * ----------               ----------                  ----------
  * init													_additionalParams
  * 														_customParams
  * 														_getFieldParam
  * 														_getAllRecords
  * 														_countAllRecords
- */	  
+ */
 
 class CGridView extends CWidgs
 {
 
 	/** @const string */
-    const NL = "\n";
-    /** @var string */
-    private static $_rowCount = 0;
-    /** @var string */
-    private static $_pickerCount = 0;
-    /** @var string */
-    private static $_autocompleteCount = 0;
+	const NL = "\n";
+	/** @var string */
+	private static $_rowCount = 0;
+	/** @var string */
+	private static $_pickerCount = 0;
+	/** @var string */
+	private static $_autocompleteCount = 0;
 
-    /**
-     * Draws grid view
-     * @param array $params
-     *
-     * Notes:
-     *   *** FIELD ATTRIBUTES:
-     *   - to disable any field, including filtering or button use: 'disabled'=>true
-     *   - 'prependCode=>'', 'appendCode'=>'' - insert code before or after field (for all fields): 
-     *   - 'data'=>'' - attribute for type 'label', allows to show data from PHP variables
-     *   - 'case'=>'normal' - attribute for type 'label', allows to convert value to 'upper', 'lower', 'camel' or 'humanize' cases
-     *   - 'maxLength'=>'X' - attribute for type 'label', specifies to show maximum X characters of the string
-     *     'showTooltip'=>true - specifies whether to show tooltip on field if it's length was reduced
-     *   - 'aggregate'=>array('function'=>'sum|avg') - allow to run aggregate function on specific column
-     *   - 'sourceField'=>'' - used to show data from another field
-     *   - 'callback'=>array('class'=>'className', 'function'=>'functionName', 'params'=>$functionParams)
-     *      callback of closure function that is called when item created (available for labels only), $record - all current record
-     *      PHP_VERSION >= 5.3.0 $functionName = function($record, $params){ return record['field_name']; }
-     *      Ex.: function callbackFunction($record, $params){...} - passed a whole record
-     *   - 'trigger'=>array('trigger_key'=>'field name', 'trigger_operation'=>'!=', 'trigger_value'=>'0', 'success_value'=>'0', 'wrong_value'=>'0'),
-     *   	trigger is used for changing field valut depending on simple condition
-     *   	Ex.: 'trigger'=>array('trigger_key'=>'is_active', 'trigger_operation'=>'==', 'trigger_value'=>'1', 'success_value'=>A::t('app', 'Active), 'wrong_value'=>''),
-     *   - select classes: 'class'=>'chosen-select-filter' or 'class'=>'chosen-select'
-     *   - Encryption for standard label or html fields: 'encryption'=>array('enabled'=>CConfig::get('text.encryption'), 'encryptAlgorithm'=>CConfig::get('text.encryptAlgorithm'), 'encryptKey'=>CConfig::get('text.encryptKey'))
-     *   
-     *   *** SORTING:
-     *   - 'sortType'=>'string|numeric' - defines soritng type ('string' is default)
-     *   - 'sortBy'=>'' - defines field to perform sorting by
-     *   - 'changeOrder'=>true - allowd to change rows order from main view by clicking of arrows
-     *   
-     *   *** FILTERING:
-     *   - to perform search by few fields define them comma separated: 'field1,field2' => array(...)
-     *   - for filters attribute 'table' is empty by default. Remember: to add CConfig::get('db.prefix') in 'table'=>CConfig::get('db.prefix').'table'
-     *   - 'compareType'=>'string|numeric|binary' - attribute for filtering fields
-     *   - 'visible'=>true|false - attribute for visibility of filtering fileds
-     *   - 'sourceFilter'=>'' - used to filter from another field
-     *
-     *   *** MODEL:
-     *   - 'relationType' (optional) - defines a type of relation for specific model, if not defined - used default relation type
-     *   - 'getAllRecords' - specify custom methods for select of all records of model (optional). Ex.: 'getAllRecords'=>'findAll'
-     *   - 'countAllRecords' - specify custom methods for select of all records of model (optional). Ex.: 'countAllRecords'=>'count'
-     *   
-     * Usage:
-     *  echo CWidget::create('CGridView', array(
-     *    'model'				=> 'ModelName',
-     *    'relationType'		=> '',
-     *    'actionPath'			=> 'controller/action',
-     *    'condition'			=> CConfig::get('db.prefix').'countries.id <= 30',
-     *    'groupBy'				=> '',
-     *    'limit'				=> '',
-     *    'defaultOrder'		=> array('field_1'=>'DESC', 'field_2'=>'ASC' [,...]),
-     *    'passParameters'		=> false,
-     *    [DEPRECATED from v0.7.1] 'customParameters'	=> array('param_1'=>'integer', 'param_1'=>'string' [,...]), 
+	/**
+	 * Draws grid view
+	 * @param array $params
+	 *
+	 * Notes:
+	 *   *** FIELD ATTRIBUTES:
+	 *   - to disable any field, including filtering or button use: 'disabled'=>true
+	 *   - 'prependCode=>'', 'appendCode'=>'' - insert code before or after field (for all fields):
+	 *   - 'data'=>'' - attribute for type 'label', allows to show data from PHP variables
+	 *   - 'case'=>'normal' - attribute for type 'label', allows to convert value to 'upper', 'lower', 'camel' or 'humanize' cases
+	 *   - 'maxLength'=>'X' - attribute for type 'label', specifies to show maximum X characters of the string
+	 *     'showTooltip'=>true - specifies whether to show tooltip on field if it's length was reduced
+	 *   - 'aggregate'=>['function'=>'sum|avg'] - allow to run aggregate function on specific column
+	 *   - 'sourceField'=>'' - used to show data from another field
+	 *   - 'callback'=>array('class'=>'className', 'function'=>'functionName', 'params'=>$functionParams)
+	 *      callback of closure function that is called when item created (available for labels only), $record - all current record
+	 *      PHP_VERSION >= 5.3.0 $functionName = function($record, $params){ return record['field_name']; }
+	 *      Ex.: function callbackFunction($record, $params){...} - passed a whole record
+	 *   - 'trigger'=>array('trigger_key'=>'field name', 'trigger_operation'=>'!=', 'trigger_value'=>'0', 'success_value'=>'0', 'wrong_value'=>'0'),
+	 *   	trigger is used for changing field valut depending on simple condition
+	 *   	Ex.: 'trigger'=>array('trigger_key'=>'is_active', 'trigger_operation'=>'==', 'trigger_value'=>'1', 'success_value'=>A::t('app', 'Active), 'wrong_value'=>''),
+	 *   - select classes: 'class'=>'chosen-select-filter' or 'class'=>'chosen-select'
+	 *   - Encryption for standard label or html fields: 'encryption'=>array('enabled'=>CConfig::get('text.encryption'), 'encryptAlgorithm'=>CConfig::get('text.encryptAlgorithm'), 'encryptKey'=>CConfig::get('text.encryptKey'))
+	 *
+	 *   *** SORTING:
+	 *   - 'sortType'=>'string|numeric' - defines soritng type ('string' is default)
+	 *   - 'sortBy'=>'' - defines field to perform sorting by
+	 *   - 'changeOrder'=>true - allowd to change rows order from main view by clicking of arrows
+	 *
+	 *   *** FILTERING:
+	 *   - to perform search by few fields define them comma separated: 'field1,field2' => array(...)
+	 *   - for filters attribute 'table' is empty by default. Remember: to add CConfig::get('db.prefix') in 'table'=>CConfig::get('db.prefix').'table'
+	 *   - 'compareType'=>'string|numeric|binary' - attribute for filtering fields
+	 *   - 'visible'=>true|false - attribute for visibility of filtering fileds
+	 *   - 'sourceFilter'=>'' - used to filter from another field
+	 *
+	 *   *** MODEL:
+	 *   - 'relationType' (optional) - defines a type of relation for specific model, if not defined - used default relation type
+	 *   - 'getAllRecords' - specify custom methods for select of all records of model (optional). Ex.: 'getAllRecords'=>'findAll'
+	 *   - 'countAllRecords' - specify custom methods for select of all records of model (optional). Ex.: 'countAllRecords'=>'count'
+	 *
+	 * Usage:
+	 *  echo CWidget::create('CGridView', array(
+	 *    'model'				=> 'ModelName',
+	 *    'relationType'		=> '',
+	 *    'actionPath'			=> 'controller/action',
+	 *    'condition'			=> CConfig::get('db.prefix').'countries.id <= 30',
+	 *    'groupBy'				=> '',
+	 *    'limit'				=> '',
+	 *    'defaultOrder'		=> array('field_1'=>'DESC', 'field_2'=>'ASC' [,...]),
+	 *    'passParameters'		=> false,
+	 *    [DEPRECATED from v0.7.1] 'customParameters'	=> array('param_1'=>'integer', 'param_1'=>'string' [,...]),
 	 *    'pagination'			=> array('enable'=>true, 'pageSize'=>20),
 	 *    'sorting'				=> true,
 	 *    'linkType' 			=> 0,
@@ -91,36 +91,36 @@ class CGridView extends CWidgs
 	 *    	 'gridWrapper'	=> array('tag'=>'div', 'class'=>''),
 	 *    	 'gridTable' 	=> array('class'=>''),
 	 *    ),
-     *    'filters'	=> array(
-     *    	 'field_1' 	=> array('title'=>'Field 1', 'type'=>'textbox', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'', 'maxLength'=>'', 'htmlOptions'=>array()),
-     *    	 'field_2' 	=> array('title'=>'Field 2', 'type'=>'textbox', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'', 'maxLength'=>'', 'autocomplete'=>array('enable'=>true, 'ajaxHandler'=>'path/to/handler/file', 'minLength'=>3, 'returnId'=>true), 'htmlOptions'=>array()),
-     *    	 'field_3' 	=> array('title'=>'Field 3', 'type'=>'enum', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'', 'source'=>array('0'=>'No', '1'=>'Yes'), 'emptyOption'=>true, 'emptyValue'=>'', 'htmlOptions'=>array('class'=>'chosen-select-filter')),
-     *    	 'field_4' 	=> array('title'=>'Field 5', 'type'=>'datetime', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'80px', 'maxLength'=>'', 'format'=>'', 'htmlOptions'=>array(), 'viewType'=>'datetime|date|time'),
-     *    ),
+	 *    'filters'	=> array(
+	 *    	 'field_1' 	=> ['title'=>'Field 1', 'type'=>'textbox', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'', 'maxLength'=>'', 'htmlOptions'=>[]],
+	 *    	 'field_2' 	=> ['title'=>'Field 2', 'type'=>'textbox', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'', 'maxLength'=>'', 'autocomplete'=>array('enable'=>true, 'ajaxHandler'=>'path/to/handler/file', 'minLength'=>3, 'returnId'=>true), 'htmlOptions'=>[]],
+	 *    	 'field_3' 	=> ['title'=>'Field 3', 'type'=>'enum', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'', 'source'=>array('0'=>'No', '1'=>'Yes'), 'emptyOption'=>true, 'emptyValue'=>'', 'htmlOptions'=>array('class'=>'chosen-select-filter')],
+	 *    	 'field_4' 	=> ['title'=>'Field 5', 'type'=>'datetime', 'table'=>'', 'operator'=>'=', 'default'=>'', 'width'=>'80px', 'maxLength'=>'', 'format'=>'', 'htmlOptions'=>[], 'viewType'=>'datetime|date|time'],
+	 *    ),
 	 *    'fields'	=> array(
 	 *       'field_1' => array('title'=>'Field 1', 'type'=>'index', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>false),
 	 *       'field_2' => array('title'=>'Field 2', 'type'=>'concat', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>true, 'concatFields'=>array('first_name', 'last_name'), 'concatSeparator'=>', ',),
 	 *       'field_3' => array('title'=>'Field 3', 'type'=>'decimal', 'align'=>'', 'width'=>'', 'class'=>'right', 'headerTooltip'=>'', 'headerClass'=>'right', 'isSortable'=>true, 'format'=>'american|european', 'decimalPoints'=>''),
-	 *       'field_4' => array('title'=>'Field 4', 'type'=>'datetime', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'format'=>''),
+	 *       'field_4' => array('title'=>'Field 4', 'type'=>'datetime', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>true, 'definedValues'=>[], 'format'=>''),
 	 *       'field_5' => array('title'=>'Field 5', 'type'=>'enum', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerTooltip'=>'', 'headerClass'=>'center', 'isSortable'=>true, 'source'=>array('0'=>'No', '1'=>'Yes')),
 	 *       'field_6' => array('title'=>'Field 6', 'type'=>'image', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerTooltip'=>'', 'headerClass'=>'center', 'isSortable'=>false, 'imagePath'=>'images/flags/', 'defaultImage'=>'', 'imageWidth'=>'16px', 'imageHeight'=>'16px', 'alt'=>'', 'showImageInfo'=>true),
-	 *       'field_7' => array('title'=>'Field 7', 'type'=>'label', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>true, 'changeOrder'=>false, 'definedValues'=>array(), 'stripTags'=>false, 'case'=>'', 'maxLength'=>'', 'showTooltip'=>true, 'callback'=>array('function'=>$functionName, 'params'=>$functionParams), 'trigger'=>array('trigger_key'=>'', 'trigger_operation'=>'!=', 'trigger_value'=>'', 'success_value'=>'', 'wrong_value'=>'')),
-	 *       'field_8' => array('title'=>'Field 8', 'type'=>'html', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>true, 'definedValues'=>array(), 'stripTags'=>false, 'case'=>'', 'maxLength'=>'', 'showTooltip'=>true, 'callback'=>array('function'=>$functionName, 'params'=>$functionParams), 'trigger'=>array('trigger_key'=>'', 'trigger_operation'=>'!=', 'trigger_value'=>'', 'success_value'=>'', 'wrong_value'=>'')),
-	 *       'field_9' => array('title'=>'Field 9', 'type'=>'link', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerTooltip'=>'', 'headerClass'=>'center', 'isSortable'=>false, 'linkUrl'=>'path/to/param/{field_name}/page/{page}', 'linkText'=>'{field_name}|free text', 'definedValues'=>array(), 'htmlOptions'=>array()),
-	 *       'field_10' => array('title'=>'Field 10', 'type'=>'evaluation', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerTooltip'=>'', 'headerClass'=>'center', 'isSortable'=>false, 'minValue'=>1, 'maxValue'=>5, 'tooltip'=>A::t('app', 'Value'), 'counts'=>array('fieldName'=>'', 'title'=>A::t('app', 'Evaluations')), 'definedValues'=>array(), 'htmlOptions'=>array()),
-	 *       'field_11' => array('title'=>'Field 11', 'type'=>'template', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>false, 'sortBy'=>'', 'html'=>'{category_id}', 'fields'=>array('category_id'=>array('default'=>'', 'prefix'=>'', 'postfix'=>'', 'source'=>array()))),
+	 *       'field_7' => array('title'=>'Field 7', 'type'=>'label', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>true, 'changeOrder'=>false, 'definedValues'=>[], 'stripTags'=>false, 'case'=>'', 'maxLength'=>'', 'showTooltip'=>true, 'callback'=>array('function'=>$functionName, 'params'=>$functionParams), 'trigger'=>array('trigger_key'=>'', 'trigger_operation'=>'!=', 'trigger_value'=>'', 'success_value'=>'', 'wrong_value'=>'')),
+	 *       'field_8' => array('title'=>'Field 8', 'type'=>'html', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>true, 'definedValues'=>[], 'stripTags'=>false, 'case'=>'', 'maxLength'=>'', 'showTooltip'=>true, 'callback'=>array('function'=>$functionName, 'params'=>$functionParams), 'trigger'=>array('trigger_key'=>'', 'trigger_operation'=>'!=', 'trigger_value'=>'', 'success_value'=>'', 'wrong_value'=>'')),
+	 *       'field_9' => array('title'=>'Field 9', 'type'=>'link', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerTooltip'=>'', 'headerClass'=>'center', 'isSortable'=>false, 'linkUrl'=>'path/to/param/{field_name}/page/{page}', 'linkText'=>'{field_name}|free text', 'definedValues'=>[], 'htmlOptions'=>[]),
+	 *       'field_10' => array('title'=>'Field 10', 'type'=>'evaluation', 'align'=>'', 'width'=>'', 'class'=>'center', 'headerTooltip'=>'', 'headerClass'=>'center', 'isSortable'=>false, 'minValue'=>1, 'maxValue'=>5, 'tooltip'=>A::t('app', 'Value'), 'counts'=>array('fieldName'=>'', 'title'=>A::t('app', 'Evaluations')), 'definedValues'=>[], 'htmlOptions'=>[]),
+	 *       'field_11' => array('title'=>'Field 11', 'type'=>'template', 'align'=>'', 'width'=>'', 'class'=>'left', 'headerTooltip'=>'', 'headerClass'=>'left', 'isSortable'=>false, 'sortBy'=>'', 'html'=>'{category_id}', 'fields'=>array('category_id'=>array('default'=>'', 'prefix'=>'', 'postfix'=>'', 'source'=>[]))),
 	 *    ),
 	 *    'actions'	=> array(
-     *    	 'edit'    => array('link'=>'locations/edit/id/{id}/page/{page}', 'imagePath'=>'templates/backend/images/edit.png', 'title'=>'Edit this record'),
-     *    	 'delete'  => array('link'=>'locations/delete/id/{id}/page/{page}', 'imagePath'=>'templates/backend/images/delete.png', 'title'=>'Delete this record', 'onDeleteAlert'=>true),
-     *    ),
+	 *    	 'edit'    => array('link'=>'locations/edit/id/{id}/page/{page}', 'imagePath'=>'templates/backend/images/edit.png', 'title'=>'Edit this record'),
+	 *    	 'delete'  => array('link'=>'locations/delete/id/{id}/page/{page}', 'imagePath'=>'templates/backend/images/delete.png', 'title'=>'Delete this record', 'onDeleteAlert'=>true),
+	 *    ),
 	 *    'return'=>true,
-     *  ));
-    */
-	public static function init($params = array())
+	 *  ));
+	 */
+	public static function init($params = [])
 	{
 		parent::init($params);
-		
+
 		$output = '';
 		$model = self::params('model', '');
 		$modelName = $model;
@@ -133,31 +133,31 @@ class CGridView extends CWidgs
 		$passParameters = (bool)self::params('passParameters', false);
 		$customParameters = self::params('customParameters', false);
 		$return = (bool)self::params('return', true);
-		$fields = self::params('fields', array());
-		$filters = self::params('filters', array());
-		$actions = self::params('actions', array());
+		$fields = self::params('fields', []);
+		$filters = self::params('filters', []);
+		$actions = self::params('actions', []);
 		$sortingEnabled = (bool)self::params('sorting', false);
-		$filterDiv = self::params('options.filterDiv', array());
-		$filterForm = self::params('options.filterForm', array());
-		$filterItemDiv = self::params('options.filterItemDiv', array());
+		$filterDiv = self::params('options.filterDiv', []);
+		$filterForm = self::params('options.filterForm', []);
+		$filterItemDiv = self::params('options.filterItemDiv', []);
 		$filterType = self::params('options.filterType', 'default');
-		$gridWrapper = self::params('options.gridWrapper', array());
+		$gridWrapper = self::params('options.gridWrapper', []);
 		$gridTable = self::params('options.gridTable', array());
 		$linkType = (int)self::params('linkType', 0);    /* Link type: 0 - standard, 1 - SEO */
 		$pagination = (bool)self::params('pagination.enable', '');
 		$pageSize = abs((int)self::params('pagination.pageSize', '10'));
 		$activeActions = is_array($actions) ? count($actions) : 0;
 		$onDeleteRecord = false;
-		
+
 		$baseUrl = A::app()->getRequest()->getBaseUrl();
 		$page = A::app()->getRequest()->getQuery('page', 'integer', 1);
-		
+
 		// Get pure model name
 		$namespace = explode('\\', $model);
 		if (count($namespace) > 1) {
 			$modelName = $namespace[count($namespace) - 1];
 		}
-		
+
 		// Remove disabled actions
 		if (is_array($actions)) {
 			foreach ($actions as $key => $val) {
@@ -170,7 +170,7 @@ class CGridView extends CWidgs
 			}
 			$activeActions = count($actions);
 		}
-		
+
 		// Prepare sorting variables
 		// ---------------------------------------		
 		$sortBy = '';
@@ -181,7 +181,7 @@ class CGridView extends CWidgs
 			$sortBy = A::app()->getRequest()->getQuery('sort_by', 'dbfield', '');
 			$sortDir = (strtolower(A::app()->getRequest()->getQuery('sort_dir', 'alpha', '')) == 'desc') ? 'desc' : 'asc';
 		}
-		
+
 		if ($sortingEnabled && !empty($sortBy)) {
 			$sortType = self::_getFieldParam($fields, $sortBy, 'sortType', array('string', 'numeric'));
 			$orderClause = $sortBy . ($sortType == 'numeric' ? ' + 0 ' : '') . ' ' . $sortDir;
@@ -191,7 +191,7 @@ class CGridView extends CWidgs
 				$orderClause .= (!empty($orderClause) ? ', ' : '') . $oField . ($sortType == 'numeric' ? ' + 0 ' : '') . ' ' . $oFieldType;
 			}
 		}
-		
+
 		// Prepare filter variables
 		// ---------------------------------------
 		$whereClause = (!empty($condition)) ? $condition : '';
@@ -202,7 +202,7 @@ class CGridView extends CWidgs
 			if ($filterMegaMenu) {
 				$filterCount = 0;
 			}
-			
+
 			// Remove disabled fields
 			foreach ($filters as $key => $val) {
 				if ((bool)self::keyAt('disabled', $val) === true) unset($filters[$key]);
@@ -212,11 +212,11 @@ class CGridView extends CWidgs
 					}
 				}
 			}
-			
+
 			if ($filterMegaMenu) {
 				$filterIterator = 0;
 				$filterOddHalf = false;
-				
+
 				$filterHalf = ceil($filterCount / 4) * 2;
 				// If the left half of the filter 3 element larger than the right half of the filter, move 1 element in the right half of filter
 				if ($filterHalf * 2 - $filterCount == 3) {
@@ -228,13 +228,32 @@ class CGridView extends CWidgs
 				$output .= CHtml::closeTag('a');
 				$output .= CHtml::openTag('div', array('class' => (!empty($filterDiv['class']) ? $filterDiv['class'] : 'filtering-wrapper'), 'style' => 'display:none;')) . self::NL;
 				$output .= CHtml::openTag('div', array('class' => 'filtering-wrapper-inner')) . self::NL;
-				$output .= CHtml::openForm($actionPath, 'get', array('id' => 'frmFilter' . $modelName, 'class' => (!empty($filterForm['class']) ? $filterForm['class'] : null))) . self::NL;
+				$output .= CHtml::openForm($actionPath, 'get', array('id' => 'frmFilter' . $modelName, 'onSubmit'=>'return onSubmitForm()', 'class' => (!empty($filterForm['class']) ? $filterForm['class'] : null))) . self::NL;
 				$output .= CHtml::openTag('div', array('class' => 'row')) . self::NL;
 			} else {
 				$output .= CHtml::openTag('div', array('class' => (!empty($filterDiv['class']) ? $filterDiv['class'] : 'filtering-wrapper'))) . self::NL;
-				$output .= CHtml::openForm($actionPath, 'get', array('id' => 'frmFilter' . $modelName)) . self::NL;
+				$output .= CHtml::openForm($actionPath, 'get', array('id' => 'frmFilter' . $modelName, 'onSubmit'=>'return onSubmitForm()')) . self::NL;
 			}
-			
+
+			// Register script for onSubmitForm
+			A::app()->getClientScript()->registerScript(
+				'submit-filter',
+				'function onSubmitForm(){
+						let $form = $("#frmFilter'.$modelName.'");
+						$form.find("input").each(function(index, obj){
+							if($(obj).val() === "") $(obj).prop("disabled", true);
+							else $(obj).prop("readonly", true);
+						});
+						$form.find("select").each(function(index, obj){
+							if($(obj).val() === "") $(obj).prop("disabled", true);
+							else $(obj).addClass("readonly");
+						});						
+						return true;
+					}',
+				2
+			);
+
+
 			// An array of iterations for the source filter
 			$fArrSourceIter = array();
 			foreach ($filters as $fKey => $fValue) {
@@ -251,7 +270,7 @@ class CGridView extends CWidgs
 				$htmlOptions = isset($fValue['htmlOptions']) ? $fValue['htmlOptions'] : array();
 				$fId = !empty($htmlOptions['id']) ? $htmlOptions['id'] : $fKey;
 				$htmlOptions['id'] = $fId;
-				
+
 				// Check if we want to use another filter as a "source filter"
 				$sourceFilter = self::keyAt('sourceFilter', $fValue, '');
 				if (!empty($sourceFilter)) {
@@ -263,7 +282,7 @@ class CGridView extends CWidgs
 					$fName = $fKey;
 					$fNameAbbr = $fKey;
 				}
-				
+
 				if (A::app()->getRequest()->getQuery('but_filter')) {
 					if ($fIsArray) {
 						$fieldValue = '';
@@ -279,7 +298,7 @@ class CGridView extends CWidgs
 				} else {
 					$fieldValue = $fieldDefaultValue;
 				}
-				
+
 				if ($visible) {
 					if ($filterMegaMenu) {
 						$filterNewRow = $filterIterator > $filterHalf && $filterOddHalf
@@ -291,19 +310,19 @@ class CGridView extends CWidgs
 						} elseif ($filterNewRow) {
 							$output .= CHtml::openTag('div', array('class' => 'row'));
 						}
-						
+
 						$output .= CHtml::openTag('div', array('class' => 'col-md-6'));
 					}
-					
+
 					if (!empty($filterItemDiv)) {
 						$output .= CHtml::openTag('div', array('class' => (!empty($filterItemDiv['class']) ? $filterItemDiv['class'] : ''))) . self::NL;
 					}
 					if ($filterMegaMenu && !empty($title)) {
 						$output .= CHtml::tag('label', array(), $title);
 					}
-					
+
 					$output .= !empty($title) ? $title . ': ' : '';
-					
+
 					switch ($type) {
 						case 'enum':
 							$source = isset($fValue['source']) ? $fValue['source'] : array();
@@ -324,12 +343,12 @@ class CGridView extends CWidgs
 							}
 							$output .= '&nbsp;' . self::NL;
 							break;
-						
+
 						case 'datetime':
 						case 'datetimepicker':
 							$format = !empty($fValue['format']) ? $fValue['format'] : 'yy-mm-dd';
 							$viewType = !empty($fValue['viewType']) ? $fValue['viewType'] : 'date';
-							
+
 							$htmlOptions['maxlength'] = $maxLength;
 							$htmlOptions['style'] = $width;
 							if ($filterMegaMenu && !empty($title)) {
@@ -338,13 +357,13 @@ class CGridView extends CWidgs
 							$output .= CHtml::textField($fName, $fieldValue, $htmlOptions);
 							A::app()->getClientScript()->registerCssFile('assets/vendors/jquery/jquery-ui.min.css');
 							A::app()->getClientScript()->registerCssFile('assets/vendors/datetimepicker/jquery-ui-timepicker-addon.css');
-							
+
 							// It's better if it was alredy added in template file
 							// A::app()->getClientScript()->registerScriptFile('assets/vendors/jquery/jquery-ui.min.js', 2);
 							A::app()->getClientScript()->registerScriptFile('assets/vendors/datetimepicker/jquery-ui-timepicker-addon.js', 2);
 							A::app()->getClientScript()->registerScriptFile('assets/vendors/datetimepicker/i18n/jquery-ui-timepicker-addon-i18n.min.js', 2);
 							A::app()->getClientScript()->registerScriptFile('assets/vendors/datetimepicker/jquery-ui-slideraccess.js', 2);
-							
+
 							// UI:
 							//		dateFormat: dd/mm/yy | d M, y | mm/dd/yy  | yy-mm-dd
 							// Bootstrap:
@@ -392,23 +411,23 @@ class CGridView extends CWidgs
 								);
 							}
 							break;
-						
+
 						case 'textbox':
 						default:
 							$autocompleteEnabled = self::keyAt('enable', $autocomplete);
 							$autocompleteAjaxHandler = self::keyAt('ajaxHandler', $autocomplete, '');
 							$autocompleteMinLength = self::keyAt('minLength', $autocomplete, 1);
 							$autocompleteReturnId = self::keyAt('returnId', $autocomplete, true);
-							
+
 							if ($autocompleteEnabled) {
 								$cRequest = A::app()->getRequest();
-								
+
 								A::app()->getClientScript()->registerCssFile('assets/vendors/jquery/jquery-ui.min.css');
 								// Already included in backend default.php
 								if (A::app()->view->getTemplate() != 'backend') {
 									A::app()->getClientScript()->registerScriptFile('assets/vendors/jquery/jquery-ui.min.js', 2);
 								}
-								
+
 								$fKeySearch = $autocompleteReturnId ? $fId . '_result' : $fId;
 								A::app()->getClientScript()->registerScript(
 									'autocomplete_' . self::$_autocompleteCount++,
@@ -455,7 +474,7 @@ class CGridView extends CWidgs
 									});',
 									4
 								);
-								
+
 								if ($autocompleteReturnId) {
 									// Draw hidden field for real field
 									$output .= CHtml::hiddenField($fName, CHtml::encode($fieldValue), $htmlOptions) . self::NL;
@@ -496,21 +515,21 @@ class CGridView extends CWidgs
 						$filterIterator++;
 					}
 				}
-				
+
 				if ($fieldValue !== '') {
 					$filterUrl .= (!empty($filterUrl) ? '&' : '') . $fName . '=' . $fieldValue;
-					
+
 					// Check if there is an autocomplete key that must be added to filter string
 					$autocompleteValue = A::app()->getRequest()->getQuery($fId . '_result');
 					if ($autocompleteValue != '') {
 						$filterUrl .= (!empty($filterUrl) ? '&' : '') . $fId . '_result=' . $autocompleteValue;
 					}
-					
+
 					$escapedFieldValue = strip_tags(CString::quote($fieldValue));
 					$quote = ($compareType == 'numeric' || $compareType == 'binary') ? '' : "'";
 					$binary = ($compareType == 'binary') ? 'BINARY ' : '';
 					$whereClauseMiddle = '';
-					
+
 					$fKeyParts = explode(',', $fNameAbbr);
 					$fKeyPartsCount = count($fKeyParts);
 					foreach ($fKeyParts as $key => $val) {
@@ -566,7 +585,7 @@ class CGridView extends CWidgs
 					}
 				}
 			}
-			
+
 			if ($filterMegaMenu) {
 				$output .= CHtml::tag('div', array('class' => 'spacer-20'), '');
 				$output .= CHtml::openTag('div', array('class' => 'col-md-12')) . self::NL;
@@ -584,7 +603,7 @@ class CGridView extends CWidgs
 				}
 				$output .= CHtml::submitButton(A::t('core', 'Filter'), array('name' => 'but_filter')) . self::NL;
 			}
-			
+
 			if ($filterMegaMenu) $output .= CHtml::closeTag('div') . self::NL;
 			$output .= CHtml::closeTag('div') . self::NL;
 			$output .= CHtml::closeForm() . self::NL;
@@ -592,18 +611,18 @@ class CGridView extends CWidgs
 			$output .= CHtml::closeTag('div') . self::NL;
 			$filterUrl = CHtml::encode($filterUrl);
 		}
-		
+
 		// Prepare pagination variables
 		// ---------------------------------------
 		$totalRecords = $totalPageRecords = 0;
 		$currentPage = '';
-		$modelParams = !empty($relationType) ? array($relationType) : array();
+		$modelParams = ! empty($relationType) ? [$relationType] : [];
 		$objModel = call_user_func_array($model . '::model', $modelParams);
 		if (!$objModel) {
-			CDebug::addMessage('errors', 'missing-model', A::t('core', 'Unable to find class "{class}".', array('{class}' => $model)), 'session');
+			CDebug::addMessage('errors', 'missing-model', A::t('core', 'Unable to find class "{class}".', ['{class}' => $model]), 'session');
 			return '';
 		}
-		
+
 		// Replacing rows
 		// ---------------------------------------
 		$act = A::app()->getRequest()->getQuery('act', 'alpha', '');
@@ -623,8 +642,8 @@ class CGridView extends CWidgs
 						$val2 = $record2->$replaceField;
 					}
 					if ($val1 != '' && $val2 != '') {
-						$objModel->updateByPk($id1, array($replaceField => $val2));
-						$objModel->updateByPk($id2, array($replaceField => $val1));
+						$objModel->updateByPk($id1, [$replaceField => $val2]);
+						$objModel->updateByPk($id2, [$replaceField => $val1]);
 						if (APPHP_MODE == 'demo') {
 							A::app()->getSession()->setFlash('alert', A::t('core', 'This operation is blocked in Demo Mode!'));
 							A::app()->getSession()->setFlash('alertType', 'warning');
@@ -632,43 +651,43 @@ class CGridView extends CWidgs
 							A::app()->getSession()->setFlash('alert', A::t('core', 'The changing order operation has been successfully completed!'));
 							A::app()->getSession()->setFlash('alertType', 'success');
 						}
-						
+
 						// Add sorting and custom parameters to URL
 						$searchActionPath = $actionPath;
 						$separateSymbol = preg_match('/\?/', $searchActionPath) ? '&' : '?';
 						$searchActionPath .= self::_additionalParams($passParameters, $linkType, $separateSymbol);
 						$separateSymbol = preg_match('/\?/', $searchActionPath) ? '&' : '?';
 						$searchActionPath .= self::_customParams($customParameters, $linkType, $separateSymbol);
-						
+
 						header('location: ' . $baseUrl . $searchActionPath);
 						exit;
 					}
 				}
 			}
 		}
-		
+
 		if ($pagination) {
 			$currentPage = A::app()->getRequest()->getQuery('page', 'integer', 1);
-			$totalRecords = self::_countAllRecords($objModel, array('condition' => $whereClause, 'group' => $groupBy));
+			$totalRecords = self::_countAllRecords($objModel, ['condition' => $whereClause, 'group' => $groupBy]);
 			if ($currentPage) {
 				$records = self::_getAllRecords($objModel, array('condition' => $whereClause, 'order' => $orderClause, 'group' => $groupBy, 'limit' => (($currentPage - 1) * $pageSize) . ', ' . $pageSize));
 				$totalPageRecords = is_array($records) ? count($records) : 0;
 			}
 			if (!$totalPageRecords || !$currentPage) {
 				if (A::app()->getRequest()->getQuery('but_filter')) {
-					$output .= CWidget::create('CMessage', array('warning', A::t('core', 'No records found or incorrect parameters passed')));
+					$output .= CWidget::create('CMessage', ['warning', A::t('core', 'No records found or incorrect parameters passed')]);
 				} else {
-					$output .= CWidget::create('CMessage', array('warning', A::t('core', 'No records found')));
+					$output .= CWidget::create('CMessage', ['warning', A::t('core', 'No records found')]);
 				}
 			}
 		} else {
-			$records = self::_getAllRecords($objModel, array('condition' => $whereClause, 'order' => $orderClause, 'group' => $groupBy, 'limit' => $limit));
+			$records = self::_getAllRecords($objModel, ['condition' => $whereClause, 'order' => $orderClause, 'group' => $groupBy, 'limit' => $limit]);
 			$totalPageRecords = is_array($records) ? count($records) : 0;
 			if (!$totalPageRecords) {
-				$output .= CWidget::create('CMessage', array('warning', A::t('core', 'No records found')));
+				$output .= CWidget::create('CMessage', ['warning', A::t('core', 'No records found')]);
 			}
 		}
-		
+
 		// Draw table
 		// ---------------------------------------
 		if ($totalPageRecords > 0) {
@@ -676,27 +695,27 @@ class CGridView extends CWidgs
 			foreach ($fields as $key => $val) {
 				if ((bool)self::keyAt('disabled', $val) === true) unset($fields[$key]);
 			}
-			
+
 			// ----------------------------------------------
 			// Draw TABLE wrapper
 			// ----------------------------------------------
 			if (!empty($gridWrapper['tag'])) {
-				$output .= CHtml::openTag($gridWrapper['tag'], array('class' => (!empty($gridWrapper['class']) ? $gridWrapper['class'] : null))) . self::NL;
+				$output .= CHtml::openTag($gridWrapper['tag'], ['class' => (! empty($gridWrapper['class']) ? $gridWrapper['class'] : null)]).self::NL;
 			}
 			// ----------------------------------------------
-			// Draw <THEAD> rows 
+			// Draw <THEAD> rows
 			// ----------------------------------------------
-			$output .= CHtml::openTag('table', array('class' => 'grid-view-table' . (!empty($gridTable['class']) ? ' ' . $gridTable['class'] : ''))) . self::NL;
+			$output .= CHtml::openTag('table', ['class' => 'grid-view-table'.(! empty($gridTable['class']) ? ' '.$gridTable['class'] : '')]).self::NL;
 			$output .= CHtml::openTag('thead') . self::NL;
-			$output .= CHtml::openTag('tr', array('id' => 'tr' . $modelName . '_' . self::$_rowCount++)) . self::NL;
+			$output .= CHtml::openTag('tr', ['id' => 'tr'.$modelName.'_'.self::$_rowCount++]).self::NL;
 			foreach ($fields as $key => $val) {
-				
+
 				// Check if we want to use another field as a "source field"
 				$sourceField = self::keyAt('sourceField', $val, '');
 				if (!empty($sourceField)) {
 					$key = $sourceField;
 				}
-				
+
 				$type = self::keyAt('type', $val, '');
 				$title = self::keyAt('title', $val, '');
 				$headerClass = self::keyAt('headerClass', $val, '');
@@ -705,18 +724,18 @@ class CGridView extends CWidgs
 				$widthAttr = self::keyAt('width', $val);
 				$alignAttr = self::keyAt('align', $val);
 				$headerTooltip = self::keyAt('headerTooltip', $val);
-				
+
 				// Prepare style attributes
 				$width = (!empty($widthAttr) && CValidator::isHtmlSize($widthAttr)) ? 'width:' . $widthAttr . ';' : '';
 				$align = (!empty($alignAttr) && CValidator::isAlignment($alignAttr)) ? 'text-align:' . $alignAttr . ';' : '';
 				$style = $width . $align;
-				
+
 				if ($sortingEnabled && $isSortable && ($type != 'template' || ($type == 'template' && !empty($sortField)))) {
 					$sortByField = !empty($sortField) ? $sortField : $key;
 					$colSortDir = (($sortBy != $sortByField) ? 'asc' : (($sortDir == 'asc') ? 'desc' : 'asc'));
-					$sortImg = ($sortBy == $sortByField) ? ' ' . CHtml::tag('span', array('class' => 'sort-arrow'), (($colSortDir == 'asc') ? '&#9660;' : '&#9650;')) : '';
+					$sortImg = ($sortBy == $sortByField) ? ' ' . CHtml::tag('span', ['class' => 'sort-arrow'], (($colSortDir == 'asc') ? '&#9660;' : '&#9650;')) : '';
 					if ($sortBy == $sortByField) $sortUrl = 'sort_by=' . $sortByField . '&sort_dir=' . $sortDir;
-					
+
 					$separateSymbol = preg_match('/\?/', $actionPath) ? '&' : '?';
 					$linkUrl = $actionPath . $separateSymbol . 'sort_by=' . $sortByField . '&sort_dir=' . $colSortDir;
 					$linkUrl .= !empty($currentPage) ? '&page=' . $currentPage : '';
@@ -724,39 +743,39 @@ class CGridView extends CWidgs
 					$linkUrl .= self::_customParams($customParameters, $linkType, '&');
 					$title = CHtml::link($title . $sortImg, $linkUrl);
 				}
-				
-				$title .= !empty($headerTooltip) ? ' ' . CHtml::link('', false, array('class' => 'tooltip-icon', 'title' => $headerTooltip)) : '';
-				
-				$output .= CHtml::tag('th', array('class' => $headerClass, 'style' => $style), $title) . self::NL;
+
+				$title .= ! empty($headerTooltip) ? ' '.CHtml::link('', false, ['class' => 'tooltip-icon', 'title' => $headerTooltip]) : '';
+
+				$output .= CHtml::tag('th', ['class' => $headerClass, 'style' => $style], $title).self::NL;
 			}
 			if ($activeActions > 0) {
-				$output .= CHtml::tag('th', array('class' => 'actions'), A::t('core', 'Actions')) . self::NL;
+				$output .= CHtml::tag('th', ['class' => 'actions'], A::t('core', 'Actions')).self::NL;
 			}
 			$output .= CHtml::closeTag('tr') . self::NL;;
 			$output .= CHtml::closeTag('thead') . self::NL;
-			
+
 			// ----------------------------------------------
-			// Draw <TBODY> rows 
+			// Draw <TBODY> rows
 			// ----------------------------------------------
-			$aggregateRow = array();
+			$aggregateRow = [];
 			$output .= CHtml::openTag('tbody') . self::NL;
 			for ($i = 0; $i < $totalPageRecords; $i++) {
-				$output .= CHtml::openTag('tr', array('id' => 'tr' . $modelName . '_' . self::$_rowCount++)) . self::NL;
+				$output .= CHtml::openTag('tr', ['id' => 'tr'.$modelName.'_'.self::$_rowCount++]).self::NL;
 				$id = (isset($records[$i]['id'])) ? $records[$i]['id'] : '';
 				$prevId = (isset($records[$i - 1]['id'])) ? $records[$i - 1]['id'] : '';
 				$nextId = (isset($records[$i + 1]['id'])) ? $records[$i + 1]['id'] : '';
-				
+
 				// ----------------------------------------------
 				// Display columns in each row
 				// ----------------------------------------------
 				foreach ($fields as $key => $val) {
-					
+
 					// Check if we want to use another field as a "source field"
 					$sourceField = self::keyAt('sourceField', $val, '');
 					if (!empty($sourceField)) {
 						$key = $sourceField;
 					}
-					
+
 					$align = self::keyAt('align', $val, '');
 					$style = (!empty($align) && CValidator::isAlignment($align)) ? 'text-align:' . $align . ';' : '';
 					$class = self::keyAt('class', $val, '');
@@ -764,15 +783,15 @@ class CGridView extends CWidgs
 					$title = self::keyAt('title', $val, '');
 					$format = self::keyAt('format', $val, '');
 					$definedValues = self::keyAt('definedValues', $val, '');
-					$htmlOptions = (array)self::keyAt('htmlOptions', $val, array());
+					$htmlOptions = (array)self::keyAt('htmlOptions', $val, []);
 					$prependCode = self::keyAt('prependCode', $val, '');
 					$appendCode = self::keyAt('appendCode', $val, '');
 					$fieldValue = (isset($records[$i][$key])) ? $records[$i][$key] : ''; /* $key */
 					$fieldValueOriginal = $fieldValue;
 					$aggregateFunction = self::keyAt('aggregate.function', $val, '');
-					$aggregateFunction = in_array(strtolower($aggregateFunction), array('sum', 'avg')) ? strtolower($aggregateFunction) : '';
+					$aggregateFunction = in_array(strtolower($aggregateFunction), ['sum', 'avg']) ? strtolower($aggregateFunction) : '';
 					$changeOrder = (bool)self::keyAt('changeOrder', $val, false);
-					
+
 					$fieldOutput = '';
 					switch ($type) {
 						case 'concat':
@@ -787,7 +806,7 @@ class CGridView extends CWidgs
 							}
 							$fieldOutput .= $concatResult;
 							break;
-						
+
 						case 'decimal':
 							$decimalPoints = (int)self::keyAt('decimalPoints', $val, 0);
 							if ($format === 'european') {
@@ -799,7 +818,7 @@ class CGridView extends CWidgs
 							}
 							$fieldOutput .= $fieldValue;
 							break;
-						
+
 						case 'datetime':
 							if (is_array($definedValues) && isset($definedValues[$fieldValue])) {
 								$fieldValue = $definedValues[$fieldValue];
@@ -808,7 +827,7 @@ class CGridView extends CWidgs
 							}
 							$fieldOutput .= $fieldValue;
 							break;
-						
+
 						case 'enum':
 							$source = self::keyAt('source', $val, '');
 							$outputValue = isset($source[$fieldValue]) ? $source[$fieldValue] : '';
@@ -818,11 +837,11 @@ class CGridView extends CWidgs
 								$fieldOutput .= $outputValue;
 							}
 							break;
-						
+
 						case 'index':
 							$fieldOutput .= ($i + 1) . '.';
 							break;
-						
+
 						case 'image':
 							$imagePath = self::keyAt('imagePath', $val, '');
 							$defaultImage = self::keyAt('defaultImage', $val, '');
@@ -830,7 +849,7 @@ class CGridView extends CWidgs
 							$imageWidth = self::keyAt('imageWidth', $val, '');
 							$imageHeight = self::keyAt('imageHeight', $val, '');
 							$showImageInfo = (bool)self::keyAt('showImageInfo', $val, true);
-							
+
 							$htmlOptions = array();
 							if (!empty($imageWidth) && CValidator::isHtmlSize($imageWidth)) $htmlOptions['width'] = $imageWidth;
 							if (!empty($imageHeight) && CValidator::isHtmlSize($imageHeight)) $htmlOptions['height'] = $imageHeight;
@@ -843,14 +862,14 @@ class CGridView extends CWidgs
 								//$htmlOptions['title'] .= ', '.$imageDimensions['width'].'x'.$imageDimensions['height'];
 								//$htmlOptions['title'] .= ')';
 							}
-							
+
 							$fieldOutput .= CHtml::image($imagePath . $fieldValue, $alt, $htmlOptions) . self::NL;
 							break;
-						
+
 						case 'link':
 							$linkUrl = self::keyAt('linkUrl', $val, '#');
 							$linkText = self::keyAt('linkText', $val, '');
-							
+
 							// Replace for linkURL
 							if (preg_match_all('/{(.*?)}/i', $linkUrl, $matches)) {
 								if (isset($matches[1]) && is_array($matches[1])) {
@@ -865,7 +884,7 @@ class CGridView extends CWidgs
 									}
 								}
 							}
-							
+
 							// Replace for linkText
 							$fieldValue = (isset($records[$i][$key])) ? $records[$i][$key] : ''; /* $key */
 							if (is_array($definedValues) && isset($definedValues[$fieldValue])) {
@@ -880,32 +899,32 @@ class CGridView extends CWidgs
 									}
 								}
 							}
-							
+
 							$fieldOutput .= CHtml::link($linkText, $linkUrl, $htmlOptions);
 							break;
-						
+
 						case 'evaluation':
 							$minValue = self::keyAt('minValue', $val, 1);
 							$maxValue = self::keyAt('maxValue', $val, 5);
 							$size = max(0, (min($maxValue, $fieldValue))) * 16;
 							$tooltip = self::keyAt('tooltip', $val, '');
 							$titleText = CHtml::encode($tooltip) . ': ' . $fieldValue;
-							
+
 							$countsField = self::keyAt('counts.fieldName', $val, '');
 							$countsTitle = self::keyAt('counts.title', $val, '');
 							if (!empty($countsField)) {
 								$countsValue = !empty($countsField) && isset($records[$i][$countsField]) ? $records[$i][$countsField] : '';
 								$titleText .= ' / ' . $countsTitle . ': ' . $countsValue;
 							}
-							
+
 							$fieldOutput .= CHtml::tag('label', array('class' => 'stars tooltip-link', 'title' => $titleText), '<label style="width:' . $size . 'px;"></label>');
 							break;
-						
+
 						case 'template':
 							$htmlCode = self::keyAt('html', $val, '');
 							$templateFields = self::keyAt('fields', $val, array());
 							$templateSources = self::keyAt('sources', $val, array());
-							
+
 							if (is_array($templateFields)) {
 								foreach ($templateFields as $tfKey => $tfValue) {
 									if (is_array($tfValue)) {
@@ -913,7 +932,7 @@ class CGridView extends CWidgs
 										$prefix = isset($tfValue['prefix']) ? $tfValue['prefix'] : '';
 										$postfix = isset($tfValue['postfix']) ? $tfValue['postfix'] : '';
 										$source = isset($tfValue['source']) ? $tfValue['source'] : array();
-										
+
 										$templateFieldValue = isset($records[$i][$tfKey]) ? $records[$i][$tfKey] : '';
 										// Check if there is an array with predefined values
 										if (!empty($source) && is_array($source)) {
@@ -921,7 +940,7 @@ class CGridView extends CWidgs
 										}
 										if (empty($templateFieldValue)) $templateFieldValue = $default;
 										if (!empty($templateFieldValue)) $templateFieldValue = $prefix . $templateFieldValue . $postfix;
-										
+
 										$htmlCode = str_ireplace('{' . $tfKey . '}', $templateFieldValue, $htmlCode);
 									} else {
 										$templateFieldValue = isset($records[$i][$tfValue]) ? $records[$i][$tfValue] : '';
@@ -933,10 +952,10 @@ class CGridView extends CWidgs
 									}
 								}
 							}
-							
+
 							$fieldOutput .= $htmlCode;
 							break;
-						
+
 						case 'html':
 						case 'label':
 						default:
@@ -950,7 +969,7 @@ class CGridView extends CWidgs
 									$fieldValue = CHash::decrypt($fieldValue, $encryptKey, $encryptAlgorithm);
 								}
 							}
-							
+
 							// Trigger
 							$triggerKey = self::keyAt('trigger.trigger_key', $val);
 							$triggerOperation = self::keyAt('trigger.trigger_operation', $val);
@@ -981,7 +1000,7 @@ class CGridView extends CWidgs
 									}
 								}
 							}
-							
+
 							// Call of closure function on item creating event
 							$callbackClass = self::keyAt('callback.class', $val);
 							$callbackFunction = self::keyAt('callback.function', $val);
@@ -1002,7 +1021,7 @@ class CGridView extends CWidgs
 									/// $fieldValue = call_user_func($callbackFunction, $records[$i], $callbackParams);
 								}
 							}
-							
+
 							$dataValue = self::keyAt('data', $val, '');
 							if (!empty($dataValue)) $fieldValue = $dataValue;
 							if (is_array($definedValues) && isset($definedValues[$fieldValue])) {
@@ -1024,7 +1043,7 @@ class CGridView extends CWidgs
 								} elseif ($case == 'humanize') {
 									$fieldValue = CString::humanize($fieldValue);
 								}
-								
+
 								$maxLength = (int)self::keyAt('maxLength', $val, '');
 								$showTooltip = (int)self::keyAt('showTooltip', $val, true);
 								if (!empty($maxLength)) {
@@ -1035,14 +1054,14 @@ class CGridView extends CWidgs
 									$fieldValue = $type == 'html' ? $fieldValue : CHtml::encode($fieldValue);
 								}
 							}
-							
+
 							$changeOrderLink = '';
 							if ($changeOrder) {
 								$changeOrderUrl = $baseUrl . $actionPath;
 								$changeOrderUrl .= !empty($sortUrl) ? '?' . $sortUrl : '';
 								$changeOrderUrl .= !empty($filterUrl) ? (empty($sortUrl) ? '?' : '&') . $filterUrl : '';
 								$changeOrderUrl .= (empty($sortUrl) && empty($filterUrl) ? '?' : '&');
-								
+
 								if ($i > 0) {
 									$changeOrderLink = ' <a style="text-decoration:none;" href="' . $changeOrderUrl . 'act=replace&replace_field=' . $key . '&replace_ids=' . $id . '-' . $prevId . (!empty($page) ? '&page=' . $page : '') . '" title="' . A::te('core', 'Move Up') . '" onclick="javascript:void()">&#9650;</a>';
 								}
@@ -1050,11 +1069,11 @@ class CGridView extends CWidgs
 									$changeOrderLink .= '<a style="text-decoration:none;" href="' . $changeOrderUrl . 'act=replace&replace_field=' . $key . '&replace_ids=' . $id . '-' . $nextId . (!empty($page) ? '&page=' . $page : '') . '" title="' . A::te('core', 'Move Down') . '" onclick="javascript:void()">&#9660;</a>';
 								}
 							}
-							
+
 							$fieldOutput .= $fieldValue . $changeOrderLink;
 							break;
 					}
-					
+
 					// Calculate aggregate data
 					if (!empty($aggregateFunction)) {
 						switch ($aggregateFunction) {
@@ -1077,14 +1096,14 @@ class CGridView extends CWidgs
 								break;
 						}
 					}
-					
+
 					$output .= CHtml::openTag('td', array('class' => $class, 'style' => $style));
 					$output .= $prependCode;
 					$output .= $fieldOutput;
 					$output .= $appendCode;
 					$output .= CHtml::closeTag('td') . self::NL;
 				}
-				
+
 				if ($activeActions > 0) {
 					$output .= CHtml::openTag('td', array('class' => 'actions')) . self::NL;
 					foreach ($actions as $aKey => $aVal) {
@@ -1106,9 +1125,9 @@ class CGridView extends CWidgs
 							$separateSymbol = preg_match('/\?/', $linkUrl) ? '&' : '?';
 							$linkUrl .= self::_customParams($customParameters, $linkType, $separateSymbol);
 						}
-						
+
 						$linkLabel = (!empty($imagePath) ? '<img src="' . $imagePath . '" alt="' . $aKey . '" />' : $aKey);
-						
+
 						$output .= CHtml::link($linkLabel, $linkUrl, $htmlOptions) . self::NL;
 					}
 					$output .= CHtml::closeTag('td') . self::NL;
@@ -1116,7 +1135,7 @@ class CGridView extends CWidgs
 				$output .= CHtml::closeTag('tr') . self::NL;
 			}
 			$output .= CHtml::closeTag('tbody') . self::NL;
-			
+
 			// ----------------------------------------------
 			// Draw <TFOOT> aggregate row
 			// ----------------------------------------------
@@ -1128,17 +1147,17 @@ class CGridView extends CWidgs
 					$headerClass = self::keyAt('headerClass', $val, '');
 					$prependCode = self::keyAt('prependCode', $val, '');
 					$appendCode = self::keyAt('appendCode', $val, '');
-					
+
 					$format = self::keyAt('format', $val, '');
 					$decimalPoints = (int)self::keyAt('decimalPoints', $val, 0);
 					$widthAttr = self::keyAt('width', $val);
 					$alignAttr = self::keyAt('align', $val);
-					
+
 					// Prepare style attributes
 					$width = (!empty($widthAttr) && CValidator::isHtmlSize($widthAttr)) ? 'width:' . $widthAttr . ';' : '';
 					$align = (!empty($alignAttr) && CValidator::isAlignment($alignAttr)) ? 'text-align:' . $alignAttr . ';' : '';
 					$style = $width . $align;
-					
+
 					if (isset($aggregateRow[$key])) {
 						$aggregateValue = $aggregateRow[$key]['result'];
 						$aggregateValue = number_format((float)$aggregateValue, $decimalPoints);
@@ -1149,7 +1168,7 @@ class CGridView extends CWidgs
 						}
 						$title .= $aggregateRow[$key]['function'] . ': ' . $prependCode . $aggregateValue . $appendCode;
 					}
-					
+
 					$output .= CHtml::tag('td', array('class' => $headerClass, 'style' => $style), $title) . self::NL;
 				}
 				if ($activeActions > 0) {
@@ -1158,7 +1177,7 @@ class CGridView extends CWidgs
 				$output .= CHtml::closeTag('tr') . self::NL;;
 				$output .= CHtml::closeTag('tfoot') . self::NL;
 			}
-			
+
 			$output .= CHtml::closeTag('table') . self::NL;
 			// ----------------------------------------------
 			// Draw TABLE wrapper
@@ -1166,7 +1185,7 @@ class CGridView extends CWidgs
 			if (!empty($gridWrapper['tag'])) {
 				$output .= CHtml::closeTag($gridWrapper['tag']) . self::NL;
 			}
-			
+
 			// Register script if onDeleteAlert is true
 			if ($onDeleteRecord) {
 				A::app()->getClientScript()->registerScript(
@@ -1175,7 +1194,12 @@ class CGridView extends CWidgs
 					2
 				);
 			}
-			
+
+			A::app()->getClientScript()->registerScript(
+				'delete-record',
+				'function onDeleteRecord(el){return confirm("ID: " + jQuery(el).data("id") + "\n' . A::te('core', 'Are you sure you want to delete this record?') . '");}',
+				2
+			);
 			// Draw pagination
 			if ($pagination) {
 				$paginationUrl = $actionPath;
@@ -1191,11 +1215,11 @@ class CGridView extends CWidgs
 				));
 			}
 		}
-		
+
 		if ($return) return $output;
 		else echo $output;
 	}
-	
+
 	/**
 	 * Prepare additional parameters that will be passed
 	 * @param bool $allow
@@ -1206,12 +1230,12 @@ class CGridView extends CWidgs
 	private static function _additionalParams($allow = false, $linkType = 0, $separateSymbol = '&')
 	{
 		$output = '';
-		
+
 		if ($allow) {
 			$page = A::app()->getRequest()->getQuery('page', 'integer', 1);
 			$sortBy = A::app()->getRequest()->getQuery('sort_by', 'string');
 			$sortDir = A::app()->getRequest()->getQuery('sort_dir', 'string');
-			
+
 			if ($sortBy) {
 				$output .= ($linkType == 1) ? '/sort_by/' . $sortBy : (!empty($output) ? '&' : $separateSymbol) . 'sort_by=' . $sortBy;
 			}
@@ -1222,10 +1246,10 @@ class CGridView extends CWidgs
 				$output .= ($linkType == 1) ? '/page/' . $page : (!empty($output) ? '&' : $separateSymbol) . 'page=' . $page;
 			}
 		}
-		
+
 		return $output;
 	}
-	
+
 	/**
 	 * Prepare custom parameters that will be passed
 	 * @param array $params
@@ -1236,16 +1260,16 @@ class CGridView extends CWidgs
 	private static function _customParams($params, $linkType = 0, $separateSymbol = '&')
 	{
 		$output = '';
-		
+
 		if (is_array($params)) {
 			foreach ($params as $key => $val) {
 				$output .= ($linkType == 1) ? '/' . $key . '/' . $val : (!empty($output) ? '&' : $separateSymbol) . $key . '=' . $val;
 			}
 		}
-		
+
 		return $output;
 	}
-	
+
 	/**
 	 * Returns field attribute
 	 * @param array $fields
@@ -1257,7 +1281,7 @@ class CGridView extends CWidgs
 	private static function _getFieldParam($fields = array(), $field = '', $attr = '', $allowedValues = array())
 	{
 		$paramValue = '';
-		
+
 		if (!empty($fields) && is_array($fields)) {
 			if (!empty($allowedValues) && is_array($allowedValues)) {
 				$paramValue = isset($fields[$field][$attr]) && in_array($fields[$field][$attr], $allowedValues) ? $fields[$field][$attr] : '';
@@ -1265,10 +1289,10 @@ class CGridView extends CWidgs
 				$paramValue = isset($fields[$field][$attr]) ? $fields[$field][$attr] : '';
 			}
 		}
-		
+
 		return $paramValue;
 	}
-	
+
 	/**
 	 * Returns all records from defined SELECT query
 	 * @param object $objModel
@@ -1280,7 +1304,7 @@ class CGridView extends CWidgs
 		$model = self::params('model', '');
 		$getAllRecords = self::params('getAllRecords', '');
 		$records = array();
-		
+
 		if (!empty($getAllRecords)) {
 			if (CClass::isMethodExists($objModel, $getAllRecords)) {
 				$records = $objModel->$getAllRecords($params);
@@ -1290,12 +1314,12 @@ class CGridView extends CWidgs
 		} else {
 			$records = $objModel->findAll($params);
 		}
-		
+
 		return $records;
 	}
-	
+
 	/**
-	 * Counts numbner of all records from defined SELECT query
+	 * Counts number of all records from defined SELECT query
 	 * @param object $objModel
 	 * @param array $params
 	 * @return int
@@ -1306,7 +1330,7 @@ class CGridView extends CWidgs
 		$getAllRecords = self::params('getAllRecords', '');
 		$countAllRecords = self::params('countAllRecords', '');
 		$totalRecords = 0;
-		
+
 		if (!empty($countAllRecords)) {
 			if (CClass::isMethodExists($objModel, $countAllRecords)) {
 				$totalRecords = $objModel->$countAllRecords($params);
@@ -1318,7 +1342,7 @@ class CGridView extends CWidgs
 		} else {
 			$totalRecords = $objModel->count($params);
 		}
-		
+
 		return $totalRecords;
 	}
 }

@@ -83,7 +83,7 @@ class SetupController extends CController
 		
 		$this->_view->formFields = array(
 			'act' => array('type' => 'hidden', 'value' => 'send'),
-			'language' => array('type' => 'dropdownlist', 'value' => $language, 'title' => A::t('setup', 'Language'), 'mandatoryStar' => false, 'data' => $this->_languages, 'htmlOptions' => array(), 'validation' => array('required' => true, 'type' => 'set', 'source' => array_keys($this->_languages))),
+			'language' => array('type' => 'dropdownlist', 'value' => $language, 'title' => A::t('setup', 'Language'), 'mandatoryStar' => false, 'data' => $this->_languages, 'htmlOptions' => [], 'validation' => array('required' => true, 'type' => 'set', 'source' => array_keys($this->_languages))),
 		);
 		
 		if ($this->_cRequest->getPost('act') == 'send') {
@@ -254,7 +254,7 @@ class SetupController extends CController
 		
 		$separatorGeneralFields = array(
 			'separatorInfo' => array('legend' => 'General Settings'),
-			'setupType' => array('type' => 'dropdownlist', 'value' => $this->_view->setupType, 'title' => A::t('setup', 'Setup Type'), 'mandatoryStar' => false, 'data' => array('install' => A::t('setup', 'New Installation'), 'update' => A::t('setup', 'Update')), 'htmlOptions' => array(), 'validation' => array('required' => true, 'type' => 'text', 'source' => array('install'))),
+			'setupType' => array('type' => 'dropdownlist', 'value' => $this->_view->setupType, 'title' => A::t('setup', 'Setup Type'), 'mandatoryStar' => false, 'data' => array('install' => A::t('setup', 'New Installation'), 'update' => A::t('setup', 'Update')), 'htmlOptions' => [], 'validation' => array('required' => true, 'type' => 'text', 'source' => array('install'))),
 			'dbDriver' => array('type' => 'dropdownlist', 'value' => $this->_view->dbDriver, 'title' => A::t('setup', 'Database Driver'), 'mandatoryStar' => true, 'data' => $dbDrivers, 'htmlOptions' => array('style' => 'width:85px'), 'validation' => array('required' => true, 'type' => 'text', 'source' => array_keys($dbDrivers))),
 			'dbPrefix' => array('type' => 'textbox', 'value' => $this->_view->dbPrefix, 'title' => A::t('setup', 'Database (tables) Prefix'), 'mandatoryStar' => false, 'htmlOptions' => array('maxLength' => '10', 'autocomplete' => 'off'), 'validation' => array('required' => false, 'type' => 'variable')),
 		);
@@ -641,13 +641,13 @@ class SetupController extends CController
 	{
 		ob_start();
 		if (function_exists('phpinfo')) @phpinfo(-1);
-		$phpInfo = array('phpinfo' => array());
+		$phpInfo = array('phpinfo' => []);
 		if (preg_match_all('#(?:<h2>(?:<a name=".*?">)?(.*?)(?:</a>)?</h2>)|(?:<tr(?: class=".*?")?><t[hd](?: class=".*?")?>(.*?)\s*</t[hd]>(?:<t[hd](?: class=".*?")?>(.*?)\s*</t[hd]>(?:<t[hd](?: class=".*?")?>(.*?)\s*</t[hd]>)?)?</tr>)#s', ob_get_clean(), $matches, PREG_SET_ORDER))
 			foreach ($matches as $match) {
 				$arrayKeys = array_keys($phpInfo);
 				$endArrayKeys = end($arrayKeys);
 				if (strlen($match[1])) {
-					$phpInfo[$match[1]] = array();
+					$phpInfo[$match[1]] = [];
 				} elseif (isset($match[3])) {
 					$phpInfo[$endArrayKeys][$match[2]] = isset($match[4]) ? array($match[3], $match[4]) : $match[3];
 				} else {

@@ -19,41 +19,55 @@
 <header>
 	<nav>
 		<?php
-		CWidget::create('CMenu', array(
-			'items' => array(
-				array('label' => 'Home', 'url' => 'index/index'),
-				(CAuth::isLoggedIn() == true) ? array('label' => 'Dashboard', 'url' => 'page/dashboard') : '',
-				(CAuth::isLoggedIn() == true) ? array('label' => 'My Account', 'url' => 'account/edit') : '',
-				array('label' => 'Public Page #1', 'url' => 'page/public/id/1'),
-				array('label' => 'Public Page #2', 'url' => 'page/public/id/2'),
-			),
-			'type' => 'horizontal',
-			'selected' => $this->_activeMenu,
-			'return' => false,
-		));
-		?>
-		
-		<?php
-		CWidget::create('CMenu', array(
-			'items' => array(
-				(CAuth::isLoggedIn() == true) ? array('label' => 'Logout', 'url' => 'login/logout') : array('label' => 'Login', 'url' => 'login/index'),
-			),
-			'type' => 'horizontal',
-			'class' => 'user_menu',
-			'selected' => $this->_activeMenu,
-			'return' => false,
-		));
-		?>
+			CWidget::create(
+				'CMenu',
+				[
+					'items'    => [
+						['label' => 'Home', 'url' => 'index/index'],
+						(CAuth::isLoggedIn() == true) ? ['label' => 'Dashboard', 'url' => 'page/dashboard'] : '',
+						(CAuth::isLoggedIn() == true) ? ['label' => 'My Account', 'url' => 'account/edit'] : '',
+						['label' => 'Public Page #1', 'url' => 'page/public/id/1'],
+						['label' => 'Public Page #2', 'url' => 'page/public/id/2'],
+					],
+					'type'     => 'horizontal',
+					'selected' => $this->_activeMenu,
+					'return'   => false,
+				]
+			);
+        ?>
+
+        <?php
+			CWidget::create(
+				'CMenu',
+				[
+					'items'    => [
+						(CAuth::isLoggedIn() == true)
+							? ['label' => 'Logout', 'url' => 'login/logout']
+							: [
+							'label' => 'Login',
+							'url'   => 'login/index'
+						],
+					],
+					'type'     => 'horizontal',
+					'class'    => 'user_menu',
+					'selected' => $this->_activeMenu,
+					'return'   => false,
+				]
+			);
+        ?>
 	</nav>
 </header>
 <section>
 	<?php
-	CWidget::create('CBreadCrumbs', array(
-		'links' => $this->_breadCrumbs,
-		'return' => false,
-	));
-	?>
-	<?= A::app()->view->getContent(); ?>
+		CWidget::create(
+			'CBreadCrumbs',
+			[
+				'links'  => $this->_breadCrumbs,
+				'return' => false,
+			]
+		);
+    ?>
+    <?= A::app()->view->getContent(); ?>
 </section>
 <footer>
 	<p class="copyright">Copyright &copy; <?= @date('Y'); ?> Your Site</p>

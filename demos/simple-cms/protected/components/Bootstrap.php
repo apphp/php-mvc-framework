@@ -34,8 +34,8 @@ class Bootstrap extends CComponent
 			if (CAuth::isLoggedInAsAdmin() || stripos(A::app()->getRequest()->getRequestUri(), 'backend/login')) {
 				// Allow viewing
 			} else {
-				$siteInfo = SiteInfo::model()->find('language_code = :lang', array(':lang' => A::app()->getLanguage()));
-				A::app()->view->sitePhone = $siteInfo ? $siteInfo->site_phone : '';
+                $siteInfo = SiteInfo::model()->find('language_code = :lang', [':lang' => A::app()->getLanguage()]);
+                A::app()->view->sitePhone = $siteInfo ? $siteInfo->site_phone : '';
 				A::app()->view->siteFax = $siteInfo ? $siteInfo->site_fax : '';
 				A::app()->view->siteEmail = $siteInfo ? $siteInfo->site_email : '';
 				A::app()->view->siteAddress = $siteInfo ? $siteInfo->site_address : '';
@@ -47,19 +47,19 @@ class Bootstrap extends CComponent
 				exit;
 			}
 		}
-		
-		A::app()->attachEventHandler('_onBeginRequest', array($this, 'setTimeZone'));
-		//A::app()->attachEventHandler('_onBeginRequest', array($this, 'setWebsiteInfo'));
-		//A::app()->attachEventHandler('_onBeginRequest', array($this, 'setDefaultLanguage'));
-		//A::app()->attachEventHandler('_onBeginRequest', array($this, 'setDefaultCurrency'));
-		A::app()->attachEventHandler('_onBeginRequest', array($this, 'setSslMode'));
-		A::app()->attachEventHandler('_onBeginRequest', array($this, 'setCron'));
-		
-		A::app()->attachEventHandler('_onEndRequest', array($this, 'setLastVisitedPage'));
-	}
-	
-	/**
-	 *    Returns the instance of object
+
+        A::app()->attachEventHandler('_onBeginRequest', [$this, 'setTimeZone']);
+        //A::app()->attachEventHandler('_onBeginRequest', array($this, 'setWebsiteInfo'));
+        //A::app()->attachEventHandler('_onBeginRequest', array($this, 'setDefaultLanguage'));
+        //A::app()->attachEventHandler('_onBeginRequest', array($this, 'setDefaultCurrency'));
+        A::app()->attachEventHandler('_onBeginRequest', [$this, 'setSslMode']);
+        A::app()->attachEventHandler('_onBeginRequest', [$this, 'setCron']);
+
+        A::app()->attachEventHandler('_onEndRequest', [$this, 'setLastVisitedPage']);
+    }
+
+    /**
+     *    Returns the instance of object
 	 * @return current class
 	 */
 	public static function init()
@@ -96,13 +96,13 @@ class Bootstrap extends CComponent
 	{
 //        if(A::app()->getLanguage('', false) == '' || $force){
 //            if($defaultLang = Languages::model()->find('is_default = 1')){
-//                $params = array(
+//                $params = [
 //					'name' => $defaultLang->name,
 //					'name_native' => $defaultLang->name_native,
 //                    'locale' => $defaultLang->lc_time_name,
 //                    'direction' => $defaultLang->direction,
 //					'icon' => $defaultLang->icon,
-//                );
+//                ];
 //                A::app()->setLanguage($defaultLang->code, $params);    
 //            }			
 //        }

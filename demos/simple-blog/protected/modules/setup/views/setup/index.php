@@ -10,17 +10,21 @@ $this->_activeMenu = $this->_controller . '/' . $this->_action;
 <?= $actionMessage; ?>
 <br>
 <?php
-echo CWidget::create('CFormView', array(
-	'action' => 'setup/index',
-	'method' => 'post',
-	'htmlOptions' => array(
-		'name' => 'frmSetup',
-	),
-	'fields' => $formFields,
-	'buttons' => array(
-		'submit' => array('type' => 'submit', 'value' => A::t('setup', 'Next'), 'htmlOptions' => array('name' => '')),
-	),
-	'return' => true,
-));
+
+echo CWidget::create(
+    'CFormView',
+    [
+        'action'      => 'setup/index',
+        'method'      => 'post',
+        'htmlOptions' => [
+            'name' => 'frmSetup',
+        ],
+        'fields'      => $formFields,
+        'buttons'     => [
+            'submit' => ['type' => 'submit', 'value' => A::t('setup', 'Next'), 'htmlOptions' => ['name' => '']],
+        ],
+        'return'      => true,
+    ]
+);
 ?>
 <br>

@@ -21,3 +21,15 @@ interface IActiveRecord
 	 */
 	public static function model();
 }
+
+
+/**
+ * IConsoleCommand is the interface that must be implemented by console command classes
+ */
+interface IConsoleCommand
+{
+    /**
+     * Handle specific console command
+     */
+    public static function handle();
+}

@@ -186,4 +186,5 @@ return array(
 	'You cannot delete the last remaining record in table {table}!' => 'لا يمكنك حذف السجل الأخير المتبقي في الجدول {table}!',
 	'Warnings' => 'تحذيرات',
 	'Wrong column name: {index} in table {table}' => 'اسم عمود غير صحيح: "{index}" في الجدول "{table}" - لا يمكن الوصول إلى خاصية غير موجودة لكائن AR',
+    'Wrong params for chunk size: {size} or callback method is not callable.' => 'معلمات خاطئة لحجم القطعة: {size} أو طريقة رد الاتصال غير قابلة للاستدعاء.',
 );

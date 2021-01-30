@@ -17,7 +17,7 @@ may also update the model by sending appropriate messages and queries. Generally
 <code>protected/views/{controller-lowercase-name}/</code> directory. There is only one exclusion for view files,
 that related to script components and they must be placed in directory <code>protected/views/components/</code>.
 <br /><br />
-<div class="msg_important">Remeber, that view file name must be in lowercase! Example: views/posts/edit.php</div>
+<div class="msg_important">Remeber, that view file name must be in lowercase! Example: <b>views/posts/edit.php</b></div>
 <br />
 
 <a name="call_view"></a>
@@ -60,11 +60,18 @@ $this->_view->text = 'other text here...';
 $title = 'changed title value';
 $this->_view->title = $title;
 
-/* Sample 1-3 - call of views from controllers */
+/* Samples: 1-3 - call of view files from controller */
+
 /* Sample 1 - full syntax */
 $this->_view->render('controller/view');
+
 /* Sample 2 - short syntax, missing controller means use current controller name */
-$this->_view->render('view'); 
+$this->_view->render('view');
+/* partial rendering - (2nd parameter $isPartial = true) */
+$this->_view->render('view', true);
+/* partial rendering with returned content - for some specific methods (2nd parameter $isPartial = true, 3rd parameter $return = true) */
+$result = $this->_view->render('view', true, true);
+
 /* Sample 3 - call of another view */
 $this->_view->render('errors/404');
 
@@ -76,6 +83,7 @@ $data = array();
 $data['user_id'] = 2;
 $data['type'] = 'global';
 $this->_view->renderView('statistics', $data);
+
 /* Sample 6 - call of one view from another view */
 $this->_view->renderView('tabs/emails');
 $this->_view->renderView('tabs/emails', array('email'=>$email));

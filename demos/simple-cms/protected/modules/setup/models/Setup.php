@@ -23,7 +23,7 @@ use \A,
 class Setup extends CModel
 {
 	
-	public function __construct($params = array())
+	public function __construct($params = [])
 	{
 		parent::__construct($params);
 	}
