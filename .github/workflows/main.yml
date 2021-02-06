@@ -55,6 +55,9 @@ jobs:
           php --version
           phpunit --version
 
+      - name: Install required packages
+        run: composer update
+
 #      - name: Install PHPUnit
 #        run: composer require phpunit/phpunit ^7.5
 
