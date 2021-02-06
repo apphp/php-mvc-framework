@@ -58,7 +58,10 @@ jobs:
       - name: Install required packages
         run: composer update
 
-#      - name: Install PHPUnit
+      - name: List current folder again to check vengor/ dir
+        run: ls -la
+
+      #      - name: Install PHPUnit
 #        run: composer require phpunit/phpunit ^7.5
 
 #      - name: Check again some packages if they are installed
