@@ -55,12 +55,8 @@ jobs:
           php --version
           phpunit --version
 
-      - name: Install PHP compatible version
-        run: |
-          apt-get install php7.1
-
       - name: Install PHPUnit
-        run: composer require phpunit/phpunit ^7.5
+        run: composer require phpunit/phpunit ^8.5
 
       - name: Check again some packages if they are installed
         run: |
