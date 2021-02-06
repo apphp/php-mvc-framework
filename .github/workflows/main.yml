@@ -52,10 +52,11 @@ jobs:
       - name: Check some packages if they are installed
         run: | 
           composer --version
+          php --version
           phpunit --version
 
       - name: Install PHPUnit
-        run: composer require phpunit/phpunit ^7
+        run: composer require phpunit/phpunit ^7.5
 
       - name: Check again some packages if they are installed
         run: |
