@@ -58,10 +58,10 @@ jobs:
 #      - name: Install PHPUnit
 #        run: composer require phpunit/phpunit ^7.5
 
-      - name: Check again some packages if they are installed
-        run: |
-          composer --version
-          phpunit --version
+#      - name: Check again some packages if they are installed
+#        run: |
+#          composer --version
+#          phpunit --version
 
       - name: Runt PHPUnit tests for the Framework
         run: composer tests
