@@ -36,7 +36,7 @@
     <header>
         <nav>
             <ul class="menu">
-				<li class="active"><a href="index.php">ApPHP Framework Guide 1.3</a></li>
+				<li class="active"><a href="index.php">ApPHP Framework Guide 1.4</a></li>
 				<li><a href="../utils/requirements/index.php">Requirements</a></li>				
 				<li><a href="../utils/tests/index.php">Tests</a></li>
                 <li><a href="../utils/generators/index.php">Code Generators</a></li>
