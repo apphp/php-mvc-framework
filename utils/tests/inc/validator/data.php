@@ -32,9 +32,9 @@ $prepare_data = [
         'com.email@me'           => false,
         'me.email@.com'          => false,
         'me.email@example.com'   => true,
-        'me.email.me@email.info' => true,
-        'me.e_mail99@email.info' => true,
-        'me.e_*mail@email.info'  => false
+        'me.emai.lme@example.info' => true,
+        'me.e_mail99@example.com' => true,
+        'me.e_*mail@example.com'  => false
     ],
     'validateRegex' => [
         'abcDef'    => ['expected' => true, 'pattern' => '^[a-zA-Z]+$'],

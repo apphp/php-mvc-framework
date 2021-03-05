@@ -84,7 +84,7 @@ CModel query methods:
 $this->_db->select('SELECT * FROM '.$this->_table.' WHERE id = :id', array('id' => $id));
    
 // Performs insert query and returns true of false depending on result
-$this->_db->insert($this->_table, array('name'=>'John Smith', 'email'=>'j.smith@email.me'));
+$this->_db->insert($this->_table, array('name'=>'John Smith', 'email'=>'j.smith@example.com'));
     
 // Performs update query and returns true of false depending on result
 $this->_db->update($this->_table, array('address'=>'New address', 'status'=>2), 'is_active = :is_active', array(':is_active'=>1));

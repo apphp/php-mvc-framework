@@ -31,7 +31,7 @@ return array(
     // Default email settings
     'email' => array(
         'mailer' => 'smtpMailer', /* phpMail | phpMailer | smtpMailer */
-        'from' => 'info@email.me',
+        'from' => 'info@example.com',
         'fromName' => '', /* John Smith */
         'isHtml' => true,
         'smtp' => array(

@@ -8,7 +8,7 @@ $prepare_data = [
         ['string', 'asd$56fgh', true],
         ['string', 'a_+sdTgg#$56fgh', true],
         ['email', "^()!#$%&'*+-/=?^_`{|}~@.[]", false],
-        ['email', 'email.me@email.me', true],
+        ['email', 'emai.lme@example.com', true],
         ['email', 'email@e+-mail.me', true],
         ['url', "http://www.domain.com/$-_!2=+-", true],
         ['alpha', 'asd@#$23423234', false],
