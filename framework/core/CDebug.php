@@ -623,14 +623,34 @@ class CDebug
 		$output .= $htmlCompression ? nl2br($arrUserConstants) : $arrUserConstants;
 		$output .= '</pre>';
 		$output .= '<br>';
-		
-		$output .= '<strong>VIEW VARIABLES</strong>:';
-		$output .= '<pre style="white-space:pre-wrap;">';
-		$arrViewVars = A::app()->view->getAllVars();
-		$arrViewVars = print_r(@array_map('htmlspecialchars', $arrViewVars), true);
-		$output .= $htmlCompression ? nl2br($arrViewVars) : $arrViewVars;
-		$output .= '</pre>';
-		$output .= '<br>';
+
+        $output .= '<strong>VIEW VARIABLES</strong>:';
+        $output .= '<pre style="white-space:pre-wrap;">';
+        $arrViewVars = A::app()->view->getAllVars();
+
+        $arrViewVarsTemp = [];
+        foreach ($arrViewVars as $arrViewVar) {
+            if (is_string($arrViewVar)) {
+                $arrViewVarsTemp[] = htmlspecialchars($arrViewVar);
+            } else {
+                $arrViewVarsTemp[] = $arrViewVar;
+            }
+        }
+        $arrViewVars = $arrViewVarsTemp;
+
+        $arrViewVarsTemp = [];
+        foreach ($arrViewVars as $arrViewVar) {
+            if ($htmlCompression && is_string($arrViewVar)) {
+                $arrViewVarsTemp[] = nl2br($arrViewVar);
+            } else {
+                $arrViewVarsTemp[] = $arrViewVar;
+            }
+        }
+        $arrViewVars = $arrViewVarsTemp;
+
+        $output .= print_r($arrViewVars, true);
+        $output .= '</pre>';
+        $output .= '<br>';
 		
 		$output .= '</div>
 	
