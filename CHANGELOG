@@ -1,5 +1,6 @@
 Version 1.5.x -
 ----------------------------
+- Bug: fixed error on setup module with db transaction
 
 
 Version 1.4.1 - 30 Jan, 2021

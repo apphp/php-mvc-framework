@@ -17,7 +17,8 @@ namespace Modules\Setup\Models;
 // Framework
 use \A,
 	\CModel,
-	\CDatabase;
+	\CDatabase,
+    \CConfig;
 
 
 class Setup extends CModel
@@ -64,6 +65,10 @@ class Setup extends CModel
 	 */
 	public function install($sqlDump = '', $transaction = true, $ignoreErrors = false)
 	{
+        if ($transaction) {
+            $transaction = CConfig::get('db.transaction', false);
+        }
+
 		if (empty($sqlDump)) {
 			$this->_error = true;
 			$this->_errorMessage = A::t('setup', 'No SQL statements found! Please check your data file.');
