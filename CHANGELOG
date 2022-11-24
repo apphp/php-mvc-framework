@@ -2,6 +2,8 @@ Version 1.5.x -
 ----------------------------
 - Bug: fixed error on setup module with db transaction
 - Bug: fixed error in usage of simplexml_load_file
+- Bug: fixed suspicious binary operations errors
+- Bug: fixed wrong message in category creating in demo blog
 
 
 Version 1.4.1 - 30 Jan, 2021

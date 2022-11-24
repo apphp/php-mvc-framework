@@ -96,20 +96,20 @@ class CategoriesController extends CController
 		
 		if (!empty($msg)) {
 			if ($msg == 'delete_success') {
-				$msgType = 'Category has been successfully deleted!';
+                $msgText = 'Category has been successfully deleted!';
 				$msgType = 'success';
 			} elseif ($msg == 'delete_error') {
-				$msgType = 'An error occurred while deleting the category!';
+                $msgText = 'An error occurred while deleting the category!';
 				$msgType = 'error';
 			} elseif ($msg == 'delete_demo') {
-				$msgType = '<b>:(</b> Sorry, but delete operation is blocked in DEMO version!';
+                $msgText = '<b>:(</b> Sorry, but delete operation is blocked in DEMO version!';
 				$msgType = 'warning';
 			} elseif ($msg == 'wrong-id') {
-				$msgType = 'Wrong parameter passed! Check category ID.';
+                $msgText = 'Wrong parameter passed! Check category ID.';
 				$msgType = 'error';
 			}
             if ( ! empty($msgType)) {
-                $this->_view->actionMessage = CWidget::create('CMessage', [$msgType, $msgType, ['button' => true]]);
+                $this->_view->actionMessage = CWidget::create('CMessage', [$msgType, $msgText, ['button' => true]]);
             }
         }
 
