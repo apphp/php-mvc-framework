@@ -1,11 +1,10 @@
-<p align="center"><img src="http://apphpframework.com/images/light-logo.png" width="400"></p>
+<p align="center"><img src="http://apphpframework.com/images/light-logo.png" width="400" alt=""></p>
 <br>
 
 <p align="center">
 <a href="https://github.com/apphp/php-mvc-framework"><img src="https://github.com/apphp/php-mvc-framework/workflows/build/badge.svg" alt="Build Status"></a>
 <a href="https://opensource.org/licenses/lgpl-3.0.html"><img src="http://apphpframework.com/images/badges/license.svg" alt="License LGPL"></a>
-<a href="http://apphpframework.com"><img src="http://apphpframework.com/images/badges/stable.svg" alt="Stable Version"></a>
-<a href="http://apphpframework.com"><img src="https://apphp.com/images/badges/fw-downloads.svg" alt="Total Downloads"></a>
+<a href="http://apphpframework.com"><img src="http://apphpframework.com/images/badges/stable.svg" alt="">Stable Version"></a>
 </p>
 
 ## About ApPHP Framework
