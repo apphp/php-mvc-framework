@@ -291,23 +291,25 @@ return array(
         'password' 	=> '',
         'prefix' 	=> 'apcmf_',
         'charset' 	=> 'utf8',
-        'schema' 	=> 'public'
-    ),       
+        'schema' 	=> 'public',
+        'transaction' 	=> false
+    ),
 );
 </pre>    
 
 Below the list of all parameters that can be used in file <code>db.php</code>:
 <ul>
     <li><b>db.driver</b>: the type of database: mysql, mssql, etc.</li>
-	<li><b>db.socket</b>: socket (e.g /tmp/mysql.sock) - if defined db.host is ignored</li>
+	  <li><b>db.socket</b>: socket (e.g /tmp/mysql.sock) - if defined db.host is ignored</li>
     <li><b>db.host</b>: database host</li>
-	<li><b>db.port</b>: database port</li>
+	  <li><b>db.port</b>: database port</li>
     <li><b>db.database</b>: database name</li>
     <li><b>db.username</b>: database username</li>
     <li><b>db.password</b>: database user password</li>
     <li><b>db.prefix</b>: prefix for database tables (optional parameter)</li>
     <li><b>db.charset</b>: charset for database tables (optional parameter, default - utf8)</li>
     <li><b>db.schema</b>: schema for database (optional parameter)</li>
+    <li><b>db.transaction</b>: transaction for database (optional parameter)</li>
 </ul>
 <br />
 
