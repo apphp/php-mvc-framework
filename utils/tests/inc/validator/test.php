@@ -32,7 +32,7 @@ foreach($test_data as $key => $val){
 					 $content .= '</td>
 					 <td class="align-center">'.($expectedValue ? '<span class="true">true</span>' : '<span class="false">false</span>').'</td>
 					 <td class="align-center">'.($result ? '<span class="true">true</span>' : '<span class="false">false</span>').'</td>
-					 <td>'.($result && $expectedValue || !$result && !$expectedValue ? '&nbsp;<span class="ok">OK</span>' : '&nbsp;<span class="failed">Failed</span>').'</td>';
+					 <td>'.(($result && $expectedValue) || (!$result && !$expectedValue) ? '&nbsp;<span class="ok">OK</span>' : '&nbsp;<span class="failed">Failed</span>').'</td>';
 	}
 	$content .= '</tr>';
 	$content .= '</table>';	

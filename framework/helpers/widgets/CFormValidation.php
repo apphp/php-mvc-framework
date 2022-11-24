@@ -266,10 +266,10 @@ class CFormValidation extends CWidgs
 					}
 				}
 			}
-		} elseif ($required && (!is_array($fieldValue) && trim($fieldValue) === '' || is_array($fieldValue) && empty($fieldValue))) {
+		} elseif ($required && ((!is_array($fieldValue) && trim($fieldValue) === '') || (is_array($fieldValue) && empty($fieldValue)))) {
 			$valid = false;
 			$errorMessage = A::t($msgSource, 'The field {title} cannot be empty! Please re-enter.', array('{title}' => $title));
-		} elseif ($type == 'confirm') {
+		} elseif ($type === 'confirm') {
 			$confirmField = self::keyAt('validation.confirmField', $fieldInfo, '');
 			$confirmFieldValue = $cRequest->getPost($confirmField);
 			$confirmFieldName = self::keyAt($confirmField . '.title', $fields, '');

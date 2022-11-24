@@ -568,7 +568,7 @@ class CHtml
 		$checkAll = true;
 
 		foreach ($data as $value => $label) {
-			$checked = !is_array($select) && !strcmp($value, $select) || is_array($select) && in_array($value, $select);
+			$checked = (!is_array($select) && !strcmp($value, $select)) || (is_array($select) && in_array($value, $select));
 			$checkAll = $checkAll && $checked;
 			$htmlOptions['value'] = $value;
 			$htmlOptions['id'] = $baseID . '_' . $id++;
@@ -775,7 +775,7 @@ class CHtml
 					// For single-level arrays where additional options available
                     $attributes = ['value' => (string)$key, 'encode' => ! $raw];
                     if (!empty($value['optionDisabled'])) $attributes['disabled'] = true;
-					if (!is_array($selection) && !strcmp($key, $selection) || is_array($selection) && in_array($key, $selection)) {
+					if ((!is_array($selection) && !strcmp($key, $selection)) || (is_array($selection) && in_array($key, $selection))) {
 						$attributes['selected'] = 'selected';
 					}
 					if (isset($options[$key])) $attributes = array_merge($attributes, $options[$key]);
@@ -790,7 +790,7 @@ class CHtml
 				}
 			} else {
                 $attributes = ['value' => (string)$key, 'encode' => ! $raw];
-                if (!is_array($selection) && !strcmp($key, $selection) || is_array($selection) && in_array($key, $selection)) {
+                if ((!is_array($selection) && !strcmp($key, $selection)) || (is_array($selection) && in_array($key, $selection))) {
 					$attributes['selected'] = 'selected';
 				}
 				if (isset($options[$key])) $attributes = array_merge($attributes, $options[$key]);
