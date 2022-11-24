@@ -441,7 +441,7 @@ class SetupController extends CController
 									$enable = isset($modValue['enable']) ? (bool)$modValue['enable'] : false;
 									if ($enable && !empty($module)) {
 										$modulePath = '/protected/modules/' . htmlspecialchars($module) . '/';
-										$xml = simplexml_load_file(APPHP_PATH . $modulePath . 'info.xml');
+										$xml = simplexml_load_string(file_get_contents(APPHP_PATH.$modulePath.'info.xml'));
 										if (is_object($xml)) {
 											$sqlDumpFile = isset($xml->files->data->install) ? $xml->files->data->install : '';
 											$sqlDump = file(APPHP_PATH . $modulePath . 'data/' . $sqlDumpFile);
