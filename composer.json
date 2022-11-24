@@ -2,6 +2,7 @@
   "name": "apphp/php-mvc-framework",
   "type": "project",
   "description": "The ApPHP Framework.",
+  "version": "1.4.1",
   "keywords": [
     "framework",
     "mvc",
