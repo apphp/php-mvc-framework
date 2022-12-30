@@ -110,6 +110,8 @@ class CController
 			$calledController = str_replace('controller', '', strtolower($this->_getCalledClass()));
 			$params = '';
 			$baseUrl = A::app()->getRequest()->getBaseUrl();
+            $controller = '';
+            $action = '';
 			
 			// Set controller and action according to given parameters
 			if (!empty($path)) {

@@ -114,7 +114,7 @@ class CDbCommand
     public function reset()
     {
         $this->_text      = null;
-        $this->_query     = null;
+        $this->_query     = [];
         $this->_statement = null;
         $this->_params    = [];
 
@@ -726,7 +726,7 @@ class CDbCommand
     /**
      * Appends a SQL statement using UNION operator
      *
-     * @param  string  $sql
+     * @param  array $sql
      *
      * @return CDbCommand the command object itself
      */
@@ -736,7 +736,9 @@ class CDbCommand
             $this->_query['union'] = [$this->_query['union']];
         }
 
-        $this->_query['union'][] = $sql;
+        if (isset($this->_query['union'])) {
+            $this->_query['union'][] = $sql;
+        }
 
         return $this;
     }
@@ -865,7 +867,10 @@ class CDbCommand
             $this->_query['join'] = [$this->_query['join']];
         }
 
-        $this->_query['join'][] = strtoupper($type).' '.$table.$conditions;
+        if (isset($this->_query['join'])) {
+            $this->_query['join'][] = strtoupper($type).' '.$table.$conditions;
+        }
+
         foreach ($params as $name => $value) {
             $this->_params[$name] = $value;
         }

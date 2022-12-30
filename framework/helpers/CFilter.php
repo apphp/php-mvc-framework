@@ -27,9 +27,10 @@ class CFilter
 	{
 		
 		$type = strtolower($type);
+        $ciSecurity = null;
 		
 		// Use CI_Security class for these special filters 		
-		if ($type == 'filename' || $type == 'xss') {
+		if ($type === 'filename' || $type === 'xss') {
 			include(dirname(__FILE__) . '/../vendors/ci/security.php');
 			$ciSecurity = new CI_Security();
 		}
@@ -61,10 +62,10 @@ class CFilter
 		} elseif ($type == 'dbfield') {
 			// Leave only allowed characters for database field name
 			return preg_replace('/[^A-Za-z0-9_\-]/', '', $data);
-		} elseif ($type == 'filename') {
+		} elseif ($type === 'filename') {
 			// Sanitize filename
 			return $ciSecurity->sanitize_filename($data);
-		} elseif ($type == 'xss') {
+		} elseif ($type === 'xss') {
 			// Sanitize input with xss
 			return $ciSecurity->xss_clean($data);
 		}

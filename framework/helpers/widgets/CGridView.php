@@ -196,6 +196,8 @@ class CGridView extends CWidgs
 		// ---------------------------------------
 		$whereClause = (!empty($condition)) ? $condition : '';
 		$filterUrl = '';
+        $filterHalf = 1;
+
 		if (is_array($filters) && !empty($filters)) {
 			// Boodstrap menu
 			$filterMegaMenu = strtolower($filterType) == 'megamenu' ? true : false;

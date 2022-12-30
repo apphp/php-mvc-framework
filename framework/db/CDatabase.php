@@ -97,7 +97,7 @@ class CDatabase extends PDO
             }
         } else {
             if ( ! A::app()->isSetup()) {
-                if (APPHP_MODE == 'debug') {
+                if (APPHP_MODE === 'debug') {
                     $startTime = CTime::getMicrotime();
                 }
 
@@ -173,7 +173,7 @@ class CDatabase extends PDO
                 }
 
                 // Save data for debug
-                if (APPHP_MODE == 'debug') {
+                if (APPHP_MODE === 'debug') {
                     $finishTime        = CTime::getMicrotime();
                     $sqlConnectionTime = round((float)$finishTime - (float)$startTime, 5);
                     CDebug::addSqlConnectionTime($sqlConnectionTime);
@@ -231,7 +231,10 @@ class CDatabase extends PDO
      */
     public function select($sql, $params = [], $method = 'fetchAll', $fetchMode = PDO::FETCH_ASSOC, $cacheId = '')
     {
-        if (APPHP_MODE == 'debug') {
+        $startTime = 0;
+        $finishTime = 0;
+
+        if (APPHP_MODE === 'debug') {
             $startTime = CTime::getMicrotime();
         }
 
@@ -280,7 +283,7 @@ class CDatabase extends PDO
         $this->_query = $this->_interpolateQuery($sql, $params);
 
         // Save data for debug
-        if (APPHP_MODE == 'debug') {
+        if (APPHP_MODE === 'debug') {
             $finishTime   = CTime::getMicrotime();
             $sqlTotalTime = round((float)$finishTime - (float)$startTime, 5);
             CDebug::addSqlTime($sqlTotalTime);

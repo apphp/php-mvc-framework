@@ -91,18 +91,18 @@ class CAuth
 	/**
 	 * Handles access for non-logged users (block access)
 	 * @param string $location
-	 * @param string $role
+	 * @param string $roleParam
 	 * @return string|void
 	 */
-	public static function handleLogin($location = 'index/index', $role = '')
+	public static function handleLogin($location = 'index/index', $roleParam = '')
 	{
-		if (APPHP_MODE == 'test') return '';
+		if (APPHP_MODE === 'test') return '';
 		
 		$isLoggedIn = false;
-		if (empty($role)) {
+		if (empty($roleParam)) {
 			$isLoggedIn = self::isLoggedInAsAdmin();
 		} else {
-			$roles = explode(',', $role);
+			$roles = explode(',', $roleParam);
 			foreach ($roles as $role) {
 				if (self::isLoggedInAs($role)) {
 					$isLoggedIn = true;
@@ -120,18 +120,18 @@ class CAuth
 	/**
 	 * Handles access for logged in users (redirect logged in users)
 	 * @param string $location
-	 * @param string $role
+	 * @param string $roleParam
 	 * @return string|void
 	 */
-	public static function handleLoggedIn($location = '', $role = '')
+	public static function handleLoggedIn($location = '', $roleParam = '')
 	{
-		if (APPHP_MODE == 'test') return '';
+		if (APPHP_MODE === 'test') return '';
 		
 		$isLoggedIn = false;
-		if (empty($role)) {
+		if (empty($roleParam)) {
 			$isLoggedIn = self::isLoggedInAsAdmin();
 		} else {
-			$roles = explode(',', $role);
+			$roles = explode(',', $roleParam);
 			foreach ($roles as $role) {
 				if (self::isLoggedInAs($role)) {
 					$isLoggedIn = true;

@@ -158,12 +158,14 @@ class CString
 	 */
 	function plural($string)
 	{
-		$result = strval($string);
-		
-		if (!is_countable($result)) {
-			return $result;
-		}
-		
+		$result = (string)$string;
+
+        if (PHP_VERSION_ID > 70300) {
+            if (!is_countable($result)) {
+                return $result;
+            }
+        }
+
 		$pluralRules = array(
 			'/(quiz)$/' => '\1zes',      // quizzes
 			'/^(ox)$/' => '\1\2en',     // ox
