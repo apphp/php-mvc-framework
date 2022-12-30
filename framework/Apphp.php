@@ -1098,7 +1098,7 @@ class A
 	 * @return bool
 	 * @throws ErrorException
 	 */
-	public function errorHandler($errno, $errstr, $errfile, $errline, array $errcontext)
+    public function errorHandler($errno, $errstr, $errfile, $errline, array $errcontext = [])
 	{
 		// Error was suppressed with the @-operator
 		if (0 === error_reporting()) {
