@@ -1217,23 +1217,25 @@ class A
 	 */
 	protected function _registerAppModules()
 	{
-		$modules = CConfig::get('modules');
-		if (!is_array($modules)) return false;
+        $modules = CConfig::get('modules');
+        if(!is_array($modules)) return false;
 		
-		foreach ($modules as $id => $module) {
-			$enable = isset($module['enable']) ? (bool)$module['enable'] : false;
-			if ($enable) {
-				$moduleName = strtolower($id);
-				$moduleConfig = APPHP_PATH . DS . 'protected' . DS . 'modules' . DS . $moduleName . DS . 'config' . DS . 'main.php';
-				if (file_exists($moduleConfig)) {
-					$arrConfig = include_once($moduleConfig);
-					self::$_appModules[$moduleName] = $arrConfig;
-				}
-			}
-		}
+        foreach($modules as $id => $module){
+            $enable = isset($module['enable']) ? (bool)$module['enable'] : false;
+            if($enable){
+                $moduleName = strtolower($id);
+                $moduleConfig = APPHP_PATH.DS.'protected'.DS.'modules'.DS.$moduleName.DS.'config'.DS.'main.php';
+                if(file_exists($moduleConfig)){
+                    $arrConfig = include($moduleConfig);
+                    if (is_array($arrConfig)) {
+                        self::$_appModules[$moduleName] = $arrConfig;
+                    }
+                }
+            }
+        }
+
 		return true;
 	}
-	
 }
 
 
